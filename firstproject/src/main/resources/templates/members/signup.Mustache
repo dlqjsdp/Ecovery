@@ -1,0 +1,17 @@
+{{>layouts/header}}
+
+<form class="container" action="/signed" method="post">
+    <div class="mb-3">
+        <lable class="form-label">이메일</lable>
+        <input type="text" name="email" class="form-control">
+    </div>
+    <div class="mb-3">
+        <lable class="form-label">비밀번호</lable>
+        <input type="text" name="password" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="/members">Back</a>
+
+</form>
+
+{{>layouts/footer}}
