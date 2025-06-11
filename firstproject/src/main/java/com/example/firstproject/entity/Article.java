@@ -14,7 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Article {
 
-    @Id
+    @Id  //기본키
     @GeneratedValue(strategy = GenerationType.AUTO)  //자동 생성 기능 추가(숫자가 자동으로 매겨짐)
     private Long id;
 
