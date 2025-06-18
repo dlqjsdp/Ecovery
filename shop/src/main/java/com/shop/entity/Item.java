@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name="item")
 @Getter
-@Setter  //entity에 setter는 좋은 건 아님.
+@Setter  //entity에 setter는 좋은 건 아님. 테스트를 위해 넣음
 @ToString
 public class Item {
 
@@ -32,7 +32,8 @@ public class Item {
     @Column(nullable = false)
     private String itemDetail; //상품 상세 설명
 
-    @Enumerated(EnumType.STRING)  //string 필수
+    //타입이 enum이므로 enum 내 객체만 쓸 수 있음.
+    @Enumerated(EnumType.STRING)  //STRING: enum의 이름을 db에 저장. ORDINAL: 순서를 db에 저장(쓰면 수정할 db 문제 생김)
     private ItemSellStatus itemSellStatus; //상품 판매 상태
 
     private LocalDateTime regTime; //등록 시간
