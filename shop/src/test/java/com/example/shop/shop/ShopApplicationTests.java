@@ -1,4 +1,4 @@
-package com.somplane.shop;
+package com.example.shop.shop;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
