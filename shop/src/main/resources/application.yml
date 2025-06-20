@@ -1,6 +1,9 @@
+#application.yml 방식으로 작성하는 방법
+#애플리케이션 포트 설정
 server:
 #  port: 8080
 
+#MuSQL 연결 설정
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -8,15 +11,36 @@ spring:
     username: root
     password: 1234
 
+  #데이터베이스 초기화 전략 설정 + #JPA가 MySQL8 버전에 맞는 SQL 문법을 사용하도록 설정
   jpa:
     hibernate:
-      ddl-auto: create
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+      ddl-auto: update
+      database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         show_sql: true
         format_sql: true
 
+#Live Reload 적용하기
+  devtools:
+    livereload:
+      enabled: true
+#Thymeleaf cath 사용중지
+  thymeleaf:
+    cache: false
+
+
+# 쿼리에 물음표로 출력되는 바인드 파라미터 출력
+  logging:
+    level:
+      org:
+        hibernate:
+          type:
+            descriptor:
+              sql: trace
+
+
+# application.properties 방식으로 작성하는 방버
 # 애플리케이션 포트 설정
 # server.port=8080
 

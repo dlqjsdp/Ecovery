@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>Tilte</title>
+	</head>
+	<body>
+		<h1>Thymeleaf 링크 처리 예제 페이지</h1>
+		<div>
+			<a th:href="@{/thymeleaf/ex03}">예제3 페이지 이동</a>
+		</div>
+		<div>
+			<a th:href="@{https://www.thymeleaf.org}">thymeleaf 공식 페이지 이동</a> <!-- https : s가 붙은건 보안이 좀 더 엄격함(암호화) -->
+		</div>
+		<div>
+			<a th:href="@{/thymeleaf/ex06(param1='파라미터 데이터1', param2='파라미터 데이터2')}">thymeleaf 파라미터 전달</a> <!-- https : s가 붙은건 보안이 좀 더 엄격함(암호화) -->
+		</div>
+	</body>
+</html>

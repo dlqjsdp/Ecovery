@@ -8,15 +8,18 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name="item")
+// 상품 정보를 저장할 JPA 엔티티 클래스
+
+@Entity //JPA에서 관리되는 엔티티
+@Table(name="item") // DB테이블 이름 item으로 지정
 @Getter
 @Setter
 @ToString
 public class Item {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //기본키
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // IDENTITY: 데이터베이스 자체에서 기본키를 생성하도록 위힘
+//  @GeneratedValue(strategy = GenerationType.AUTO) // AUTO : JPA가 사용 중인 DB에 따라 자동으로 전략 선택
     private Long id; // 상품 코드
 
     @Column(nullable=false, length = 50) //nullable=false : null 값을 허용하지 않겠다
@@ -28,11 +31,11 @@ public class Item {
     @Column(nullable=false)
     private int stockNumber; // 재고 수량
 
-    @Lob
+    @Lob //대용량 텍스트 저장
     @Column(nullable=false)
     private String itemDetail; // 상품 상세 설명
 
-    @Enumerated(EnumType.STRING) //필수 : ORDINAL은 절대 사용하지 마시오
+    @Enumerated(EnumType.STRING) //필수기재 : DB에 sell 또는 sold_out으로 저장됨 // 참고로 ORDINAL은 번호로 저장되니 절대 사용하지 않는게 좋음
     private ItemSellStatus itemSellStatus; // 상품 판매 상태
 
     private LocalDateTime regTime; // 등록 시간
