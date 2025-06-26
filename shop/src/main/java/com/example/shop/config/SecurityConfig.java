@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,6 +23,36 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         log.info("----------Security Filter Chain----------");
+
+        http
+                //요청 URL에 따라 권한을 설정하는 시작점
+                .authorizeHttpRequests(config -> config
+                        //정적 리소스 css, js...는 누구나 접근 가능하게 허용, + .permitAll() : 로그인 하지 않아도 ok
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
+                        //홈페이지, 회원 기능, 상품 관련 페이지도 로긍ㄴ 없이 접근 가능
+                        .requestMatchers("/", "/members/**", "/item/**").permitAll()
+                        // /admin으로 시작하는 경로는 ADMIN 권한 있는 사용자만 접근 가능 // permitAll() : 모든 사람이 다 권한 있음
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        //그외 모든 요청은 로그인된 사용자만 접근 가능
+                        .anyRequest().authenticated()
+                );
+        http
+                .csrf(csrf -> csrf.disable())
+                //전체 접근을 허용하는 권한을 주겠다 - 람다식으로 표현
+                .formLogin(form -> form.loginPage("/members/login") //로그인하면 동작
+                        .defaultSuccessUrl("/")
+                        //login화면에서 name=username이면 생략가능
+                        //username -> email쓰기 때문에 반드시 기입해애함 -> email로 로그인 값 전송하겠소
+                        .usernameParameter("email")
+                        .failureUrl("/members/login/error")
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/members/logout")
+                        .logoutSuccessUrl("/")
+
+                        .invalidateHttpSession(true) //세션 무효화(선택 사항이지만 일반적으로 사용)
+                        .deleteCookies("JSESSIONID") //쿠기 삭제(선택 사항이지만 일반적으로 사용)
+                );
 
         return http.build(); //http.build(); : 설정한 내용을 바탕으로 SecurityFilterChain 객체를 만들어 리턴
     }

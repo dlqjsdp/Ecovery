@@ -16,7 +16,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor //모든 필드 매개변수로 받은 생성자 자동 생성
 @NoArgsConstructor //파라미터 없는 기본 생성자 바로 생성
-public class Member {
+public class Member extends BaseEntity { //최초작성시간, 수정시간, 최초작성자, 수정자 자동으로 들어감(상속 받았으니까)
 
     @Id
     @Column(name="member_id")
@@ -46,7 +46,7 @@ public class Member {
                 .email(memberFormDto.getEmail())
                 .password(passwordEncoder.encode(memberFormDto.getPassword()))
                 .address(memberFormDto.getAddress())
-                .role(Role.USER)
+                .role(Role.ADMIN) //권한
                 .build();
     }
 }

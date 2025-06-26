@@ -1,6 +1,7 @@
 package com.example.shop.entity;
 
 import com.example.shop.constant.ItemSellStatus;
+import com.example.shop.dto.ItemFormDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,10 +16,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-public class Item {
+public class Item extends BaseEntity {
 
     @Id //기본키
     @GeneratedValue(strategy = GenerationType.IDENTITY) // IDENTITY: 데이터베이스 자체에서 기본키를 생성하도록 위힘
+    @Column(name = "item_id")
 //  @GeneratedValue(strategy = GenerationType.AUTO) // AUTO : JPA가 사용 중인 DB에 따라 자동으로 전략 선택
     private Long id; // 상품 코드
 
@@ -38,7 +40,16 @@ public class Item {
     @Enumerated(EnumType.STRING) //필수기재 : DB에 sell 또는 sold_out으로 저장됨 // 참고로 ORDINAL은 번호로 저장되니 절대 사용하지 않는게 좋음
     private ItemSellStatus itemSellStatus; // 상품 판매 상태
 
-    private LocalDateTime regTime; // 등록 시간
+//    private LocalDateTime regTime; // 등록 시간 -> BaseEntity 상속으로 자동 반영
+//    private LocalDateTime updateTime; // 수정 시간 -> BaseEntity 상속으로 자동 반영
 
-    private LocalDateTime updateTime; // 수정 시간
+    //상품 데이터 업데이트 - 엔티티가 아닌 DTO에서 하는게 나음 엔티티는 순수하게 엔티티만 기재하는게 좋음
+    public void updateItem(ItemFormDto itemFormDto){
+        this.itemNm = itemFormDto.getItemNm();
+        this.price = itemFormDto.getPrice();
+        this.stockNumber = itemFormDto.getStockNumber();
+        this.itemDetail = itemFormDto.getItemDetail();
+        this.itemSellStatus = itemFormDto.getItemSellStatus();
+    }
+
 }

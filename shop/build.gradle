@@ -46,9 +46,15 @@ dependencies {
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     
-// Thymeleat Layout Dialect dependency 추가
-// https://mvnrepository.com/artifact/nz.net.ultraq.thymeleaf/thymeleaf-layout-dialect
+    // Thymeleat Layout Dialect dependency 추가
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0")
+
+    // 유효성 검사 - 컨트롤러에서 DTO 검증할 때 사용
+    // 내부적으로 hibernate-validator를 포함해서 @Valid, @NotNull, @Email, @Size 같은 검증 어노테이션들을 사용할 수 있게 해줘
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.5.0")
+
+    // DTO <--> Entity 변환
+    implementation("org.modelmapper:modelmapper:3.2.4")
 }
 
 tasks.named('test') {
