@@ -3,13 +3,15 @@ package com.example.shop.repository;
 import com.example.shop.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 
 //                                      JpaRepository<엔티티 타입 클래스, 기본키 타입>
-public interface ItemRepository extends JpaRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long>,
+        QuerydslPredicateExecutor<Item>, ItemRepositoryCustom { //ItemRepositoryCustom : Querydsl로 구현한 상품 관리 페이지 목록을 불러오는 메소드 사용 가능
 
     // Spring Data JPA 인터페이스에서 데이터 조회용 메서드를 정의
     // Item 엔티티를 다양한 기준으로 검색

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.modelmapper.ModelMapper;
 
-//상품을 등록 및 수정에 사용할 데이터 전달용 DTO
+//상품 정보를 조회해서 화면에 전달할 때 사용하는 Dto
 
 @Getter
 @Setter

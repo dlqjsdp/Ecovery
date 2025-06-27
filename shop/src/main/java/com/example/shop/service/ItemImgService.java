@@ -58,26 +58,28 @@ public class ItemImgService {
         itemImgRepository.save(itemImg); //DB 저장
     }
 
-    //이미지 수정
+    //이미지 수정(이미지 하나를 수정하는 메소드) - itemImgId로 특정 이미지를 찾아서 새로 받은 이미지로 기존 이미지 덮어쓰기하는 로직
+    //itemImgId, itemImgFile 상품 이미지 id와 업로드한 이미지 파일을 파라미터로 받음 //hrows Exception : 내부에서 파일 저장/삭제 같은 작업을 함으로 예외 전파
     public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception {
 
         log.info("=============== : {}" + itemImgId);
 
+        //업로드 파일이 비어있지 않을 때만 수정 진행 즉, 아무것도 업로드 안 했으면 그냥 넘어감
         if(!itemImgFile.isEmpty()) {
             //개별적 핸들링 -> 이미지는 여러장인데 List로 받지 않고 savedItemImg 받는 이유를 생각해보아야한다 : 이건 item_id는 여러건이나 itemImgId 사진마다 주어진 id는 1건임으로 리스트로 받지 않음
-            ItemImg savedItemImg = itemImgRepository.findById(itemImgId)
-                    .orElseThrow(() -> new EntityNotFoundException());
+            ItemImg savedItemImg = itemImgRepository.findById(itemImgId) //DB에서 해당 itemImgId를 조회
+                    .orElseThrow(() -> new EntityNotFoundException()); //없으면 EntityNotFoundException 예외 발생
 
             //기존 이미지 파일 삭제
-            if (!StringUtils.isEmpty(savedItemImg.getImgName())) {
-                fileService.deleteFile((itemImgLocation + "/" + savedItemImg.getImgName()));
+            if (!StringUtils.isEmpty(savedItemImg.getImgName())) { //기존에 저장된 이미지 파일명이 null이 아니면
+                fileService.deleteFile((itemImgLocation + "/" + savedItemImg.getImgName())); //실제 저장된 이미지 파일을 서버에서 삭제
             }
             //신규 이미지 저장
-            String oriImgName = itemImgFile.getOriginalFilename();
-            String imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes()); //실제 저장 코드
-            String imgUrl = "/images/item/" + imgName;
+            String oriImgName = itemImgFile.getOriginalFilename(); //사용자가 업로드한 이미지 원본 파일명 가져옴
+            String imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes()); //실제 서버에 파일 저장(업로드 경로, 이름, 파일 내용 저장)
+            String imgUrl = "/images/item/" + imgName; //웹에서 접근할 수 있는 이미지 경로 생성
 
-            savedItemImg.updateItemImg(oriImgName, imgName, imgUrl);
+            savedItemImg.updateItemImg(oriImgName, imgName, imgUrl); //조회한 ItemImg 엔티티 수정
         }
     }
 }
