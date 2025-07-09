@@ -1,5 +1,7 @@
 package com.ecovery.domain;
 
+import com.ecovery.constant.DealStatus;
+import com.ecovery.constant.ItemCondition;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
  * @author : yeonsu
  * @fileName : FreeVO
  * @since : 250708
+ * @edit : itemCondition, dealStatus 타입변경 (enum으로)
  */
 
 
@@ -27,8 +30,10 @@ public class FreeVO {
     private String catefory;    // 품목 카테고리
     private String regionGu;    // 나눔지역 - 구
     private String regionDong;  // 나눔지역 - 동
-    private String itemCondition; // 삼품 상태(상/중/하)
-    private String dealStatus; // 거래 상태(진행중, 완료)
     private Integer viewCount; //게시글 조회수
     private LocalDateTime createdAt; // 게시글 등록/수정일(시간포함)
+
+    // enum 타입
+    private ItemCondition itemCondition; // 삼품 상태(HIGH/MEDIUM/LOW)
+    private DealStatus dealStatus; // 거래 상태(ONGOING, DONE)
 }

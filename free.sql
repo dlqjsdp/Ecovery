@@ -10,8 +10,8 @@ CREATE TABLE free (
                       category VARCHAR(20) NOT NULL,                  -- 품목 카테고리 (가구/가전/잡화/기타)
                       region_gu VARCHAR(50) NOT NULL,                 -- 나눔 지역 - 구 (예 : 강서구)
                       region_dong VARCHAR(50) NOT NULL,               -- 나눔 지역 - 동 (예 : 화곡동)
-                      item_condition VARCHAR(10) NOT NULL DEFAULT '상', -- 상품 상태 (상/중/하)
-                      deal_status VARCHAR(10) NOT NULL DEFAULT '진행중', -- 거래 상태(진행중, 완료)
+                      item_condition ENUM('HIGH', 'MEDIUM', 'LOW') NOT NULL DEFAULT 'HIGH', -- 상품 상태 (HIGH/MEDIUM/LOW)
+                      deal_status ENUM('ONGOING', 'DONE') NOT NULL DEFAULT 'ONGOING', -- 거래 상태(ONGOING, DONE)
                       view_count INT NOT NULL DEFAULT 0,               -- 게시글 조회수
                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 게시글 등록일 (수정 시 갱신)
 
