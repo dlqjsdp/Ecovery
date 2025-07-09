@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ecovery?serverTimezone=UTC
+    username: root
+    password: 1234
+
+  mybatis:
+    config-location: classpath:mybatis-config.xml
+    mapper-locations: classpath:mapper/*.xml
+
+  devtools:
+    livereload:
+      enabled: true
+
+  #Live Reload ?? ???
+  thymeleaf:
+    cache: false
+
+  servlet:
+    multipart:
+      max-File-Size: 20MB  #?? ? ?? ?? ???
+      max-request-size: 100MB  # ??? ?? ?? ??
+
+#?? ??? ??? ??
+#itemImgLocation: C:/shop/item
+#??? ??? ??
+#uploadPath: file:///C:/shop/
+
+#Thymeleaf cache ?? ??
+
+# ??? ???? ???? ??? ???? ??
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace

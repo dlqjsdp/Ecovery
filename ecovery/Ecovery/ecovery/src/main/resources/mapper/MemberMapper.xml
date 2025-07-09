@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 깃에 파일을 올리기 위해 만든 임시파일입니다.
+아래 내용은 MyBatis Mapper XML의 최소 골격입니다.-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ecovery.mapper.MemberMapper">
+
+</mapper>
