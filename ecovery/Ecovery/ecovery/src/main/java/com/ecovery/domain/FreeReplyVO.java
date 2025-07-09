@@ -1,0 +1,26 @@
+package com.ecovery.domain;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.time.LocalDateTime;
+
+/*
+ * 무료나눔 이미지 테이블(free_reply)
+ * @author : yeonsu
+ * @fileName : FreeReplyVO
+ * @since : 250708
+ */
+
+@Getter
+@Setter
+@ToString
+public class FreeReplyVO {
+
+    private Long replyId; // 댓글 고유번호(PK)
+    private Long freeId; // 게시글 ID (FK)
+    private Long memberId; // 댓글 작성자 ID (FK)
+    private String content; // 댓글 본문 내용
+    private LocalDateTime createdAt; // 댓글 작성일시
+}

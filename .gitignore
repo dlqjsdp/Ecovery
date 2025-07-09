@@ -1,0 +1,9 @@
+.gradle/
+.docker/
+AppData/
+.idea/
+*.log
+build/
+out/
+target/
+"firstproject/" 

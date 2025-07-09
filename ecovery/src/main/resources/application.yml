@@ -31,6 +31,7 @@ spring:
 #uploadPath: file:///C:/shop/
 
 #Thymeleaf cache ?? ??
+<<<<<<< HEAD
 
 # ??? ???? ???? ??? ???? ??
 logging:
@@ -40,3 +41,5 @@ logging:
         type:
           descriptor:
             sql: trace
+=======
+>>>>>>> 8ad52e142275893a8fd8a093f7ceb9d06d077ed9

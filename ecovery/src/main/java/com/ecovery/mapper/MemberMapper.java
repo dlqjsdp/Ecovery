@@ -9,6 +9,12 @@ import java.util.List;
  * MemberMapper
  * - MyBatis 매퍼 인터페이스
  * - MemberMapper.xml과 연동되어 SQL 실행
+<<<<<<< HEAD
+=======
+ * @author : jihye Lee
+ * @fileNmae : MemberMapper
+ * @since : 20250708
+>>>>>>> 8ad52e142275893a8fd8a093f7ceb9d06d077ed9
  */
 @Mapper
 public interface MemberMapper {

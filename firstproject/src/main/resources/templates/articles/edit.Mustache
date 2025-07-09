@@ -1,0 +1,16 @@
+{{>layouts/header}}
+
+<form class="container" action="/articles/update" method="post">
+
+    <input type="text" class="form-control"  name="title" value="{{article.title}}">
+    <textarea class="form-control" rows="3" name="content">{{article.content}}</textarea>
+
+    <input type="hidden" name="id" value="{{article.id}}">
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="/articles/{{article.id}}">Back</a>
+</form>
+
+
+
+{{>layouts/footer}}
