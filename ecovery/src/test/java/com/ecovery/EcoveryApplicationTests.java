@@ -1,4 +1,4 @@
-package com.ecovery.ecovery;
+package com.ecovery;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
