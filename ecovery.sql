@@ -1,0 +1,190 @@
+-- 데이터베이스 생성
+CREATE DATABASE ecovery;
+-- 프로젝트 DB (ecovery) 선택
+use ecovery;
+
+-- 회원 table (member)
+create table member (
+                        member_id bigint auto_increment primary key,
+                        email varchar(255) not null unique,
+                        password varchar(255) not null,
+                        nickname varchar(50) not null,
+                        role enum('USER', 'ADMIN') not null default 'USER',
+                        created_at date not null default(current_date)
+);
+
+-- 회원 포인트 table (point)
+create table point (
+                       point_id bigint auto_increment primary key,
+                       member_id bigint not null,
+                       point int not null,
+                       last_modified_at date not null default (current_date),
+                       foreign key(member_id) references member (member_id)
+);
+
+-- 에코마켓 table (item)
+create table item (
+                      item_id bigint auto_increment primary key,
+                      item_name varchar(255) not null,
+                      price int not null,
+                      stockNumber int not null default 0,
+                      itemDetail varchar(1000) not null,
+                      sell_status Enum('SELL', 'SOLD_OUT') not null default 'SELL',
+                      created_at datetime not null default (current_date)
+);
+
+-- 에코마켓 상품 이미지 table (item_img)
+create table item_img (
+                          item_img_id bigint auto_increment primary key,
+                          item_id bigint not null,
+                          img_name varchar(255) not null,
+                          ori_img_name varchar(255),
+                          img_url varchar(500) not null,
+                          rep_img_yn char(1) not null,
+                          created_at datetime not null default (current_date),
+                          foreign key(item_id) references Item (item_id)
+);
+
+-- 장바구니 table (cart)
+create table cart (
+                      cart_id bigint auto_increment primary key,
+                      member_id bigint not null,
+                      created_at date not null default (current_date),
+                      foreign key(member_id) references member(member_id)
+);
+
+-- 장바구니 상품 table (cart_item)
+create table cart_item (
+                           cart_item_id bigint auto_increment primary key,
+                           cart_id bigint not null,
+                           item_id bigint not null,
+                           count int not null default 1,
+                           created_at date not null default (current_date),
+                           foreign key(cart_id) references cart(cart_id),
+                           foreign key(item_id) references item(item_id)
+);
+
+-- 주문 정보 table (order)
+create table orders (
+                        order_id bigint auto_increment primary key,
+                        member_id bigint not null,
+                        order_status enum('ORDER', 'CANCEL') not null default 'ORDER',
+                        created_at date not null default (current_date),
+                        updated_at date not null default (current_date),
+                        foreign key(member_id) references member(member_id)
+);
+
+-- 주문 상세 table (order_item)
+create table order_item (
+                            order_item_id bigint auto_increment primary key,
+                            order_id bigint not null,
+                            item_id bigint not null,
+                            count int not null,
+                            order_price int not null,
+                            created_at date not null default (current_date),
+                            foreign key(order_id) references orders(order_id),
+                            foreign key(item_id) references item(item_id)
+);
+
+-- 결제 처리 table (payment)
+create table payment (
+                         payment_id bigint auto_increment primary key,
+                         order_id bigint not null,
+                         member_id bigint not null,
+                         pay_method varchar(20) not null,
+                         pay_amount int not null,
+                         pay_status enum('PAID', 'CANCEL', 'FAIL') not null default 'PAID',
+                         transaction_id varchar(100),
+                         paid_at datetime not null default (current_timestamp),
+                         test_mode boolean default true,
+                         foreign key(order_id) references orders(order_id),
+                         foreign key(member_id) references member(member_id)
+);
+
+
+-- 포인트 이력 table
+create table point_history (
+                               point_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                               member_id BIGINT NOT NULL,
+                               point_change INT NOT NULL,
+                               reason VARCHAR(255),
+                               created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
+                               FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+-- 대형폐기물 분류 이력 table
+CREATE TABLE disposal_history (
+                                  disposal_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                  member_id BIGINT NOT NULL,
+                                  ai_prediction VARCHAR(255),
+                                  region_gu VARCHAR(50) NOT NULL,
+                                  created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
+                                  FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+-- 대형폐기물 이미지 table
+CREATE TABLE disposal_history_img (
+                                      disposal_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                      disposal_history_id BIGINT NOT NULL,
+                                      disposal_img_name VARCHAR(255) NOT NULL,
+                                      ori_disposal_img_name VARCHAR(255),
+                                      disposal_img_url VARCHAR(500) NOT NULL,
+                                      FOREIGN KEY (disposal_history_id) REFERENCES disposal_history(disposal_history_id)
+);
+
+-- 대형폐기물 분류 피드백 table
+create table disposal_feedback (
+                                   feedback_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   history_id BIGINT NOT NULL,
+                                   created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
+                                   FOREIGN KEY (history_id) REFERENCES disposal_history(disposal_history_id)
+);
+
+-- 대형폐기물 표준 안내정보 table
+CREATE TABLE disposal_info (
+                               info_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                               region VARCHAR(50) NOT NULL,
+                               item_name VARCHAR(255) NOT NULL,
+                               min_price VARCHAR(50),
+                               max_price VARCHAR(50),
+                               report_url VARCHAR(500) NOT NULL
+);
+
+-- 무료나눔 게시글 table
+CREATE TABLE free (
+                      free_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                      member_id BIGINT NOT NULL,
+                      title VARCHAR(200) NOT NULL,
+                      content VARCHAR(1000) NOT NULL,
+                      category VARCHAR(20) NOT NULL,
+                      region_gu VARCHAR(50) NOT NULL,
+                      region_dong VARCHAR(50) NOT NULL,
+                      item_condition ENUM('상', '중', '하') NOT NULL DEFAULT '상',
+                      deal_status ENUM('진행중', '완료') NOT NULL DEFAULT '진행중',
+                      view_count INT NOT NULL DEFAULT 0,
+                      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                      FOREIGN KEY (member_id) REFERENCES member(member_id)
+);
+
+-- 무료나눔 게시글 이미지 table
+CREATE TABLE free_img (
+                          free_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          free_id BIGINT NOT NULL,
+                          img_name VARCHAR(255) NOT NULL,
+                          ori_img_name VARCHAR(255),
+                          img_url VARCHAR(500) NOT NULL,
+                          repimg_yn CHAR(1) NOT NULL,
+                          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                          FOREIGN KEY (free_id) REFERENCES free(free_id)
+);
+
+-- 무료나눔 게시글 댓글 table
+create table reply (
+                       reply_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       free_id BIGINT NOT NULL,
+                       member_id BIGINT NOT NULL,
+                       content VARCHAR(1000) NOT NULL,
+                       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                       FOREIGN KEY (free_id) REFERENCES free(free_id),
+                       FOREIGN KEY (member_id) REFERENCES member(member_id)
+);

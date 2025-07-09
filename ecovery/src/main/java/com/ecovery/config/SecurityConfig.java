@@ -1,7 +1,7 @@
 package com.ecovery.config;
 
-/**
- * 깃에 파일을 올리기 위해 만든 임시파일입니다.
+
+/*
+ 보안을 관리하는 Security 클래스
  */
-public class SecurityConfig {
-}
+

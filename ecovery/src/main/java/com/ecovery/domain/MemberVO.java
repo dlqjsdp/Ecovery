@@ -1,6 +1,7 @@
 package com.ecovery.domain;
 
 import com.ecovery.constant.Role;
+import lombok.Data;
 
 import java.util.Date;
 
@@ -9,6 +10,7 @@ import java.util.Date;
  * - 회원 정보를 담는 도메인 객체 (VO: Value Object)
  * - DB 테이블의 member 컬럼과 매핑됨
  */
+@Data
 public class MemberVO {
 
     private Long memberId;      // 회원 고유 번호 (PK)
