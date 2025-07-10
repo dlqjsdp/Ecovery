@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    에코마켓 상품 Mapper.xml
+    @author : sehui
+    @fileName : ItemMapper.xml
+    @since : 250710
+    @history
+     - 250710 | sehui | 상품 단 건 조회 기능 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.ItemMapper">
+
+    <!-- Item 단 건 조회 -->
+    <select id="getItemDtl" resultType="com.ecovery.domain.ItemVO">
+        select * from item where item_id = #{itemId}
+    </select>
+    
+</mapper>
