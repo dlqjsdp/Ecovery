@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    에코마켓 상품 이미지 Mapper.xml
+    @author : sehui
+    @fileName : ItemImgMapper.xml
+    @since : 250710
+    @history
+     - 250710 | sehui | 상품 이미지 전체 DB 조회 기능 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.ItemImgMapper">
+
+    <!-- 상품의 전체 이미지 조회 -->
+    <select id="getItemList" resultType="com.ecovery.domain.ItemImgVO">
+        select * from item_img where item_id = #{itemId}
+    </select>
+
+</mapper>
