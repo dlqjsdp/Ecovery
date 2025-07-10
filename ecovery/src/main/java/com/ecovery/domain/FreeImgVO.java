@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 /*
  * 무료나눔 이미지 테이블(free_img)
+ * 무료나눔 게시글의 이미지 정보를 담는 vo 클래스
  * @author : yeonsu
  * @fileName : FreeImgVO
  * @since : 250708

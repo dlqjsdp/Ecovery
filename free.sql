@@ -52,5 +52,5 @@ CREATE TABLE member (
                         password VARCHAR(255) NOT NULL, -- 비밀번호(해시 저장 권장)
                         nickname VARCHAR(50) NOT NULL, -- 닉네임
                         role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER', -- 권한 (기본user)
-                        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                        created_at date not null default(current_date)
 );
