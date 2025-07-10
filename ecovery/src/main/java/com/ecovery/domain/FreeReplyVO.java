@@ -7,7 +7,8 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 /*
- * 무료나눔 이미지 테이블(free_reply)
+ * 무료나눔 댓글 테이블(free_reply)
+ * 무료나눔 게시글에 작성된 댓글 정보를 담는 vo 클래스
  * @author : yeonsu
  * @fileName : FreeReplyVO
  * @since : 250708
