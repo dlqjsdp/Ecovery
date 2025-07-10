@@ -1,16 +1,16 @@
 package com.ecovery.domain;
 
-/*
- * 회원 포인트 VO
- * 회원별 포인트 정보
- * DB의 point 테이블과 매핑됩니다.
- * 작성자 : 오세희
- */
-
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+
+/*
+ * 회원의 포인트 VO
+ * @author : sehui
+ * @fileName : PointVO
+ * @since : 250709
+ */
 
 @Getter
 @Setter
