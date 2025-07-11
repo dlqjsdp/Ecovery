@@ -30,7 +30,7 @@
             - keyProperty는 VO의 필드명과 정확히 일치해야 함 (memberId)
             - ⚠ 오타 주의: 현재 memberid → memberId (대소문자 일치)
         -->
-    <insert id="insertMember" parameterType="com.ecovery.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberid">
+    <insert id="insertMember" parameterType="com.ecovery.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
         insert into member(
             email, password, nickname
         )

@@ -24,6 +24,8 @@ spring:
   # Thymeleaf cache 사용 중지
   thymeleaf:
     cache: false
+    prefix: classpath:/templates/ # Thymeleaf 템플릿 파일이 있는 기본 경로 설정
+    suffix: .html # Thymeleaf 템플릿 파일의 확장자 설정
 
   servlet:
     multipart:
