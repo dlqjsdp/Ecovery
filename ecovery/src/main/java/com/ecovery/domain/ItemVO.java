@@ -25,6 +25,7 @@ public class ItemVO {
     private String itemName;
     private int price;
     private int stockNumber;
+    private String category;
     private String itemDetail;
     private ItemSellStatus itemSellStatus;
     private LocalDateTime createdAt;
