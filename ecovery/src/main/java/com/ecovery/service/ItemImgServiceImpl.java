@@ -24,8 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemImgServiceImpl implements ItemImgService {
 
-    private final ItemImgService itemImgService;
-
     //전체 이미지 조회
     @Override
     public List<ItemImgVO> getItemList() {
