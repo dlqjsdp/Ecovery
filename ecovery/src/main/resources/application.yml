@@ -5,12 +5,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ecovery?serverTimezone=UTC
-    username: root
+    username: Ecovery
     password: 1234
-
-  mybatis:
-    config-location: classpath:mybatis-config.xml
-    mapper-locations: classpath:mapper/*.xml
 
   devtools:
     livereload:
@@ -31,6 +27,10 @@ spring:
 #uploadPath: file:///C:/shop/
 
 #Thymeleaf cache ?? ??
+
+mybatis:
+  #config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
 
 # ??? ???? ???? ??? ???? ??
 logging:

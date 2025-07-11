@@ -1,16 +1,16 @@
 package com.ecovery.domain;
 
-/*
- * 회원의 장바구니 VO
- * 에코마켓 이용하는 회원의 장바구니 정보
- * DB의 cart 테이블과 매핑됩니다.
- * 작성자 : 오세희
- */
-
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+
+/*
+ * 회원의 장바구니 VO
+ * @author : sehui
+ * @fileName : CartVO
+ * @since : 250709
+ */
 
 @Getter
 @Setter
