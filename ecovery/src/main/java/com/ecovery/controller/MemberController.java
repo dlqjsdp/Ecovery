@@ -54,11 +54,11 @@ public class MemberController {
 
         return memberService.getMemberByEmail(email) != null; // true = 중복
     }
-
-    //로그인
-    @GetMapping(value = "/login")
-    public String loginForm(){
-        return "member/login";
-    }
+//
+//    //로그인
+//    @GetMapping(value = "/login")
+//    public String loginForm(){
+//        return "member/login";
+//    }
 
 }
