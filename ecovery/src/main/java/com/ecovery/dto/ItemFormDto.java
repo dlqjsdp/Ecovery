@@ -2,10 +2,7 @@ package com.ecovery.dto;
 
 import com.ecovery.constant.ItemSellStatus;
 import com.ecovery.domain.ItemVO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,16 +18,18 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@ToString
 public class ItemFormDto {
 
-    private Long id;                   //상품 코드
+    private Long itemId;                   //상품 코드
 
-    private String itemNm;             //상품 가격
+    private String itemNm;             //상품명
 
     private Integer price;             //상품 가격
 
     private int stockNumber;           //재고 수량
+
+    private String category;           //카테고리
 
     private String itemDetail;         //상품 상세 설명
 
@@ -42,13 +41,16 @@ public class ItemFormDto {
 
     //ItemVO -> ItemFormDto 변환 생성자
     public static ItemFormDto of(ItemVO item){
-        return ItemFormDto.builder()
-                .id(item.getItemId())
-                .itemNm(item.getItemName())
-                .price(item.getPrice())
-                .stockNumber(item.getStockNumber())
-                .itemDetail(item.getItemDetail())
-                .itemSellStatus(item.getItemSellStatus())
-                .build();
+        ItemFormDto itemFormDto = new ItemFormDto();
+
+        itemFormDto.setItemId(item.getItemId());
+        itemFormDto.setItemNm(item.getItemName());
+        itemFormDto.setPrice(item.getPrice());
+        itemFormDto.setStockNumber(item.getStockNumber());
+        itemFormDto.setCategory(item.getCategory());
+        itemFormDto.setItemDetail(item.getItemDetail());
+        itemFormDto.setItemSellStatus(item.getItemSellStatus());
+
+        return itemFormDto;
     }
 }
