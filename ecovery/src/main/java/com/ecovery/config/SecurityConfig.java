@@ -1,8 +1,11 @@
 package com.ecovery.config;
 
+import com.ecovery.security.CustomUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +21,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Slf4j
 public class SecurityConfig {
 
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
     //보안 정책 정의
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -25,8 +31,9 @@ public class SecurityConfig {
         log.info("----------Security Filter Chain----------");
 
         http
+                .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**").permitAll() //정적 리소스는 누구나 접근 가능
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         // 대형폐기물 인식 기능 (예: /waste/recognize): 비회원도 가능
                         //.requestMatchers("/waste/**").permitAll()  // url나오면 수정 예정
@@ -37,11 +44,10 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/member/login") //사용자 정의 로그인 페이지
                         .loginProcessingUrl("/member/login")
-                        .defaultSuccessUrl("/") //성공 시 이동 url
+                        .defaultSuccessUrl("/main", true) //성공 시 이동 url
                         .usernameParameter("email") //로그인 폼 name=email
                         .passwordParameter("password") //로그인 폼 name=password
                         .failureUrl("/member/login?error=true") //실패 시 리다이렉트
-                        .permitAll()
 
                 )
                 .logout(logout -> logout
@@ -54,9 +60,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(customUserDetailsService); // 우리가 만든 사용자 정보를 사용!
+        authProvider.setPasswordEncoder(passwordEncoder()); // 우리가 만든 비밀번호 암호화 방식을 사용!
+        return authProvider;
+    }
+
     // 비밀번호 암호화
     @Bean
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
     }
 }

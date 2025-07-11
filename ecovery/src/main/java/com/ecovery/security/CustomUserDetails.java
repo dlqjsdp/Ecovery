@@ -4,6 +4,7 @@ import com.ecovery.domain.MemberVO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,7 @@ import java.util.Collections;
 
 @Getter @Setter
 @RequiredArgsConstructor
+@Slf4j
 public class CustomUserDetails implements UserDetails {
 
     private final MemberVO memberVO;
@@ -26,8 +28,11 @@ public class CustomUserDetails implements UserDetails {
     // 사용자 권한 반환(USER / ADMIN)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + memberVO.getRole().name()));
+
     }
+
 
     // 사용자 비밀번호 반환(암호화 된 값)
     @Override

@@ -2,6 +2,7 @@ package com.ecovery.controller;
 
 import com.ecovery.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,7 @@ import com.ecovery.domain.MemberVO;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping(value = "/member")
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
@@ -23,11 +25,12 @@ public class MemberController {
     //회원가입 페이지 이동
     @GetMapping(value = "/signup")
     public String signupForm(Model model) {
+        log.info("signupForm : 회원가입...");
         model.addAttribute("member", new MemberVO());
         return "member/signup";
     }
     //회원가입 처리
-    @PostMapping(value = "/member")
+    @PostMapping(value = "/signup")
     public String signup(@ModelAttribute MemberVO memberVO, BindingResult bindingResult, Model model) {
 
         //1. 필드 검증 오류 시 다시 회원가입폼으로 이동
@@ -42,14 +45,14 @@ public class MemberController {
             memberService.registerMember(memberVO);
             return "redirect:/member/login";
         }
+    }
 
-        // 이메일 중복 확인 (AJAX 요청 처리용)
-       // @GetMapping("/check-email")
-       // @ResponseBody
-       // public boolean checkEmail(@RequestParam("email") String email) {
-       //     return memberService.getMemberByEmail(email) != null; // true = 중복
-       // }
-        
+    // 이메일 중복 확인 (AJAX 요청 처리용)
+    @GetMapping("/check-email")
+    @ResponseBody
+    public boolean checkEmail(@RequestParam("email") String email) {
+
+        return memberService.getMemberByEmail(email) != null; // true = 중복
     }
 
     //로그인
