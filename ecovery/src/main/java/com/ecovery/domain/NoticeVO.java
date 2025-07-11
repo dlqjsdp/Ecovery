@@ -7,10 +7,12 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 /*
- * 공지사항 게시글 테이블(env)
- * @author : 노유경
+ * 공지사항 게시글 테이블(notice)
+ * @author : yukyeong
  * @fileName : NoticeVO
  * @since : 250708
+ * @history
+     - 250708 | yukyeong | VO 기본 필드 작성
  */
 
 @Getter @Setter
@@ -21,6 +23,6 @@ public class NoticeVO {
     private String title; // 제목
     private String content; // 내용
     private int viewCount; // 조회수
-    private LocalDateTime createAt; // 작성일자
-    private LocalDateTime updateAt; // 수정일자
+    private LocalDateTime createdAt; // 작성일자
+    private LocalDateTime updatedAt; // 수정일자
 }
