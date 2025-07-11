@@ -8,7 +8,6 @@
     - com.ecovery.mapper.MemberMapper 인터페이스와 연결되는 MyBatis 매퍼 XML 파일
     - 회원(MemberVO) 관련 SQL 쿼리 정의
 -->
-
 <mapper namespace="com.ecovery.mapper.MemberMapper">
 
     <!--
@@ -32,17 +31,13 @@
             - ⚠ 오타 주의: 현재 memberid → memberId (대소문자 일치)
         -->
     <insert id="insertMember" parameterType="com.ecovery.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberid">
-        insert into member(email, password, nickname)
-        values (#{email}, #{password}, #{nickname})
+        insert into member(
+            email, password, nickname
+        )
+        values (
+            #{email}, #{password}, #{nickname}
+        )
     </insert>
-
-    <!--
-        전체 회원 목록 조회
-        - resultMap으로 MemberVO 리스트 반환
-    -->
-    <select id="findAllMembers" resultMap="memberMap">
-        select * from member
-    </select>
 
     <!--
         회원 정보 수정
@@ -71,5 +66,12 @@
         select * from member where email = #{email}
     </select>
 
+    <!--
+        전체 회원 목록 조회
+        - resultMap으로 MemberVO 리스트 반환
+    -->
+    <select id="findAllMembers" resultMap="memberMap">
+        select * from member
+    </select>
 
 </mapper>
