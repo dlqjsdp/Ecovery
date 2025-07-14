@@ -3,6 +3,8 @@ package com.ecovery.domain;
 import com.ecovery.constant.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,8 +24,6 @@ import java.util.Date;
 public class MemberVO {
 
     private Long memberId;      // 회원 고유 번호 (PK)
-
-    @NotBlank(message = "이메일은 필수 입력 항목입니다.")
     private String email;       // 이메일 (로그인 ID)
     private String password;    // 비밀번호 (암호화 저장 권장)
     private String nickname;    // 닉네임

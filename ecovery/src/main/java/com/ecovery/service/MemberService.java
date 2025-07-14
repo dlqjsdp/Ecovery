@@ -24,6 +24,9 @@ public interface MemberService {
     //이메일로 회원 조회(로그인, 이메일 중복 체크 등에 사용)
     public MemberVO getMemberByEmail(String email);
 
+    //닉네임으로 회원 조회(로그인, 이메일 중복 체크 등에 사용)
+    public MemberVO getMemberByNickname(String nickname);
+
     //전체 회원 조회
     public List<MemberVO> getAllMembers();
 }
