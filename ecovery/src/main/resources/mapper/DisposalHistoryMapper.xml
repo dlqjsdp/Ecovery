@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    DisposalHistoryMapper.xml
+    - com.ecovery.mapper.DisposalHistoryMapper 인터페이스와 연결되는 MyBatis 매퍼 XML 파일
+    - 분리배출(DisposalHistoryVO) 관련 SQL 쿼리 정의
+-->
+<mapper namespace="com.ecovery.mapper.DisposalHistoryMapper">
+    <!--
+            resultMap: SQL 결과를 VO 객체에 매핑하는 설정
+            - 컬럼명과 자바 필드명이 다를 경우 사용 (예: created_at → createdAt)
+        -->
+    <resultMap id="disposalHistoryMap" type="com.ecovery.domain.DisposalHistoryVO">
+        <id property="disposalHistoryId" column="disposal_history_id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="aiPrediction" column="ai_prediction"/>
+        <result property="regionGu" column="region_gu"/>
+        <result property="createAt" column="created_at"/>
+        <result property="finalItem" column="final_item"/>
+        <!--<collection property="disposalInfo" resultMap="disposalInfoMap"/>-->
+
+        <association property="disposalImg" javaType="com.ecovery.domain.DisposalHistoryImgVO">
+            <id property="disposalImgId" column="disposal_img_id"/>
+            <result property="disposalHistoryId" column="disposal_history_id"/>
+            <result property="disposalImgName" column="disposal_img_name"/>
+            <result property="oriDisposalImgName" column="ori_disposal_img_name"/>
+            <result property="disposalImgUrl" column="disposal_img_url"/>
+        </association>
+
+        <association property="disposalInfo" javaType="com.ecovery.domain.DisposalInfoVO">
+            <result property="minPrice" column="min_price"/>
+            <result property="maxPrice" column="max_price"/>
+            <result property="itemName" column="item_name"/>
+            <result property="reportUrl" column="report_url"/>
+        </association>
+    </resultMap>
+
+
+    <insert id="insertDisposalHistory" parameterType="com.ecovery.domain.DisposalHistoryVO" useGeneratedKeys="true" keyProperty="disposalHistoryId">
+        insert into disposal_history(member_id, ai_prediction, region_gu, final_item)
+        values (#{memberId}, #{aiPrediction}, #{regionGu}, #{finalItem})
+    </insert>
+
+    <select id="findByDisposalHistoryId" resultMap="disposalHistoryMap">
+        select h.*, img.*, i.min_price, i.max_price, i.report_url
+        from disposal_history h
+        left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
+        join disposal_info i on h.region_gu = i.region and h.final_item = i.item_name
+        where h.disposal_history_id = #{disposalHistoryId}
+    </select>
+
+    <select id="findAllDisposalHistory" resultMap="disposalHistoryMap">
+        select h.*, img.*
+        from disposal_history h
+                 left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
+        order by h.created_at desc
+    </select>
+
+    <select id="findDisposalHistoryWithImgByMemberId" parameterType="long" resultMap="disposalHistoryMap">
+        select
+            h.*, img.*
+        from
+            disposal_history h
+                left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
+        where
+            h.member_id = #{memberId}
+        order by h.created_at desc
+    </select>
+
+
+
+</mapper>

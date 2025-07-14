@@ -23,4 +23,8 @@ public class DisposalHistoryVO {
     private String aiPrediction;
     private String regionGu;
     private String createAt;
+    private String finalItem;
+
+    private DisposalHistoryImgVO disposalImg;
+    private DisposalInfoVO disposalInfo;
 }
