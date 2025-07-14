@@ -1,112 +1,219 @@
-<!-- 회원가입 html / 작성자 : 방희경 -->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      >
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
-<!-- 레이아웃 layout1을 부모로 사용하는 페이지 -->
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: inline-block;
+      width: 80px;
+      margin-bottom: 10px;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 200px;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
 
-<title>회원가입</title>
-<!-- 여기에 필요한 CSS 링크를 추가할 수 있습니다. -->
-<style>
-  /* 간단한 스타일을 추가하여 버튼과 입력 필드가 보기 좋게 만듭니다. */
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  label { display: inline-block; width: 80px; margin-bottom: 10px; }
-  input[type="email"], input[type="password"], input[type="text"] {
-    width: 200px; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;
-  }
-  button { padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-  button:hover { background-color: #0056b3; }
-  .error-message { color: red; margin-top: 5px; }
-  .success-message { color: green; margin-top: 5px; }
-  .email-check-area { display: flex; align-items: center; margin-bottom: 10px; }
-  .email-check-area input { margin-right: 10px; }
-</style>
+    /* ✨ 핵심 수정: 에러/성공 메시지가 제대로 보이도록 display와 margin-bottom 추가 */
+    .error-message {
+      color: red;
+      margin-top: 5px;
+      font-size: 0.9em;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .success-message {
+      color: green;
+      margin-top: 5px;
+      font-size: 0.9em;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .email-check-area {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .email-check-area input {
+      margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
 <h2>회원가입</h2>
 
-<div th:if="${errorMessage}">
-  <p style="color: red;" th:text="${errorMessage}">올바르지 않습니다.</p>
-</div>
-
-<form th:action="@{/member/signup}" method="post">
+<form th:action="@{/member/signup}" th:object="${member}" method="post">
   <div class="email-check-area">
     <label for="signupEmail">이메일</label>
-    <input type="email" id="signupEmail" name="email" required>
+    <input type="email" th:field="*{email}" id="signupEmail">
     <button type="button" id="checkEmailBtn">중복 검증</button>
   </div>
-  <div id="emailCheckResult" class="error-message"></div> <!-- 중복 검증 결과를 표시할 곳 -->
+  <div id="emailCheckResult" class="error-message"></div>
+  <div class="error-message" th:if="${emailError}" th:text="${emailError}"></div>
+  <br>
 
   <label for="signupPassword">비밀번호</label>
-  <input type="password" id="signupPassword" name="password" required><br>
+  <input type="password" th:field="*{password}" id="signupPassword">
+  <div class="error-message" th:if="${passwordError != null}" th:text="${passwordError}"></div><br>
+  <h6>비밀번호는 영문자/숫자를 포함하여 8~16자까지 가능하며, 특수문자(!@#$%^&*)만 허용됩니다.</h6>
+  <br>
 
-  <label for="signupName">닉네임</label>
-  <input type="text" id="signupName" name="nickname" required><br>
+  <div class="nickname-check-area">
+    <label for="signupNickname">닉네임</label>
+    <input type="text" th:field="*{nickname}" id="signupNickname">
+    <button type="button" id="checkNicknameBtn">중복 검증</button>
+  </div>
+  <div id="nicknameCheckResult" class="error-message"></div>
+  <br>
 
-  <button type="submit" id="signupSubmitBtn" disabled>회원가입</button> <!-- 중복 검증 전까지 비활성화 -->
+  <button type="submit" id="signupSubmitBtn" disabled>회원가입</button>
 </form>
 
 <p><a th:href="@{/member/login}">로그인</a></p>
 
 <script th:inline="javascript">
   /*<![CDATA[*/
-  document.addEventListener('DOMContentLoaded', function() {
-    const checkEmailBtn = document.getElementById('checkEmailBtn');
-    const signupEmailInput = document.getElementById('signupEmail');
-    const emailCheckResult = document.getElementById('emailCheckResult');
-    const signupSubmitBtn = document.getElementById('signupSubmitBtn');
-    let isEmailAvailable = false; // 이메일 사용 가능 여부 플래그
+  document.addEventListener('DOMContentLoaded', function () {
+    const emailInput = document.getElementById('signupEmail');
+    const nicknameInput = document.getElementById('signupNickname');
+    const passwordInput = document.getElementById('signupPassword');
+    const emailBtn = document.getElementById('checkEmailBtn');
+    const nicknameBtn = document.getElementById('checkNicknameBtn');
+    const submitBtn = document.getElementById('signupSubmitBtn');
 
-    checkEmailBtn.addEventListener('click', function() {
-      const email = signupEmailInput.value;
+    const emailMsg = document.getElementById('emailCheckResult');
+    const nicknameMsg = document.getElementById('nicknameCheckResult');
+
+    let isEmailAvailable = false;
+    let isNicknameAvailable = false;
+
+    /** 이메일 중복 확인 */
+    emailBtn.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      emailMsg.textContent = '';
+      emailMsg.className = '';
+
       if (!email) {
-        emailCheckResult.textContent = '이메일을 입력해주세요.';
-        emailCheckResult.className = 'error-message';
+        emailMsg.textContent = '이메일은 필수 입력 항목입니다.';
+        emailMsg.className = 'error-message';
         isEmailAvailable = false;
-        signupSubmitBtn.disabled = true;
+        updateSubmitState();
         return;
       }
 
-      // AJAX 요청을 보냅니다.
+      if (!emailRegex.test(email)) {
+        emailMsg.textContent = '올바른 이메일 형식이 아닙니다.';
+        emailMsg.className = 'error-message';
+        isEmailAvailable = false;
+        updateSubmitState();
+        return;
+      }
+
       fetch('/member/check-email?email=' + encodeURIComponent(email))
-              .then(response => {
-                if (!response.ok) { // HTTP 응답 코드가 200번대가 아니면 오류 처리
-                  throw new Error('네트워크 응답이 올바르지 않습니다.');
-                }
-                return response.json(); // JSON 형식으로 응답을 파싱합니다.
-              })
+              .then(res => res.json())
               .then(data => {
-                if (data) { // data가 true이면 중복
-                  emailCheckResult.textContent = '이미 사용 중인 이메일입니다.';
-                  emailCheckResult.className = 'error-message';
+                if (data) {
+                  emailMsg.textContent = '이미 사용 중인 이메일입니다.';
+                  emailMsg.className = 'error-message';
                   isEmailAvailable = false;
-                  signupSubmitBtn.disabled = true;
-                } else { // data가 false이면 사용 가능
-                  emailCheckResult.textContent = '사용 가능한 이메일입니다.';
-                  emailCheckResult.className = 'success-message';
+                } else {
+                  emailMsg.textContent = '사용 가능한 이메일입니다.';
+                  emailMsg.className = 'success-message';
                   isEmailAvailable = true;
-                  // 이메일이 사용 가능하면 회원가입 버튼 활성화
-                  signupSubmitBtn.disabled = false;
                 }
+                updateSubmitState();
               })
-              .catch(error => {
-                console.error('이메일 중복 확인 중 오류 발생:', error);
-                emailCheckResult.textContent = '이메일 확인 중 오류가 발생했습니다.';
-                emailCheckResult.className = 'error-message';
+              .catch(() => {
+                emailMsg.textContent = '이메일 확인 중 오류 발생';
+                emailMsg.className = 'error-message';
                 isEmailAvailable = false;
-                signupSubmitBtn.disabled = true;
+                updateSubmitState();
               });
     });
 
-    // 이메일 입력 필드가 변경되면 다시 중복 검사를 하도록 유도
-    signupEmailInput.addEventListener('input', function() {
-      emailCheckResult.textContent = ''; // 메시지 초기화
-      emailCheckResult.className = '';
-      isEmailAvailable = false;
-      signupSubmitBtn.disabled = true; // 이메일이 변경되면 회원가입 버튼 비활성화
-    });
+      /** 닉네임 중복 확인 */
+      nicknameBtn.addEventListener('click', () => {
+        const nickname = nicknameInput.value.trim();
+
+        nicknameMsg.textContent = '';
+        nicknameMsg.className = '';
+
+        if (!nickname) {
+          nicknameMsg.textContent = '닉네임은 필수 입력 항목입니다.';
+          nicknameMsg.className = 'error-message';
+          isNicknameAvailable = false;
+          updateSubmitState();
+          return;
+        }
+
+        fetch('/member/check-nickname?nickname=' + encodeURIComponent(nickname))
+                .then(res => res.json())
+                .then(data => {
+                  if (data) {
+                    nicknameMsg.textContent = '이미 사용 중인 닉네임입니다.';
+                    nicknameMsg.className = 'error-message';
+                    isNicknameAvailable = false;
+                  } else {
+                    nicknameMsg.textContent = '사용 가능한 닉네임입니다.';
+                    nicknameMsg.className = 'success-message';
+                    isNicknameAvailable = true;
+                  }
+                  updateSubmitState();
+                })
+                .catch(() => {
+                  nicknameMsg.textContent = '닉네임 확인 중 오류 발생';
+                  nicknameMsg.className = 'error-message';
+                  isNicknameAvailable = false;
+                  updateSubmitState();
+                });
+      });
+
+        /** 입력값 변경 시 상태 초기화 */
+        emailInput.addEventListener('input', () => {
+          emailMsg.textContent = '';
+          emailMsg.className = '';
+          isEmailAvailable = false;
+          updateSubmitState();
+        });
+
+        nicknameInput.addEventListener('input', () => {
+          nicknameMsg.textContent = '';
+          nicknameMsg.className = '';
+          isNicknameAvailable = false;
+          updateSubmitState();
+        });
+
+        passwordInput.addEventListener('input', updateSubmitState);
+
+    /** 버튼 상태 갱신 */
+    function updateSubmitState() {
+      const isPasswordFilled = passwordInput.value.trim() !== '';
+      submitBtn.disabled = !(isEmailAvailable && isNicknameAvailable && isPasswordFilled);
+    }
   });
   /*]]>*/
 </script>

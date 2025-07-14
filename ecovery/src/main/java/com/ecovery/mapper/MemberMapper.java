@@ -38,6 +38,12 @@ public interface MemberMapper {
     public MemberVO findByEmail(String email);
 
     /**
+     * 닉네임으로 회원 조회
+     * - 로그인, 이메일 중복 체크 등에 사용
+     */
+    public MemberVO findByNickname(String nickname);
+
+    /**
      * 전체 회원 목록 조회
      */
     public List<MemberVO> findAllMembers();
