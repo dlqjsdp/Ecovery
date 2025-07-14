@@ -56,6 +56,14 @@ public class MemberServiceImpl implements MemberService {
 
         return memberMapper.findByEmail(email);
     }
+
+    //이메일로 회원 조회(로그인, 이메일 중복 체크 등에 사용)
+    @Override
+    public MemberVO getMemberByNickname(String nickname){
+
+        return memberMapper.findByNickname(nickname);
+    }
+
     //전체 회원 조회
     @Override
     public List<MemberVO> getAllMembers(){
