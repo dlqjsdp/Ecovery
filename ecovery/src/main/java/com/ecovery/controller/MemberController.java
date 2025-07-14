@@ -103,6 +103,7 @@ public class MemberController {
         log.info("DB 조회 결과: {}", member != null ? member.getNickname() : "없음");
         return member != null;
     }
+  
 
     // 로그인 페이지 이동
     @GetMapping(value = "/login")
@@ -110,3 +111,4 @@ public class MemberController {
         return "member/login";
     }
 }
+

@@ -20,6 +20,7 @@ public class ItemDto {
     private String itemName;
     private int price;
     private int stockNumber;
+    private String category;
     private String itemDetail;
     private String itemSellStatus;
 }
