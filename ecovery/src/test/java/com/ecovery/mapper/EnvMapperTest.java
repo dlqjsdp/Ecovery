@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /*
  * 환경톡톡 게시글 Mapper 테스트
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since : 250711
  * @history
      - 250711 | yukyeong | 게시글 전체 목록 조회, 단건 조회 테스트 작성
+     - 250714 | yukyeong | 게시글 등록, 삭제, 수정 테스트 작성
  */
 
 @SpringBootTest
@@ -50,6 +52,102 @@ class EnvMapperTest {
         } else {
             log.info("조회 결과가 없습니다.");
         }
+    }
+
+    @Test
+    @DisplayName("게시글 등록 테스트")
+    @Transactional
+    public void testInsert() {
+
+        // Given (준비)
+        EnvVO vo = new EnvVO();
+        vo.setMemberId(1L);
+        vo.setTitle("게시글 등록 테스트 제목입니다.");
+        vo.setContent("게시글 등록 테스트 내용입니다.");
+
+        // When (실행)
+        envMapper.insert(vo); // insert() 호출로 DB에 게시글 저장
+
+        // Then (검증)
+        // 1) insert 후 envId가 자동으로 채워졌는지 (useGeneratedKeys가 정상동작했는지 확인)
+        assertNotNull(vo.getEnvId(), "id는 null값이면 안됩니다.");
+
+        // 2) 방금 insert한 데이터 조회 (PK로 단건 조회)
+        EnvVO inserted = envMapper.read(vo.getEnvId());
+        assertNotNull(inserted, "insert 이후에는 null값이면 안됩니다.");
+
+        // 3) DB에 저장된 데이터가 내가 입력한 값과 같은지 검증 (예상값과 실제값 비교)
+        assertEquals("게시글 등록 테스트 제목입니다.", inserted.getTitle());
+        assertEquals("게시글 등록 테스트 내용입니다.", inserted.getContent());
+
+        log.info("삽입된 게시글: {}", inserted);
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 테스트")
+    @Transactional
+    public void testDelete() {
+
+        // Given (준비): 테스트용 게시글 생성
+        EnvVO vo = new EnvVO();
+        vo.setMemberId(1L);
+        vo.setTitle("게시글 삭제 테스트 제목");
+        vo.setContent("게시글 삭제 테스트 내용");
+
+        // 삭제할 게시글 등록
+        envMapper.insert(vo);
+        Long insertedId = vo.getEnvId();
+        assertNotNull(insertedId, "Id는 null값이면 안됩니다.");
+
+        // When (실행): 게시글 삭제
+        int deletedCount = envMapper.delete(insertedId);
+
+        // Then (검증)
+        // 1) 삭제된 행의 개수가 1개인지 확인
+        assertEquals(1, deletedCount, "삭제된 행의 개수는 1개");
+
+        // 2) 삭제 후 조회 시 null인지 확인
+        EnvVO deleted = envMapper.read(insertedId);
+        assertNull(deleted, "삭제 후에는 null값이여야 함");
+
+        log.info("게시글 삭제 완료. 삭제된 ID = {}", insertedId);
+
+    }
+
+    @Test
+    @DisplayName("게시글 수정 테스트")
+    @Transactional
+    public void testUpdate() {
+
+        // Given (준비) : 테스트용 게시글 생성
+        // 1) 더미 데이터 생성
+        EnvVO vo = new EnvVO();
+        vo.setMemberId(1L);
+        vo.setTitle("수정 테스트 제목1");
+        vo.setContent("수정 테스트 내용1");
+
+        // 2) 게시글 등록
+        envMapper.insert(vo);
+        Long insertedId = vo.getEnvId();
+        assertNotNull(insertedId, "등록된 ID는 null값이면 안됩니다.");
+
+        // When (실행): 게시글 제목과 내용 수정
+        vo.setTitle("수정된 제목");
+        vo.setContent("수정된 내용");
+
+        int updatedCount = envMapper.update(vo);
+
+        // Then (검증)
+        // 1) 수정된 행이 1개인지 확인
+        assertEquals(1, updatedCount, "수정된 행의 개수는 1개");
+
+        // 2) 수정된 내용이 DB에 반영되었는지 확인
+        EnvVO updated = envMapper.read(insertedId);
+        assertNotNull(updated, "수정 후 결과가 null이면 안됩니다.");
+        assertEquals("수정된 제목", updated.getTitle());
+        assertEquals("수정된 내용", updated.getContent());
+
+        log.info("수정된 게시글: {}", updated);
     }
 
 }
