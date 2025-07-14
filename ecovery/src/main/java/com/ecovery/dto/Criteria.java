@@ -41,6 +41,8 @@ public class Criteria {
         return type == null? new String[] {}: type.split("");
     }
 
+
+    
     // MySQL용 offset
     /**
      * MySQL LIMIT 절에서 사용하기 위한 offset 값 계산

@@ -20,7 +20,8 @@ public class FreeDto {
     private String category;
     private DealStatus dealStatus;
     private String title;
-    private String nickName;
+    private String nickname;
     private String createdAt;
-    private Integer viewCount;
+    private int viewCount;
+
 }

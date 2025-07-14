@@ -17,7 +17,7 @@ import java.util.List;
 @Mapper
 public interface FreeImgMapper {
 
-    public void insert(FreeImgVO freeImgVO);             // 이미지 1장 등록
+    public void insert(FreeImgVO freeImgVO);             // 이미지 등록
 
     public int update(FreeImgVO freeImgVO);              // 이미지 수정시 이미지 교체
 

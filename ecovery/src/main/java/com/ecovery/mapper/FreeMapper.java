@@ -30,7 +30,7 @@ public interface FreeMapper {
 
     public int delete(Long freeId);                       // 게시글 삭제 (성공시 1, 실패시 0)
 
-    public List<FreeDto> getListWithPaging(Criteria cri); // 게시글 목록 조회 (작성자 닉네임 포함)
+    public List<FreeVO> getListWithPaging(Criteria cri); // 게시글 목록 조회 (작성자 닉네임 포함)
 
     public int getTotalCount(Criteria cri);               //페이징 처리를 위한 전체 게시글 수 조회
 

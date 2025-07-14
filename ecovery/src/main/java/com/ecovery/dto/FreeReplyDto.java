@@ -8,6 +8,7 @@ import java.util.List;
 /*
  * 무료나눔 댓글 DTO
  * 댓글 내용을 화면에 전달하기 위한 데이터 전달 객체
+ * 부모-자식 구조로 대댓글 계층 표현 가능
  * @author : yeonsu
  * @fileName : FreeReplyDto
  * @since : 250711
