@@ -37,6 +37,10 @@ public class Criteria {
         return type == null? new String[] {}: type.split("");
     }
 
+    //MySQL OFFSET 계산용 메소드
+    public int getOffset(){
+        return (pageNum - 1) * amount;
+    }
 
 
 }

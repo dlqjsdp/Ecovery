@@ -31,10 +31,12 @@ public class FreeVO {
     private String category;    // 품목 카테고리
     private String regionGu;    // 나눔지역 - 구
     private String regionDong;  // 나눔지역 - 동
-    private Integer viewCount; // 게시글 조회수
+    private int viewCount; // 게시글 조회수
     private LocalDateTime createdAt; // 게시글 등록/수정일(시간포함)
 
     // enum 타입
     private ItemCondition itemCondition; // 삼품 상태(HIGH/MEDIUM/LOW)
     private DealStatus dealStatus; // 거래 상태(ONGOING, DONE)
+
+    private String nickname;
 }
