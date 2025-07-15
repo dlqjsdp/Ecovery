@@ -1,27 +1,25 @@
 package com.ecovery.dto;
 
 import com.ecovery.constant.ItemSellStatus;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 /*
- * 에코마켓 상품 상세 정보 DTO
+ * 에코마켓 상품 목록 DTO
  * @author : sehui
- * @fileName : ItemDto
- * @since : 250709
+ * @fileName : ItemListDto
+ * @since : 250715
  */
 
 @Getter
 @Setter
-public class ItemDto {
+@ToString
+public class ItemListDto {
 
     private Long itemId;
     private String itemNm;
-    private int price;
-    private int stockNumber;
     private String category;
-    private String itemDetail;
     private ItemSellStatus itemSellStatus;
+    private String imgUrl;
 }

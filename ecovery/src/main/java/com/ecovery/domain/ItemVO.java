@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@Builder
 public class ItemVO {
 
     private Long itemId;

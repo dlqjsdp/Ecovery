@@ -40,8 +40,6 @@ public class Criteria {
 
         return type == null? new String[] {}: type.split("");
     }
-
-
     
     // MySQL용 offset
     public int getOffset() {

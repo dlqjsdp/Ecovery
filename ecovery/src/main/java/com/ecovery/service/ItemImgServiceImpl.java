@@ -15,7 +15,7 @@ import java.util.List;
  * @fileName : ItemImgServiceImpl
  * @since : 250709
  * @history
- *  - 250710 | sehui | 상품 이미지 전체 조회 기능 추가
+ *  -
  */
 
 @Service
@@ -24,9 +24,4 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemImgServiceImpl implements ItemImgService {
 
-    //전체 이미지 조회
-    @Override
-    public List<ItemImgVO> getItemList() {
-        return List.of();
-    }
 }

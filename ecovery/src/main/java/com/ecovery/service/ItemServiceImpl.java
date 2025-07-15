@@ -2,8 +2,10 @@ package com.ecovery.service;
 
 import com.ecovery.domain.ItemImgVO;
 import com.ecovery.domain.ItemVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.ItemFormDto;
 import com.ecovery.dto.ItemImgDto;
+import com.ecovery.dto.ItemListDto;
 import com.ecovery.mapper.ItemImgMapper;
 import com.ecovery.mapper.ItemMapper;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
  * @since : 250709
  * @history
  *  - 250710 | sehui | 상품 단 건 조회 기능 추가
+ *  - 250714 | sehui | 전체 상품 조회 기능 추가
+ *  - 250715 | sehui | 전체 상품의 수 조회 기능 추가
  */
 
 @Service
@@ -31,6 +36,17 @@ public class ItemServiceImpl implements ItemService     {
 
     private final ItemMapper itemMapper;
     private final ItemImgMapper itemImgMapper;
+
+    //상품 목록 페이지 (전체 상품 조회)
+    @Override
+    public List<ItemListDto> getItemList(String itemNm, String category, Criteria cri) {
+        log.info("getItemList >>> criteria : {} ", cri);
+
+        //JOIN 쿼리로 Item + 대표 이미지 한 번에 가져옴
+        List<ItemListDto> itemList = itemMapper.getListWithPage(itemNm, category, cri);
+
+        return itemList;
+    }
 
     //상품 수정 페이지 (상품 단 건 조회)
     @Override
@@ -55,5 +71,14 @@ public class ItemServiceImpl implements ItemService     {
         itemFormDto.setItemImgDtoList(itemImgDtoList);
 
         return itemFormDto;
+    }
+
+    //전체 상품의 수 조회
+    @Override
+    public int getTotalCount(String itemNm, String category) {
+
+        int totalCount = itemMapper.getTotalCount(itemNm, category);
+
+        return totalCount;
     }
 }
