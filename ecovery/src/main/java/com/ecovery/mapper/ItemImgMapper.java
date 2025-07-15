@@ -19,4 +19,5 @@ public interface ItemImgMapper {
 
     //상품 이미지 전체 조회
     public List<ItemImgVO> getItemList(Long itemId);
+
 }

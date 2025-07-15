@@ -19,7 +19,7 @@ import org.modelmapper.ModelMapper;
 @AllArgsConstructor
 public class ItemImgDto {
 
-    private Long id;
+    private Long itemImgId;
     private String imgName;         //이미지 파일명
     private String oriImgName;      //원본 이미지명
     private String imgUrl;          //이미지 조회 경로
