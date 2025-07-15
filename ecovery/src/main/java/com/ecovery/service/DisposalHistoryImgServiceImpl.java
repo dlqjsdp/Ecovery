@@ -1,6 +1,8 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.DisposalHistoryImgVO;
+import com.ecovery.domain.DisposalHistoryVO;
+import com.ecovery.dto.DisposalHistoryImgDto;
 import com.ecovery.mapper.DisposalHistoryImgMapper;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +15,23 @@ public class DisposalHistoryImgServiceImpl implements DisposalHistoryImgService{
 
     private final DisposalHistoryImgMapper disposalHistoryImgMapper;
 
+
     @Override
-    public void saveImg(DisposalHistoryImgVO disposalHistoryImgVO) {
+    public void saveDisposalImg(DisposalHistoryImgDto disposalHistoryImgDto) {
+        DisposalHistoryImgVO disposalHistoryImgVO = disposalHistoryImgDto.toDisposalHistoryImgVO();
         disposalHistoryImgMapper.insertDisposalImg(disposalHistoryImgVO);
     }
 
     @Override
-    public DisposalHistoryImgVO getHistoryImg(Long disposalHistoryId) {
-        return disposalHistoryImgMapper.findDisposalImgByDisposalHistoryId(disposalHistoryId);
+    public DisposalHistoryImgDto getDisposalImg(Long disposalHistoryId) {
+        DisposalHistoryImgVO disposalHistoryImgVO = disposalHistoryImgMapper.findDisposalImgByDisposalHistoryId(disposalHistoryId);
+
+        return DisposalHistoryImgDto.builder()
+                .disposalImgId(disposalHistoryImgVO.getDisposalImgId())
+                .disposalImgName(disposalHistoryImgVO.getDisposalImgName())
+                .disposalImgUrl(disposalHistoryImgVO.getDisposalImgUrl())
+                .disposalHistoryId(disposalHistoryImgVO.getDisposalHistoryId())
+                .oriDisposalImgName(disposalHistoryImgVO.getOriDisposalImgName())
+                .build();
     }
 }

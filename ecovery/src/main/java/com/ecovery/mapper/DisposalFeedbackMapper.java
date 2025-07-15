@@ -1,6 +1,7 @@
 package com.ecovery.mapper;
 
 import com.ecovery.domain.DisposalFeedbackVO;
+import com.ecovery.dto.DisposalFeedbackDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public interface DisposalFeedbackMapper {
     public DisposalFeedbackVO findFeedbackByDisposalHistoryId(Long disposalHistoryId);
 
     //관리자용 전체 신고 내역 조회
-    public List<DisposalFeedbackVO> findAllFeedbackWithImg();
+    public List<DisposalFeedbackDto> findAllFeedbackWithImg();
 
     //회원용 신고 내역 조회
-    public List<DisposalFeedbackVO> findMyFeedbackWithImg(Long memberId);
+    public List<DisposalFeedbackDto> findMyFeedbackWithImg(Long memberId);
 }

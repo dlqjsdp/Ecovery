@@ -22,7 +22,7 @@ public class DisposalHistoryVO {
     private Long memberId;
     private String aiPrediction;
     private String regionGu;
-    private String createAt;
+    private String createdAt;
     private String finalItem;
 
     private DisposalHistoryImgVO disposalImg;

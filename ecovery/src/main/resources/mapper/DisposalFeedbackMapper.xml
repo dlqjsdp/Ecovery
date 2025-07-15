@@ -9,32 +9,7 @@
     - 분리배출(DisposalFeedbackVO) 관련 SQL 쿼리 정의
 -->
 <mapper namespace="com.ecovery.mapper.DisposalFeedbackMapper">
-    <!--
-            resultMap: SQL 결과를 VO 객체에 매핑하는 설정
-            - 컬럼명과 자바 필드명이 다를 경우 사용 (예: created_at → createdAt)
-        -->
-    <resultMap id="DisposalFeedbackMap" type="com.ecovery.domain.DisposalFeedbackVO">
-        <id property="feedbackId" column="feedback_id"/>
-        <result property="disposalHistoryId" column="disposal_history_id"/>
-        <result property="memberId" column="member_id"/>
-        <result property="createdAt" column="created_at"/>
-        <!--<collection property="disposalInfo" resultMap="disposalInfoMap"/>-->
 
-        <association property="disposalHistory" javaType="com.ecovery.domain.DisposalHistoryVO">
-            <id property="disposalHistoryId" column="disposal_history_id"/>
-            <result property="aiPrediction" column="ai_prediction"/>
-            <result property="regionGu" column="region_gu"/>
-            <!--<collection property="disposalInfo" resultMap="disposalInfoMap"/>-->
-
-            <association property="disposalImg" javaType="com.ecovery.domain.DisposalHistoryImgVO">
-                <id property="disposalImgId" column="disposal_img_id"/>
-                <result property="disposalHistoryId" column="disposal_history_id"/>
-                <result property="disposalImgName" column="disposal_img_name"/>
-                <result property="oriDisposalImgName" column="ori_disposal_img_name"/>
-                <result property="disposalImgUrl" column="disposal_img_url"/>
-            </association>
-        </association>
-    </resultMap>
 
     <!--오류 신고 내역 저장-->
     <insert id="insertFeedback" parameterType="com.ecovery.domain.DisposalFeedbackVO" useGeneratedKeys="true" keyProperty="feedbackId">
@@ -48,19 +23,35 @@
     </select>
 
     <!--관리자용 전체 신고 내역 조회-->
-    <select id="findAllFeedbackWithImg" resultMap="DisposalFeedbackMap">
-        select f.*, h.*, i.*
+    <select id="findAllFeedbackWithImg" resultType="com.ecovery.dto.DisposalFeedbackDto">
+        select f.feedback_id as feedbackId,
+               f.disposal_history_id as disposalHistoryId,
+               f.created_at as createdAt,
+               f.member_id as memberId,
+               h.ai_prediction as aiPrediction,
+               h.region_gu as regionGu,
+               h.final_item as finalItem,
+               i.disposal_img_url as disposalHistoryImgUrl,
+               m.nickname as nickname
         from disposal_feedback f
-                 left join ecovery.disposal_history h on f.disposal_history_id = h.disposal_history_id
+                 left join disposal_history h on f.disposal_history_id = h.disposal_history_id
                  left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
+                 join member m on f.member_id = m.member_id
         order by feedback_id desc
     </select>
 
     <!--회원용 신고 내역 조회-->
-    <select id="findDisposalHistoryWithImgByMemberId" parameterType="long" resultMap="DisposalFeedbackMap">
-        select f.*, h.*, i.*
+    <select id="findDisposalHistoryWithImgByMemberId" parameterType="long" resultType="com.ecovery.dto.DisposalFeedbackDto">
+        select f.feedback_id as feedbackId,
+               f.disposal_history_id as disposalHistoryId,
+               f.created_at as createdAt,
+               f.member_id as memberId,
+               h.ai_prediction as aiPrediction,
+               h.region_gu as regionGu,
+               h.final_item as finalItem,
+               i.disposal_img_url as disposalHistoryImgUrl
         from disposal_feedback f
-                 left join ecovery.disposal_history h on f.disposal_history_id = h.disposal_history_id
+                 left join disposal_history h on f.disposal_history_id = h.disposal_history_id
                  left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
         where f.member_id = #{memberId}
         order by feedback_id desc

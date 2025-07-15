@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.DisposalHistoryVO;
+import com.ecovery.dto.DisposalHistoryDto;
 import com.ecovery.mapper.DisposalHistoryMapper;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -22,17 +23,17 @@ public class DisposalHistoryServiceImpl implements DisposalHistoryService {
     }
 
     @Override
-    public DisposalHistoryVO getHistory(Long disposalHistoryId) {
+    public DisposalHistoryDto getHistory(Long disposalHistoryId) {
         return disposalHistoryMapper.findByDisposalHistoryId(disposalHistoryId);
     }
 
     @Override
-    public List<DisposalHistoryVO> getHistoryByMemberId(Long memberId) {
+    public List<DisposalHistoryDto> getHistoryByMemberId(Long memberId) {
         return disposalHistoryMapper.findDisposalHistoryWithImgByMemberId(memberId);
     }
 
     @Override
-    public List<DisposalHistoryVO> getAllHistory() {
+    public List<DisposalHistoryDto> getAllHistory() {
         return disposalHistoryMapper.findAllDisposalHistory();
     }
 }
