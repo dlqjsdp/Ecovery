@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.MemberPageDto;
 
 import java.util.List;
 
@@ -29,4 +30,7 @@ public interface MemberService {
 
     //전체 회원 조회
     public List<MemberVO> getAllMembers();
+
+    // 마이페이지 닉네임, 포인트 조회
+    public MemberPageDto getMemberPage(Long memberId);
 }
