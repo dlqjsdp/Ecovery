@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.DisposalFeedbackVO;
+import com.ecovery.dto.DisposalFeedbackDto;
 import com.ecovery.mapper.DisposalFeedbackMapper;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +28,12 @@ public class DisposalFeedbackServiceImpl implements DisposalFeedbackService {
     }
 
     @Override
-    public List<DisposalFeedbackVO> getAllFeedback() {
+    public List<DisposalFeedbackDto> getAllFeedback() {
         return disposalFeedbackMapper.findAllFeedbackWithImg();
     }
 
     @Override
-    public List<DisposalFeedbackVO> getFeedbackByMemberId(Long memberId) {
+    public List<DisposalFeedbackDto> getFeedbackByMemberId(Long memberId) {
         return disposalFeedbackMapper.findMyFeedbackWithImg(memberId);
     }
 }

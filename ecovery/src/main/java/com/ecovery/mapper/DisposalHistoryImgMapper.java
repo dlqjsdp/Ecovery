@@ -17,4 +17,5 @@ public interface DisposalHistoryImgMapper {
 
     //위에서 입력한 이미지를 disposalHistoryId를 통해 불러옴.
     public DisposalHistoryImgVO findDisposalImgByDisposalHistoryId(Long disposalHistoryId);
+
 }

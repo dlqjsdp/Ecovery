@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.DisposalFeedbackVO;
+import com.ecovery.dto.DisposalFeedbackDto;
 
 import java.util.List;
 
@@ -13,8 +14,8 @@ public interface DisposalFeedbackService {
     public DisposalFeedbackVO getFeedback(Long disposalHistoryId);
 
     //관리자용 전체 신고 내역 조회
-    public List<DisposalFeedbackVO> getAllFeedback();
+    public List<DisposalFeedbackDto> getAllFeedback();
 
     //회원별 신고 내역 조회
-    public List<DisposalFeedbackVO> getFeedbackByMemberId(Long memberId);
+    public List<DisposalFeedbackDto> getFeedbackByMemberId(Long memberId);
 }
