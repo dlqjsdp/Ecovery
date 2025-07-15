@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ecovery.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ecovery.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ecovery.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ecovery.test.iml" />
     </modules>
   </component>
 </project>

@@ -6,6 +6,7 @@
 # @history
 #   - 250708 | jihye | 초기 환경 설정 작성
 #   - 250711 | yukyeong | username: ecovery로 수정, map-underscore-to-camel-case 설정 추가
+#   - 250715 | yukyeong | 이미지 경로 수정 (shop -> ecovery)
 
 server:
   port: 8080
@@ -33,10 +34,10 @@ spring:
       max-request-size: 100MB # 요청당 최대 파일 크기
 
 # 상품 이미지 업로드 경로
-#itemImgLocation: C:/shop/item
+#itemImgLocation: C:/ecovery/item
 
 # 리소스 이미지 업로드 경로
-#uploadPath: file:///C:/shop/
+#uploadPath: file:///C:/ecovery/
 
 
 mybatis:
