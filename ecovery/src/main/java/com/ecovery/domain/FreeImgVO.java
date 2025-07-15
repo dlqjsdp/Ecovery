@@ -1,8 +1,6 @@
 package com.ecovery.domain;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +15,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class FreeImgVO {
 
     private Long freeImgId; // 게시글 이미지 고유번호

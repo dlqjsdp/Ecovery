@@ -17,13 +17,29 @@
  * @since : 250714
 -->
 
+    <resultMap id="freeMap" type="com.ecovery.domain.FreeVO">
+        <id property="freeId" column="free_id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="category" column="category"/>
+        <result property="regionGu" column="region_gu"/>
+        <result property="regionDong" column="region_dong"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="itemCondition" column="item_condition"/>
+        <result property="dealStatus" column="deal_status"/>
+        <result property="nickname" column="nickname"/>
+    </resultMap>
 
     <!-- 게시글 단건 조회 -->
-    <select id="read" resultType="com.ecovery.domain.FreeVO">
+    <select id="read" resultMap="freeMap">
         SELECT
             f.free_id,
+            f.member_id,
             f.title,
             f.content,
+            f.category,
             f.region_gu,
             f.region_dong,
             f.view_count,
@@ -32,20 +48,25 @@
             f.deal_status,
             m.nickname
         FROM free f
-                 JOIN member m ON f.member_id = m.member_id
+        JOIN member m ON f.member_id = m.member_id
         WHERE f.free_id = #{freeId}
     </select>
 
 
     <!-- 게시글 전체 목록 조회 -->
-    <select id="getFreeList" resultType="com.ecovery.dto.FreeDto">
+    <select id="getFreeList" resultMap="freeMap">
         SELECT
             f.free_id,
+            f.member_id,
             f.title,
+            f.content,
             f.category,
             f.region_gu,
+            f.region_dong,
             f.view_count,
             f.item_condition,
+            f.created_at,
+            f.deal_status,
             i.img_url,
             i.repimg_yn
         FROM free f
@@ -126,7 +147,7 @@
     <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
         SELECT COUNT(*) FROM free
         <where>
-            <if test="type != null and keyword != null and keywork != ''">
+            <if test="type != null and keyword != null and keyword != ''">
                 <include refid="criteria"></include>
             </if>
             free_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
@@ -134,7 +155,7 @@
     </select>
 
     <!-- 조회수를 1 증가-->
-    <update id="updateViewCount" parameterType="int">
+    <update id="updateViewCount" parameterType="Long">
         UPDATE free
         SET view_count = view_count + 1
         WHERE free_id = #{freeId}
