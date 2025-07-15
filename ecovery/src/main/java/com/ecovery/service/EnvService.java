@@ -1,0 +1,33 @@
+package com.ecovery.service;
+
+import com.ecovery.domain.EnvVO;
+import com.ecovery.dto.Criteria;
+
+import java.util.List;
+
+/*
+ * 환경톡톡 게시글 서비스 인터페이스
+ * 게시글 등록, 조회, 수정, 삭제, 목록 조회(페이징) 기능의 서비스 계층 역할을 정의
+ * 컨트롤러와 Mapper를 연결하는 중간 레이어
+ * @author : yukyeong
+ * @fileName : EnvService.java
+ * @since : 250715
+ * @history
+     - 250715 | yukyeong | EnvService 인터페이스 최초 작성 (CRUD, 페이징)
+ */
+
+public interface EnvService {
+
+    public void register(EnvVO env); // 게시글 등록
+
+    public EnvVO get(Long envId); // 게시글 단건 조회
+
+    public boolean modify(EnvVO env); // 게시글 수정
+
+    public boolean remove(Long envId); // 게시글 삭제
+
+    public List<EnvVO> getList(Criteria cri); // 게시글 목록 조회 (페이징 포함)
+
+    public int getTotal(Criteria cri); // 게시글 총 개수 조회 (페이징 처리에 사용)
+
+}
