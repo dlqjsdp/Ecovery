@@ -52,8 +52,5 @@ mybatis:
 logging:
   level:
     root: info
-    org:
-      hibernate:
-        type:
-          descriptor:
-            sql: trace
+    com.ecovery.mapper: debug
+    org.apache.ibatis: debug

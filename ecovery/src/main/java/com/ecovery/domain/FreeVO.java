@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-
 public class FreeVO {
 
     private Long freeId;        // 게시글 고유번호 (PK)

@@ -18,7 +18,7 @@ import java.util.List;
 @Mapper
 public interface FreeMapper {
 
-    public List<FreeDto> getFreeList();                    // 게시글 전체 목록 조회
+    public List<FreeVO> getFreeList();                    // 게시글 전체 목록 조회
 
     public FreeVO read(Long freeId);                      // 게시글 상세 조회(게시글 번호로 조회)
 
