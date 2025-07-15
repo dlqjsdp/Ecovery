@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.MemberPageDto;
 import com.ecovery.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,7 @@ public class MemberServiceImpl implements MemberService {
         return memberMapper.findByEmail(email);
     }
 
-    //이메일로 회원 조회(로그인, 이메일 중복 체크 등에 사용)
+    //닉네임으로 회원 조회(로그인, 이메일 중복 체크 등에 사용)
     @Override
     public MemberVO getMemberByNickname(String nickname){
 
@@ -69,6 +70,12 @@ public class MemberServiceImpl implements MemberService {
     public List<MemberVO> getAllMembers(){
 
         return memberMapper.findAllMembers();
+    }
+
+    // 마이페이지 닉네임, 포인트 조회
+    @Override
+    public MemberPageDto getMemberPage(Long memberId){
+        return memberMapper.getMemberPage(memberId);
     }
 
 }

@@ -38,6 +38,7 @@ public class SecurityConfig {
                         // 대형폐기물 인식 기능 (예: /waste/recognize): 비회원도 가능
                         //.requestMatchers("/waste/**").permitAll()  // url나오면 수정 예정
                         .requestMatchers("/admin/**").hasRole("ADMIN") //관리자 페이지는 관리자만 접근 가능
+                        .requestMatchers("/mypage/**").authenticated() //로그인한 사용자만 마이페이지 접근 가능
                         .anyRequest().authenticated() //그 외 모든 요청은 로그인 필수
                 )
                 .csrf(csrf -> csrf.disable())

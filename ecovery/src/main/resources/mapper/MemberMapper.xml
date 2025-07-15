@@ -82,4 +82,18 @@
         select * from member
     </select>
 
+
+    <!-- 마이페이지 닉네임, 포인트 조회 -->
+    <select id="getMemberPage" resultType="com.ecovery.dto.MemberPageDto">
+        select
+            m.nickname, p.point
+        from
+            member m
+        left join <!-- 회원은 있으나 포인트가 없을 수 있어 left join 사용 -->
+            point p on m.member_id = p.member_id
+        where
+            m.member_id = #{memberId}
+    </select>
+
+
 </mapper>

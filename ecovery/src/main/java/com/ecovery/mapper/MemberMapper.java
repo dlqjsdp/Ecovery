@@ -1,13 +1,15 @@
 package com.ecovery.mapper;
 
 import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.MemberPageDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
 /**
- * 회원가입, 로그인를 위한 MemberMapper
+ * 회원가입, 로그인, 마이페이지를 위한 MemberMapper
  * 회원가입 시 정보를 DB에 저장하고 회원정보 수정, 목록 조회, 중복검증 가능
+ * 마이페이지에서 회원 닉네임, 포인트 조회 진행
  * MyBatis 매퍼 인터페이스 / MemberMapper.xml과 연동되어 SQL 실행
  * 작성자 : 방희경
  */
@@ -48,8 +50,7 @@ public interface MemberMapper {
      */
     public List<MemberVO> findAllMembers();
 
-
-
-
+    // 마이페이지 닉네임, 포인트 조회
+    public MemberPageDto getMemberPage(Long memberId);
 
 }

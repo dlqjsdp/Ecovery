@@ -1,9 +1,12 @@
 package com.ecovery.controller;
 
+import com.ecovery.dto.MemberPageDto;
+import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -103,12 +106,24 @@ public class MemberController {
         log.info("DB 조회 결과: {}", member != null ? member.getNickname() : "없음");
         return member != null;
     }
-  
 
     // 로그인 페이지 이동
     @GetMapping(value = "/login")
     public String loginForm(){
         return "member/login";
+    }
+
+    // 마이페이지 닉네임, 포인트 조회
+    @GetMapping(value = "/mypage")
+    public String mypageForm(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        // MemberVO에서 memberId 추출
+        Long memberId = userDetails.getMemberVO().getMemberId();
+        // 서비스 호출하여 마이페이지에 필요한 정보 조회(닉네임, 포인트)
+        MemberPageDto memberPage = memberService.getMemberPage(memberId);
+        // 화면으로 넘길 모델 데이터 세팅
+        model.addAttribute("member", memberPage);
+
+        return "member/mypage";
     }
 }
 

@@ -3,7 +3,6 @@ package com.ecovery.security;
 import com.ecovery.domain.MemberVO;
 import com.ecovery.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.javassist.compiler.ast.Member;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
