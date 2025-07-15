@@ -40,17 +40,10 @@ public class Criteria {
 
         return type == null? new String[] {}: type.split("");
     }
-
+    
     // MySQL용 offset
-    /**
-     * MySQL LIMIT 절에서 사용하기 위한 offset 값 계산
-     * 예) pageNum = 3, amount = 10일 때
-     *     (3 - 1) * 10 = 20
-     *     -> 21번째 행부터 조회
-     *
-     * @return 조회를 시작할 행 번호(offset)
-     */
     public int getOffset() {
+        
         return (pageNum - 1) * amount;
     }
 

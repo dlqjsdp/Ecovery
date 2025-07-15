@@ -10,13 +10,69 @@
     @since : 250710
     @history
      - 250710 | sehui | 상품 단 건 조회 기능 추가
+     - 250714 | sehui | 전체 상품 조회 기능 추가
+     - 250715 | sehui | 전체 상품의 수 조회 기능 추가
+     - 250715 | sehui | 전체 상품, 상품의 수 조회에 단일 조건 검색 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.ItemMapper">
 
-    <!-- Item 단 건 조회 -->
-    <select id="getItemDtl" resultType="com.ecovery.domain.ItemVO">
-        select * from item where item_id = #{itemId}
+    <resultMap id="itemResultMap" type="com.ecovery.domain.ItemVO">
+        <id property="itemId" column="item_id" />
+        <result property="itemName" column="item_name" />
+        <result property="price" column="price" />
+        <result property="stockNumber" column="stock_number" />
+        <result property="category" column="category" />
+        <result property="itemDetail" column="item_detail" />
+        <result property="itemSellStatus" column="sell_status" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <!-- 전체 상품 조회 + 조건 검색 -->
+    <select id="getListWithPage" resultType="com.ecovery.dto.ItemListDto">
+        select
+            i.item_id,
+            i.item_name AS itemNm,
+            i.category,
+            i.sell_status AS itemSellStatus,
+            img.img_url
+        from item i
+        LEFT JOIN item_img img ON i.item_id = img.item_id
+            AND img.rep_img_yn = 'Y'
+        <where>
+           <if test="itemNm != null and itemNm != ''">
+                AND i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+           </if>
+           <if test="category != null and category != ''">
+                AND i.category = #{category}
+           </if>
+        </where>
+        order by item_id desc
+        limit #{cri.amount} offset #{cri.offset}
     </select>
-    
+
+    <!-- 전체 상품의 수 조회 + 단일 조건 검색 -->
+    <select id="getTotalCount" resultType="int">
+        select count(*)
+        from item i
+        <where>
+            item_id > 0
+            <if test="itemNm != null and itemNm != ''">
+                AND i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+            </if>
+            <if test="category != null and category != ''">
+                AND i.category = #{category}
+            </if>
+        </where>
+    </select>
+
+    <!-- 상품 단 건 조회 -->
+    <select id="getItemDtl" resultMap="itemResultMap">
+        select
+            item_id, item_name, price, stock_number,category,
+            item_detail, sell_status, created_at
+        from item
+        where item_id = #{itemId}
+    </select>
+
 </mapper>

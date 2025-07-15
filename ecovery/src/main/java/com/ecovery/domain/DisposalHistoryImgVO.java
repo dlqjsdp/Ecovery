@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class DisposalHistoryImgVO {
 
     private Long disposalImgId;
-    private Long disposalHistoryid;
+    private Long disposalHistoryId;
     private String disposalImgName;
     private String oriDisposalImgName;
     private String disposalImgUrl;

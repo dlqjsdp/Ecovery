@@ -11,6 +11,7 @@
     @history
      - 250711 | yukyeong | 게시글 전체 목록 조회, 게시글 단건 조회 기능 추가
      - 250714 | yukyeong | 게시글 등록, 삭제, 수정 기능 추가
+     - 250715 | yukyeong | 게시글 목록 조회 (페이징 + 검색) 기능 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.EnvMapper">
@@ -39,9 +40,9 @@
     <!--
         게시글 단건 조회 쿼리
         · 대상 테이블 : env (게시글), member (작성자)
-        · 조인 방식   : INNER JOIN (member_id 기준)
-        · 조회 컬럼   : 게시글 정보 + 작성자 닉네임
-        · 용도        : 상세 화면 조회
+        · 조인 방식 : INNER JOIN (member_id 기준)
+        · 조회 컬럼 : 게시글 정보 + 작성자 닉네임
+        · 용도 : 상세 화면 조회
     -->
     <select id="read" resultType="com.ecovery.domain.EnvVO">
         SELECT
@@ -105,5 +106,47 @@
             updated_at = now()
         where env_id = #{envId}
     </update>
+
+
+    <!--
+    게시글 목록 조회 (페이징 + 검색) 쿼리
+    · 대상 테이블 : env (게시글), member (작성자)
+    · 조인 방식 : INNER JOIN (member_id 기준)
+    · 조회 컬럼 : 게시글 정보 + 작성자 닉네임
+    · 용도 : 목록 화면 출력 + 검색 + 페이징
+    -->
+    <select id="getListWithPaging" resultType="com.ecovery.domain.EnvVO">
+        SELECT
+            e.env_id,
+            e.member_id,
+            e.title,
+            e.content,
+            e.view_count,
+            e.created_at,
+            e.updated_at,
+            m.nickname
+        from env e
+        JOIN member m ON e.member_id = m.member_id
+        <where>
+            <trim prefix="(" suffix=")" suffixOverrides="AND">
+                <foreach collection="map" index="key" item="val"
+                         separator="or" open="(" close=")">
+                    <if test="key == 'T'">
+                        e.title LIKE #{val}
+                    </if>
+                    <if test="key == 'C'">
+                        e.content LIKE #{val}
+                    </if>
+                    <if test="key == 'W'">
+                        m.nickname LIKE #{val}
+                    </if>
+                </foreach>
+            </trim>
+        </where>
+        ORDER BY e.env_id DESC
+        LIMIT #{amount}
+        OFFSET #{offset}
+    </select>
+
 
 </mapper>

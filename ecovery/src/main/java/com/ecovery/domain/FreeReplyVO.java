@@ -23,5 +23,6 @@ public class FreeReplyVO {
     private Long freeId; // 게시글 ID (FK)
     private Long memberId; // 댓글 작성자 ID (FK)
     private String content; // 댓글 본문 내용
+    private Long parentId; // 부모 댓글 ID (NULL이면 일반댓글)
     private LocalDateTime createdAt; // 댓글 작성일시
 }
