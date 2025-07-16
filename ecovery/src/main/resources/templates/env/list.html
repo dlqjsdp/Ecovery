@@ -1,0 +1,90 @@
+<!--
+환경톡톡 게시글 목록 화면 (임시 뷰)
+EnvController의 목록 조회 기능을 확인하기 위해 임시로 만든 파일
+검색, 페이징, 목록 출력 기능만 구현됨
+@author : yukyeong
+@fileName : list.html
+@since : 250716
+@history
+    - 250716 | yukyeong | 목록 조회 화면 임시 작성
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>환경톡톡 게시글 목록</title>
+</head>
+<body>
+<h2>환경톡톡 게시글 목록</h2>
+
+<form th:action="@{/env/list}" method="get">
+    <select name="type">
+        <option value="" th:selected="${pageMaker?.cri?.type == null}">전체</option>
+        <option value="T" th:selected="${pageMaker?.cri?.type == 'T'}">제목</option>
+        <option value="C" th:selected="${pageMaker?.cri?.type == 'C'}">내용</option>
+        <option value="W" th:selected="${pageMaker?.cri?.type == 'W'}">작성자</option>
+        <option value="TCW" th:selected="${pageMaker?.cri?.type == 'TCW'}">제목+내용+작성자</option>
+    </select>
+    <input type="text" name="keyword"
+           th:value="${pageMaker?.cri?.keyword ?: ''}"
+           placeholder="검색어 입력">
+    <button type="submit">검색</button>
+</form>
+
+<table border="1" cellpadding="5" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>작성일</th>
+        <th>조회수</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item, iterStat : ${list}">
+        <td th:text="${item.envId}"></td>
+        <td>
+            <a th:href="@{/env/get(envId=${item.envId})}"
+               th:text="${item.title}"></a>
+        </td>
+        <td th:text="${item.nickname}"></td>
+        <td th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd')}"></td>
+        <td th:text="${item.viewCount}"></td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(list)}">
+        <td colspan="5">등록된 게시글이 없습니다.</td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:if="${pageMaker != null}">
+    <span th:if="${pageMaker.prev}">
+        <a th:href="@{/env/list(
+                        pageNum=${pageMaker.startPage - 1},
+                        amount=${pageMaker.cri.amount},
+                        type=${pageMaker.cri.type},
+                        keyword=${pageMaker.cri.keyword ?: ''})}">이전</a>
+    </span>
+
+    <span th:each="num : ${#numbers.sequence(pageMaker.startPage, pageMaker.endPage)}">
+        <a th:href="@{/env/list(
+                        pageNum=${num},
+                        amount=${pageMaker.cri.amount},
+                        type=${pageMaker.cri.type},
+                        keyword=${pageMaker.cri.keyword ?: ''})}"
+           th:text="${num}"></a>
+    </span>
+
+    <span th:if="${pageMaker.next}">
+        <a th:href="@{/env/list(
+                        pageNum=${pageMaker.endPage + 1},
+                        amount=${pageMaker.cri.amount},
+                        type=${pageMaker.cri.type},
+                        keyword=${pageMaker.cri.keyword ?: ''})}">다음</a>
+    </span>
+</div>
+
+</body>
+</html>

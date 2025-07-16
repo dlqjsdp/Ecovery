@@ -18,6 +18,7 @@ import java.util.List;
  * @since : 250715
  * @history
      - 250715 | yukyeong | EnvServiceImpl 클래스 최초 작성 (CRUD 구현)
+     - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 추가
  */
 
 @Service
@@ -97,5 +98,15 @@ public class EnvServiceImpl implements EnvService {
     public int getTotal(Criteria cri) {
         log.info("getTotal() - 게시글 총 개수 조회");
         return envMapper.getTotalCount(cri);
+    }
+
+    /**
+     * 게시글 조회수 1 증가
+     * 주어진 게시글 ID에 해당하는 view_count 값을 +1 처리
+     * @param envId 조회수를 증가시킬 게시글 ID (PK)
+     */
+    @Override
+    public void increaseViewCount(Long envId){
+        envMapper.updateViewCount(envId);
     }
 }

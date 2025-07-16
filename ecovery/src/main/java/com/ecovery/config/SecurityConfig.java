@@ -15,6 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * 로그인, 회원가입, 비밀번호 암호화 등을 처리하기 위한 시큐리티 클래스 파일
  * 작성자 : 방희경
+* @history
+     - 2507?? | 방희경 | SecurityConfig 클래스 최초 작성
+     - 250716 | yukyeong | 환경톡톡 게시판 누구나 접근 가능하게 변경
  */
 @Configuration
 @EnableWebSecurity
@@ -35,6 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
+                        .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
                         // 대형폐기물 인식 기능 (예: /waste/recognize): 비회원도 가능
                         //.requestMatchers("/waste/**").permitAll()  // url나오면 수정 예정
                         .requestMatchers("/item/**").permitAll()    //Test용
