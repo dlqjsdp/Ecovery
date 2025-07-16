@@ -1,5 +1,6 @@
 package com.ecovery.mapper;
 
+import com.ecovery.constant.ItemSellStatus;
 import com.ecovery.domain.ItemVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.ItemListDto;
@@ -20,10 +21,11 @@ import java.util.List;
  * @fileName : ItemMapperTest
  * @since : 250710
  * @history
- *  - 250710 | sehui | 상품 단 건 조회 기능 Test 추가
- *  - 250714 | sehui | 전체 상품 조회 기능 Test 추가
- *  - 250715 | sehui | 전체 상품의 수 조회 기능 Test 추가
- *  - 250715 | sehui | 상품 단일 조건 검색 기능 Test 추가
+ *  - 250710 | sehui | 상품 단 건 조회 Test 추가
+ *  - 250714 | sehui | 전체 상품 조회 Test 추가
+ *  - 250715 | sehui | 전체 상품의 수 조회 Test 추가
+ *  - 250715 | sehui | 상품 단일 조건 검색 Test 추가
+ *  - 250716 | sehui | 상품 등록 Test 추가
  */
 
 @SpringBootTest
@@ -31,7 +33,7 @@ import java.util.List;
 class ItemMapperTest {
 
     @Autowired
-    private ItemMapper mapper;
+    private ItemMapper itemMapper;
 
     @Test
     @DisplayName("상품 전체 조회 - 조건 없이")
@@ -43,7 +45,7 @@ class ItemMapperTest {
         Criteria cri = new Criteria(1, 10);
 
         //when : 전체 상품 조회
-        List<ItemListDto> itemList = mapper.getListWithPage(itemNm, category, cri);
+        List<ItemListDto> itemList = itemMapper.getListWithPage(itemNm, category, cri);
 
         //then : 결과 검증
         assertNotNull(itemList, "조회된 상품 목록이 null입니다.");
@@ -63,7 +65,7 @@ class ItemMapperTest {
         String category = "";
 
         //when : 전체 상품의 수 조회
-        int totalCount = mapper.getTotalCount(itemNm, category);
+        int totalCount = itemMapper.getTotalCount(itemNm, category);
 
         //then : 결과 검증
         assertNotNull(totalCount, "조회된 상품의 수가 null입니다.");
@@ -79,7 +81,7 @@ class ItemMapperTest {
         Long itemId = 4L;
 
         //when : 상품 단 건 조회
-        ItemVO item = mapper.getItemDtl(itemId);
+        ItemVO item = itemMapper.getItemDtl(itemId);
 
         //then : 결과 검증
         assertNotNull(item, "해당 ID의 상품이 존재하지 않습니다.");
@@ -97,11 +99,32 @@ class ItemMapperTest {
         Criteria cri = new Criteria(1, 10);
 
         //when : 상품 조건 검색 조회
-        List<ItemListDto> list = mapper.getListWithPage(itemNm, category, cri);
+        List<ItemListDto> list = itemMapper.getListWithPage(itemNm, category, cri);
 
         //then : 결과 검증
         assertNotNull(list, "조건을 만족하는 상품이 존재하지 않습니다.");
 
         list.forEach(item -> System.out.println("list >> " + item));
+    }
+
+    @Test
+    @DisplayName("상품 등록")
+    public void testInsert(){
+
+        //given : 상품 정보 생성
+        ItemVO item = ItemVO.builder()
+                .itemName("test")
+                .price(3000)
+                .stockNumber(5)
+                .category("가전")
+                .itemDetail("test 가전제품")
+                .itemSellStatus(ItemSellStatus.SELL)
+                .build();
+
+        //when : 상품 등록
+        itemMapper.insertItem(item);
+
+        //then : itemId 자동 생성되므로 값 설정 확인
+        assertNotNull(item.getItemId(),"상품 ID가 생성되지 않았습니다.");
     }
 }

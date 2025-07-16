@@ -6,16 +6,21 @@ package com.ecovery.service;
  * @fileName : ItemService
  * @since : 250710
  * @history
- *  -
+ *  - 250716 | sehui | 상품 이미지 등록 기능 추가
+ *  - 250716 | sehui | 상품 이미지 수정 기능 추가
  */
 
 import com.ecovery.domain.ItemImgVO;
+import com.ecovery.dto.ItemImgDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface ItemImgService {
 
-    //상품 이미지 DB 저장
+    //상품 이미지 등록
+    public void saveItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception;
 
     //상품 이미지 수정
+    public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception;
 }
