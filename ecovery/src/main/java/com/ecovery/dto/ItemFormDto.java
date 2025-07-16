@@ -2,6 +2,8 @@ package com.ecovery.dto;
 
 import com.ecovery.constant.ItemSellStatus;
 import com.ecovery.domain.ItemVO;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import java.util.List;
  * @since : 250710
  * @history
  *  - 250710 | sehui | 상세 페이지 화면 출력용 변수, 객체 변환 생성자 추가
+ *  - 250716 | sehui | 유효성 검사 추가
  */
 
 @Getter
@@ -23,14 +26,19 @@ public class ItemFormDto {
 
     private Long itemId;                   //상품 코드
 
+    @NotBlank(message = "상품명은 필수 입력 값입니다.")
     private String itemNm;             //상품명
 
+    @NotNull(message = "가격은 필수 입력 값입니다.")
     private Integer price;             //상품 가격
 
+    @NotNull(message = "재고는 필수 입력 값입니다.")
     private int stockNumber;           //재고 수량
 
+    @NotNull(message = "카테고리는 필수 입력 값입니다.")
     private String category;           //카테고리
 
+    @NotNull(message = "상세 설명은 필수 입력 값입니다.")
     private String itemDetail;         //상품 상세 설명
 
     private ItemSellStatus itemSellStatus;      //상품 판매 상태
@@ -39,18 +47,4 @@ public class ItemFormDto {
 
     private List<Long> itemImgId = new ArrayList<>();   //ItemImgVO 개별 이미지 수정 용도
 
-    //ItemVO -> ItemFormDto 변환 생성자
-    public static ItemFormDto of(ItemVO item){
-        ItemFormDto itemFormDto = new ItemFormDto();
-
-        itemFormDto.setItemId(item.getItemId());
-        itemFormDto.setItemNm(item.getItemName());
-        itemFormDto.setPrice(item.getPrice());
-        itemFormDto.setStockNumber(item.getStockNumber());
-        itemFormDto.setCategory(item.getCategory());
-        itemFormDto.setItemDetail(item.getItemDetail());
-        itemFormDto.setItemSellStatus(item.getItemSellStatus());
-
-        return itemFormDto;
-    }
 }

@@ -127,10 +127,10 @@ create table item (
                       item_name varchar(255) not null,
                       price int not null,
                       stock_number int not null default 0,
-                      category varchar(20) not null,
                       item_detail varchar(1000) not null,
                       sell_status Enum('SELL', 'SOLD_OUT') not null default 'SELL',
-                      created_at date not null default (current_date)
+                      created_at date not null default (current_date),
+                      category varchar(20) not null
 );
 
 
