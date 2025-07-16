@@ -14,6 +14,7 @@ import java.util.List;
  * @since : 250711
  * @history
      - 250711 | yukyeong | Mapper 인터페이스 최초 작성 (목록, 상세조회, 등록, 수정, 삭제, 페이징, 검색 메서드 정의)
+     - 250716 | yukyeong | 조회수 증가 추가
  */
 
 @Mapper
@@ -42,5 +43,8 @@ public interface EnvMapper {
 
     // 게시글 총 개수 조회 (페이징 + 검색)
     public int getTotalCount(Criteria cri);
+
+    // 게시글 조회수 증가
+    public void updateViewCount(Long envId);
 
 }

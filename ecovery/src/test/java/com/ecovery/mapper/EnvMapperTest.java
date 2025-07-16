@@ -1,6 +1,7 @@
 package com.ecovery.mapper;
 
 import com.ecovery.domain.EnvVO;
+import com.ecovery.dto.Criteria;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @history
      - 250711 | yukyeong | 게시글 전체 목록 조회, 단건 조회 테스트 작성
      - 250714 | yukyeong | 게시글 등록, 삭제, 수정 테스트 작성
+     - 250716 | yukyeong | 게시글 페이징 + 검색 목록 조회, 전체 게시글 개수 조회, 조회수 증가 테스트 작성
  */
 
 @SpringBootTest
@@ -148,6 +150,84 @@ class EnvMapperTest {
         assertEquals("수정된 내용", updated.getContent());
 
         log.info("수정된 게시글: {}", updated);
+    }
+
+
+    @Test
+    @DisplayName("게시글 페이징 + 검색 목록 조회 테스트")
+    @Transactional
+    public void testGetListWithPaging() {
+        // Given
+        Criteria cri = new Criteria();
+        cri.setPageNum(1); // 1페이지
+        cri.setAmount(10); // 한 페이지에 10건
+        cri.setType("T"); // T = 제목
+        cri.setKeyword("게시글"); // 검색어
+
+        // When
+        List<EnvVO> list = envMapper.getListWithPaging(cri);
+
+        // Then
+        assertNotNull(list, "결과 리스트는 null값이면 안됨");
+        log.info("조회된 게시글 수 : {}", list.size());
+
+        for (EnvVO vo : list) {
+            log.info("게시글: {}", vo);
+        }
+    }
+
+    @Test
+    @DisplayName("게시글 전체 개수 조회 테스트(검색 조건 포함)")
+    @Transactional
+    public void testGetTotalCount(){
+        // Given
+        Criteria cri = new Criteria();
+//        cri.setPageNum(1);
+//        cri.setAmount(10);
+        cri.setType("T"); // T = 제목
+        cri.setKeyword("테스트"); // 검색어
+
+        // When
+        int totalCount = envMapper.getTotalCount(cri);
+
+        // Then
+        log.info("검색 조건에 해당하는 전체 게시글 수 : {}", totalCount);
+        assertTrue(totalCount >= 0, "게시글 수는 0 이상");
+    }
+
+
+    @Test
+    @DisplayName("게시글 조회수 증가 테스트")
+    @Transactional
+    public void testUpdateViewCount(){
+        // Given
+        // 1) 테스트용 데이터 생성
+        EnvVO vo = new EnvVO();
+        vo.setMemberId(1L); // 작성자 ID 설정
+        vo.setTitle("조회수 증가 테스트 제목");
+        vo.setContent("조회수 증가 테스트 내용");
+        // 2) 게시글 등록
+        envMapper.insert(vo);
+        Long insertedId = vo.getEnvId();
+        assertNotNull(insertedId, "등록된 ID는 null값이면 안됩니다.");
+
+        // When
+        // 1) 조회수 증가 전 값 조회
+        EnvVO before = envMapper.read(insertedId);
+        int beforeCount = before.getViewCount(); // 증가 전 조회수 값
+        log.info("조회수 증가 전: {}", beforeCount);
+        // 2) 조회수 1 증가 실행
+        envMapper.updateViewCount(insertedId);
+
+        // Then
+        // 1) 조회수 1 증가 후 조회
+        EnvVO after = envMapper.read(insertedId);
+        int afterCount = after.getViewCount(); // 증가 후 조회수 값
+
+        log.info("조회수 증가 후: {}", afterCount);
+
+        // 2) 증가된 값이 예상대로 1 증가했는지 검증
+        assertEquals(beforeCount + 1, afterCount, "조회수는 1 증가");
     }
 
 }

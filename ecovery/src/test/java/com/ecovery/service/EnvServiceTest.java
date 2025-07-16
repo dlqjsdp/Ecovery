@@ -1,12 +1,15 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.EnvVO;
+import com.ecovery.dto.Criteria;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since : 250715
  * @history
      - 250715 | yukyeong | 게시글 등록, 단건 조회, 수정, 삭제 테스트 작성
+     - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 테스트 작성
  */
 
 @SpringBootTest
@@ -141,6 +145,80 @@ class EnvServiceTest {
 
         log.info("삭제된 게시글 ID: {}", insertedId);
 
+    }
+
+    @Test
+    @DisplayName("게시글 페이징 + 검색 목록 조회 테스트")
+    @Transactional
+    public void testGetList(){
+        // Given
+        Criteria cri = new Criteria();
+        cri.setPageNum(1); // 1페이지
+        cri.setAmount(10); // 한 페이지에 10건
+        cri.setType("T"); // 제목 검색
+        cri.setKeyword("테스트"); // 검색어
+
+        // When
+        List<EnvVO> list = envService.getList(cri);
+
+        // Thwn
+        assertNotNull(list, "조회 결과가 null값이면 안됨");
+        log.info("조회된 게시글 수 : {}", list.size());
+
+        for (EnvVO vo : list) {
+            log.info("게시글: {}", vo);
+        }
+    }
+
+    @Test
+    @DisplayName("게시글 전체 개수 조회 테스트(검색 조건 포함)")
+    @Transactional
+    public void testGetTotal(){
+        // Given
+        Criteria cri = new Criteria();
+        cri.setType("T"); // T = 제목
+        cri.setKeyword("테스트"); // 검색어
+
+        // When
+        int totalCount = envService.getTotal(cri);
+
+        // Then
+        log.info("검색 조건에 해당하는 전체 게시글 수 : {}", totalCount);
+        assertTrue(totalCount >= 0, "게시글 수는 0 이상");
+    }
+
+    @Test
+    @DisplayName("게시글 조회수 증가 테스트")
+    @Transactional
+    public void testUpdateViewCount(){
+        // Given
+        // 1) 테스트용 데이터 생성
+        EnvVO vo = new EnvVO();
+        vo.setMemberId(1L); // 작성자 ID 설정
+        vo.setTitle("조회수 증가 테스트 제목");
+        vo.setContent("조회수 증가 테스트 내용");
+        // 2) 게시글 등록
+        envService.register(vo);
+        Long insertedId = vo.getEnvId();
+        assertNotNull(insertedId, "등록된 ID는 null값이면 안됩니다.");
+
+        // When
+        // 1) 조회수 증가 전 값 조회
+        EnvVO before = envService.get(insertedId);
+        int beforeCount = before.getViewCount(); // 증가 전 조회수 값
+        log.info("조회수 증가 전: {}", beforeCount);
+        // 2) 조회수 1 증가 실행
+        envService.increaseViewCount(insertedId);
+
+        // Then
+        // 1) 조회수 1 증가 후 조회
+        EnvVO after = envService.get(insertedId);
+        int afterCount = after.getViewCount(); // 증가 후 조회수 값
+
+        log.info("조회수 증가 후: {}", afterCount);
+
+        // 2) 증가된 값이 예상대로 1 증가했는지 검증
+        assertEquals(beforeCount + 1, afterCount, "조회수는 1 증가");
     }
 
 
