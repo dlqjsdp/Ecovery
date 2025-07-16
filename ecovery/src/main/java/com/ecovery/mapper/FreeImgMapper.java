@@ -23,12 +23,9 @@ public interface FreeImgMapper {
 
     public List<FreeImgDto> getFreeImgList(Long freeId); // 게시글에 연결된 전체 이미지 조회
 
-    public int delete(Long freeImgId);                   // UUID 기준으로 이미지 1건 삭제(성공시 1, 실패시 0)
+    public int delete(Long freeImgId);                   // 이미지 고유번호 기준으로 이미지 1건 삭제(성공시 1, 실패시 0)
 
-    public int deleteByFreeId(Long freeId);              // 게시글에 연결된 이미지 전체 삭제(성공시 1, 실패시 0)
-                                                         // (ex.게시글 삭제시, 이미지 5장 삭제시 return = 5)
-
-    public FreeImgDto getRepImg(Long freeId);            //
+    public FreeImgDto getRepImg(Long freeId);            // 게시글에 등록된 대표이미지 한장 가져오기
 
 
 

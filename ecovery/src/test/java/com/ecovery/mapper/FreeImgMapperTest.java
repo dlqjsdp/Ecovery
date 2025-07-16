@@ -36,9 +36,9 @@ class FreeImgMapperTest {
         // Given(준비) : 새로 등록할 이미지 정보 생성
         FreeImgVO vo = FreeImgVO.builder()
                 .freeId(2L)
-                .imgName("test4_image")
-                .oriImgName("test4.jpg")
-                .imgUrl("/images/test4_image.jpg")
+                .imgName("test2_image")
+                .oriImgName("test2.jpg")
+                .imgUrl("/images/test2_image.jpg")
                 .repImgYn("N")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -53,8 +53,8 @@ class FreeImgMapperTest {
         List<FreeImgDto> list = freeImgMapper.getFreeImgList(2L);
         FreeImgDto dto = list.get(list.size() - 1); // 가장 마지막 이미지가 방금 insert한 이미지..
 
-        assertEquals("test4_image", dto.getImgName());
-        assertEquals("test4.jpg", dto.getOriImgName());
+        assertEquals("test2_image", dto.getImgName());
+        assertEquals("test2.jpg", dto.getOriImgName());
         log.info("등록된 이미지 : {}", dto);
     }
 
@@ -115,7 +115,7 @@ class FreeImgMapperTest {
     public void testDelete() {
 
         Long freeId = 2L; // 게시글 ID
-        Long targetFreeImgId = 1L; // 삭제하고 싶은 이미지의 ID (예: 사용자가 선택한 이미지)
+        Long targetFreeImgId = 4L; // 삭제하고 싶은 이미지의 ID (예: 사용자가 선택한 이미지)
 
         // 해당 이미지 정보 조회
         List<FreeImgDto> imageList = freeImgMapper.getFreeImgList(freeId);
@@ -141,7 +141,22 @@ class FreeImgMapperTest {
         }
     }
 
+    @Test
+    @DisplayName("대표 이미지 조회 테스트")
+    public void testGetRepImg(){
 
+        // Given : 대표 이미지가 존재하는 게시글 ID
+        Long freeId = 7L;
+
+        // When : 대표 이미지 조회 메소드 실행
+        FreeImgDto repImg = freeImgMapper.getRepImg(freeId);
+
+        // Then : 결과 검증
+        assertNotNull(repImg, "대표 이미지가 존재해야 합니다.");
+        assertEquals("Y", repImg.getRepImgYn(), "대표 이미지 플래그는 'Y'여야 합니다.");
+        
+        log.info("대표 이미지 정보 : {}", repImg);
+    }
 
 }
 

@@ -48,7 +48,7 @@ class FreeMapperTest {
         vo.setItemCondition(ItemCondition.LOW);
 
         // When (실행)
-        freeMapper.insertSelectKey(vo);
+        freeMapper.insert(vo);
 
         // Then (검증)
         // 1) insert 후 FreeId가 자동으로 채워졌는지
@@ -94,7 +94,7 @@ class FreeMapperTest {
     public void testDelete(){
 
         //Given : 삭제할 게시글 ID가 존재함
-        Long targetId = 5L;
+        Long targetId = 2L;
 
         //When : 게시글 삭제 요청 실행
         int deletedCount = freeMapper.delete(targetId);
