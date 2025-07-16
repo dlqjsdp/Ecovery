@@ -14,7 +14,7 @@
 -->
 
     <!-- 이미지 등록 -->
-    <insert id="insert" parameterType="com.ecovery.domain.FreeImgVO">
+    <insert id="insert" parameterType="com.ecovery.domain.FreeImgVO" useGeneratedKeys="true" keyProperty="freeImgId">
         INSERT INTO free_img (
                               free_id, img_name,
                               ori_img_name, img_url, repimg_yn

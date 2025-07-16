@@ -75,7 +75,7 @@
     </select>
 
     <!-- 게시글 삽입-->
-    <insert id="insert">
+    <insert id="insert" parameterType="com.ecovery.domain.FreeVO" useGeneratedKeys="true" keyProperty="freeId">
         INSERT INTO free(
                          title, member_id, category, region_gu,
                          region_dong, content, item_condition
@@ -84,12 +84,6 @@
                 #{title}, #{memberId}, #{category}, #{regionGu},
                 #{regionDong}, #{content}, #{itemCondition}
                )
-    </insert>
-
-    <!-- 게시글 삽입하면서 생성된 PK도 함께 가져오기-->
-    <insert id="insertSelectKey" useGeneratedKeys="true" keyProperty="freeId">
-        INSERT INTO free (title, member_id, category, region_gu, region_dong, content, item_condition)
-        VALUES (#{title}, #{memberId}, #{category}, #{regionGu}, #{regionDong}, #{content}, #{itemCondition})
     </insert>
 
     <!-- update -->

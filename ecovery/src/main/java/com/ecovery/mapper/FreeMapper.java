@@ -24,8 +24,6 @@ public interface FreeMapper {
 
     public void insert(FreeVO freeVO);                    // 게시글 등록
 
-    public void insertSelectKey(FreeVO freeVO);           // 게시글 등록 후 생성된 PK를 freeVO에 저장
-
     public int update(FreeVO freeVO);                     // 게시글 수정 (성공시 1, 실패시 0)
 
     public int delete(Long freeId);                       // 게시글 삭제 (성공시 1, 실패시 0)
