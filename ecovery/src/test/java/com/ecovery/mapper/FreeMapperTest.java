@@ -3,15 +3,13 @@ package com.ecovery.mapper;
 import com.ecovery.constant.DealStatus;
 import com.ecovery.constant.ItemCondition;
 import com.ecovery.domain.FreeVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeDto;
-import jdk.dynalink.linker.support.Guards;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,14 +36,15 @@ class FreeMapperTest {
     public void testInsert() {
 
         // Given (준비)
-        FreeVO vo = new FreeVO();
-        vo.setTitle("세번째");
-        vo.setMemberId(1L);
-        vo.setCategory("잡화");
-        vo.setRegionGu("마포구");
-        vo.setRegionDong("상암동");
-        vo.setContent("세번째 폐기물");
-        vo.setItemCondition(ItemCondition.LOW);
+        FreeVO vo = FreeVO.builder()
+                .title("무료나눔 거울")
+                .memberId(2L)
+                .category("기타")
+                .regionGu("송파구")
+                .regionDong("방이동")
+                .content("목요일 폐기물")
+                .itemCondition(ItemCondition.MEDIUM)
+                .build();
 
         // When (실행)
         freeMapper.insert(vo);
@@ -54,13 +53,13 @@ class FreeMapperTest {
         // 1) insert 후 FreeId가 자동으로 채워졌는지
         assertNotNull(vo.getFreeId(), "id는 null값이면 안됩니다.");
 
-        // 2) 방금 insert한 데이터 조회 (PK로 단건 조회)
-        FreeVO inserted = freeMapper.read(vo.getFreeId());
+        // 2) 방금 insert한 데이터 조회 (PK로 단건 조회 -> DTO로)
+        FreeDto inserted = freeMapper.read(vo.getFreeId());
         assertNotNull(inserted, "insert 이후에는 null값이면 안됩니다.");
 
         // 3) DB에 저장된 데이터가 내가 입력한 값이랑 같은지 검증 (예상괎과 실제값 비교)
-        assertEquals("세번째", inserted.getTitle());
-        assertEquals("세번째 폐기물", inserted.getContent());
+        assertEquals("무료나눔 거울", inserted.getTitle());
+        assertEquals("목요일 폐기물", inserted.getContent());
 
 
         log.info("삽입된 게시글 : {}", inserted);
@@ -69,25 +68,44 @@ class FreeMapperTest {
     @Test
     @DisplayName("게시글 전체 목록 조회")
     public void testGetList(){
-        List<FreeVO> list = freeMapper.getFreeList();
-        log.info("전체 게시글 수 : {}", list.size());
+        
+        // Given : 페이징 및 검색 조건 설정 
+        Criteria cri = new Criteria();
+        cri.setPageNum(1); // 1페이지
+        cri.setAmount(8);  // 페이지당 10개
 
-        for (FreeVO freeVO : list) {
-            log.info("게시글 : {}", freeVO);
+        // 전체 게시글 수 가져오기
+        int total = freeMapper.getTotalCount(cri);
+        log.info("전체 게시글 수 (DB 기준): {}", total);
+
+        // When : mapper 호출 
+        List<FreeDto> list = freeMapper.getListWithPaging(cri);
+        log.info("조회된 게시글 수 (현재 페이지) : {}", list.size());
+
+        // Then : 결과 출력
+        for (FreeDto dto : list) {
+            log.info("게시글 : {}", dto);
         }
     }
 
     @Test
     @DisplayName("게시글 단건 조회")
     public void testRead(){
-        Long targetId = 2L;
-        FreeVO freeVO = freeMapper.read(targetId);
-        if (freeVO != null) {
-            log.info(freeVO.toString());
+
+        // Given
+        Long targetId = 8L;
+
+        // When
+        FreeDto dto = freeMapper.read(targetId);
+
+        // Then
+        if (dto != null) {
+            log.info("조회된 게시글 : {}", dto.toString());
         }else {
-            log.info("조회 결과가 없습니다.");
+            log.info("조회 결과가 없습니다. (freeId = {})", targetId);
         }
     }
+
 
     @Test
     @DisplayName("게시글 삭제 테스트")
@@ -106,6 +124,7 @@ class FreeMapperTest {
             log.info("게시글 삭제 실패 또는 존재하지 않음 : {}", targetId);
         }
     }
+
 
     @Test
     @DisplayName("게시글 수정 테스트")

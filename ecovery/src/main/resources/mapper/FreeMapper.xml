@@ -32,46 +32,18 @@
         <result property="nickname" column="nickname"/>
     </resultMap>
 
-    <!-- 게시글 단건 조회 -->
-    <select id="read" resultMap="freeMap">
-        SELECT
-            f.free_id,
-            f.member_id,
-            f.title,
-            f.content,
-            f.category,
-            f.region_gu,
-            f.region_dong,
-            f.view_count,
-            f.created_at,
-            f.item_condition,
-            f.deal_status,
-            m.nickname
-        FROM free f
-        JOIN member m ON f.member_id = m.member_id
-        WHERE f.free_id = #{freeId}
-    </select>
-
-
     <!-- 게시글 전체 목록 조회 -->
-    <select id="getFreeList" resultMap="freeMap">
+    <select id="getListWithPaging" resultType="com.ecovery.dto.FreeDto">
         SELECT
-            f.free_id,
-            f.member_id,
-            f.title,
-            f.content,
-            f.category,
-            f.region_gu,
-            f.region_dong,
-            f.view_count,
-            f.item_condition,
-            f.created_at,
-            f.deal_status,
-            i.img_url,
-            i.repimg_yn
+            f.free_id AS freeId,
+            f.title AS title,
+            f.deal_status AS dealStatus,
+            i.img_url AS imgUrl
         FROM free f
         JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'
+        <include refid="criteria"/>
         ORDER BY f.free_id DESC
+        LIMIT #{amount} OFFSET #{offset}
     </select>
 
     <!-- 게시글 삽입-->
@@ -86,7 +58,7 @@
                )
     </insert>
 
-    <!-- update -->
+    <!-- 게시글 수정 -->
     <update id="update" parameterType="com.ecovery.domain.FreeVO">
         UPDATE free
         SET title = #{title}, category = #{category}, region_gu = #{regionGu}, region_dong = #{regionDong},
@@ -98,26 +70,6 @@
     <delete id="delete" parameterType="Long">
         DELETE FROM free WHERE free_id = #{freeId}
     </delete>
-
-    <!-- 페이징 처리 게시글 목록 쿼리(MYSQL) -->
-    <select id="getListWithPaging" resultType="com.ecovery.domain.FreeVO">
-        SELECT
-            free_id,
-            member_id,
-            title,
-            content,
-            category,
-            region_gu,
-            region_dong,
-            view_count,
-            created_at,
-            item_condition,
-            deal_status
-        FROM free
-        <include refid="criteria"/>
-        ORDER BY free_id DESC
-        LIMIT #{amount} OFFSET #{offset}
-    </select>
 
     <!-- 검색 조건(제목, 내용, 지역(구,동) -->
     <sql id="criteria">
@@ -156,22 +108,23 @@
     </update>
 
     <!-- 게시글 상세 조회 + 작성자 닉네임 포함 -->
-    <select id="readWithWriter" parameterType="long" resultType="com.ecovery.dto.FreeDto">
+    <select id="read" resultType="com.ecovery.dto.FreeDto">
         SELECT
-            f.free_id,
-            f.member_id,
-            f.title,
-            f.content,
-            f.category,
-            f.region_gu,
-            f.region_dong,
-            f.view_count,
-            f.created_at,
-            f.item_condition,
-            f.deal_status,
-            m.nickname
+            f.free_id AS freeId,
+            f.title AS title,
+            f.content AS content,
+            f.category AS category,
+            f.region_gu AS regionGu,
+            f.region_dong AS regionDong,
+            f.view_count AS viewCount,
+            f.item_condition AS itemCondition,
+            f.deal_status AS dealStatus,
+            f.created_at AS createdAt,
+            m.nickname AS nickname,
+            i.img_url AS imgUrl
         FROM free f
         JOIN member m ON f.member_id = m.member_id
+        LEFT JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'
         WHERE f.free_id = #{freeId}
     </select>
 </mapper>
