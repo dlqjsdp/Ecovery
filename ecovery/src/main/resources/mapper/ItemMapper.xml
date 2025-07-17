@@ -9,10 +9,11 @@
     @fileName : ItemMapper.xml
     @since : 250710
     @history
-     - 250710 | sehui | 상품 단 건 조회 기능 추가
+     - 250710 | sehui | 상품 단건 조회 기능 추가
      - 250714 | sehui | 전체 상품 조회 기능 추가
      - 250715 | sehui | 전체 상품의 수 조회 기능 추가
      - 250715 | sehui | 전체 상품, 상품의 수 조회에 단일 조건 검색 추가
+     - 250716 | sehui | 상품 등록 기능 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.ItemMapper">
@@ -66,7 +67,7 @@
         </where>
     </select>
 
-    <!-- 상품 단 건 조회 -->
+    <!-- 상품 단건 조회 -->
     <select id="getItemDtl" resultMap="itemResultMap">
         select
             item_id, item_name, price, stock_number,category,
@@ -74,5 +75,11 @@
         from item
         where item_id = #{itemId}
     </select>
+
+    <!-- 상품 등록 -->
+    <insert id="insertItem" parameterType="com.ecovery.domain.ItemVO" useGeneratedKeys="true" keyProperty="itemId">
+        insert into item (item_name, price, stock_number, category, item_detail, sell_status, created_at)
+        values (#{itemName}, #{price}, #{stockNumber}, #{category}, #{itemDetail}, #{itemSellStatus}, NOW())
+    </insert>
 
 </mapper>

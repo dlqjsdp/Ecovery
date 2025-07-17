@@ -1,8 +1,6 @@
 package com.ecovery.domain;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +15,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class FreeReplyVO {
 
     private Long replyId; // 댓글 고유번호(PK)

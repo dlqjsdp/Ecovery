@@ -14,6 +14,7 @@ import java.util.List;
  * @since : 250715
  * @history
      - 250715 | yukyeong | EnvService 인터페이스 최초 작성 (CRUD, 페이징)
+     - 250716 | yukyeong | 조회수 증가 추가
  */
 
 public interface EnvService {
@@ -30,4 +31,5 @@ public interface EnvService {
 
     public int getTotal(Criteria cri); // 게시글 총 개수 조회 (페이징 처리에 사용)
 
+    public void increaseViewCount(Long envId); // 게시글 조회수 증가
 }

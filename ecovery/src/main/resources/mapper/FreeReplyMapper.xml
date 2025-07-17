@@ -14,7 +14,7 @@
 -->
 
     <!-- 댓글 등록 -->
-    <insert id="insert" parameterType="com.ecovery.domain.FreeReplyVO">
+    <insert id="insert" parameterType="com.ecovery.domain.FreeReplyVO" useGeneratedKeys="true" keyProperty="replyId">
         INSERT INTO free_reply (
                                 free_id, member_id,
                                 content, parent_id, created_at
@@ -33,7 +33,7 @@
                r.content,
                r.parent_id,
                r.created_at,
-               m.nick_name
+               m.nickname
         FROM free_reply r
         JOIN member m ON r.member_id = m.member_id
         WHERE r.reply_id = #{replyId}
@@ -46,18 +46,20 @@
         WHERE reply_id = #{replyId}
     </update>
 
+
     <!-- 댓글 삭제 -->
     <delete id="delete" parameterType="Long">
         DELETE FROM free_reply
         WHERE reply_id = #{replyId}
     </delete>
 
+
     <!-- 게시글의 부모 댓글 목록 조회 (parent_id IS NULL) -->
     <select id="getParentReplies" resultType="com.ecovery.dto.FreeReplyDto">
         SELECT
             r.reply_id, r.free_id, r.member_id,
             r.content, r.parent_id, r.created_at,
-            m.nick_name
+            m.nickname
         FROM free_reply r
         JOIN member m ON r.member_id = m.member_id
         WHERE r.free_id = #{freeId}
@@ -79,9 +81,12 @@
         WHERE free_id = #{freeId}
     </select>
 
-
-
-
+    <!-- 특정 부모 댓글 대댓글 수 조회-->
+    <select id="getChildReplyCount" resultType="int">
+        SELECT COUNT(*)
+        FROM free_reply
+        WHERE parent_id = #{parentId}
+    </select>
 
 
 

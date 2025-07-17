@@ -3,6 +3,7 @@ package com.ecovery.dto;
 import com.ecovery.constant.DealStatus;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /*
  * 무료나눔 게시글 DTO
@@ -14,6 +15,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@ToString
 public class FreeDto {
     private Long freeId;
     private String regionGu;

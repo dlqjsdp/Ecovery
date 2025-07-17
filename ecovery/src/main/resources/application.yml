@@ -35,7 +35,9 @@ spring:
 
 # 상품 이미지 업로드 경로
 itemImgLocation: C:/ecovery/item
+
 disposalImgLocation: C:/ecovery/disposalImg
+
 
 # 리소스 이미지 업로드 경로
 uploadPath: file:///C:/ecovery/
@@ -48,6 +50,7 @@ mybatis:
   # DB 컬럼명과 Java 필드명 자동 매핑 (snake_case → camelCase)
   configuration:
     map-underscore-to-camel-case: true
+    use-generated-keys: true    #자동으로 생성된 키 처리하기 위한 설정
 
 # 쿼리에 물음표로 출력되는 바인드 파라미터 출력
 logging:
