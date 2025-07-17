@@ -22,5 +22,5 @@ public interface ItemImgService {
     public void saveItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception;
 
     //상품 이미지 수정
-    public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception;
+    public void updateItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception;
 }

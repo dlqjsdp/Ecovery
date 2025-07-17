@@ -14,6 +14,7 @@
      - 250715 | sehui | 전체 상품의 수 조회 기능 추가
      - 250715 | sehui | 전체 상품, 상품의 수 조회에 단일 조건 검색 추가
      - 250716 | sehui | 상품 등록 기능 추가
+     - 250717 | sehui | 상품 수정 기능 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.ItemMapper">
@@ -81,5 +82,17 @@
         insert into item (item_name, price, stock_number, category, item_detail, sell_status, created_at)
         values (#{itemName}, #{price}, #{stockNumber}, #{category}, #{itemDetail}, #{itemSellStatus}, NOW())
     </insert>
+
+    <!-- 상품 수정 -->
+    <update id="updateItem">
+        update item
+        set item_name = #{itemName},
+            price = #{price},
+            stock_number = #{stockNumber},
+            item_detail = #{itemDetail},
+            sell_status = #{itemSellStatus},
+            created_at = now()
+        where item_id = #{itemId}
+    </update>
 
 </mapper>
