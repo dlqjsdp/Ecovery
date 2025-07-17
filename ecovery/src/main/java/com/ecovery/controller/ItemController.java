@@ -59,12 +59,12 @@ public class ItemController {
         model.addAttribute("itemNm", itemNm);
         model.addAttribute("category", category);
 
-        return "item/itemList";
+        return "List";
     }
 
     //상품 상세 페이지 요청
     @GetMapping("/{itemId}")
-    public String itemDtl(@PathVariable Long itemId,Principal principal, Model model) {
+    public String itemDtl(@PathVariable Long itemId, Principal principal, Model model) {
 
         //관리자 전용 버튼을 위해 권한 확인
         String email = principal.getName();

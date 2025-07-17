@@ -11,6 +11,7 @@ package com.ecovery.mapper;
  *  - 250715 | sehui | 전체 상품의 수 조회 기능 추가
  *  - 250715 | sehui | 전체 상품, 상품의 수 조회에 단일 조건 검색 추가
  *  - 250716 | sehui | 상품 등록 기능 추가
+ *  - 250717 | sehui | 상품 수정 기능 추가
  */
 
 import com.ecovery.domain.ItemVO;
@@ -37,6 +38,7 @@ public interface ItemMapper {
     public void insertItem(ItemVO itemVO);
 
     //상품 수정
+    public void updateItem(ItemVO itemVO);
 
     //상품 삭제
 

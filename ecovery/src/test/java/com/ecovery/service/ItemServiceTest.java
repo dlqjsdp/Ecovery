@@ -1,14 +1,23 @@
 package com.ecovery.service;
 
+import com.ecovery.constant.ItemSellStatus;
+import com.ecovery.domain.ItemImgVO;
+import com.ecovery.domain.ItemVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.ItemFormDto;
 import com.ecovery.dto.ItemListDto;
+import com.ecovery.mapper.ItemImgMapper;
+import com.ecovery.mapper.ItemMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @history
  *  - 250710 | sehui | 상품 단 건 조회 Test 추가
  *  - 250715 | sehui | 전체 상품 조회 Test 추가
+ *  - 250717 | sehui | 상품 수정 Test 추가
  */
 
 @SpringBootTest
@@ -29,7 +39,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ItemServiceTest {
 
     @Autowired
-    private ItemService service;
+    private ItemService itemService;
+    @Autowired
+    private ItemMapper itemMapper;
+    @Autowired
+    private ItemImgMapper itemImgMapper;
 
     @Test
     @DisplayName("전체 상품 조회")
@@ -41,7 +55,7 @@ class ItemServiceTest {
         Criteria cri = new Criteria();
 
         //when : 전체 상품 조회
-        List<ItemListDto> itemList = service.getItemList(itemNm, category, cri);
+        List<ItemListDto> itemList = itemService.getItemList(itemNm, category, cri);
 
         //then : 결과 검증
         assertNotNull(itemList, "상품 목록이 null입니다.");
@@ -60,12 +74,88 @@ class ItemServiceTest {
         Long itemId = 3L;
 
         //when : itemId로 상품 단 건 조회
-        ItemFormDto item = service.getItemDtl(itemId);
+        ItemFormDto item = itemService.getItemDtl(itemId);
 
         //then : 결과 검증
         assertNotNull(item, "조회된 상품이 null입니다.");
         assertEquals(itemId, item.getItemId(), "상품 ID가 일치하지 않습니다.");
 
         log.info("Item : {}", item);
+    }
+    @Test
+    @DisplayName("상품 등록")
+    public void testSaveItem() throws Exception{
+
+        //given : 상품 정보 생성
+        ItemFormDto item = new ItemFormDto();
+        item.setItemNm("test 등록");
+        item.setPrice(5000);
+        item.setStockNumber(10);
+        item.setCategory("데스크");
+        item.setItemDetail("test 상세 설명");
+        item.setItemSellStatus(ItemSellStatus.SELL);
+
+        //MockMultipartFile을 사용해 가자 이미지 파일 생성
+        MockMultipartFile mockFile1 = new MockMultipartFile(
+                "itemImgFile1",
+                "testImage1.jpg",
+                "image/jpeg",
+                "test image content 1".getBytes()
+        );
+
+        MockMultipartFile mockFile2 = new MockMultipartFile(
+                "itemImgFile2",
+                "testImage2.jpg",
+                "image/jpeg",
+                "test image content 2".getBytes()
+        );
+
+        List<MultipartFile> itemImgList = Arrays.asList(mockFile1, mockFile2);
+
+        //when : 상품 등록
+        Long savedItemId = itemService.saveItem(item, itemImgList);
+
+        //then : 결과 검증
+        assertNotNull(savedItemId, "상품 등록 ID가 null 값입니다.");
+        assertTrue(savedItemId > 0, "상품 ID가 0보다 작습니다.");
+
+        log.info("savedItemId >> {}", savedItemId);
+    }
+
+    @Test
+    @DisplayName("상품 수정")
+    public void testUpdateItem() throws Exception{
+
+        //given : 상품 수정 정보 생성
+        ItemFormDto item = new ItemFormDto();
+        item.setItemId(8L);
+        item.setItemNm("test 수정2222222");
+        item.setPrice(10000);
+        item.setStockNumber(1);
+        item.setCategory("가구");
+        item.setItemDetail("test 상세 설명 수정");
+        item.setItemSellStatus(ItemSellStatus.SELL);
+        item.setItemImgId(Arrays.asList(6L));           //실제 DB에 존재하는 ItemImgId
+
+        //MockMultipartFile을 사용해 가짜 이미지 파일 생성
+        MockMultipartFile mockFile1 = new MockMultipartFile(
+                "itemImgFile22222",
+                "e371cecc-261b-4533-891c-0f06e7d8d2b5.jpg",     //실제 DB에 존재하는 itemImgName
+                "image/jpeg",
+                "test image content 3".getBytes()
+        );
+
+        List<MultipartFile> itemImgList = Arrays.asList(mockFile1);
+
+        //given : 상품 수정
+        itemService.updateItem(item, itemImgList);
+
+        //then : 결과 검증
+        ItemVO updateItem = itemMapper.getItemDtl(item.getItemId());
+
+        assertNotNull(updateItem, "상품 정보가 수정되지 않았습니다.");
+
+        log.info("updateItem >> {}", updateItem);
+
     }
 }

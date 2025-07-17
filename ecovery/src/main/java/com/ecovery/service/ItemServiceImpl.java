@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  *  - 250715 | sehui | 전체 상품의 수 조회 기능 추가
  *  - 250716 | sehui | VO -> DTO, DTO -> VO 변환 메소드 추가
  *  - 250716 | sehui | 상품 등록 기능 추가
+ *  - 250717 | sehui | 상품 수정 기능 추가
  */
 
 @Service
@@ -54,6 +55,7 @@ public class ItemServiceImpl implements ItemService     {
 
         itemFormDto.setItemId(itemVO.getItemId());
         itemFormDto.setItemNm(itemVO.getItemName());
+        itemFormDto.setPrice(itemVO.getPrice());
         itemFormDto.setCategory(itemVO.getCategory());
         itemFormDto.setItemDetail(itemVO.getItemDetail());
         itemFormDto.setItemSellStatus(itemVO.getItemSellStatus());
@@ -67,6 +69,7 @@ public class ItemServiceImpl implements ItemService     {
         return ItemVO.builder()
                 .itemId(itemFormDto.getItemId())
                 .itemName(itemFormDto.getItemNm())
+                .price(itemFormDto.getPrice())
                 .stockNumber(itemFormDto.getStockNumber())
                 .category(itemFormDto.getCategory())
                 .itemDetail(itemFormDto.getItemDetail())
@@ -133,12 +136,17 @@ public class ItemServiceImpl implements ItemService     {
         //상품 정보저장
         itemMapper.insertItem(item);
 
+        if(item.getItemId() == null) {
+            throw new RuntimeException("상품 ID가 null입니다.");
+        }
+
         //상품 이미지 저장
         for(MultipartFile multipartFile : itemImgFileList) {
             ItemImgVO itemImg = ItemImgVO.builder()
-                    .itemId(itemFormDto.getItemId())
+                    .itemId(item.getItemId())
                     .build();
 
+            //대표 이미지 설정
             if(itemImgFileList.get(0).equals(multipartFile)){
                 itemImg.setRepImgYn("Y");
             }else {
@@ -151,4 +159,37 @@ public class ItemServiceImpl implements ItemService     {
         return item.getItemId();
     }
 
+    //상품 수정
+    @Override
+    public void updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
+
+        //ItemFormDto -> ItemVO 변환
+        ItemVO item = convertDtoToVo(itemFormDto);
+
+        //상품 정보 수정
+        itemMapper.updateItem(item);
+
+        //상품 이미지 수정
+        List<Long> itemImgIds = itemFormDto.getItemImgId();
+
+        for(int i=0; i<itemImgFileList.size(); i++) {
+            MultipartFile multipartFile = itemImgFileList.get(i);
+            Long itemImgId = itemImgIds.get(i);
+
+            //ItemImgVo 객체 생성
+            ItemImgVO itemImg = ItemImgVO.builder()
+                    .itemId(itemFormDto.getItemId())
+                    .itemImgId(itemImgId)
+                    .build();
+
+            //대표 이미지 설정
+            if(itemImgFileList.get(0).equals(multipartFile)){
+                itemImg.setRepImgYn("Y");
+            }else {
+                itemImg.setRepImgYn("N");
+            }
+
+            itemImgService.updateItemImg(itemImg, multipartFile);
+        }
+    }
 }

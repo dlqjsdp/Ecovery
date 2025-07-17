@@ -2,6 +2,8 @@ package com.ecovery.service;
 
 
 import com.ecovery.domain.ItemImgVO;
+import com.ecovery.domain.ItemVO;
+import com.ecovery.dto.ItemFormDto;
 import com.ecovery.dto.ItemImgDto;
 import com.ecovery.mapper.ItemImgMapper;
 import io.micrometer.common.util.StringUtils;
@@ -22,7 +24,7 @@ import java.util.List;
  * @since : 250709
  * @history
  *  - 250716 | sehui | 상품 이미지 등록 기능 추가
- *  - 250716 | sehui | 상품 이미지 수정 기능 추가
+ *  - 250717 | sehui | 상품 이미지 수정 기능 추가
  */
 
 @Service
@@ -62,10 +64,29 @@ public class ItemImgServiceImpl implements ItemImgService {
 
     //상품 이미지 수정
     @Override
-    public void updateItemImg(Long itemImgId, MultipartFile itemImgFile) throws Exception {
+    public void updateItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception {
 
+        //기존 상품 이미지 조회
         if(!itemImgFile.isEmpty()) {
-        }
+            ItemImgVO savedItemImg = itemImgMapper.getItemImgById(itemImgVO.getItemImgId());
 
+            //기존 이미지 파일 삭제
+            if(!StringUtils.isEmpty(savedItemImg.getImgName())){
+                fileService.deleteFile(itemImgLocation + "/" + savedItemImg.getImgName());
+            }
+
+            //새로운 이미지 업로드
+            String oriImgName = itemImgFile.getOriginalFilename();
+            String imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes());
+            String imgUrl = "/images/item/" + imgName;
+
+            //이미지 정보 수정한 VO 객체
+            itemImgVO.setOriImgName(oriImgName);
+            itemImgVO.setImgName(imgName);
+            itemImgVO.setImgUrl(imgUrl);
+
+            //DB에 이미지 정보 수정 요청
+            itemImgMapper.updateItemImg(itemImgVO);
+        }
     }
 }
