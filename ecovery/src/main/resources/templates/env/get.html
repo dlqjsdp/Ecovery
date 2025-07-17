@@ -1,0 +1,22 @@
+<!-- src/main/resources/templates/env/get.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>환경톡톡 게시글 조회</title>
+</head>
+<body>
+<h2>게시글 상세보기</h2>
+
+<p><strong>제목:</strong> <span th:text="${env.title}"></span></p>
+<p><strong>작성자:</strong> <span th:text="${env.nickname}"></span></p>
+<p><strong>내용:</strong></p>
+<div th:text="${env.content}"></div>
+
+<p><strong>작성일:</strong> <span th:text="${#temporals.format(env.createdAt, 'yyyy-MM-dd')}"></span></p>
+<p><strong>조회수:</strong> <span th:text="${env.viewCount}"></span></p>
+
+<a th:href="@{/env/modify(envId=${env.envId})}"><button>수정</button></a>
+<a th:href="@{/env/list}"><button>목록으로</button></a>
+</body>
+</html>

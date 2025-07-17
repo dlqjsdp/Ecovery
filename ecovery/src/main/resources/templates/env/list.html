@@ -7,6 +7,7 @@ EnvController의 목록 조회 기능을 확인하기 위해 임시로 만든 �
 @since : 250716
 @history
     - 250716 | yukyeong | 목록 조회 화면 임시 작성
+    - 250717 | yukyeong | 등록하기 버튼 추가
 -->
 
 <!DOCTYPE html>
@@ -31,6 +32,11 @@ EnvController의 목록 조회 기능을 확인하기 위해 임시로 만든 �
            placeholder="검색어 입력">
     <button type="submit">검색</button>
 </form>
+
+<!-- 등록 버튼 예시 -->
+<a th:href="@{/env/register}">
+    <button type="button">등록하기</button>
+</a>
 
 <table border="1" cellpadding="5" cellspacing="0" width="100%">
     <thead>
