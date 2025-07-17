@@ -2,6 +2,7 @@ package com.ecovery.service;
 
 import com.ecovery.domain.EnvVO;
 import com.ecovery.dto.Criteria;
+import com.ecovery.dto.EnvDto;
 import com.ecovery.mapper.EnvMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.List;
  * @history
      - 250715 | yukyeong | EnvServiceImpl 클래스 최초 작성 (CRUD 구현)
      - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 추가
+     - 250717 | yukyeong | DTO -> VO, VO -> DTO 추가
  */
 
 @Service
@@ -28,6 +30,30 @@ public class EnvServiceImpl implements EnvService {
 
     // 의존성 주입, @RequiredArgsConstructor에 의해 생성자 주입이 자동으로 처리됨
     private final EnvMapper envMapper;
+
+    // DTO -> VO
+    private EnvVO dtoToVo(EnvDto dto) {
+        EnvVO vo = new EnvVO();
+        vo.setEnvId(dto.getEnvId());
+        vo.setTitle(dto.getTitle());
+        vo.setContent(dto.getContent());
+        vo.setMemberId(dto.getMemberId());
+        return vo;
+    }
+
+    // VO -> DTO
+    private EnvDto voToDto(EnvVO vo) {
+        EnvDto dto = new EnvDto();
+        dto.setEnvId(vo.getEnvId());
+        dto.setTitle(vo.getTitle());
+        dto.setContent(vo.getContent());
+        dto.setMemberId(vo.getMemberId());
+        dto.setNickname(vo.getNickname());
+        dto.setViewCount(vo.getViewCount());
+        dto.setCreatedAt(vo.getCreatedAt());
+        dto.setUpdatedAt(vo.getUpdatedAt());
+        return dto;
+    }
 
     /**
      * 게시글 등록
@@ -107,6 +133,7 @@ public class EnvServiceImpl implements EnvService {
      */
     @Override
     public void increaseViewCount(Long envId){
+
         envMapper.updateViewCount(envId);
     }
 }
