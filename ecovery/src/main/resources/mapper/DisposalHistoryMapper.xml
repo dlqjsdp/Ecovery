@@ -16,19 +16,19 @@
     </insert>
 
     <select id="findByDisposalHistoryId" resultType="com.ecovery.dto.DisposalHistoryDto">
-        select h.disposal_history_id as disposalHistoryId, h.ai_Prediction as aipridiction,
+        select h.disposal_history_id as disposalHistoryId, h.ai_Prediction as aiPrediction,
                h.region_gu as regionGu, h.final_item as finalItem,
                img.disposal_img_id as disposalImgId,
                i.item_name as itemName, i.min_price as minPrice, i.max_price as maxPrice, i.report_url as reportUrl
         from disposal_history h
         left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
-        join disposal_info i on h.region_gu = i.region and h.final_item = i.item_name
+        left join disposal_info i on h.region_gu = i.region and h.final_item = i.item_name
         where h.disposal_history_id = #{disposalHistoryId}
     </select>
 
     <select id="findAllDisposalHistory" resultType="com.ecovery.dto.DisposalHistoryDto">
         select h.disposal_history_id as disposalHistoryId, h.member_id as memberId,
-               h.ai_Prediction as aipridiction, h.region_gu as regionGu,
+               h.ai_Prediction as aiPredictions, h.region_gu as regionGu,
                h.final_item as finalItem, h.created_at as createdAt,
                img.disposal_img_id as disposalImgId
         from disposal_history h
@@ -38,7 +38,7 @@
 
     <select id="findDisposalHistoryWithImgByMemberId" parameterType="long" resultType="com.ecovery.dto.DisposalHistoryDto">
         select h.disposal_history_id as disposalHistoryId, h.member_id as memberId,
-               h.ai_Prediction as aipridiction, h.region_gu as regionGu,
+               h.ai_Prediction as aiPrediction, h.region_gu as regionGu,
                h.final_item as finalItem, h.created_at as createdAt,
                img.disposal_img_id as disposalImgId
         from
@@ -49,6 +49,11 @@
         order by h.created_at desc
     </select>
 
-
+    <update id="updateDisposalHistory">
+        UPDATE disposal_history
+        SET
+            final_item = #{finalItem}
+        WHERE disposal_history_id = #{disposalHistoryId}
+    </update>
 
 </mapper>

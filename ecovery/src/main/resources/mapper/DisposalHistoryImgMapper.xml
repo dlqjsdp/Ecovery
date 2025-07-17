@@ -22,6 +22,7 @@
     <insert id="insertDisposalImg" parameterType="com.ecovery.domain.DisposalHistoryImgVO" useGeneratedKeys="true" keyProperty="disposalImgId">
         insert into disposal_history_img(disposal_history_id, disposal_img_name, ori_disposal_img_name, disposal_img_url)
         values (#{disposalHistoryId}, #{disposalImgName}, #{oriDisposalImgName}, #{disposalImgUrl})
+        limit 1
     </insert>
 
     <select id="findDisposalImgByDisposalHistoryId" parameterType="long" resultMap="disposalHistoryImgMap">

@@ -17,14 +17,14 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("feedback")
+@RequestMapping("/feedback")
 public class DisposalFeedbackController {
 
     private final DisposalFeedbackService disposalFeedbackService;
 
     //오류신고 버튼 클릭시 disposalfeedback db에 저장 후 이미지 업로드 페이지로 전환
     @PostMapping("/report")
-    public String reportFeedback(DisposalFeedbackVO disposalFeedbackVO) {
+    public String feedbackReport(DisposalFeedbackVO disposalFeedbackVO) {
 
         DisposalFeedbackVO feedback = disposalFeedbackService.getFeedback(disposalFeedbackVO.getDisposalHistoryId());
 

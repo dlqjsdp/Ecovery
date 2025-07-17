@@ -26,4 +26,6 @@ public interface DisposalHistoryMapper {
 
     //마이페이지에서 볼 수 있는 해당 회원의 모든 disposalhistory+img 내역
     public List<DisposalHistoryDto> findDisposalHistoryWithImgByMemberId(Long memberId);
+
+    public int updateDisposalHistory(DisposalHistoryVO disposalHistoryVO);
 }

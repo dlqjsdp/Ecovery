@@ -34,10 +34,11 @@ spring:
       max-request-size: 100MB # 요청당 최대 파일 크기
 
 # 상품 이미지 업로드 경로
-#itemImgLocation: C:/ecovery/item
+itemImgLocation: C:/ecovery/item
+disposalImgLocation: C:/ecovery/disposalImg
 
 # 리소스 이미지 업로드 경로
-#uploadPath: file:///C:/ecovery/
+uploadPath: file:///C:/ecovery/
 
 
 mybatis:
@@ -54,3 +55,7 @@ logging:
     root: info
     com.ecovery.mapper: debug
     org.apache.ibatis: debug
+
+ai:
+  server:
+    url: http://localhost:8080 #ai 서버에 맞게 바꿔야할 듯

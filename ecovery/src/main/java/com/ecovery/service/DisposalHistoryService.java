@@ -18,4 +18,7 @@ public interface DisposalHistoryService {
     
     //관리자용 전체 이력 조회
     public List<DisposalHistoryDto> getAllHistory();
+
+    //최종 finalitem을 저장하기 위한 업데이트 코드
+    public int updateHistory(DisposalHistoryVO disposalHistoryVO);
 }
