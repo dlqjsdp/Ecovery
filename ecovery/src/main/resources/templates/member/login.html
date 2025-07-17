@@ -20,10 +20,10 @@
 
   <!-- Header -->
   <header class="auth-header">
-    <a href="#home" class="logo">
-      <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
+    <a href="/main" class="logo">
+      <img src="../img/logo.png" alt="GreenCycle 로고" class="logo-img">
     </a>
-    <a href="index.html" class="back-link">← 홈으로 돌아가기</a>
+    <a href="/main" class="back-link">← 홈으로 돌아가기</a>
   </header>
 
   <!-- Main Content -->
@@ -34,7 +34,8 @@
         <p>환경을 위한 여정을 계속해보세요</p>
       </div>
 
-      <form class="auth-form" id="loginForm">
+
+      <form class="auth-form" id="loginForm" method="post" th:action="@{/member/login}">
         <div class="form-group">
           <label for="email">이메일</label>
           <div class="input-wrapper">
@@ -46,7 +47,7 @@
                     placeholder="이메일을 입력하세요"
                     required
                     autocomplete="email"
-            >
+            />
           </div>
           <span class="error-message" id="emailError"></span>
         </div>
@@ -82,35 +83,32 @@
         <button type="submit" class="auth-btn primary" id="loginBtn">
           <span class="btn-text">로그인</span>
           <span class="btn-loading" style="display: none;">
-                            <span class="spinner"></span>
-                            로그인 중...
-                        </span>
+            <span class="spinner"></span>로그인 중...
+          </span>
         </button>
-
-        <div class="divider">
-          <span>또는</span>
-        </div>
-
-        <div class="social-login">
-          <button type="button" class="social-btn google">
-            <span class="social-icon">🌐</span>
-            Google로 로그인
-          </button>
-          <button type="button" class="social-btn kakao">
-            <span class="social-icon">💬</span>
-            카카오로 로그인
-          </button>
-        </div>
       </form>
 
+      <div class="divider">
+        <span>또는</span>
+      </div>
+
+      <div class="social-login">
+        <button type="button" class="social-btn google">
+          <span class="social-icon">🌐</span>
+          Google로 로그인
+        </button>
+        <button type="button" class="social-btn kakao">
+          <span class="social-icon">💬</span>
+          카카오로 로그인
+        </button>
+      </div>
+
       <div class="auth-footer">
-        <p>아직 계정이 없으신가요? <a href="signup.html" class="auth-link">회원가입</a></p>
+        <p>아직 계정이 없으신가요? <a th:href="@{/member/signup}">회원가입</a></p>
       </div>
     </div>
-
   </main>
 </div>
-
 <script src="/js/auth.js"></script>
 </body>
 </html>

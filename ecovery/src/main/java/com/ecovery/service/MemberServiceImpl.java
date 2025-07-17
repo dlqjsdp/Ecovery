@@ -1,5 +1,6 @@
 package com.ecovery.service;
 
+import com.ecovery.constant.Role;
 import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.MemberPageDto;
 import com.ecovery.mapper.MemberMapper;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,7 +38,11 @@ public class MemberServiceImpl implements MemberService {
         // 3. 재 세팅
         memberVO.setPassword(encodedPassword);
 
-        // 4. DB 저장
+        // 4. 권한 및 시간 세팅
+        memberVO.setRole(Role.USER);
+        memberVO.setCreatedAt(new Date());
+
+        // 5. DB 저장
         memberMapper.insertMember(memberVO);
     }
     //회원 정보 수정
