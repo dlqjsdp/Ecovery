@@ -2,9 +2,7 @@ package com.ecovery.domain;
 
 import com.ecovery.constant.DealStatus;
 import com.ecovery.constant.ItemCondition;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +19,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FreeVO {
 
     private Long freeId;        // 게시글 고유번호 (PK)
