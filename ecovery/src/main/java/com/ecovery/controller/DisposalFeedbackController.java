@@ -24,27 +24,35 @@ public class DisposalFeedbackController {
 
     //오류신고 버튼 클릭시 disposalfeedback db에 저장 후 이미지 업로드 페이지로 전환
     @PostMapping("/report")
-    public String feedbackReport(DisposalFeedbackVO disposalFeedbackVO) {
-
-        DisposalFeedbackVO feedback = disposalFeedbackService.getFeedback(disposalFeedbackVO.getDisposalHistoryId());
-
-        if(feedback == null) {
-            disposalFeedbackService.saveFeedback(disposalFeedbackVO);
+    public String feedbackReport(DisposalFeedbackVO feedbackVO) {
+        if (!disposalFeedbackService.isAlreadyReported(feedbackVO.getDisposalHistoryId())) {
+            disposalFeedbackService.saveFeedback(feedbackVO);
         }
 
-        return "redirect:/disposal";
+        return "redirect:/disposal/disposalMain";
     }
     
     @GetMapping("/history")
-    public void feedbackHistory(Model model) {
-        List<DisposalFeedbackDto> disposalFeedbackHistory = disposalFeedbackService.getAllFeedback();
+    public String feedbackHistory(Model model) {
+        List<DisposalFeedbackDto> adminFeedbackHistory = disposalFeedbackService.getAllFeedback();
 
-        model.addAttribute("disposalFeedbackHistory", disposalFeedbackHistory);
+        model.addAttribute("adminFeedbackHistory", adminFeedbackHistory);
+
+        return "feedback/feedbackHistory";
     }
 
     @GetMapping("/history/{memberId}")
-    public void feedbackHistory(@PathVariable("memberId") Long memberId, Model model) {
+    public String feedbackHistoryOfMember(@PathVariable("memberId") Long memberId, Model model) {
         List<DisposalFeedbackDto> myFeedbackHistory = disposalFeedbackService.getFeedbackByMemberId(memberId);
         model.addAttribute("myFeedbackHistory", myFeedbackHistory);
+        return "feedback/memberFeedbackHistory";
+    }
+
+    //리스트에서 목록 클릭시 오류 신고 상세 조회 페이지로 이동하는 코드
+    @GetMapping("/detail/{disposalHistoryId}")
+    public String feedbackDetail(@PathVariable("disposalHistoryId") Long disposalHistoryId, Model model) {
+        DisposalFeedbackDto feedback = disposalFeedbackService.getFeedbackDetail(disposalHistoryId);
+        model.addAttribute("feedback", feedback);
+        return "feedback/detail"; // 예: detail.jsp
     }
 }

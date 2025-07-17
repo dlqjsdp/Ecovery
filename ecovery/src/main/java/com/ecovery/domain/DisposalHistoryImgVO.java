@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 /**
  * 대형폐기물 이미지 테이블(disposal_history_img)
  * @author : jihye Lee
- * @fileNmae : DisposalHistoryImgVO
+ * @fileName : DisposalHistoryImgVO
  * @since : 20250708
  */
 

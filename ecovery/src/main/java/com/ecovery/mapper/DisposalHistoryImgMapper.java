@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 대형폐기물 이미지 테이블(disposal_history_img)
  * @author : jihye Lee
- * @fileNmae : DisposalHistoryImgMapper
+ * @fileName : DisposalHistoryImgMapper
  * @since : 20250714
  */
 @Mapper

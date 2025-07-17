@@ -36,6 +36,7 @@ public class SecurityConfig {
         http
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
