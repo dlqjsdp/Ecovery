@@ -18,8 +18,8 @@
     </insert>
 
     <!--특정 disposal_history_id로 기존 신고 여부 확인(중복 신고 방지)-->
-    <select id="findFeedbackByDisposalHistoryId" parameterType="long" resultType="long">
-        SELECT disposal_history_id FROM disposal_feedback WHERE disposal_history_id = #{disposalHistoryId}
+    <select id="findFeedbackByDisposalHistoryId" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM disposal_feedback WHERE disposal_history_id = #{disposalHistoryId}
     </select>
 
     <!--관리자용 전체 신고 내역 조회-->

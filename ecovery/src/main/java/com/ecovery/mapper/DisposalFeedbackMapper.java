@@ -18,8 +18,9 @@ public interface DisposalFeedbackMapper {
     //오류 신고 내역 저장
     public void insertFeedback(DisposalFeedbackVO disposalFeedbackVO);
 
-    //특정 disposal_history_id로 신고 여부 확인(중복 신고 방지)
-    public DisposalFeedbackVO findFeedbackByDisposalHistoryId(Long disposalHistoryId);
+    // 특정 disposal_history_id로 신고 여부 확인(중복 신고 방지)
+// 매퍼 XML의 COUNT(*) 결과값을 int로 받음
+    public int findFeedbackByDisposalHistoryId(Long disposalHistoryId);
 
     //관리자용 전체 신고 내역 조회
     public List<DisposalFeedbackDto> findAllFeedbackWithImg();

@@ -36,6 +36,9 @@ spring:
 # 상품 이미지 업로드 경로
 itemImgLocation: C:/ecovery/item
 
+disposalImgLocation: C:/ecovery/disposalImg
+
+
 # 리소스 이미지 업로드 경로
 uploadPath: file:///C:/ecovery/
 
@@ -55,3 +58,7 @@ logging:
     root: info
     com.ecovery.mapper: debug
     org.apache.ibatis: debug
+
+ai:
+  server:
+    url: http://localhost:8080 #ai 서버에 맞게 바꿔야할 듯
