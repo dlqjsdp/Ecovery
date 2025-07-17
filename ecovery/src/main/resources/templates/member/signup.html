@@ -1,221 +1,198 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>회원가입</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    label {
-      display: inline-block;
-      width: 80px;
-      margin-bottom: 10px;
-    }
-    input[type="email"],
-    input[type="password"],
-    input[type="text"] {
-      width: 200px;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    /* ✨ 핵심 수정: 에러/성공 메시지가 제대로 보이도록 display와 margin-bottom 추가 */
-    .error-message {
-      color: red;
-      margin-top: 5px;
-      font-size: 0.9em;
-      display: block;
-      margin-bottom: 10px;
-    }
-    .success-message {
-      color: green;
-      margin-top: 5px;
-      font-size: 0.9em;
-      display: block;
-      margin-bottom: 10px;
-    }
-    .email-check-area {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .email-check-area input {
-      margin-right: 10px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입 - GreenCycle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
-<h2>회원가입</h2>
-
-<form th:action="@{/member/signup}" th:object="${member}" method="post">
-  <div class="email-check-area">
-    <label for="signupEmail">이메일</label>
-    <input type="email" th:field="*{email}" id="signupEmail">
-    <button type="button" id="checkEmailBtn">중복 검증</button>
+<div class="auth-container">
+  <!-- Background Elements -->
+  <div class="bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
   </div>
-  <div id="emailCheckResult" class="error-message"></div>
-  <div class="error-message" th:if="${emailError}" th:text="${emailError}"></div>
-  <br>
 
-  <label for="signupPassword">비밀번호</label>
-  <input type="password" th:field="*{password}" id="signupPassword">
-  <div class="error-message" th:if="${passwordError != null}" th:text="${passwordError}"></div><br>
-  <h6>비밀번호는 영문자/숫자를 포함하여 8~16자까지 가능하며, 특수문자(!@#$%^&*)만 허용됩니다.</h6>
-  <br>
+  <!-- Header -->
+  <header class="auth-header">
+    <a href="#home" class="logo">
+      <img src="/img/logo.png" alt="GreenCycle 로고" class="logo-img">
+    </a>
+    <a href="/main.html" class="back-link">← 홈으로 돌아가기</a>
+  </header>
 
-  <div class="nickname-check-area">
-    <label for="signupNickname">닉네임</label>
-    <input type="text" th:field="*{nickname}" id="signupNickname">
-    <button type="button" id="checkNicknameBtn">중복 검증</button>
-  </div>
-  <div id="nicknameCheckResult" class="error-message"></div>
-  <br>
+  <!-- Main Content -->
+  <main class="auth-main">
+    <div class="auth-card">
+      <div class="auth-header-content">
+        <h1>회원가입</h1>
+        <p>지속가능한 미래를 위한 첫 걸음을 내디뎌보세요</p>
+      </div>
 
-  <button type="submit" id="signupSubmitBtn" disabled>회원가입</button>
-</form>
+      <form class="auth-form" id="signupForm" th:action="@{/member/signup}" method="post" th:object="${member}">
+        <div class="form-group">
+          <label for="signupEmail">이메일</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input
+                    type="email"
+                    id="signupEmail"
+                    name="email"
+                    placeholder="이메일을 입력하세요"
+                    required
+                    autocomplete="email"
+            >
+            <button type="button" class="input-action" id="checkEmail">중복확인</button>
+          </div>
+          <span class="error-message" id="emailError"></span>
+          <span class="success-message" id="emailCheckResult"></span>
+        </div>
 
-<p><a th:href="@{/member/login}">로그인</a></p>
+        <div class="form-group">
+          <label for="nickname">닉네임</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input
+                    type="text"
+                    id="nickname"
+                    name="nickname"
+                    placeholder="닉네임을 입력하세요 (3-20자)"
+                    required
+                    maxlength="20"
+                    autocomplete="username"
+            >
+            <button type="button" class="input-action" id="checkNickname">중복확인</button>
+          </div>
+          <span class="error-message" id="nicknameError"></span>
+          <span class="success-message" id="nicknameCheckResult"></span>
+        </div>
 
-<script th:inline="javascript">
-  /*<![CDATA[*/
-  document.addEventListener('DOMContentLoaded', function () {
-    const emailInput = document.getElementById('signupEmail');
-    const nicknameInput = document.getElementById('signupNickname');
-    const passwordInput = document.getElementById('signupPassword');
-    const emailBtn = document.getElementById('checkEmailBtn');
-    const nicknameBtn = document.getElementById('checkNicknameBtn');
-    const submitBtn = document.getElementById('signupSubmitBtn');
+        <div class="form-group">
+          <label for="signupPassword">비밀번호</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+                    type="password"
+                    id="signupPassword"
+                    name="password"
+                    placeholder="비밀번호를 입력하세요 (8자 이상)"
+                    required
+                    minlength="8"
+                    autocomplete="new-password"
+            >
+            <button type="button" class="toggle-password" id="toggleSignupPassword">
+              <span class="eye-icon">👁️</span>
+            </button>
+          </div>
+          <div class="password-strength" id="passwordStrength">
+            <div class="strength-bar">
+              <div class="strength-fill"></div>
+            </div>
+            <span class="strength-text">비밀번호 강도</span>
+          </div>
+          <span class="error-message" id="passwordError"></span>
+        </div>
 
-    const emailMsg = document.getElementById('emailCheckResult');
-    const nicknameMsg = document.getElementById('nicknameCheckResult');
+        <div class="form-group">
+          <label for="passwordConfirm">비밀번호 확인</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+                    type="password"
+                    id="passwordConfirm"
+                    name="passwordConfirm"
+                    placeholder="비밀번호를 다시 입력하세요"
+                    required
+                    autocomplete="new-password"
+            >
+            <button type="button" class="toggle-password" id="togglePasswordConfirm">
+              <span class="eye-icon">👁️</span>
+            </button>
+          </div>
+          <span class="error-message" id="passwordConfirmError"></span>
+        </div>
 
-    let isEmailAvailable = false;
-    let isNicknameAvailable = false;
+        <div class="agreement-section">
+          <h3>약관 동의</h3>
 
-    /** 이메일 중복 확인 */
-    emailBtn.addEventListener('click', () => {
-      const email = emailInput.value.trim();
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          <label class="checkbox-wrapper">
+            <input type="checkbox" name="agreeAll" id="agreeAll">
+            <span class="checkmark"></span>
+            <span class="checkbox-text strong">전체 동의</span>
+          </label>
 
-      emailMsg.textContent = '';
-      emailMsg.className = '';
+          <div class="agreement-details">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" name="agreeTerms" id="agreeTerms" required>
+              <span class="checkmark"></span>
+              <span class="checkbox-text">
+                                    (필수) <a href="#" class="terms-link">이용약관</a>에 동의합니다
+                                </span>
+            </label>
 
-      if (!email) {
-        emailMsg.textContent = '이메일은 필수 입력 항목입니다.';
-        emailMsg.className = 'error-message';
-        isEmailAvailable = false;
-        updateSubmitState();
-        return;
-      }
+            <label class="checkbox-wrapper">
+              <input type="checkbox" name="agreePrivacy" id="agreePrivacy" required>
+              <span class="checkmark"></span>
+              <span class="checkbox-text">
+                                    (필수) <a href="#" class="terms-link">개인정보처리방침</a>에 동의합니다
+                                </span>
+            </label>
 
-      if (!emailRegex.test(email)) {
-        emailMsg.textContent = '올바른 이메일 형식이 아닙니다.';
-        emailMsg.className = 'error-message';
-        isEmailAvailable = false;
-        updateSubmitState();
-        return;
-      }
+            <label class="checkbox-wrapper">
+              <input type="checkbox" name="agreeAge" id="agreeAge" required>
+              <span class="checkmark"></span>
+              <span class="checkbox-text">
+                                    (필수) 만 14세 이상입니다
+                                </span>
+            </label>
 
-      fetch('/member/check-email?email=' + encodeURIComponent(email))
-              .then(res => res.json())
-              .then(data => {
-                if (data) {
-                  emailMsg.textContent = '이미 사용 중인 이메일입니다.';
-                  emailMsg.className = 'error-message';
-                  isEmailAvailable = false;
-                } else {
-                  emailMsg.textContent = '사용 가능한 이메일입니다.';
-                  emailMsg.className = 'success-message';
-                  isEmailAvailable = true;
-                }
-                updateSubmitState();
-              })
-              .catch(() => {
-                emailMsg.textContent = '이메일 확인 중 오류 발생';
-                emailMsg.className = 'error-message';
-                isEmailAvailable = false;
-                updateSubmitState();
-              });
-    });
+            <label class="checkbox-wrapper">
+              <input type="checkbox" name="agreeMarketing" id="agreeMarketing">
+              <span class="checkmark"></span>
+              <span class="checkbox-text">
+                                    (선택) 마케팅 정보 수신에 동의합니다
+                                </span>
+            </label>
+          </div>
+        </div>
 
-      /** 닉네임 중복 확인 */
-      nicknameBtn.addEventListener('click', () => {
-        const nickname = nicknameInput.value.trim();
+        <button type="submit" class="auth-btn primary" id="signupBtn" disabled>
+          <span class="btn-text">회원가입</span>
+          <span class="btn-loading" style="display: none;">
+                            <span class="spinner"></span>
+                            가입 중...
+                        </span>
+        </button>
 
-        nicknameMsg.textContent = '';
-        nicknameMsg.className = '';
+        <div class="divider">
+          <span>또는</span>
+        </div>
 
-        if (!nickname) {
-          nicknameMsg.textContent = '닉네임은 필수 입력 항목입니다.';
-          nicknameMsg.className = 'error-message';
-          isNicknameAvailable = false;
-          updateSubmitState();
-          return;
-        }
+        <div class="social-login">
+          <button type="button" class="social-btn google">
+            <span class="social-icon">🌐</span>
+            Google로 가입
+          </button>
+          <button type="button" class="social-btn kakao">
+            <span class="social-icon">💬</span>
+            카카오로 가입
+          </button>
+        </div>
+      </form>
 
-        fetch('/member/check-nickname?nickname=' + encodeURIComponent(nickname))
-                .then(res => res.json())
-                .then(data => {
-                  if (data) {
-                    nicknameMsg.textContent = '이미 사용 중인 닉네임입니다.';
-                    nicknameMsg.className = 'error-message';
-                    isNicknameAvailable = false;
-                  } else {
-                    nicknameMsg.textContent = '사용 가능한 닉네임입니다.';
-                    nicknameMsg.className = 'success-message';
-                    isNicknameAvailable = true;
-                  }
-                  updateSubmitState();
-                })
-                .catch(() => {
-                  nicknameMsg.textContent = '닉네임 확인 중 오류 발생';
-                  nicknameMsg.className = 'error-message';
-                  isNicknameAvailable = false;
-                  updateSubmitState();
-                });
-      });
+      <div class="auth-footer">
+        <p>이미 계정이 있으신가요? <a href="login.html" class="auth-link">로그인</a></p>
+      </div>
+    </div>
 
-        /** 입력값 변경 시 상태 초기화 */
-        emailInput.addEventListener('input', () => {
-          emailMsg.textContent = '';
-          emailMsg.className = '';
-          isEmailAvailable = false;
-          updateSubmitState();
-        });
+  </main>
+</div>
 
-        nicknameInput.addEventListener('input', () => {
-          nicknameMsg.textContent = '';
-          nicknameMsg.className = '';
-          isNicknameAvailable = false;
-          updateSubmitState();
-        });
-
-        passwordInput.addEventListener('input', updateSubmitState);
-
-    /** 버튼 상태 갱신 */
-    function updateSubmitState() {
-      const isPasswordFilled = passwordInput.value.trim() !== '';
-      submitBtn.disabled = !(isEmailAvailable && isNicknameAvailable && isPasswordFilled);
-    }
-  });
-  /*]]>*/
-</script>
+<script src="/js/auth.js"></script>
 </body>
 </html>
