@@ -45,7 +45,7 @@ function initializeAuth() {
 
 // Initialize login page
 function initializeLogin() {
-    loginForm.addEventListener('submit', handleLogin);
+   /* loginForm.addEventListener('submit', handleLogin);*/
 
     // Auto-focus first input
     const firstInput = loginForm.querySelector('input');
@@ -77,6 +77,7 @@ function initializeSignup() {
 
     // Real-time validation
     setupRealTimeValidation();
+    updateSignupButtonState() // 초기화 시 반드시 한 번 호출
 }
 
 // Handle login form submission
@@ -107,27 +108,29 @@ async function handleLogin(e) {
     setFormLoading(loginForm, true);
 
     try {
-        // Simulate API call
-        await simulateApiCall(1500);
+        const response = await fetch('/member/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                username: email,
+                password: password
+            }),
+            credentials: 'same-origin'
+        });
 
-        // Handle remember me
-        if (remember) {
-            localStorage.setItem('rememberedEmail', email);
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else if (response.ok) {
+            showNotification('로그인이 완료되었습니다! 🌱', 'success');
+            setTimeout(() => {
+                window.location.href = '/main';
+            }, 1500);
         } else {
-            localStorage.removeItem('rememberedEmail');
+            throw new Error('인증 실패');
         }
-
-        // Success
-        showNotification('로그인이 완료되었습니다! 환영합니다! 🌱', 'success');
-        setFormState(loginForm, 'success');
-
-        // Redirect after delay
-        setTimeout(() => {
-            window.location.href = '/main.html';
-        }, 1500);
-
     } catch (error) {
-        showError('passwordError', '이메일 또는 비밀번호가 올바르지 않습니다.');
         showError('passwordError', '이메일 또는 비밀번호가 올바르지 않습니다.');
         setFormState(loginForm, 'error');
         setButtonLoading('loginBtn', false);
@@ -148,6 +151,9 @@ async function handleSignup(e) {
     const agreePrivacy = formData.get('agreePrivacy');
     const agreeAge = formData.get('agreeAge');
 
+    // 선택 약관 체크박스 값 처리
+    const agreeOptional = document.getElementById('agreeMarketing')?.checked ? 'Y' : 'N';
+
     // Clear previous errors
     clearErrors();
 
@@ -164,7 +170,7 @@ async function handleSignup(e) {
     }
     // 닉네임 유효성 및 중복 확인
     if (!validateNickname(nickname)) {
-        showError('nicknameError', '닉네임은 6-20자 사이로 입력해주세요.');
+        showError('nicknameError', '닉네임은 2-20자 사이로 입력해주세요.');
         hasError = true;
     } else if (!isNicknameChecked) {
         showError('nicknameError', '닉네임 중복확인을 해주세요.');
@@ -196,17 +202,34 @@ async function handleSignup(e) {
     setFormLoading(signupForm, true);
 
     try {
-        // Simulate API call
-        await simulateApiCall(2000);
+        const response = await fetch('/member/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                email,
+                nickname,
+                password,
+                passwordConfirm,
+                agreeTerms,
+                agreePrivacy,
+                agreeAge,
+                agreeOptional
+            })
+        });
 
-        // Success
-        showNotification('회원가입이 완료되었습니다! 환경을 지키는 여정을 시작해보세요! 🌱', 'success');
-        setFormState(signupForm, 'success');
+        if (response.ok) {
+            showNotification('회원가입이 완료되었습니다! 환경을 지키는 여정을 시작해보세요! 🌱', 'success');
+            setFormState(signupForm, 'success');
 
-        // 로그인 페이지 이동
-        setTimeout(() => {
-            window.location.href = `login.html?email=${encodeURIComponent(email)}`;
-        }, 1500);
+            // 로그인 페이지 이동
+            setTimeout(() => {
+                window.location.href = `login.html?email=${encodeURIComponent(email)}`;
+            }, 1500);
+        } else {
+            throw new Error('서버 응답 오류');
+        }
 
     } catch (error) {
         showNotification('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
@@ -224,7 +247,7 @@ function validateEmail(email) {
 
 // Nickname validation
 function validateNickname(nickname) {
-    return nickname && nickname.length >= 6 && nickname.length <= 20;
+    return nickname && nickname.length >= 2 && nickname.length <= 20;
 }
 
 // Password validation
@@ -365,6 +388,24 @@ function updateSignupButtonState() {
         validatePassword(password) &&
         password === passwordConfirm &&
         agreeTerms && agreePrivacy && agreeAge;
+
+    console.log({
+        email,
+        nickname,
+        password,
+        passwordConfirm,
+        agreeTerms,
+        agreePrivacy,
+        agreeAge,
+        isEmailChecked,
+        isNicknameChecked,
+        emailValid: validateEmail(email),
+        nicknameValid: validateNickname(nickname),
+        passwordValid: validatePassword(password),
+        pwMatch: password === passwordConfirm,
+        isFormValid
+    });
+
 
     signupBtn.disabled = !isFormValid;
 }
@@ -842,7 +883,7 @@ function animateCounter(element, target, duration = 2000) {
     requestAnimationFrame(updateCounter);
 }
 
-// Handle URL parameters (for login page with pre-filled email)
+/*// Handle URL parameters (for login page with pre-filled email)
 function handleUrlParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     const email = urlParams.get('email');
@@ -858,9 +899,9 @@ function handleUrlParameters() {
             }
         }
     }
-}
+}*/
 
-// Initialize URL parameters after DOM is loaded
+/*// Initialize URL parameters after DOM is loaded
 document.addEventListener('DOMContentLoaded', handleUrlParameters);
 
 // Keyboard shortcuts
@@ -880,7 +921,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         document.activeElement.blur();
     }
-});
+});*/
 
 // Prevent form submission on Enter in specific fields
 document.addEventListener('keydown', (e) => {

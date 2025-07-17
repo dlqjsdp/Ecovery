@@ -110,6 +110,7 @@ public class MemberController {
     // 로그인 페이지 이동
     @GetMapping(value = "/login")
     public String loginForm(){
+        log.info("loginForm : <UNK>..." + memberService.getMemberByEmail("<UNK>"));
         return "member/login";
     }
 

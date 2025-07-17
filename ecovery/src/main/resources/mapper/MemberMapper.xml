@@ -22,6 +22,7 @@
         <result property="nickname" column="nickname"/>
         <result property="role" column="role"/>
         <result property="createdAt" column="created_at"/>
+        <result property="agreeOptional" column="agree_optional"/>
     </resultMap>
 
     <!--
@@ -32,10 +33,10 @@
         -->
     <insert id="insertMember" parameterType="com.ecovery.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
         insert into member(
-            email, password, nickname
+            email, password, nickname, role, created_at, agree_optional
         )
         values (
-            #{email}, #{password}, #{nickname}
+            #{email}, #{password}, #{nickname}, #{role}, #{createdAt}, #{agreeOptional}
         )
     </insert>
 
