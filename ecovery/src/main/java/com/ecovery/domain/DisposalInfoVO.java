@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 /**
  * 대형폐기물 표준 안내 정보 테이블(disposal_info)
  * @author : jihye Lee
- * @fileNmae : DisposalInfoVO
+ * @fileName : DisposalInfoVO
  * @since : 20250708
  */
 

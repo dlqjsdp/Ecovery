@@ -10,8 +10,11 @@ public interface DisposalFeedbackService {
     //오류 신고 내역 저장
     public void saveFeedback(DisposalFeedbackVO disposalFeedbackVO);
 
+    //특정 disposal_history_id로 신고 상세 조회
+    public DisposalFeedbackDto getFeedbackDetail(Long disposalHistoryId);
+
     //특정 disposal_history_id로 신고 여부 확인(중복 신고 방지)
-    public DisposalFeedbackVO getFeedback(Long disposalHistoryId);
+    public boolean isAlreadyReported(Long disposalHistoryId);
 
     //관리자용 전체 신고 내역 조회
     public List<DisposalFeedbackDto> getAllFeedback();

@@ -16,7 +16,7 @@
         </div>
     </div>
     <nav class="main-menu">
-        <a href="/waste">분리배출</a>
+        <a href="/disposal">분리배출</a>
         <span>|</span>
         <a href="/free/list">무료나눔</a>
         <span>|</span>
@@ -31,12 +31,12 @@
 <main>
     <div class="container">
         <h2>대형폐기물 분리배출 등록</h2>
-        <form id="wasteForm" th:action="@{/waste/analyze}" method="post" enctype="multipart/form-data">
+        <form id="wasteForm" th:action="@{/api/disposal/initial-request}" method="post" enctype="multipart/form-data">
             <!-- 이미지 업로드 -->
             <div class="upload-box" onclick="document.getElementById('imgFile').click();">
                 <span id="previewText">이미지를 업로드 해주세요.</span>
                 <img id="previewImage" style="display:none; max-height:180px;" />
-                <input type="file" name="imgFile" id="imgFile" accept="image/*" required onchange="previewImage(event)">
+                <input type="file" name="file" id="imgFile" accept="image/*" required onchange="previewImage(event)">
             </div>
 
             <!-- 지역 선택 -->
@@ -44,7 +44,7 @@
                 <label>분리배출 지역을 선택하세요.</label>
                 <div class="region-selects">
                     <input type="text" value="서울특별시" readonly name="city">
-                    <select name="gu" required>
+                    <select name="regionGu" required> <!-- ✅ 'gu' → 'regionGu'로 변경 -->
                         <option value="">구 선택</option>
                         <option value="강남구">강남구</option>
                         <option value="강동구">강동구</option>
@@ -75,22 +75,11 @@
                 </div>
             </div>
 
-            <!-- 크기 입력 -->
-            <div class="form-row">
-                <label>폐기물 크기</label>
-                <div class="size-inputs">
-                    <input type="number" name="depth" placeholder="가로(cm)" required>
-                    <input type="number" name="height" placeholder="세로(cm)" required>
-                </div>
-            </div>
 
-            <!-- 카테고리(hidden) -->
-            <input type="hidden" name="category" id="categoryInput">
-
-            <!-- 신뢰도 및 수수료 (임시 고정 값 처리 가능) -->
+            <!-- 신뢰도 및 수수료 (임시 고정 값 처리 가능)
             <input type="hidden" name="price" value="5000">
             <input type="hidden" name="confidence" value="92.3">
-
+-->
             <!-- 제출 버튼 -->
             <div class="form-row center">
                 <button type="button" onclick="openModal()">수수료 확인 및 등록</button>
@@ -99,24 +88,7 @@
     </div>
 </main>
 
-<!-- 모달 -->
-<div id="categoryModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h3>상세 카테고리를 선택하세요.</h3>
-        <select id="categorySelect">
-            <option value="">선택 안함</option>
-            <option value="책상">책상</option>
-            <option value="전자레인지">전자레인지</option>
-            <option value="장롱">장롱</option>
-            <option value="행거">행거</option>
-        </select>
-        <div class="modal-buttons">
-            <button onclick="confirmCategory()">확인</button>
-            <button onclick="closeModal()">취소</button>
-        </div>
-    </div>
-</div>
+
 
 <!-- 스크립트 -->
 <script>

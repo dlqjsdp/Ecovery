@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 대형폐기물 분류 이력 테이블(disposal_history)
  * @author : jihye Lee
- * @fileNmae : DisposalHistoryMapper
+ * @fileName : DisposalHistoryMapper
  * @since : 20250714
  */
 @Mapper

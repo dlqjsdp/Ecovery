@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 대형폐기물 분류 피드백 테이블(disposal_feedback)
  * @author : jihye Lee
- * @fileNmae : DisposalFeedbackVO
+ * @fileName : DisposalFeedbackVO
  * @since : 20250708
  */
 
