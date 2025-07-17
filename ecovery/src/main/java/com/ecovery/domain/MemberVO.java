@@ -30,7 +30,6 @@ public class MemberVO {
     private String nickname;    // 닉네임
     private Role role;          // 권한 (USER, ADMIN)
     private Date createdAt;      // 가입일시
-    private AgreeType agreeRequired; //필수 약관
     private AgreeType agreeOptional; //선택 약관
 
 }

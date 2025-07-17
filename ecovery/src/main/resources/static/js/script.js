@@ -1435,26 +1435,3 @@ window.heroSliderControls = {
     play: () => window.heroSlider?.play(),
     pause: () => window.heroSlider?.pause()
 };
-
-// 성능 모니터링 (개발 환경에서만)
-if (process?.env?.NODE_ENV === 'development') {
-    // 슬라이더 성능 측정
-    let slideTransitionStart = 0;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const heroSlides = document.querySelectorAll('.hero-slide');
-
-        heroSlides.forEach(slide => {
-            slide.addEventListener('transitionstart', () => {
-                slideTransitionStart = performance.now();
-            });
-
-            slide.addEventListener('transitionend', () => {
-                const duration = performance.now() - slideTransitionStart;
-                if (duration > 16) { // 60fps 기준
-                    console.warn(`⚠️ Slow transition detected: ${duration.toFixed(2)}ms`);
-                }
-            });
-        });
-    });
-}

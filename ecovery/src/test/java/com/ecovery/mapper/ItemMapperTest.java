@@ -26,6 +26,7 @@ import java.util.List;
  *  - 250715 | sehui | 전체 상품의 수 조회 Test 추가
  *  - 250715 | sehui | 상품 단일 조건 검색 Test 추가
  *  - 250716 | sehui | 상품 등록 Test 추가
+ *  - 250717 | sehui | 상품 수정 Test 추가
  */
 
 @SpringBootTest
@@ -126,5 +127,31 @@ class ItemMapperTest {
 
         //then : itemId 자동 생성되므로 값 설정 확인
         assertNotNull(item.getItemId(),"상품 ID가 생성되지 않았습니다.");
+    }
+
+    @Test
+    @DisplayName("상품 수정")
+    public void testUpdate(){
+
+        //given : 상품 수정 정보 생성
+        ItemVO item = ItemVO.builder()
+                .itemId(5L)
+                .itemName("수정 제품")
+                .stockNumber(5)
+                .category("수정용")
+                .itemDetail("수정 Test 제품")
+                .itemSellStatus(ItemSellStatus.SOLD_OUT)
+                .build();
+
+        //when : 상품 수정
+        itemMapper.updateItem(item);
+
+        //then : 결과 검증
+        ItemVO updateItem = itemMapper.getItemDtl(item.getItemId());
+
+        assertEquals("수정 제품", updateItem.getItemName(), "상품명이 수정되지 않았습니다.");
+        assertEquals(5, updateItem.getStockNumber(), "재고 수량이 수정되지 않았습니다.");
+
+        log.info("updateItem >> {}", updateItem);
     }
 }
