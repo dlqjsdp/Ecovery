@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="services.css">
+    <link rel="stylesheet" href="waste-sorting.css">
 </head>
 <body>
     <!-- Header -->
@@ -43,16 +43,58 @@
                 <p>이미지를 업로드하면 AI가 자동으로 폐기물을 분류하고 처리 방법을 알려드립니다</p>
             </div>
 
-            <!-- Step 1: Image Upload, Region Selection & Size Input -->
+            <!-- Step 1: Region Selection & Image Upload -->
             <div class="classification-step" id="uploadStep">
                 <div class="step-card">
                     <div class="step-header">
                         <div class="step-number">1</div>
-                        <h2>이미지 업로드 및 정보 입력</h2>
-                        <p>폐기물 사진을 업로드하고 지역과 크기 정보를 입력하세요</p>
+                        <h2>지역 선택 및 이미지 업로드</h2>
+                        <p>분리배출 지역을 선택하고 폐기물 사진을 업로드하세요</p>
                     </div>
 
-                    <!-- Image Upload Section - 최상단으로 이동 -->
+                   
+                   <!-- Region Selection -->
+                    <div class="region-selection">
+                        <h3>지역 선택</h3>
+                        <div class="region-inputs">
+                            <div class="input-group">
+                                <label class="input-label">시/도</label>
+                                <select id="citySelect">
+                                    <option value="">시/도를 선택하세요</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">구/군</label>
+                                <select id="districtSelect">
+                                    <option value="">구/군을 선택하세요</option>
+                                </select>
+                            </div>
+                            <button class="fee-check-btn" onclick="checkFeeInfo()">💰 수수료 확인</button>
+                        </div>
+                    </div>
+
+                    <!-- Waste Size Input -->
+                    <div class="waste-size-section">
+                        <h3>폐기물 크기 입력</h3>
+                        <div class="size-input-container">
+                            <div class="size-input-group">
+                                <div class="size-input-wrapper">
+                                    <label class="size-input-label">가로</label>
+                                    <input type="number" id="widthInput" placeholder="30" min="1" max="500">
+                                </div>
+                                <span class="size-separator">×</span>
+                                <div class="size-input-wrapper">
+                                    <label class="size-input-label">세로</label>
+                                    <input type="number" id="heightInput" placeholder="20" min="1" max="500">
+                                </div>
+                                <span class="size-unit">(cm)</span>
+                            </div>
+                            <div class="size-preview" id="sizePreview"></div>
+                            <p class="size-note">※ 대략적인 크기를 입력해주세요 (선택사항)</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
                     <div class="upload-container">
                         <div class="upload-zone" id="uploadZone">
                             <div class="upload-icon">📷</div>
@@ -86,79 +128,21 @@
                                 🤖 AI 분석 시작
                             </button>
                         </div>
-                    </div>
 
-                    <!-- Region Selection - 크기 축소 및 전국 지역 -->
-                    <div class="region-selection">
-                        <h3>📍 지역 선택</h3>
-                        <div class="region-inputs">
-                            <div class="input-group">
-                                <label class="input-label">시/도</label>
-                                <select id="citySelect">
-                                    <option value="">시/도를 선택하세요</option>
-                                    <option value="서울특별시">서울특별시</option>
-                                    <option value="부산광역시">부산광역시</option>
-                                    <option value="대구광역시">대구광역시</option>
-                                    <option value="인천광역시">인천광역시</option>
-                                    <option value="광주광역시">광주광역시</option>
-                                    <option value="대전광역시">대전광역시</option>
-                                    <option value="울산광역시">울산광역시</option>
-                                    <option value="세종특별자치시">세종특별자치시</option>
-                                    <option value="경기도">경기도</option>
-                                    <option value="강원특별자치도">강원특별자치도</option>
-                                    <option value="충청북도">충청북도</option>
-                                    <option value="충청남도">충청남도</option>
-                                    <option value="전라북도">전라북도</option>
-                                    <option value="전라남도">전라남도</option>
-                                    <option value="경상북도">경상북도</option>
-                                    <option value="경상남도">경상남도</option>
-                                    <option value="제주특별자치도">제주특별자치도</option>
-                                </select>
+                        <!-- Upload Instructions -->
+                        <div class="upload-instructions">
+                            <div class="instruction-item">
+                                <span class="instruction-icon">✅</span>
+                                <span class="instruction-text">지역과 크기를 먼저 선택해주세요</span>
                             </div>
-                            <div class="input-group">
-                                <label class="input-label">구/군</label>
-                                <select id="districtSelect">
-                                    <option value="">먼저 시/도를 선택하세요</option>
-                                </select>
+                            <div class="instruction-item">
+                                <span class="instruction-icon">📸</span>
+                                <span class="instruction-text">폐기물이 잘 보이는 사진을 업로드하세요</span>
                             </div>
-                            <button class="fee-check-btn" onclick="checkFeeInfo()">💰 수수료 확인</button>
-                        </div>
-                    </div>
-
-                    <!-- Waste Size Input - 크기 축소 -->
-                    <div class="waste-size-section">
-                        <h3>📏 폐기물 크기 입력</h3>
-                        <div class="size-input-container">
-                            <div class="size-input-group">
-                                <div class="size-input-wrapper">
-                                    <label class="size-input-label">가로</label>
-                                    <input type="number" id="widthInput" placeholder="30" min="1" max="500">
-                                </div>
-                                <span class="size-separator">×</span>
-                                <div class="size-input-wrapper">
-                                    <label class="size-input-label">세로</label>
-                                    <input type="number" id="heightInput" placeholder="20" min="1" max="500">
-                                </div>
-                                <span class="size-unit">(cm)</span>
+                            <div class="instruction-item">
+                                <span class="instruction-icon">🤖</span>
+                                <span class="instruction-text">AI가 자동으로 분류하고 처리법을 알려드립니다</span>
                             </div>
-                            <div class="size-preview" id="sizePreview"></div>
-                            <p class="size-note">※ 대략적인 크기를 입력해주세요 (선택사항)</p>
-                        </div>
-                    </div>
-
-                    <!-- Upload Instructions -->
-                    <div class="upload-instructions">
-                        <div class="instruction-item">
-                            <span class="instruction-icon">📸</span>
-                            <span class="instruction-text">폐기물이 잘 보이는 사진을 업로드하세요</span>
-                        </div>
-                        <div class="instruction-item">
-                            <span class="instruction-icon">📍</span>
-                            <span class="instruction-text">지역을 선택하면 정확한 수수료를 확인할 수 있습니다</span>
-                        </div>
-                        <div class="instruction-item">
-                            <span class="instruction-icon">🤖</span>
-                            <span class="instruction-text">AI가 자동으로 분류하고 처리법을 알려드립니다</span>
                         </div>
                     </div>
                 </div>
@@ -241,7 +225,7 @@
                             <div class="action-buttons">
                                 <button class="btn-outline" onclick="goBack()">무료 나눔 하기</button>
                                 <button class="btn-outline" onclick="goBack()">폐기물 배출 신고</button>
-                                <button class="btn-primary" onclick="confirmDisposal()">정확한 분류법 확인</button>
+                                <button class="btn-primary" onclick="confirmDisposal()">정확한 분류법 신고</button>
                             </div>
                         </div>
                     </div>
@@ -259,12 +243,12 @@
 
                     <div class="completion-container">
                         <div class="completion-icon">✅</div>
-                        <h3>분류 정보를 확인하셨습니다</h3>
-                        <p>정확한 배출 방법을 아래 자치구 홈페이지에서 다시 확인하세요.</p>
+                        <h3>해당 물품이 대형 폐기물이 아닌 것으로 인식되었습니다.</h3>
+                        <p>정확한 배출 방법을 아래 자치구 홈페이지에서 확인하세요.</p>
                         
                         <div class="completion-actions">
-                            <button class="btn-outline" onclick="visitLocalWebsite()">지역 분리배출 홈페이지 바로가기</button>
-                            <button class="btn-primary" onclick="startOver()">새로운 분류 시작</button>
+                            <button class="btn-outline" onclick="visitLocalWebsite()">김포시 분리배출 홈페이지 바로가기</button>
+                            <button class="btn-primary" onclick="startOver()">배출 완료 확인</button>
                         </div>
 
                         <div class="eco-points">
@@ -281,15 +265,15 @@
             <div class="modal-overlay" id="alertModal" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>확인</h3>
+                        <h3>Alert</h3>
                         <button class="modal-close" onclick="closeAlert()">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <p id="alertMessage">분류 정보가 정확한지 확인하시겠습니까?</p>
+                        <p id="alertMessage">예상 물품의 분류가 정확하길 원하시나요?</p>
                     </div>
                     <div class="modal-actions">
-                        <button class="btn-outline" onclick="closeAlert()">취소</button>
-                        <button class="btn-primary" onclick="confirmAlert()">확인</button>
+                        <button class="btn-outline" onclick="closeAlert()">No</button>
+                        <button class="btn-primary" onclick="confirmAlert()">Yes</button>
                     </div>
                 </div>
             </div>
@@ -345,6 +329,6 @@
         </div>
     </footer>
 
-    <script src="services.js"></script>
+    <script src="waste-sorting.js"></script>
 </body>
 </html>
