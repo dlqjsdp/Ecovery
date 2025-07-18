@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
  * @author : sehui
  * @fileName : ItemVO
  * @since : 250709
+ * @history
+ *  - 250709 | sehui | 에코마켓 상품 VO 생성
+ *  - 250718 | sehui | category -> categoryId로 변경
  */
 
 @Getter
@@ -25,7 +28,7 @@ public class ItemVO {
     private String itemName;
     private int price;
     private int stockNumber;
-    private String category;
+    private Long categoryId;
     private String itemDetail;
     private ItemSellStatus itemSellStatus;
     private LocalDateTime createdAt;

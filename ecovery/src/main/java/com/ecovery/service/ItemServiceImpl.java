@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
  *  - 250716 | sehui | VO -> DTO, DTO -> VO 변환 메소드 추가
  *  - 250716 | sehui | 상품 등록 기능 추가
  *  - 250717 | sehui | 상품 수정 기능 추가
+ *  - 250718 | sehui | 상품 삭제 기능 추가
  */
 
 @Service
@@ -56,10 +57,9 @@ public class ItemServiceImpl implements ItemService     {
         itemFormDto.setItemId(itemVO.getItemId());
         itemFormDto.setItemNm(itemVO.getItemName());
         itemFormDto.setPrice(itemVO.getPrice());
-        itemFormDto.setCategory(itemVO.getCategory());
+        itemFormDto.setCategoryId(itemVO.getCategoryId());
         itemFormDto.setItemDetail(itemVO.getItemDetail());
         itemFormDto.setItemSellStatus(itemVO.getItemSellStatus());
-        itemFormDto.setCategory(itemVO.getCategory());
 
         return itemFormDto;
     }
@@ -71,16 +71,15 @@ public class ItemServiceImpl implements ItemService     {
                 .itemName(itemFormDto.getItemNm())
                 .price(itemFormDto.getPrice())
                 .stockNumber(itemFormDto.getStockNumber())
-                .category(itemFormDto.getCategory())
+                .categoryId(itemFormDto.getCategoryId())
                 .itemDetail(itemFormDto.getItemDetail())
                 .itemSellStatus(itemFormDto.getItemSellStatus())
                 .build();
     }
 
-    //상품 목록 페이지 (전체 상품 조회)
+    //전체 상품 조회
     @Override
     public List<ItemListDto> getItemList(String itemNm, String category, Criteria cri) {
-        log.info("getItemList >>> criteria : {} ", cri);
 
         //JOIN 쿼리로 Item + 대표 이미지 한 번에 가져옴
         List<ItemListDto> itemList = itemMapper.getListWithPage(itemNm, category, cri);
@@ -88,7 +87,7 @@ public class ItemServiceImpl implements ItemService     {
         return itemList;
     }
 
-    //상품 수정 페이지 (상품 단건 조회)
+    //상품 단건 조회
     @Override
     @Transactional(readOnly = true)
     public ItemFormDto getItemDtl(Long itemId) {
@@ -128,6 +127,7 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 등록
     @Override
+    @Transactional
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception {
 
         //ItemFormDto -> ItemVO 변환
@@ -141,13 +141,15 @@ public class ItemServiceImpl implements ItemService     {
         }
 
         //상품 이미지 저장
-        for(MultipartFile multipartFile : itemImgFileList) {
+        for(int i=0; i<itemImgFileList.size(); i++) {
+            MultipartFile multipartFile = itemImgFileList.get(i);
+
             ItemImgVO itemImg = ItemImgVO.builder()
                     .itemId(item.getItemId())
                     .build();
 
             //대표 이미지 설정
-            if(itemImgFileList.get(0).equals(multipartFile)){
+            if(i == 0){
                 itemImg.setRepImgYn("Y");
             }else {
                 itemImg.setRepImgYn("N");
@@ -161,13 +163,16 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 수정
     @Override
-    public void updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
+    @Transactional
+    public boolean updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
 
         //ItemFormDto -> ItemVO 변환
         ItemVO item = convertDtoToVo(itemFormDto);
 
         //상품 정보 수정
-        itemMapper.updateItem(item);
+        int updatedItemCount = itemMapper.updateItem(item);
+
+        int updatedImgCount = 0;
 
         //상품 이미지 수정
         List<Long> itemImgIds = itemFormDto.getItemImgId();
@@ -183,13 +188,35 @@ public class ItemServiceImpl implements ItemService     {
                     .build();
 
             //대표 이미지 설정
-            if(itemImgFileList.get(0).equals(multipartFile)){
+            if(i == 0){
                 itemImg.setRepImgYn("Y");
             }else {
                 itemImg.setRepImgYn("N");
             }
 
-            itemImgService.updateItemImg(itemImg, multipartFile);
+            boolean isUpdated = itemImgService.updateItemImg(itemImg, multipartFile);
+
+            //수정된 이미지 개수
+            if(isUpdated) {
+                updatedImgCount++;
+            }
         }
+
+        return (updatedItemCount == 1) & (updatedImgCount == itemImgFileList.size());
+    }
+
+    //상품 삭제
+    @Override
+    @Transactional
+    public boolean deleteItem(Long itemId) {
+
+        //상품 이미지 삭제
+        int deletedImgCount = itemImgMapper.deleteItemImg(itemId);
+
+        //상품 삭제
+        int deletedItemCount = itemMapper.deleteItem(itemId);
+        
+        //이미지 최소 1개 이상 삭제, 상품 1개 삭제되면 성공
+        return deletedImgCount >= 1 && deletedItemCount == 1;
     }
 }

@@ -10,6 +10,7 @@ package com.ecovery.mapper;
  *  - 250716 | sehui | 상품 이미지 등록 기능 추가
  *  - 250716 | sehui | 상품 이미지 수정 기능 추가
  *  - 250716 | sehui | 상품 이미지 단건 조회 기능 추가
+ *  - 250718 | sehui | 상품 이미지 삭제 기능 추가
  */
 
 import com.ecovery.domain.ItemImgVO;
@@ -32,4 +33,6 @@ public interface ItemImgMapper {
     //상품 이미지 수정
     public int updateItemImg(ItemImgVO itemImgVO);
 
+    //상품 이미지 삭제
+    public int deleteItemImg(Long itemId);
 }

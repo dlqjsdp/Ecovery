@@ -17,6 +17,7 @@ import java.util.List;
  * @history
  *  - 250710 | sehui | 상세 페이지 화면 출력용 변수, 객체 변환 생성자 추가
  *  - 250716 | sehui | 유효성 검사 추가
+ *  - 250718 | sehui | 카테고리 -> 카테고리 Id로 변경
  */
 
 @Getter
@@ -35,8 +36,8 @@ public class ItemFormDto {
     @NotNull(message = "재고는 필수 입력 값입니다.")
     private int stockNumber;           //재고 수량
 
-    @NotNull(message = "카테고리는 필수 입력 값입니다.")
-    private String category;           //카테고리
+    @NotNull(message = "카테고리는 필수 선택 값입니다.")
+    private Long categoryId;           //카테고리
 
     @NotNull(message = "상세 설명은 필수 입력 값입니다.")
     private String itemDetail;         //상품 상세 설명

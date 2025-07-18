@@ -130,9 +130,15 @@ create table item (
                       item_detail varchar(1000) not null,
                       sell_status Enum('SELL', 'SOLD_OUT') not null default 'SELL',
                       created_at date not null default (current_date),
-                      category varchar(20) not null
+                      category_id BIGINT not null,
+                      CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
 
+-- 에코마켓 상품 카테고리 table (category)
+create table category (
+	category_id bigint auto_increment primary key,
+    category_name varchar(255) not null unique
+);
 
 -- 에코마켓 상품 이미지 table (item_img)
 create table item_img (

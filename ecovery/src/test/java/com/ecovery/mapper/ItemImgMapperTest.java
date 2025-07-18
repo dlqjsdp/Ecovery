@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *  - 250710 | sehui | 상품 이미지 전체 조회 Test 추가
  *  - 250716 | sehui | 상품 이미지 수정 Test 추가
  *  - 250716 | sehui | 상품 단건 조회 Test 추가
+ *  - 250718 | sehui | 상품 이미지 삭제 Test 추가
  */
 
 @SpringBootTest
@@ -103,6 +104,21 @@ class ItemImgMapperTest {
         assertNotNull(itemImg, "ID에 해당하는 상품 이미지가 존재하지 않습니다.");
 
         log.info("itemImg >> {}", itemImg);
+    }
+
+    @Test
+    @DisplayName("상품 이미지 삭제")
+    public void testDelete(){
+
+        //given : 삭제할 상품 Id
+        Long itemId = 3L;
+
+        //when : 상품 이미지 삭제
+        itemImgMapper.deleteItemImg(itemId);
+
+        //then : 결과 검증
+        List<ItemImgVO> deleteImgs = itemImgMapper.getItemList(itemId);
+        assertTrue(deleteImgs.isEmpty(), "이미지가 삭제되지 않았습니다.");
     }
 
 }

@@ -88,14 +88,14 @@ class ItemServiceTest {
 
         //given : 상품 정보 생성
         ItemFormDto item = new ItemFormDto();
-        item.setItemNm("test 등록");
-        item.setPrice(5000);
-        item.setStockNumber(10);
-        item.setCategory("데스크");
-        item.setItemDetail("test 상세 설명");
+        item.setItemNm("test 등록1");
+        item.setPrice(1000);
+        item.setStockNumber(5);
+        item.setCategoryId(1L);
+        item.setItemDetail("test 상세 설명1");
         item.setItemSellStatus(ItemSellStatus.SELL);
 
-        //MockMultipartFile을 사용해 가자 이미지 파일 생성
+        //MockMultipartFile을 사용해 가짜 이미지 파일 생성
         MockMultipartFile mockFile1 = new MockMultipartFile(
                 "itemImgFile1",
                 "testImage1.jpg",
@@ -128,34 +128,38 @@ class ItemServiceTest {
 
         //given : 상품 수정 정보 생성
         ItemFormDto item = new ItemFormDto();
-        item.setItemId(8L);
-        item.setItemNm("test 수정2222222");
+        item.setItemId(13L);
+        item.setItemNm("test 수정2");
         item.setPrice(10000);
         item.setStockNumber(1);
-        item.setCategory("가구");
-        item.setItemDetail("test 상세 설명 수정");
+        item.setCategoryId(2L);
+        item.setItemDetail("test 상세 설명 수정222");
         item.setItemSellStatus(ItemSellStatus.SELL);
-        item.setItemImgId(Arrays.asList(6L));           //실제 DB에 존재하는 ItemImgId
+
+        List<Long> imgId = Arrays.asList(12L);     //실제 DB에 존재하는 ItemImgId (수정하려는 이미지)
+        item.setItemImgId(imgId);
 
         //MockMultipartFile을 사용해 가짜 이미지 파일 생성
         MockMultipartFile mockFile1 = new MockMultipartFile(
-                "itemImgFile22222",
-                "e371cecc-261b-4533-891c-0f06e7d8d2b5.jpg",     //실제 DB에 존재하는 itemImgName
+                "itemImgFile",            //<input type=file> 폼 필드 이름
+                "testImage333.jpg",             //새 이미지 파일 oriImgName
                 "image/jpeg",
                 "test image content 3".getBytes()
         );
 
         List<MultipartFile> itemImgList = Arrays.asList(mockFile1);
 
-        //given : 상품 수정
+        //when : 상품 수정
         itemService.updateItem(item, itemImgList);
 
         //then : 결과 검증
         ItemVO updateItem = itemMapper.getItemDtl(item.getItemId());
+        ItemImgVO updateItemImg = itemImgMapper.getItemImgById(imgId.get(0));
 
         assertNotNull(updateItem, "상품 정보가 수정되지 않았습니다.");
 
-        log.info("updateItem >> {}", updateItem);
+        log.info("updateItem info >> {} ", updateItem);
+        log.info("ItemImg info >> {} ", updateItemImg);
 
     }
 }
