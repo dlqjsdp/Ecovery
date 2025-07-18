@@ -1,0 +1,28 @@
+<!-- templates/fragments/header.html -->
+<header class="header" id="header" th:fragment="header">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo" onclick="goHome()">
+                <img src="/img/logo.png" alt="GreenCycle 로고" class="logo-img">
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" onclick="goHome()">홈</a></li>
+                <li><a href="#" onclick="showNotification('서비스 페이지로 이동합니다')">서비스</a></li>
+                <li><a href="#" onclick="showNotification('분리배출 페이지로 이동합니다')">분리배출</a></li>
+                <li><a href="#" onclick="showNotification('무료나눔 페이지로 이동합니다')">무료나눔</a></li>
+                <li><a href="#" onclick="showNotification('에코마켓 페이지로 이동합니다')">에코마켓</a></li>
+                <li><a href="#" class="active">환경톡톡</a></li>
+                <li><a href="#" onclick="showNotification('공지사항 페이지로 이동합니다')">공지사항</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="#" class="btn-login" onclick="showNotification('로그인 페이지로 이동합니다')">로그인</a>
+                <a href="#" class="btn-signup" onclick="showNotification('회원가입 페이지로 이동합니다')">회원가입</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+</header>
