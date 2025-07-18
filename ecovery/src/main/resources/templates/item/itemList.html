@@ -1,0 +1,45 @@
+
+<!--
+     상품 목록 페이지 (Test용)
+     @author : sehui
+     @fileName : itemList
+     @since : 250715
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>List</title>
+    <h1>itemList</h1>
+    <hr>
+
+    <ul>
+        <li th:each="item : ${itemList}">
+            <h3 th:text="${item.itemId}">itemId</h3>
+            <h3 th:text="${item.itemNm}">itemNm</h3>
+            <h3 th:text="${item.category}">category</h3>
+            <h3 th:text="${item.itemSellStatus}">itemSellStatus</h3>
+            <h3 th:text="${item.imgUrl}">imgUrl</h3>
+            <hr>
+        </li>
+    </ul>
+
+    <hr>
+    <h1>pageMaker</h1>
+    <h3 th:text="${pageMaker}">pageMaker</h3>
+
+    <hr>
+    <h1>itemName</h1>
+    <h3 th:text="${itemNm}">itemNm</h3>
+
+    <hr>
+    <h1>category</h1>
+    <h3 th:text="${category}">category</h3>
+
+</head>
+<body>
+
+</body>
+</html>
