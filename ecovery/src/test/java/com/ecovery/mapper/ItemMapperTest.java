@@ -27,6 +27,7 @@ import java.util.List;
  *  - 250715 | sehui | 상품 단일 조건 검색 Test 추가
  *  - 250716 | sehui | 상품 등록 Test 추가
  *  - 250717 | sehui | 상품 수정 Test 추가
+ *  - 250718 | sehui | 상품 삭제 Test 추가
  */
 
 @SpringBootTest
@@ -43,7 +44,7 @@ class ItemMapperTest {
         //given : 페이징 처리 조건 생성
         String itemNm = "";
         String category = "";
-        Criteria cri = new Criteria(1, 10);
+        Criteria cri = new Criteria(1, 10);     //페이지 1, 10개씩 조회
 
         //when : 전체 상품 조회
         List<ItemListDto> itemList = itemMapper.getListWithPage(itemNm, category, cri);
@@ -117,7 +118,7 @@ class ItemMapperTest {
                 .itemName("test")
                 .price(3000)
                 .stockNumber(5)
-                .category("가전")
+                .categoryId(1L)
                 .itemDetail("test 가전제품")
                 .itemSellStatus(ItemSellStatus.SELL)
                 .build();
@@ -135,10 +136,11 @@ class ItemMapperTest {
 
         //given : 상품 수정 정보 생성
         ItemVO item = ItemVO.builder()
-                .itemId(5L)
+                .itemId(11L)
                 .itemName("수정 제품")
+                .price(10000)
                 .stockNumber(5)
-                .category("수정용")
+                .categoryId(2L)
                 .itemDetail("수정 Test 제품")
                 .itemSellStatus(ItemSellStatus.SOLD_OUT)
                 .build();
@@ -153,5 +155,20 @@ class ItemMapperTest {
         assertEquals(5, updateItem.getStockNumber(), "재고 수량이 수정되지 않았습니다.");
 
         log.info("updateItem >> {}", updateItem);
+    }
+
+    @Test
+    @DisplayName("상품 삭제")
+    public void testDelete(){
+
+        //given : 삭제할 상품 Id
+        Long itemId = 3L;
+
+        //when : 상품 삭제
+        itemMapper.deleteItem(itemId);
+
+        //then : 결과 검증
+        ItemVO deleteItem = itemMapper.getItemDtl(itemId);
+        assertNull(deleteItem, "상품이 삭제되지 않았습니다.");
     }
 }

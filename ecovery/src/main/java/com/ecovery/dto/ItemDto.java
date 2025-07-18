@@ -7,10 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /*
- * 에코마켓 상품 상세 정보 DTO
+ * 에코마켓 상품 정보 DTO
  * @author : sehui
  * @fileName : ItemDto
  * @since : 250709
+ * @history
+ *  - 250709 | sehui | 상품 정보 DTO 생성
+ *  - 250718 | sehui | 카테고리 수정
  */
 
 @Getter
@@ -21,7 +24,7 @@ public class ItemDto {
     private String itemNm;
     private int price;
     private int stockNumber;
-    private String category;
+    private CategoryDto category;
     private String itemDetail;
     private ItemSellStatus itemSellStatus;
 }

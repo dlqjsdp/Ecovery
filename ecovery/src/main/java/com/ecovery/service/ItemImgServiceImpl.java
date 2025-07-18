@@ -64,7 +64,9 @@ public class ItemImgServiceImpl implements ItemImgService {
 
     //상품 이미지 수정
     @Override
-    public void updateItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception {
+    public boolean updateItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception {
+
+        int updateRows = 0;
 
         //기존 상품 이미지 조회
         if(!itemImgFile.isEmpty()) {
@@ -86,7 +88,9 @@ public class ItemImgServiceImpl implements ItemImgService {
             itemImgVO.setImgUrl(imgUrl);
 
             //DB에 이미지 정보 수정 요청
-            itemImgMapper.updateItemImg(itemImgVO);
+            updateRows = itemImgMapper.updateItemImg(itemImgVO);
         }
+
+        return updateRows == 1;
     }
 }
