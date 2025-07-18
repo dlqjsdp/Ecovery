@@ -3,6 +3,7 @@ package com.ecovery.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -15,10 +16,12 @@ import java.time.LocalDateTime;
  * @since : 250711
  * @history
      - 250708 | yukyeong | DTO 클래스 최초 작성
+     - 250718 | yukyeong | 테스트를 위해 @ToString 추가
  */
 
 @Getter
 @Setter
+@ToString
 public class EnvDto {
 
     private Long envId; // 환경 톡톡 게시글 ID

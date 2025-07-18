@@ -1,96 +1,239 @@
-<!--
-환경톡톡 게시글 목록 화면 (임시 뷰)
-EnvController의 목록 조회 기능을 확인하기 위해 임시로 만든 파일
-검색, 페이징, 목록 출력 기능만 구현됨
-@author : yukyeong
-@fileName : list.html
-@since : 250716
-@history
-    - 250716 | yukyeong | 목록 조회 화면 임시 작성
-    - 250717 | yukyeong | 등록하기 버튼 추가
--->
-
+<!-- templates/env/list.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>환경톡톡 게시글 목록</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='환경톡톡'">
+    <title>환경톡톡</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+
+    </th:block>
 </head>
+
 <body>
-<h2>환경톡톡 게시글 목록</h2>
+    <!-- 본문 fragment로 감싸기 -->
+    <div layout:fragment="content">
 
-<form th:action="@{/env/list}" method="get">
-    <select name="type">
-        <option value="" th:selected="${pageMaker?.cri?.type == null}">전체</option>
-        <option value="T" th:selected="${pageMaker?.cri?.type == 'T'}">제목</option>
-        <option value="C" th:selected="${pageMaker?.cri?.type == 'C'}">내용</option>
-        <option value="W" th:selected="${pageMaker?.cri?.type == 'W'}">작성자</option>
-        <option value="TCW" th:selected="${pageMaker?.cri?.type == 'TCW'}">제목+내용+작성자</option>
-    </select>
-    <input type="text" name="keyword"
-           th:value="${pageMaker?.cri?.keyword ?: ''}"
-           placeholder="검색어 입력">
-    <button type="submit">검색</button>
-</form>
+            <!-- Page Header -->
+            <section class="page-header fade-in">
+                <div class="page-header-content">
+                    <h1>💬 환경톡톡</h1>
+                    <p>환경을 사랑하는 사람들과 함께 나누는 소중한 이야기와 경험들</p>
+                    <div class="page-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">1,247</span>
+                            <span class="stat-label">전체 게시글</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">892</span>
+                            <span class="stat-label">활성 회원</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">156</span>
+                            <span class="stat-label">오늘 글</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">34</span>
+                            <span class="stat-label">실시간 접속</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-<!-- 등록 버튼 예시 -->
-<a th:href="@{/env/register}">
-    <button type="button">등록하기</button>
-</a>
+            <!-- Board Container -->
+            <div class="board-container">
+                <!-- Main Board -->
+                <div class="board-main fade-in">
+                    <!-- Board Header -->
+                    <div class="board-header">
+                        <h2 class="board-title">환경 실천 커뮤니티</h2>
+                        <div class="board-actions">
+                            <button class="btn btn-primary" onclick="writePost()">✏️ 글쓰기</button>
 
-<table border="1" cellpadding="5" cellspacing="0" width="100%">
-    <thead>
-    <tr>
-        <th>번호</th>
-        <th>제목</th>
-        <th>작성자</th>
-        <th>작성일</th>
-        <th>조회수</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="item, iterStat : ${list}">
-        <td th:text="${item.envId}"></td>
-        <td>
-            <a th:href="@{/env/get(envId=${item.envId})}"
-               th:text="${item.title}"></a>
-        </td>
-        <td th:text="${item.nickname}"></td>
-        <td th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd')}"></td>
-        <td th:text="${item.viewCount}"></td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(list)}">
-        <td colspan="5">등록된 게시글이 없습니다.</td>
-    </tr>
-    </tbody>
-</table>
+                            <!-- 구조 유지 + 내부만 form으로 감싸기 -->
+                            <div class="search-box">
+                                <form th:action="@{/env/list}" method="get" style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="text" class="search-input" name="keyword"
+                                           th:value="${pageMaker.cri.keyword}" placeholder="검색어 입력">
+                                    <button type="submit" class="search-btn">🔍</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
 
-<div th:if="${pageMaker != null}">
-    <span th:if="${pageMaker.prev}">
-        <a th:href="@{/env/list(
-                        pageNum=${pageMaker.startPage - 1},
-                        amount=${pageMaker.cri.amount},
-                        type=${pageMaker.cri.type},
-                        keyword=${pageMaker.cri.keyword ?: ''})}">이전</a>
-    </span>
+                    <!-- Category Tabs -->
+                    <div class="category-tabs">
+                        <button class="tab active" onclick="switchTab(this, 'all')">전체</button>
+                        <button class="tab" onclick="switchTab(this, 'tips')">환경 팁</button>
+                        <button class="tab" onclick="switchTab(this, 'review')">실천 후기</button>
+                        <button class="tab" onclick="switchTab(this, 'challenge')">챌린지</button>
+                        <button class="tab" onclick="switchTab(this, 'question')">질문답변</button>
+                        <button class="tab" onclick="switchTab(this, 'news')">환경 뉴스</button>
+                    </div>
 
-    <span th:each="num : ${#numbers.sequence(pageMaker.startPage, pageMaker.endPage)}">
-        <a th:href="@{/env/list(
-                        pageNum=${num},
-                        amount=${pageMaker.cri.amount},
-                        type=${pageMaker.cri.type},
-                        keyword=${pageMaker.cri.keyword ?: ''})}"
-           th:text="${num}"></a>
-    </span>
+                    <!-- Post List -->
+                    <div class="post-list" id="postList">
+                        <!-- Hot Post -->
+                        <div class="post-item hot" onclick="viewPost(1)">
+                            <div class="post-number hot">🔥</div>
+                            <div class="post-content">
+                                <div class="post-title">30일 제로웨이스트 챌린지 완주 후기 - 정말 가능할까?</div>
+                                <div class="post-meta">
+                                    <span class="post-author">환경러버</span>
+                                    <span>2025.07.17 14:23</span>
+                                    <span>조회 847</span>
+                                </div>
+                                <div class="post-tags">
+                                    <span class="tag">제로웨이스트</span>
+                                    <span class="tag">챌린지</span>
+                                    <span class="tag">후기</span>
+                                </div>
+                            </div>
+                            <div class="post-stats post-views">👁️ 847</div>
+                        </div>
 
-    <span th:if="${pageMaker.next}">
-        <a th:href="@{/env/list(
-                        pageNum=${pageMaker.endPage + 1},
-                        amount=${pageMaker.cri.amount},
-                        type=${pageMaker.cri.type},
-                        keyword=${pageMaker.cri.keyword ?: ''})}">다음</a>
-    </span>
-</div>
+                        <!-- Regular Posts -->
+                        <div th:each="post, stat : ${list}" class="post-item"
+                             th:onclick="|viewPost([[${post.envId}]])|">
+                            <div class="post-number" th:text="${stat.count}">1</div>
+                            <div class="post-content">
+                                <div class="post-title" th:text="${post.title}">제목</div>
+                                <div class="post-meta">
+                                    <span class="post-author" th:text="${post.nickname}">작성자</span>
+                                    <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}">작성일</span>
+                                    <span th:text="'조회 ' + ${post.viewCount}">조회수</span>
+                                </div>
+                            </div>
+                            <div class="post-stats post-views" th:text="'👁️ ' + ${post.viewCount}">조회수</div>
+                        </div>
+                    </div>
 
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <!-- 이전 버튼 -->
+                        <a class="page-btn"
+                           th:if="${pageMaker.prev}"
+                           th:href="@{/env/list(pageNum=${pageMaker.startPage - 1}, type=${pageMaker.cri.type}, keyword=${pageMaker.cri.keyword})}">
+                            ‹
+                        </a>
+                        <!-- 페이지 번호 출력 -->
+                        <a class="page-btn"
+                           th:each="i : ${#numbers.sequence(pageMaker.startPage, pageMaker.endPage)}"
+                           th:href="@{/env/list(pageNum=${i}, type=${pageMaker.cri.type}, keyword=${pageMaker.cri.keyword})}"
+                           th:text="${i}"
+                           th:classappend="${i == pageMaker.cri.pageNum} ? 'active'">
+                        </a>
+                        <!-- 다음 버튼 -->
+                        <a class="page-btn"
+                           th:if="${pageMaker.next}"
+                           th:href="@{/env/list(pageNum=${pageMaker.endPage + 1}, type=${pageMaker.cri.type}, keyword=${pageMaker.cri.keyword})}">
+                            ›
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="board-sidebar fade-in">
+                    <!-- User Info -->
+                    <div class="sidebar-card user-stats">
+                        <h3>👤 내 정보</h3>
+                        <div class="user-avatar">🌱</div>
+                        <div class="user-name">환경지킴이</div>
+                        <div class="user-level">🌟 에코마스터</div>
+                        <div class="user-point-stats">
+                            <div class="point-item">
+                                <span class="point-number">1,247</span>
+                                <span class="point-label">에코포인트</span>
+                            </div>
+                            <div class="point-item">
+                                <span class="point-number">89</span>
+                                <span class="point-label">작성글</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Popular Posts -->
+                    <div class="sidebar-card">
+                        <h3>🔥 인기글</h3>
+                        <div class="popular-list">
+                            <div class="popular-item" onclick="viewPost(1)">
+                                <div class="popular-rank">1</div>
+                                <div class="popular-title">30일 제로웨이스트 챌린지 완주 후기</div>
+                                <div class="popular-stats">
+                                    <span>👁️ 847</span>
+                                    <span>❤️ 89</span>
+                                    <span>💬 23</span>
+                                </div>
+                            </div>
+                            <div class="popular-item" onclick="viewPost(7)">
+                                <div class="popular-rank">2</div>
+                                <div class="popular-title">전기차 구매 후기 - 환경도 보호하고 연비도 좋고!</div>
+                                <div class="popular-stats">
+                                    <span>👁️ 567</span>
+                                    <span>❤️ 95</span>
+                                    <span>💬 31</span>
+                                </div>
+                            </div>
+                            <div class="popular-item" onclick="viewPost(9)">
+                                <div class="popular-rank">3</div>
+                                <div class="popular-title">대중교통 이용하기 한 달 챌린지 결과</div>
+                                <div class="popular-stats">
+                                    <span>👁️ 445</span>
+                                    <span>❤️ 63</span>
+                                    <span>💬 17</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Challenge -->
+                    <div class="challenge-card">
+                        <div class="challenge-icon">🌍</div>
+                        <div class="challenge-title">이번 주 챌린지</div>
+                        <div class="challenge-desc">
+                            일회용품 줄이기<br>
+                            7일 동안 일회용품 사용량 50% 줄이기
+                        </div>
+                        <button class="challenge-btn" onclick="joinChallenge()">참여하기</button>
+                    </div>
+
+                    <!-- Environmental Tips -->
+                    <div class="sidebar-card">
+                        <h3>💡 오늘의 환경 팁</h3>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">♻️</div>
+                            <h4 style="color: var(--primary-green); margin-bottom: 10px;">분리배출 핵심</h4>
+                            <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);">
+                                플라스틱 용기는 내용물을 비우고 물로 한 번 헹군 후 배출하면
+                                재활용 효율이 <strong>30% 향상</strong>됩니다!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="sidebar-card">
+                        <h3>🔗 바로가기</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="showNotification('분리배출 가이드로 이동합니다')" style="width: 100%;">
+                                📋 분리배출 가이드
+                            </button>
+                            <button class="btn btn-secondary" onclick="showNotification('에코마켓으로 이동합니다')" style="width: 100%;">
+                                🛒 친환경 제품 보기
+                            </button>
+                            <button class="btn btn-secondary" onclick="showNotification('무료나눔으로 이동합니다')" style="width: 100%;">
+                                🤝 무료나눔 참여
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <!-- 추가 JS (필요시만) -->
+    </th:block>
 </body>
 </html>
+

@@ -2,6 +2,7 @@ package com.ecovery.service;
 
 import com.ecovery.domain.EnvVO;
 import com.ecovery.dto.Criteria;
+import com.ecovery.dto.EnvDto;
 
 import java.util.List;
 
@@ -15,19 +16,20 @@ import java.util.List;
  * @history
      - 250715 | yukyeong | EnvService 인터페이스 최초 작성 (CRUD, 페이징)
      - 250716 | yukyeong | 조회수 증가 추가
+     - 250718 | yukyeong | VO를 DTO로 변경
  */
 
 public interface EnvService {
 
-    public void register(EnvVO env); // 게시글 등록
+    public void register(EnvDto envDto); // 게시글 등록 (DTO로 등록)
 
-    public EnvVO get(Long envId); // 게시글 단건 조회
+    public EnvDto get(Long envId); // 게시글 단건 조회 (DTO 반환)
 
-    public boolean modify(EnvVO env); // 게시글 수정
+    public boolean modify(EnvDto envDto); // 게시글 수정 (DTO로 수정)
 
-    public boolean remove(Long envId); // 게시글 삭제
+    public boolean remove(Long envId); // 게시글 삭제 (삭제는 ID만으로)
 
-    public List<EnvVO> getList(Criteria cri); // 게시글 목록 조회 (페이징 포함)
+    public List<EnvDto> getList(Criteria cri); // 게시글 목록 조회 (페이징 포함) (목록도 DTO로)
 
     public int getTotal(Criteria cri); // 게시글 총 개수 조회 (페이징 처리에 사용)
 

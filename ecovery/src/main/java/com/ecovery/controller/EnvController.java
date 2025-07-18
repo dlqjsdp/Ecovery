@@ -27,6 +27,7 @@ import java.util.List;
  * @history
      - 250716 | yukyeong | EnvController 클래스 최초 작성 (목록 조회)
      - 250717 | yukyeong | 게시글 등록 폼 이동, 등록 처리, 단건 조회 및 수정 화면, 수정 처리, 삭제 추가
+     - 250718 | yukyeong | 게시글 목록 조회 (페이징 + 검색)
  */
 
 @Controller
@@ -37,18 +38,18 @@ public class EnvController {
 
     private final EnvService envService;
 
-//    // 목록 조회
-//    @GetMapping("/list")
-//    public void list(Criteria cri, Model model) {
-//        log.info("게시글 목록 조회 : {}", cri); // cri에 담긴 조건(페이지 번호, 검색어 등) 로그 출력
-//
-//        List<EnvVO> list = envService.getList(cri); // 조건에 맞는 게시글 목록 조회
-//        int total = envService.getTotal(cri); // 조건에 맞는 게시글 전체 개수 조회
-//
-//        model.addAttribute("list", list); // 조회된 게시글 목록을 모델에 담아 View로 전달
-//        model.addAttribute("pageMaker", new PageDto(cri, total)); // 페이지 정보(PageDto)를 모델에 담아 View로 전달
-//    }
-//
+    // 목록 조회
+    @GetMapping("/list")
+    public void list(Criteria cri, Model model) {
+        log.info("게시글 목록 조회 : {}", cri); // cri에 담긴 조건(페이지 번호, 검색어 등) 로그 출력
+
+        List<EnvDto> list = envService.getList(cri); // DTO 타입으로 목록 조회
+        int total = envService.getTotal(cri); // 총 게시글 수 조회
+
+        model.addAttribute("list", list); // 조회된 게시글 목록을 모델에 담아 View로 전달
+        model.addAttribute("pageMaker", new PageDto(cri, total)); // 페이지 정보(PageDto)를 모델에 담아 View로 전달
+    }
+
 //    // 게시글 등록 폼 이동
 //    @GetMapping("/register")
 //    public void register() {

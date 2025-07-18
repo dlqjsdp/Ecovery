@@ -9,10 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
  * 환경톡톡 게시글 서비스 구현 클래스
- * 게시글 CRUD 및 목록 조회(페이징) 기능을 EnvMapper와 연결하여 처리
+ * 게시글 CRUD 및 목록 조회(페이징)을 DTO로 처리하며, 내부에서는 EnvVO를 사용하여 EnvMapper와 연결
  * Service 계층에서 비즈니스 로직을 담당하며 컨트롤러에 결과를 반환
  * @author : yukyeong
  * @fileName : EnvServiceImpl.java
@@ -20,7 +21,8 @@ import java.util.List;
  * @history
      - 250715 | yukyeong | EnvServiceImpl 클래스 최초 작성 (CRUD 구현)
      - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 추가
-     - 250717 | yukyeong | DTO -> VO, VO -> DTO 추가
+     - 250717 | yukyeong | DTO ↔ VO 변환 메서드 추가
+     - 250718 | yukyeong | DTO 기반 서비스로 전환
  */
 
 @Service
@@ -28,109 +30,92 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnvServiceImpl implements EnvService {
 
-    // 의존성 주입, @RequiredArgsConstructor에 의해 생성자 주입이 자동으로 처리됨
+    // EnvMapper는 DB 연동을 위한 MyBatis 인터페이스
     private final EnvMapper envMapper;
 
-    // DTO -> VO
-    private EnvVO dtoToVo(EnvDto dto) {
-        EnvVO vo = new EnvVO();
-        vo.setEnvId(dto.getEnvId());
-        vo.setTitle(dto.getTitle());
-        vo.setContent(dto.getContent());
-        vo.setMemberId(dto.getMemberId());
-        return vo;
+    // DTO를 VO로 변환하는 메서드 (DB 작업용으로 변환)
+    private EnvVO dtoToVo(EnvDto envDto) {
+        EnvVO env = new EnvVO();
+        env.setEnvId(envDto.getEnvId());
+        env.setTitle(envDto.getTitle());
+        env.setContent(envDto.getContent());
+        env.setMemberId(envDto.getMemberId());
+        return env;
     }
 
-    // VO -> DTO
-    private EnvDto voToDto(EnvVO vo) {
-        EnvDto dto = new EnvDto();
-        dto.setEnvId(vo.getEnvId());
-        dto.setTitle(vo.getTitle());
-        dto.setContent(vo.getContent());
-        dto.setMemberId(vo.getMemberId());
-        dto.setNickname(vo.getNickname());
-        dto.setViewCount(vo.getViewCount());
-        dto.setCreatedAt(vo.getCreatedAt());
-        dto.setUpdatedAt(vo.getUpdatedAt());
-        return dto;
+    // VO를 DTO로 변환하는 메서드 (컨트롤러 또는 뷰로 전달용)
+    private EnvDto voToDto(EnvVO env) {
+        EnvDto envDto = new EnvDto();
+        envDto.setEnvId(env.getEnvId());
+        envDto.setTitle(env.getTitle());
+        envDto.setContent(env.getContent());
+        envDto.setMemberId(env.getMemberId());
+        envDto.setNickname(env.getNickname());
+        envDto.setViewCount(env.getViewCount());
+        envDto.setCreatedAt(env.getCreatedAt());
+        envDto.setUpdatedAt(env.getUpdatedAt());
+        return envDto;
     }
 
-    /**
-     * 게시글 등록
-     * EnvMapper의 insert() 메서드를 호출하여 게시글을 DB에 저장
-     * @param env 등록할 게시글 정보 (EnvVO)
-     */
+    // 게시글 등록 (DTO → VO 변환 후 Mapper 호출)
+    // DTO를 VO로 변환 후 insert 쿼리 실행, 생성된 ID를 다시 DTO에 설정
     @Override
-    public void register(EnvVO env) {
+    public void register(EnvDto envDto) {
         log.info("register() - 게시글 등록");
+        EnvVO env = dtoToVo(envDto);
         envMapper.insert(env);
+        envDto.setEnvId(env.getEnvId()); // DB에서 생성된 ID를 DTO에 반영
     }
 
-    /**
-     * 게시글 단건 조회
-     * envId에 해당하는 게시글 1건을 조회
-     * @param envId 조회할 게시글 ID
-     * @return EnvVO 게시글 정보 (존재하지 않을 경우 null)
-     */
+    // 게시글 단건 조회
+    // 조회된 VO를 DTO로 변환하여 반환
     @Override
-    public EnvVO get(Long envId) {
+    public EnvDto get(Long envId) {
         log.info("get() - 게시글 단건 조회");
-        return envMapper.read(envId);
+        EnvVO env = envMapper.read(envId);
+        if (env == null) return null; // null 체크 추가
+        return voToDto(env);
     }
 
-    /**
-     * 게시글 수정
-     * EnvMapper의 update() 호출 결과로 수정 성공 여부 반환
-     * @param env 수정할 게시글 정보
-     * @return boolean 수정 성공 여부 (true: 성공, false: 실패)
-     */
+    // 게시글 수정
+    // DTO를 VO로 변환하여 update 쿼리 실행, 결과가 1이면 true 반환
     @Override
-    public boolean modify(EnvVO env) {
+    public boolean modify(EnvDto envDto) {
         log.info("modify() - 게시글 수정");
+        EnvVO env = dtoToVo(envDto);
         return envMapper.update(env) == 1; // update() 실행 시 영향받은 행 수가 1이면 true
     }
 
-    /**
-     * 게시글 삭제
-     * EnvMapper의 delete() 호출 결과로 삭제 성공 여부 반환
-     * @param envId 삭제할 게시글 ID
-     * @return boolean 삭제 성공 여부 (true: 성공, false: 실패)
-     */
+    // 게시글 삭제
+    // 전달받은 ID로 delete 쿼리 실행, 결과가 1이면 true 반환
     @Override
     public boolean remove(Long envId) {
         log.info("remove() - 게시글 삭제");
         return envMapper.delete(envId) == 1;
     }
 
-    /**
-     * 게시글 목록 조회 (페이징 포함)
-     * Criteria 객체를 이용해 조회 범위(offset, amount)를 지정
-     * @param cri Criteria 페이징 및 검색 조건
-     * @return List<EnvVO> 조회된 게시글 목록
-     */
+    // 게시글 목록 조회 (페이징 포함)
+    // VO 목록을 DTO 목록으로 변환하여 반환
     @Override
-    public List<EnvVO> getList(Criteria cri) {
+    public List<EnvDto> getList(Criteria cri) {
         log.info("getList() - 게시글 목록 조회");
-        return envMapper.getListWithPaging(cri);
+        List<EnvVO> envList = envMapper.getListWithPaging(cri);
+
+        // Stream API로 VO 리스트 → DTO 리스트 변환
+        return envList.stream()
+                .map(this::voToDto)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * 게시글 총 개수 조회
-     * 페이징 처리에 필요한 전체 레코드 수를 조회
-     * @param cri Criteria 페이징 및 검색 조건
-     * @return int 총 게시글 수
-     */
+    // 전체 게시글 수 조회 (페이징 처리에 필요)
     @Override
     public int getTotal(Criteria cri) {
         log.info("getTotal() - 게시글 총 개수 조회");
         return envMapper.getTotalCount(cri);
     }
 
-    /**
-     * 게시글 조회수 1 증가
-     * 주어진 게시글 ID에 해당하는 view_count 값을 +1 처리
-     * @param envId 조회수를 증가시킬 게시글 ID (PK)
-     */
+    // 게시글 조회수 증가
+    // 주어진 ID에 해당하는 게시글의 viewCount +1 처리
     @Override
     public void increaseViewCount(Long envId){
 
