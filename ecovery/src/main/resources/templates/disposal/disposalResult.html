@@ -1,95 +1,101 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>분리배출 분석 결과</title>
-    <link rel="stylesheet" th:href="@{/result.css}">
-</head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
 
-<header>
-    <div class="header-top">
-        <div class="logo">Ecovery</div>
-        <div class="auth-links">
-            <a href="/member/login">로그인</a> /
-            <a href="/member/signup">회원가입</a>
-        </div>
-    </div>
-    <nav class="main-menu">
-        <a href="/waste">분리배출</a>
-        <span>|</span>
-        <a href="/free/list">무료나눔</a>
-        <span>|</span>
-        <a href="#">에코마켓</a>
-        <span>|</span>
-        <a href="#">환경톡톡</a>
-        <span>|</span>
-        <a href="#">공지사항</a>
-    </nav>
-</header>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" href="/css/services.css">
+</th:block>
 
-<main>
-    <div class="container">
-        <div class="breadcrumb">홈 &gt; 분리배출</div>
-
-        <div class="image-preview">
-            <img th:src="@{'/images/' + ${imgName}}" alt="업로드된 이미지" class="preview">
-        </div>
-
-        <div class="result-box">
-            <p><b>품목:</b> <span th:text="${category}">책상</span></p>
-            <p><b>결과:</b> <span th:text="${resultText}">대형 폐기물 중 책상으로 분류됩니다.</span></p>
-            <p><b>지역:</b> <span th:text="${region}">서울특별시 강동구</span></p>
-            <p><b>크기:</b> <span th:text="${size}">가로 x 세로 (cm)</span></p>
-            <p><b>예상 폐기 수수료:</b> <span th:text="${fee}">10,000</span>원</p>
-            <p><b>신뢰도:</b> <span th:text="${confidence}">90.0</span>%</p>
-
-            <div class="report-button-box">
-                <button class="report-btn" onclick="openConfirmModal()">잘못된 분류 신고</button>
+<div layout:fragment="content">
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>🤖 AI 스마트 분리배출</h1>
+                <p>AI가 분석한 결과를 확인하세요</p>
             </div>
+
+            <!-- Step 3: Classification Result -->
+            <div class="classification-step" id="resultStep" style="display: block;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h2>분석 완료!</h2>
+                        <p>AI가 폐기물을 정확히 분류했습니다</p>
+                    </div>
+
+                    <div class="result-container">
+                        <!-- 이미지 -->
+                        <div class="result-image">
+                            <img id="resultImage" th:src="${disposalHistory.disposalImgUrl}" alt="분석된 이미지">
+                            <div class="confidence-badge" id="confidenceBadge"
+                                 th:text="'AI 예측: ' + ${disposalHistory.aiPrediction}">정확도 95.2%</div>
+                        </div>
+
+                        <!-- 정보 -->
+                        <div class="result-info">
+                            <div class="waste-type">
+                                <h3 id="wasteType" th:text="${disposalHistory.finalItem}">책꽂이</h3>
+                                <span class="waste-category" id="wasteCategory" th:text="${disposalHistory.aiPrediction}">small_item</span>
+                            </div>
+
+                            <div class="waste-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">물품명:</span>
+                                    <span class="detail-value" id="itemName" th:text="${disposalHistory.itemName}">책꽂이</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">지역:</span>
+                                    <span class="detail-value" id="regionGu" th:text="${disposalHistory.regionGu}">강남구</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">예상 수수료:</span>
+                                    <span class="detail-value" id="processingFee"
+                                          th:text="${disposalHistory.minPrice == disposalHistory.maxPrice} ?
+                                          ${disposalHistory.minPrice + '원'} :
+                                          ${disposalHistory.minPrice + '원 ~ ' + disposalHistory.maxPrice + '원'}">
+                                        2000원 ~ 5000원
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">등록일시:</span>
+                                    <span class="detail-value" id="createdAt" th:text="${disposalHistory.createdAt}">2025-07-20</span>
+                                </div>
+                            </div>
+
+                            <div class="disposal-guide">
+                                <h4>🗂️ 정확한 분류법 안내</h4>
+                                <ul id="disposalSteps">
+                                    <li>폐기물을 가능한 깨끗하게 정리해주세요</li>
+                                    <li>해당 지역 기준으로 처리방식을 확인하세요</li>
+                                    <li>스티커를 부착 후 정해진 장소에 배출하세요</li>
+                                </ul>
+                            </div>
+
+                            <div class="action-buttons">
+                                <a class="btn-outline" th:href="@{/sharing/register(disposalHistoryId=${disposalHistory.disposalHistoryId})}">
+                                    무료 나눔 하기
+                                </a>
+                                <a class="btn-outline" th:href="@{${disposalHistory.reportUrl}}" target="_blank">
+                                    폐기물 배출 신고
+                                </a>
+                                <a class="btn-primary" href="/disposal">
+                                    새로운 분류 시작
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4는 따로 동작하지 않으니 숨김 유지 -->
+            <div class="classification-step" id="completionStep" style="display: none;"></div>
+
         </div>
-
-        <hr>
-
-        <h3 class="action-question">이 물건을 어떻게 하시겠어요?</h3>
-        <div class="action-buttons">
-            <a href="/free/write"><button class="free-btn">무료 나눔 하기</button></a>
-            <a th:href="${guReportUrl}" target="_blank">
-                <button class="report-btn">폐기물 배출 신고하기</button>
-            </a>
-        </div>
-    </div>
-</main>
-
-<footer>
-    © 2025 EcoVery
-</footer>
-
-<!-- ✅ 모달 구조 -->
-<div id="confirmModal" class="modal">
-    <div class="modal-content">
-        <p>해당 품목의 분류가<br>잘못되었나요?</p>
-        <div class="modal-buttons">
-            <button onclick="goToReport()">Yes</button>
-            <button onclick="closeConfirmModal()">No</button>
-        </div>
-    </div>
+    </main>
 </div>
 
-<!-- ✅ JS 기능 -->
-<script>
-    function openConfirmModal() {
-        document.getElementById("confirmModal").style.display = "flex";
-    }
+<th:block layout:fragment="script"></th:block>
 
-    function closeConfirmModal() {
-        document.getElementById("confirmModal").style.display = "none";
-    }
-
-    function goToReport() {
-        window.location.href = "/report/wrong";
-    }
-</script>
-
-</body>
 </html>
