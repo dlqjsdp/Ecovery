@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 
     <!-- ✅ 공통 CSS -->
-    <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
+    <!--<link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">-->
 
     <!-- 추가 CSS 영역 (자식 페이지에서 사용) -->
     <th:block layout:fragment="css"></th:block>
@@ -22,14 +22,14 @@
 <body>
 <div th:replace="fragments/header :: header"></div>
 
-<main class="main-content">
+<!--<main class="main-content">-->
     <div class="container" layout:fragment="content"></div>
-</main>
+<!--</main>-->
 
 <div th:replace="fragments/footer :: footer"></div>
 
 <!-- 공통 JS -->
-<script th:src="@{/js/eco-talk-script.js}"></script>
+<!--<script th:src="@{/js/eco-talk-script.js}"></script>-->
 
 <!-- 추가 JS 영역 (자식 페이지에서 사용) -->
 <th:block layout:fragment="script"></th:block>
