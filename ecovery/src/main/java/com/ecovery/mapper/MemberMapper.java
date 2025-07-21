@@ -1,6 +1,7 @@
 package com.ecovery.mapper;
 
 import com.ecovery.domain.MemberVO;
+import com.ecovery.domain.PointVO;
 import com.ecovery.dto.MemberPageDto;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -53,4 +54,6 @@ public interface MemberMapper {
     // 마이페이지 닉네임, 포인트 조회
     public MemberPageDto getMemberPage(Long memberId);
 
+    // 마이페이지 포인트 전체 조회
+    public List<PointVO> getPointHistoryMemberById(Long memberId);
 }

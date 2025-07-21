@@ -10,9 +10,10 @@ CREATE TABLE member (
     member_id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 회원 고유번호 (PK)
     email VARCHAR(255) NOT NULL UNIQUE, -- 로그인 이메일 (중복 불가)
     password VARCHAR(255) NOT NULL, -- 비밀번호
-    nickname VARCHAR(50) NOT NULL, -- 닉네임
+    nickname VARCHAR(50) NOT NULL UNIQUE, -- 닉네임 (중복 불가)
     role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER', -- 권한 (USER, ADMIN)
     created_at DATE NOT NULL DEFAULT (CURRENT_DATE) -- 가입일자
+    agree_optional ENUM('Y', 'N') NOT NULL DEFAULT 'Y', -- 선택 약관 동의여부 (Y, N)
 );
 
 
@@ -180,6 +181,11 @@ create table orders (
                         order_status enum('ORDER', 'CANCEL') not null default 'ORDER',
                         created_at date not null default (current_date),
                         updated_at date not null default (current_date),
+                        name varchar(50) NOT NULL,
+                        zipcode varchar(10) NOT NULL,
+                        road_address varchar(100) NOT NULL,
+                        detail_address varchar(100) NOT NULL,
+                        phone_number varchar(13) NOT NULL,
                         foreign key(member_id) references member(member_id)
 );
 
