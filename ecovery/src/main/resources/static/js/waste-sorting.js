@@ -680,11 +680,10 @@ function startAnalysisAnimation() {
 
 // 분석 완료
 function completeAnalysis() {
-   // 크기 정보 가져오기
-   const width = widthInput ? widthInput.value : '';
-   const height = heightInput ? heightInput.value : '';
-   let sizeCategory = '중형';
-   let estimatedSize = '중형 (추정)';
-   
-   if (width && height) {
-       const area = width *
+    // 크기 정보 가져오기
+    const width = widthInput ? widthInput.value : '';
+    const height = heightInput ? heightInput.value : '';
+    let sizeCategory = '중형';
+    let estimatedSize = '중형 (추정)';
+
+}

@@ -33,6 +33,7 @@ public class DisposalHistoryRestController {
             @RequestParam("regionGu") String regionGu,       // 'regionGu'라는 이름으로 전송된 문자열
             @RequestParam(value = "memberId", required = false) Long memberId // 선택 사항
     ) {
+        log.info("filename: {}", multipartFile.getOriginalFilename());
         log.info("Initial disposal request received: regionGu={}, memberId={}", regionGu, memberId);
         try {
             AIInitialDisposalResponseDto responseDto = aiDisposalRequestProcessingService.processInitialDisposalRequest(

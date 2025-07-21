@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 public class AIPredictionResultDto {
 
     private String predictedClass;  //ai 예측 결과
-    //private Double confidence;  //예측 신뢰도
+    private Double aiConfidence;  //예측 신뢰도
+    private String regionGu;
+    private String fileName;
 }
