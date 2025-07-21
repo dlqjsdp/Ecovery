@@ -1,4 +1,15 @@
-<!-- templates/fragments/header.html -->
+<!--
+GreenCycle 공통 헤더 프래그먼트
+모든 페이지에서 상단 네비게이션으로 포함되는 공통 header 영역
+Thymeleaf layout:fragment="header"로 정의되어 layout에서 포함하여 사용
+로그인/회원가입, 주요 메뉴 링크(홈, 서비스, 분리배출, 무료나눔, 에코마켓 등) 포함
+
+@author : yukyeong
+@fileName : header.html
+@since : 250718
+@history
+    - 250718 | yukyeong | 공통 헤더 프래그먼트 작성
+-->
 <header class="header" id="header" th:fragment="header">
     <nav class="navbar">
         <div class="nav-container">
@@ -16,7 +27,7 @@
             </ul>
             <div class="auth-buttons">
                 <a th:href="@{/member/login}" class="btn-login" onclick="showNotification('로그인 페이지로 이동합니다')">로그인</a>
-                <a th:href="@{/member/signup}" onclick="showNotification('회원가입 페이지로 이동합니다')">회원가입</a>
+                <a th:href="@{/member/signup}" class="btn-signup" onclick="showNotification('회원가입 페이지로 이동합니다')">회원가입</a>
             </div>
             <div class="hamburger" id="hamburger">
                 <span></span>
