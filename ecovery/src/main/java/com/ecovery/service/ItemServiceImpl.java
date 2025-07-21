@@ -127,7 +127,6 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 등록
     @Override
-    @Transactional
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception {
 
         //ItemFormDto -> ItemVO 변환
@@ -163,7 +162,6 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 수정
     @Override
-    @Transactional
     public boolean updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
 
         //ItemFormDto -> ItemVO 변환
@@ -207,7 +205,6 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 삭제
     @Override
-    @Transactional
     public boolean deleteItem(Long itemId) {
 
         //상품 이미지 삭제

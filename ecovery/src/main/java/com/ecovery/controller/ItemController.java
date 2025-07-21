@@ -37,6 +37,7 @@ import java.util.Map;
  *  - 250718 | sehui | 상품 수정 요청 추가
  *  - 250718 | sehui | REST API 방식으로 변경
  *  - 250718 | sehui | 상품 삭제 요청 추가
+ *  - 250721 | sehui | 상품 등록, 수정, 삭제 요청에 관리자 권한 확인 기능 추가
  */
 
 @RestController
@@ -93,7 +94,15 @@ public class ItemController {
 
     //상품 등록 페이지 요청
     @GetMapping("/new")
-    public ResponseEntity<Map<String, Object>> itemForm() {
+    public ResponseEntity<Map<String, Object>> itemForm(Principal principal) {
+
+        //관리자 권한 확인
+        String email = principal.getName();
+        Role role = memberService.getMemberByEmail(email).getRole();
+
+        if(role == Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("itemFormDto", new ItemFormDto());         //기본 폼 객체
@@ -106,7 +115,15 @@ public class ItemController {
     @PostMapping("/new")
     public ResponseEntity<Map<String, Object>> saveItem(@Valid @RequestPart("itemFormDto") ItemFormDto itemFormDto,
                                                         BindingResult bindingResult,
-                                                        @RequestPart("itemImgFile") List<MultipartFile> itemImgFileList) {
+                                                        @RequestPart("itemImgFile") List<MultipartFile> itemImgFileList,
+                                                        Principal principal) {
+        //관리자 권한 확인
+        String email = principal.getName();
+        Role role = memberService.getMemberByEmail(email).getRole();
+
+        if(role == Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
 
         //유효성 검사 확인
         if(bindingResult.hasErrors()) {
@@ -136,7 +153,15 @@ public class ItemController {
 
     //상품 수정 페이지 요청
     @GetMapping("/modify/{itemId}")
-    public ResponseEntity<Map<String, Object>> itemModify(@PathVariable Long itemId) {
+    public ResponseEntity<Map<String, Object>> itemModify(@PathVariable Long itemId, Principal principal) {
+
+        //관리자 권한 확인
+        String email = principal.getName();
+        Role role = memberService.getMemberByEmail(email).getRole();
+
+        if(role == Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
 
         Map<String, Object> response = new HashMap<>();
 
@@ -157,7 +182,16 @@ public class ItemController {
     public ResponseEntity<String> itemModify(@PathVariable Long itemId,
                                                           @Valid @RequestPart("itemFormDto") ItemFormDto itemFormDto,
                                                           BindingResult bindingResult,
-                                                          @RequestPart("itemImgFile") List<MultipartFile> itemImgFileList) {
+                                                          @RequestPart("itemImgFile") List<MultipartFile> itemImgFileList,
+                                                          Principal principal) {
+
+        //관리자 권한 확인
+        String email = principal.getName();
+        Role role = memberService.getMemberByEmail(email).getRole();
+
+        if(role == Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
 
         //유효성 검사
         if(bindingResult.hasErrors()) {
@@ -189,7 +223,15 @@ public class ItemController {
 
     //상품 삭제
     @DeleteMapping("/remove/{itemId}")
-    public ResponseEntity<String> itemRemove(@PathVariable Long itemId) {
+    public ResponseEntity<String> itemRemove(@PathVariable Long itemId, Principal principal) {
+
+        //관리자 권한 확인
+        String email = principal.getName();
+        Role role = memberService.getMemberByEmail(email).getRole();
+
+        if(role == Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
 
         try{
             boolean isDeleted = itemService.deleteItem(itemId);
