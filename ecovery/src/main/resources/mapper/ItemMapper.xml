@@ -112,4 +112,10 @@
         delete from item where item_id = #{itemId}
     </delete>
 
+    <!-- 상품 ID로 상품 정보 조회(장바구니) -->
+    <select id="findByItemId" parameterType="long" resultType="com.ecovery.domain.ItemVO">
+        select * from item
+        where item_id = #{itemId}
+    </select>
+
 </mapper>

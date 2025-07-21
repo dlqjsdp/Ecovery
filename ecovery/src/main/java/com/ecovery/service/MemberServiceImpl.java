@@ -2,6 +2,7 @@ package com.ecovery.service;
 
 import com.ecovery.constant.Role;
 import com.ecovery.domain.MemberVO;
+import com.ecovery.domain.PointVO;
 import com.ecovery.dto.MemberPageDto;
 import com.ecovery.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,14 @@ public class MemberServiceImpl implements MemberService {
     // 마이페이지 닉네임, 포인트 조회
     @Override
     public MemberPageDto getMemberPage(Long memberId){
+
         return memberMapper.getMemberPage(memberId);
+    }
+
+    // 마이페이지 포인트 전체 조회
+    @Override
+    public List<PointVO> getPointHistoryMemberById(Long memberId){
+        return memberMapper.getPointHistoryMemberById(memberId);
     }
 
 }

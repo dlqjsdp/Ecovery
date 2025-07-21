@@ -44,4 +44,6 @@ public interface ItemMapper {
     //상품 삭제
     public int deleteItem(Long itemId);
 
+    // 상품 ID로 상품 정보 조회(장바구니)
+    public ItemVO findByItemId(Long itemId);
 }

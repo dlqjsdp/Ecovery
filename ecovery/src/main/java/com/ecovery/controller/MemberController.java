@@ -35,46 +35,36 @@ public class MemberController {
     }
     //회원가입 처리
     @PostMapping(value = "/signup")
-    public String signup(@ModelAttribute("member") MemberVO memberVO, Model model) {
+    public String signup(@ModelAttribute("member") MemberVO memberVO) {
         log.info("### signup POST 메서드 진입! ###");
+
         boolean hasError = false;
 
         // 1. 이메일 검사
         if (memberVO.getEmail() == null || memberVO.getEmail().trim().isEmpty()) {
-            model.addAttribute("emailError", "이메일은 필수 입력 항목입니다.");
             hasError = true;
         } else if (!memberVO.getEmail().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-            model.addAttribute("emailError", "올바른 이메일 형식이어야 합니다.");
             hasError = true;
         } else if (memberService.getMemberByEmail(memberVO.getEmail()) != null) {
-            model.addAttribute("emailError", "이미 사용 중인 이메일입니다.");
             hasError = true;
         }
 
         // 2. 비밀번호 검사
         String password = memberVO.getPassword();
         if (password == null || password.isEmpty()) {
-            model.addAttribute("passwordError", "비밀번호는 필수 입력 항목입니다.");
             hasError = true;
-            log.info("비밀번호 에러: 비어있음 - " + model.getAttribute("passwordError"));
         } else if (password.length() < 8 || password.length() > 20) {
-            model.addAttribute("passwordError", "비밀번호는 8자 이상 20자 이하여야 합니다.");
             hasError = true;
-            log.info("비밀번호 에러: 길이 문제 - " + model.getAttribute("passwordError"));
         } else if (!password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!@#$%^&*]{8,}$")) {
-            model.addAttribute("passwordError", "비밀번호는 영문자와 숫자를 포함해야 하며 특수문자(!@#$%^&*)만 허용됩니다.");
             hasError = true;
-            log.info("비밀번호 에러: 형식 문제 - " + model.getAttribute("passwordError"));
         } else {
             log.info("비밀번호 유효성 검사 통과: " + password);
         }
 
         // 3. 닉네임 검사
         if (memberVO.getNickname() == null || memberVO.getNickname().trim().isEmpty()) {
-            model.addAttribute("nicknameError", "닉네임은 필수 입력 항목입니다.");
             hasError = true;
         } else if (memberService.getMemberByNickname(memberVO.getNickname()) != null){
-            model.addAttribute("nicknameError", "이미 사용 중인 닉네임입니다..");
             hasError = true;
         }
 
