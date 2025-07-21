@@ -75,9 +75,10 @@ function scrollToSection(sectionId) {
 // Navigation link smooth scrolling
 document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', (e) => {
-        e.preventDefault();
         const href = link.getAttribute('href');
-        if (href.startsWith('#')) {
+
+        if (href && href.startsWith('#')) {
+            e.preventDefault(); // 내부 앵커일 때만 기본 동작 막기
             scrollToSection(href.substring(1));
             closeMobileMenu();
         }
