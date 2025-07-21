@@ -46,18 +46,11 @@
         WHERE free_img_id = #{freeImgId}
     </delete>
 
-    <!-- 게시글에 연결된 이미지 전체 삭제 -->
-    <delete id="deleteByFreeId" parameterType="LONG">
-        DELETE FROM free_img
-        WHERE free_id = #{freeId}
-    </delete>
-
-    <!-- 대표 이미지 1장 조회 -->
-    <select id="getRepImg" resultType="com.ecovery.dto.FreeImgDto">
+    <!-- 이미지 번호로 1장 조회 -->
+    <select id="getById" resultType="com.ecovery.dto.FreeImgDto">
         SELECT free_img_id, free_id, img_name, ori_img_name, img_url, repimg_yn
         FROM free_img
-        WHERE free_id = #{freeId}
-          AND repimg_yn = 'Y'
-        LIMIT 1
+        WHERE free_img_id = #{freeImgId}
     </select>
+
 </mapper>

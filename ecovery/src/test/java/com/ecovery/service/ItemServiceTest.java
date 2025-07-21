@@ -71,7 +71,7 @@ class ItemServiceTest {
     public void testGetItem(){
 
         //given : 조회할 상품 ID
-        Long itemId = 3L;
+        Long itemId = 10L;
 
         //when : itemId로 상품 단 건 조회
         ItemFormDto item = itemService.getItemDtl(itemId);

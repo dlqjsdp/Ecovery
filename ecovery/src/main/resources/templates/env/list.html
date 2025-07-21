@@ -1,6 +1,18 @@
-<!-- templates/env/list.html -->
+<!--
+GreenCycle 환경톡톡 목록 페이지
+환경 커뮤니티 게시판의 글 목록을 보여주는 페이지
+Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
+헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 글쓰기 버튼, 페이징 등을 표시함
+@author : eunji
+@fileName : list.html
+@since : 250717
+@history
+    - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
+    - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
+-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 
@@ -50,7 +62,11 @@
                     <div class="board-header">
                         <h2 class="board-title">환경 실천 커뮤니티</h2>
                         <div class="board-actions">
-                            <button class="btn btn-primary" onclick="writePost()">✏️ 글쓰기</button>
+                            <!-- 관리자만 글쓰기 버튼이 보이도록 권한 설정 -->
+                            <a th:href="@{/env/register}"
+                               class="btn btn-primary" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                                ✏️ 글쓰기
+                            </a>
 
                             <!-- 구조 유지 + 내부만 form으로 감싸기 -->
                             <div class="search-box">

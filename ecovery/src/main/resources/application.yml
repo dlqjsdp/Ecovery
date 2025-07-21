@@ -38,6 +38,8 @@ itemImgLocation: C:/ecovery/item
 
 disposalImgLocation: C:/ecovery/disposalImg
 
+# 무료나눔 이미지 업로드 경로
+freeImgLocation: C:/ecovery/free
 
 # 리소스 이미지 업로드 경로
 uploadPath: file:///C:/ecovery/
