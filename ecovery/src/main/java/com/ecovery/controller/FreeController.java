@@ -5,7 +5,6 @@ import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeDto;
 import com.ecovery.dto.PageDto;
 import com.ecovery.service.FreeService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -52,4 +50,6 @@ public class FreeController {
 
         log.info("전체 게시글 수 : " + total);
     }
+
+
 }
