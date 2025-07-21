@@ -109,21 +109,28 @@ class FreeMapperTest {
 
     @Test
     @DisplayName("게시글 삭제 테스트")
-    public void testDelete(){
+    public void testDelete() {
 
-        //Given : 삭제할 게시글 ID가 존재함
+        // Given : 삭제할 게시글의 ID와 작성자 ID 설정
         Long targetId = 2L;
+        Long memberId = 1L; // 실제 작성자의 memberId로 수정해야 함
 
-        //When : 게시글 삭제 요청 실행
-        int deletedCount = freeMapper.delete(targetId);
+        // FreeVO 객체 생성 후 ID 설정
+        FreeVO vo = new FreeVO();
+        vo.setFreeId(targetId);
+        vo.setMemberId(memberId); // 삭제 조건에 작성자 ID도 포함된다면 꼭 필요함
 
-        //Then : 삭제 결과 확인
+        // When : 게시글 삭제 요청 실행
+        int deletedCount = freeMapper.delete(vo);
+
+        // Then : 삭제 결과 확인
         if (deletedCount == 1) {
             log.info("게시글 삭제 성공 : {}", targetId);
-        }else {
+        } else {
             log.info("게시글 삭제 실패 또는 존재하지 않음 : {}", targetId);
         }
     }
+
 
 
     @Test

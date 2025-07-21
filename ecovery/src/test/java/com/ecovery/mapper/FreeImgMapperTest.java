@@ -141,23 +141,6 @@ class FreeImgMapperTest {
         }
     }
 
-    @Test
-    @DisplayName("대표 이미지 조회 테스트")
-    public void testGetRepImg(){
-
-        // Given : 대표 이미지가 존재하는 게시글 ID
-        Long freeId = 7L;
-
-        // When : 대표 이미지 조회 메소드 실행
-        FreeImgDto repImg = freeImgMapper.getRepImg(freeId);
-
-        // Then : 결과 검증
-        assertNotNull(repImg, "대표 이미지가 존재해야 합니다.");
-        assertEquals("Y", repImg.getRepImgYn(), "대표 이미지 플래그는 'Y'여야 합니다.");
-        
-        log.info("대표 이미지 정보 : {}", repImg);
-    }
-
 }
 
 

@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/disposal/*","/disposal/disposalMain/*", "/disposal/history/*", "/api/disposal/*", "/feedback/*", "error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
+                        .requestMatchers("/free/**").permitAll() // 무료나눔 게시판 누구나 접근 가능
                         // 대형폐기물 인식 기능 (예: /waste/recognize): 비회원도 가능
                         //.requestMatchers("/waste/**").permitAll()  // url나오면 수정 예정
                         .requestMatchers("/item/**").permitAll()    //Test용

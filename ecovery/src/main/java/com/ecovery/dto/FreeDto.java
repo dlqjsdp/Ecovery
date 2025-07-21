@@ -29,6 +29,8 @@ public class FreeDto {
     private String title; // 게시글 제목
 
     private String nickname; // 작성자
+    private Long memberId; // 작성자 회원 ID (삭제, 수정 시 확인용)
+
     private LocalDateTime createdAt; // 등록일, 수정일
 
     @NotNull(message = "상품 상태를 선택해주세요.")
@@ -51,5 +53,8 @@ public class FreeDto {
 
     @NotBlank(message = "대표 이미지를 등록해주세요.")
     private String imgUrl; // 이미지 경로
+
+    private CategoryDto categoryName;
+
 
 }
