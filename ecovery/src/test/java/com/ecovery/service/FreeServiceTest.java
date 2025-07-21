@@ -28,6 +28,9 @@ class FreeServiceTest {
     @Autowired
     private FreeService freeService;
 
+    @Autowired
+    private FreeImgService freeImgService;
+
     @Test
     @DisplayName("게시글 등록 테스트")
     @Transactional
@@ -55,7 +58,7 @@ class FreeServiceTest {
     @Test
     @DisplayName("게시글 단건 조회 테스트")
     @Transactional
-    public void testRead() {
+    public void testGet() {
         // Given: 임시 데이터 먼저 등록
         FreeVO vo = FreeVO.builder()
                 .title("조회 테스트")
@@ -92,7 +95,7 @@ class FreeServiceTest {
     @Test
     @DisplayName("게시글 수정 테스트")
     @Transactional
-    public void testUpdate() {
+    public void testModify() {
         // Given: 먼저 등록
         FreeVO vo = FreeVO.builder()
                 .title("수정 전 제목")
@@ -124,7 +127,7 @@ class FreeServiceTest {
     @Test
     @DisplayName("게시글 삭제 테스트")
     @Transactional
-    public void testDelete() {
+    public void testRemove() {
 
         // Given : 먼저 게시글을 등록
         FreeVO vo = FreeVO.builder()
@@ -152,5 +155,46 @@ class FreeServiceTest {
 
         log.info("삭제 성공 여부: {}, 삭제 대상 ID: {}", isRemoved, id);
     }
+
+    @Test
+    @DisplayName("전체 게시글 수 조회 테스트")
+    public void testGetTotalCount() {
+        Criteria cri = new Criteria(1, 10);
+        int totalCount = freeService.getTotalCount(cri);
+
+        assertThat(totalCount).isGreaterThanOrEqualTo(0); // 게시글이 하나도 없어도 0 이상
+        log.info("전체 게시글 수: {}", totalCount);
+    }
+
+    @Test
+    @DisplayName("조회수 증가 테스트")
+    @Transactional
+    public void testUpdateViewCount() {
+        // Given: 게시글 등록
+        FreeVO vo = FreeVO.builder()
+                .title("조회수 테스트")
+                .content("조회수 증가 전")
+                .memberId(2L)
+                .category("전자제품")
+                .regionGu("성동구")
+                .regionDong("성수동")
+                .itemCondition(ItemCondition.HIGH)
+                .build();
+        freeService.register(vo);
+
+        Long freeId = vo.getFreeId();
+
+        // When: 조회수 증가 전 값 저장 + 1회 증가
+        FreeDto before = freeService.get(freeId);
+        int prevViewCount = before.getViewCount();
+
+        freeService.updateViewCount(freeId);
+
+        // Then: 증가 후 값 확인
+        FreeDto after = freeService.get(freeId);
+        assertThat(after.getViewCount()).isEqualTo(prevViewCount + 1);
+        log.info("조회수 변경: {} -> {}", prevViewCount, after.getViewCount());
+    }
+
 }
 

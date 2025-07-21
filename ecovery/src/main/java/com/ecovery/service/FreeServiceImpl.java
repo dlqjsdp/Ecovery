@@ -62,7 +62,8 @@ public class FreeServiceImpl implements FreeService {
     @Override
     public boolean remove(FreeVO vo) {
         log.info("게시글 삭제 요청 : {}", vo);
-        return freeMapper.delete(vo.getFreeId()) == 1;
+        int deletedCount = freeMapper.delete(vo);
+        return deletedCount == 1;
     }
 
     // 전체 게시글 수 조회 (페이징 처리를 위한)
