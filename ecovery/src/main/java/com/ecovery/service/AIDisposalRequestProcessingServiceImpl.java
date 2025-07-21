@@ -74,6 +74,7 @@ public class AIDisposalRequestProcessingServiceImpl implements AIDisposalRequest
             // 2. AI 서버 호출: 이미지와 지역 정보를 보내 AI의 예측 결과(주요 품목)를 받아옵니다.
             AIPredictionResultDto aiResult = aiService.predictDisposal(multipartFile, regionGu);
             String aiPrediction = aiResult.getPredictedClass(); // AI가 예측한 주요 품목 (예: "의류")
+            log.info("reguionGu : {}", regionGu);
             log.info("processInitialDisposalRequest: AI 예측 결과: '{}'", aiPrediction);
 
             // 3. AI 예측 결과(aiPrediction)를 바탕으로 스프링 서버에서 2차 분류 옵션 목록을 생성/조회합니다.

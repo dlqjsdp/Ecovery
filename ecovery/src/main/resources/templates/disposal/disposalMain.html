@@ -8,7 +8,7 @@
 
 <div layout:fragment="content">
 
-    <form action="/api/disposal/initial-request" id="uploadForm" method="post" enctype="multipart/form-data">
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
 
         <!-- Main Content -->
         <main class="main-content">
@@ -51,9 +51,6 @@
                             <div class="upload-actions">
                                 <button type="button" class="btn-secondary" id="resetBtn" onclick="resetUpload()" style="display: none;">
                                     🔄 다시 선택
-                                </button>
-                                <button type="button" class="btn-primary" id="analyzeBtn" onclick="analyzeImage()" style="display: none;">
-                                    🤖 AI 분석 시작
                                 </button>
                             </div>
                         </div>
@@ -144,6 +141,21 @@
                         </div>
                     </div>
                 </div>
+                <!-- 2차 분류 모달 -->
+                <div id="classificationModal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <h3>2차 분류 항목 선택</h3>
+                        <div id="classificationOptions" class="option-list">
+                            <!-- JS에서 항목 생성 -->
+                        </div>
+                        <div class="modal-buttons">
+                            <button type="button" class="btn-primary" onclick="confirmAlert()">확정</button>
+                            <button type="button" class="btn-secondary" onclick="closeAlert()">닫기</button>
+                        </div>
+                    </div>
+                </div>
+
+
 
 
             </div>

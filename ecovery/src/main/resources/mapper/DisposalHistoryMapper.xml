@@ -11,8 +11,8 @@
 <mapper namespace="com.ecovery.mapper.DisposalHistoryMapper">
 
     <insert id="insertDisposalHistory" parameterType="com.ecovery.domain.DisposalHistoryVO" useGeneratedKeys="true" keyProperty="disposalHistoryId">
-        insert into disposal_history(member_id, ai_prediction, region_gu, final_item)
-        values (#{memberId}, #{aiPrediction}, #{regionGu}, #{finalItem})
+        insert into disposal_history(member_id, ai_prediction, region_gu, final_item, ai_confidence)
+        values (#{memberId}, #{aiPrediction}, #{regionGu}, #{finalItem}, #{aiConfidence})
     </insert>
 
     <select id="findByDisposalHistoryId" resultType="com.ecovery.dto.DisposalHistoryDto">

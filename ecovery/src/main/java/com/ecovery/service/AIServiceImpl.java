@@ -32,6 +32,10 @@ public class AIServiceImpl implements AIService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
+        log.info("Original file name: {}", imageFile.getOriginalFilename());
+        log.info("File size: {} bytes", imageFile.getSize());
+        log.info("Content type: {}", imageFile.getContentType());
+
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new ByteArrayResource(imageFile.getBytes()) {
             @Override
@@ -39,7 +43,7 @@ public class AIServiceImpl implements AIService {
                 return imageFile.getOriginalFilename();
             }
         });
-        body.add("region", regionGu);
+        body.add("regionGu", regionGu);
 
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
@@ -50,6 +54,7 @@ public class AIServiceImpl implements AIService {
             ResponseEntity<AIPredictionResultDto> response = restTemplate.postForEntity(apiUrl, requestEntity, AIPredictionResultDto.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                log.info("Prediction result: {}", response.getBody());
                 log.info("AI prediction successful. Predicted Class: {}", response.getBody().getPredictedClass());
                 return response.getBody();
             } else {
