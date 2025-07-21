@@ -31,7 +31,7 @@ public class ItemFormDto {
     private String itemNm;             //상품명
 
     @NotNull(message = "가격은 필수 입력 값입니다.")
-    private Integer price;             //상품 가격
+    private int price;             //상품 가격
 
     @NotNull(message = "재고는 필수 입력 값입니다.")
     private int stockNumber;           //재고 수량

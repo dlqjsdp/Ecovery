@@ -25,7 +25,7 @@ import java.util.Map;
 /*
  * 에코마켓 상품 Controller
  * @author : sehui
- * @fileName : ItemController
+ * @fileName : ItemApiController
  * @since : 250711
  * @history
  *  - 250711 | sehui | 상품 상세 페이지 요청 추가
@@ -42,15 +42,15 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/item")
+@RequestMapping("/api/item")
 @Slf4j
-public class ItemController {
+public class ItemApiController {
 
     private final ItemService itemService;
     private final MemberService memberService;
     private final CategoryService categoryService;
 
-    //상품 목록 페이지 요청
+    //상품 목록 조회 요청
     @GetMapping("/list")
     public ResponseEntity<Map<String, Object>> itemList(@RequestParam(required = false) String itemNm,
                                         @RequestParam(required = false) String category,
@@ -100,7 +100,7 @@ public class ItemController {
         String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
-        if(role == Role.ADMIN) {
+        if(role != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -121,7 +121,7 @@ public class ItemController {
         String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
-        if(role == Role.ADMIN) {
+        if(role != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -159,7 +159,7 @@ public class ItemController {
         String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
-        if(role == Role.ADMIN) {
+        if(role != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -189,7 +189,7 @@ public class ItemController {
         String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
-        if(role == Role.ADMIN) {
+        if(role != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -229,7 +229,7 @@ public class ItemController {
         String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
-        if(role == Role.ADMIN) {
+        if(role != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
