@@ -80,7 +80,7 @@ class ItemMapperTest {
     public void testGetItem() {
 
         //given : 조회할 상품 ID
-        Long itemId = 4L;
+        Long itemId = 10L;
 
         //when : 상품 단 건 조회
         ItemVO item = itemMapper.getItemDtl(itemId);

@@ -57,6 +57,7 @@ public class ItemServiceImpl implements ItemService     {
         itemFormDto.setItemId(itemVO.getItemId());
         itemFormDto.setItemNm(itemVO.getItemName());
         itemFormDto.setPrice(itemVO.getPrice());
+        itemFormDto.setStockNumber(itemVO.getStockNumber());
         itemFormDto.setCategoryId(itemVO.getCategoryId());
         itemFormDto.setItemDetail(itemVO.getItemDetail());
         itemFormDto.setItemSellStatus(itemVO.getItemSellStatus());

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>GreenCycle - 무료나눔 커뮤니티</title>
-  <link rel="stylesheet" href="freesharing.css">
+  <link rel="stylesheet" href="/css/freesharing.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -279,19 +279,22 @@
   </div>
 </footer>
 
-<script src="freesharing.js"></script>
-
 <!-- 사용자 script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script type="text/javascript">
   $(document).ready(function (){
+    console.log("요청 start >>>");
 
     //페이지 로드 시 바로 호출
     loaditemList();
 
     //목록 불러오는 함수
     function loaditemList() {
+      console.log("loaditemList>>>>>");
+
       $.ajax({
-        url: "item/list",
+        url: "/api/item/list",
         type: "GET",
         contentType: "application/json",
         beforeSend: function(xhr) {
@@ -301,21 +304,56 @@
         dataType: "json",
         cache: false,
         success: function(response, status) {
-          alert("비동기 요청 성공");
           //응답 객체에서 값 추출
-          /*
           const pagemaker = response.pageMaker;
-          let itemList = response.itemList;
-          let itemNm = response.itemNm;
-          let category = response.category;
+          const itemList = response.itemList;
 
-          //각 HTML 요소에 데이터 세팅
-          $('#')
-           */
+          console.log("pageMaker : {}", pagemaker);
+          itemList.forEach((item, index) => {
+            console.log(`Item ${index + 1}:`);
+            console.log("itemId : ", item.itemId);
+            console.log("itemNm: ", item.itemNm);
+            console.log("category: ", item.category);
+            console.log("itemSellStatus: ", item.itemSellStatus);
+            console.log("itemUrl: ", item.imgUrl);
+          });
 
+          let itemHtml = '';
+          itemList.forEach(item => {
+            const itemId = item.itemId;
+            const itemName = item.itemNm;
+            const sellStatus = item.itemSellStatus;
+            const repImage = item.imgUrl ? item.imgUrl : '';
+
+
+            //HTML 구조에 데이터 세팅
+            itemHtml += `
+              <div class="item">
+                  <input type="hidden" name="itemId" value="${itemId}">
+                  <img src="${repImage}" alt="${itemName}" class="item-img">
+                  <h3 class="item-name">${itemName}</h3>
+                  <p class="item-status">${sellStatus}</p>
+              </div>
+            `;
+          });
+
+          //결과 HTML을 특정 DOM에 삽입
+          // $('#detailContent').html(itemHtml);
+
+          /*
+          //페이지네이션 HTML 세팅
+          let paginationHtml = '';
+
+          for(let i=1; i<=pagemaker.totalPages; i++){
+            paginationHtml += `<button class="page-btn" onclick="loaditemList(${i})">${i}</button>`;
+          }
+          */
+
+          // $('#pagination').html(paginationHtml);
         },
         error: function(jqXHR, status, error) {
-            alert(jaXHR.responseText);
+          alert(jqXHR.responseText);
+          console.log(jqXHR.responseText);
         }
       });
     }
@@ -323,5 +361,6 @@
 
   });
 </script>
+<script src="/js/freesharing.js"></script>
 </body>
 </html>
