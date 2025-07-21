@@ -61,4 +61,4 @@ logging:
 
 ai:
   server:
-    url: http://localhost:8080 #ai 서버에 맞게 바꿔야할 듯
+    url: http://localhost:8000 #uvicorn 포트번호
