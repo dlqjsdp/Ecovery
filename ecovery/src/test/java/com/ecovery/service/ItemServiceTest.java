@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  *  - 250710 | sehui | 상품 단 건 조회 Test 추가
  *  - 250715 | sehui | 전체 상품 조회 Test 추가
  *  - 250717 | sehui | 상품 수정 Test 추가
+ *  - 250722 | sehui | 주문 시 재고 수량 감소 Test 추가
  */
 
 @SpringBootTest
@@ -161,5 +162,32 @@ class ItemServiceTest {
         log.info("updateItem info >> {} ", updateItem);
         log.info("ItemImg info >> {} ", updateItemImg);
 
+    }
+
+    @Test
+    @DisplayName("재고 수량 감소")
+    public void testRemoveStock() {
+
+        //given : 상품 Id, 주문 수량 설정
+        Long itemId = 10L;
+        int quantity = 3;
+
+        //기존 재고 확인
+        ItemVO beforeItem = itemMapper.getItemDtl(itemId);
+        int beforeStock = beforeItem.getStockNumber();
+
+        //when : 재고 수량 감소
+        itemService.removeStock(itemId, quantity);
+
+        //then : 결과 검증
+        ItemVO afterItem = itemMapper.getItemDtl(itemId);
+        int afterStock = afterItem.getStockNumber();
+
+        assertEquals(beforeStock - quantity, afterStock, "재고 수량이 주문 수량만큼 감소하지 않았습니다.");
+
+        log.info("beforeItem >> {}", beforeItem);
+        log.info("beforeStock >> {}", beforeStock);
+        log.info("afterItem >> {}", afterItem);
+        log.info("afterStock >> {}", afterStock);
     }
 }

@@ -13,6 +13,7 @@ package com.ecovery.mapper;
  *  - 250716 | sehui | 상품 등록 기능 추가
  *  - 250717 | sehui | 상품 수정 기능 추가
  *  - 250718 | sehui | 상품 삭제 기능 추가
+ *  - 250722 | sehui | 주문 시 재고 수량 감소 기능 추가
  */
 
 import com.ecovery.domain.ItemVO;
@@ -46,4 +47,7 @@ public interface ItemMapper {
 
     // 상품 ID로 상품 정보 조회(장바구니)
     public ItemVO findByItemId(Long itemId);
+
+    //재고 수량 감소
+    public int removeStock(Long itemId, int quantity);
 }
