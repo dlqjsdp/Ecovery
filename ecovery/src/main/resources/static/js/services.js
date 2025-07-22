@@ -1,10 +1,14 @@
-document.addEventListener("DOMContentLoaded", () => {
+// ✅ 전역 변수로 분류 옵션을 저장할 변수 선언
+let classificationOptionsByRegion = {};
+// ✅ lastDisposalHistoryId를 전역 스코프에 선언
+let lastDisposalHistoryId = null;
+
+document.addEventListener("DOMContentLoaded", async() => {
     const imageInput = document.getElementById('imageInput');
     const uploadZone = document.getElementById('uploadZone');
     const uploadPreview = document.getElementById('uploadPreview');
     const previewImage = document.getElementById('previewImage');
     const resetBtn = document.getElementById('resetBtn');
-    const analyzeBtn = document.getElementById('analyzeBtn');
 
     // 🔐 form 기본 제출 방지
     document.getElementById("uploadForm").addEventListener("submit", function (e) {
@@ -35,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
         uploadZone.style.display = 'block';
         uploadPreview.style.display = 'none';
         resetBtn.style.display = 'none';
-        analyzeBtn.style.display = 'none';
     };
 
     // 드래그 앤 드롭
@@ -63,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.checkFeeInfo = async function () {
         const file = imageInput.files[0];
         const district = document.getElementById("districtSelect").value;
+        const memberIdInput = document.querySelector("#memberId");
 
         if (!file || !district) {
             alert("이미지와 지역을 모두 선택해주세요.");
@@ -72,6 +76,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("regionGu", district);
+        if (memberIdInput && memberIdInput.value && memberIdInput.value !== "undefined") {
+            formData.append("memberId", memberIdInput.value);
+            console.log("✅ memberId appended:", memberIdInput.value);
+        } else {
+            console.log("🚫 memberId 생략됨:", memberIdInput?.value);
+        }
+
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
 
         try {
             const response = await fetch("/api/disposal/initial-request", {
@@ -83,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const result = await response.json();
             console.log("AI 예측 결과:", result); // ✅ 추가
-            console.log("AI 예측 결과:", result.aiPrediction); // ✅ 추가
             lastDisposalHistoryId = result.disposalHistoryId; // ✅ 저장
 
             // 아래 값이 null 또는 undefined일 경우를 대비한 방어 로직
@@ -92,39 +105,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             // 예시: 모달에 데이터 띄우기
-            openClassificationModal(result.aiPrediction);
+            openClassificationModal(result.aiPrediction, result.regionGu);
         } catch (error) {
             console.error("AI 분석 오류:", error);
             alert("AI 분석 중 오류가 발생했습니다.");
             //window.location.href = "/disposalMain"; // 메인으로 이동
         }
     };
-// 1차 예측 category에 따른 2차 분류 선택지 목록
-    const classificationOptions = {
-        small_item: ["베개", "소형 매트", "액자", "다리미판"],
-        chair: ["의자", "유아용 의자", "보행기"],
-        desk_cabinet: ["책상", "서랍장", "옷장"],
-        sofa_mat: ["1인용 소파", "2인용 소파", "매트리스"],
-        etc_misc: ["정수기", "화분", "타이어"]
-    };
 
-    function openClassificationModal(category) {
+    // ✅ JSON 파일에서 분류 옵션 데이터를 불러옴
+    try {
+        const response = await fetch('/classificationOptionsByRegion.json'); // ✅ 경로 확인: js 파일과 json 파일이 같은 디렉토리에 있을 때
+        if (!response.ok) {
+            throw new Error(`HTTP 오류! 상태: ${response.status}`);
+        }
+        classificationOptionsByRegion = await response.json();
+        console.log("분류 옵션 데이터 로드 완료:", classificationOptionsByRegion);
+    } catch (error) {
+        console.error('분류 옵션을 불러오는 중 오류 발생:', error);
+        alert("폐기물 분류 데이터를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.");
+    }
+
+    function openClassificationModal(category, district) {
         const modal = document.getElementById("classificationModal");
         const optionsContainer = document.getElementById("classificationOptions");
 
         // 기존 옵션 초기화
         optionsContainer.innerHTML = "";
 
-        // 분류별 항목
-        const classificationOptions = {
-            small_item: ["베개", "소형 매트", "액자", "다리미판"],
-            chair: ["의자", "유아용 의자", "보행기"],
-            desk_cabinet: ["책상", "서랍장", "옷장"],
-            sofa_mat: ["1인용 소파", "2인용 소파", "매트리스"],
-            etc_misc: ["정수기", "화분", "타이어"]
-        };
-
-        const options = classificationOptions[category] || [];
+        const regionOptions = classificationOptionsByRegion[district] || {};
+        const options = regionOptions[category] || [];
 
         options.forEach(item => {
             const label = document.createElement("label");

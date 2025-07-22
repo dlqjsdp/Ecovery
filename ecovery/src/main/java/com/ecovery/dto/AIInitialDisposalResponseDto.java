@@ -19,6 +19,7 @@ public class AIInitialDisposalResponseDto {
     private List<String> secondaryOptions;  //2차 분류 옵션 리스트
     private String tempImgName;
     private Double aiConfidence;
+    private String regionGu;
 
 
     //임시 이미지 정보(history가 만들어지기 전에 저장할 수 없으므로)

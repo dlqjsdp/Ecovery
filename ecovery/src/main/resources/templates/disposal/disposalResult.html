@@ -26,11 +26,17 @@
                     </div>
 
                     <div class="result-container">
-                        <!-- 이미지 -->
-                        <div class="result-image">
-                            <img id="resultImage" th:src="${disposalHistory.disposalImgUrl}" alt="분석된 이미지">
-                            <div class="confidence-badge" id="confidenceBadge"
-                                 th:text="'AI 예측: ' + ${disposalHistory.aiPrediction}">정확도 95.2%</div>
+                        <!-- 이미지 + 예측 결과를 묶는 wrapper 추가 -->
+                        <div class="result-image-block">
+                            <div class="result-image">
+                                <img id="resultImage" th:src="${disposalHistory.disposalImgUrl}" alt="분석된 이미지">
+                            </div>
+
+                            <!-- 이미지 아래 예측 결과
+                            <div class="confidence-text"
+                                 th:text="'AI 예측: ' + ${disposalHistory.aiPrediction}">
+                                AI 예측: 예시값
+                            </div> -->
                         </div>
 
                         <!-- 정보 -->
@@ -58,10 +64,10 @@
                                         2000원 ~ 5000원
                                     </span>
                                 </div>
-                                <div class="detail-item">
+                                <!--<div class="detail-item">
                                     <span class="detail-label">등록일시:</span>
                                     <span class="detail-value" id="createdAt" th:text="${disposalHistory.createdAt}">2025-07-20</span>
-                                </div>
+                                </div>-->
                             </div>
 
                             <div class="disposal-guide">
@@ -74,13 +80,13 @@
                             </div>
 
                             <div class="action-buttons">
-                                <a class="btn-outline" th:href="@{/sharing/register(disposalHistoryId=${disposalHistory.disposalHistoryId})}">
+                                <a class="btn-outline" th:href="@{#}">
                                     무료 나눔 하기
                                 </a>
                                 <a class="btn-outline" th:href="@{${disposalHistory.reportUrl}}" target="_blank">
                                     폐기물 배출 신고
                                 </a>
-                                <a class="btn-primary" href="/disposal">
+                                <a class="btn-primary" th:href="@{/disposal/disposalMain}">
                                     새로운 분류 시작
                                 </a>
                             </div>

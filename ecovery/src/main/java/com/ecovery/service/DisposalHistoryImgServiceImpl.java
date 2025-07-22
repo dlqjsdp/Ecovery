@@ -53,7 +53,7 @@ public class DisposalHistoryImgServiceImpl implements DisposalHistoryImgService{
                         disposalImgFile.getBytes()
                 );
                 // 웹 접근 URL 조합: 예시) /images/disposal/고유파일명.jpg
-                disposalImgUrl ="/images/disposal/" + disposalImgName;
+                disposalImgUrl ="/ecovery/disposalImg/" + disposalImgName;
                 log.info("Disposal image uploaded: savedFileName={}, imageUrl={} for historyId={}", disposalImgName, disposalImgUrl, disposalHistoryId);
             } else {
                 log.warn("Original image file name is empty or null for historyId: {}", disposalHistoryId);
