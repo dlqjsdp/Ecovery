@@ -39,12 +39,11 @@ import java.util.Map;
  * @since : 250721
  */
 
-
 @Controller
 @RequestMapping("/api/free")
 @RequiredArgsConstructor
 @Slf4j
-public class FreeRestController {
+public class FreeReplyRestController {
 
     private final FreeService freeService;
     private final FreeImgService freeImgService;
