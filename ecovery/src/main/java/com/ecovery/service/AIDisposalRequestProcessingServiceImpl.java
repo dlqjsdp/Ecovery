@@ -109,6 +109,7 @@ public class AIDisposalRequestProcessingServiceImpl implements AIDisposalRequest
             return AIInitialDisposalResponseDto.builder()
                     .disposalHistoryId(disposalHistoryId) // 새로 생성된 이력 ID
                     .aiPrediction(aiPrediction)           // AI 예측 결과
+                    .regionGu(regionGu)
                     .secondaryOptions(secondaryOptions)   // 스프링 서버에서 생성한 2차 분류 옵션 목록
                     .tempImgName(savedImgVO.getDisposalImgName())     // 저장된 이미지 파일명
                     .tempOriImgName(savedImgVO.getOriDisposalImgName()) // 원본 이미지 파일명

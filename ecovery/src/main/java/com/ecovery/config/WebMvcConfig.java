@@ -27,5 +27,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/images/**")
                 .addResourceLocations(uploadPath);
+        registry.addResourceHandler("/ecovery/disposalImg/**")
+                .addResourceLocations("file:///C:/ecovery/disposalImg/");
+        registry.addResourceHandler("/ecovery/free/**")
+                .addResourceLocations("file:///C:/ecovery/free/");
     }
 }

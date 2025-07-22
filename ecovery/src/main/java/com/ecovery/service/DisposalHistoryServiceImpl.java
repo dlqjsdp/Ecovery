@@ -24,6 +24,7 @@ public class DisposalHistoryServiceImpl implements DisposalHistoryService {
 
     @Override
     public DisposalHistoryDto getHistory(Long disposalHistoryId) {
+        log.info("Service getHistory : {}", disposalHistoryId);
         return disposalHistoryMapper.findByDisposalHistoryId(disposalHistoryId);
     }
 
