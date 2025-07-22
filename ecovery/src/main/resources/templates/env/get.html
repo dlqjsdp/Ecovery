@@ -7,6 +7,7 @@ GreenCycle 환경톡톡 게시글 상세보기
 @since : 250721
 @history
     - 250721 | yukyeong | 단건 조회, 수정버튼 출력을 확인하기 위한 임시 뷰 최조 작성, 수정 버튼은 작성자 또는 관리자만 볼 수 있도록 설정
+    - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용
 -->
 
 <!DOCTYPE html>
@@ -28,16 +29,17 @@ GreenCycle 환경톡톡 게시글 상세보기
     <section class="post-detail">
         <h2>📌 게시글 상세보기</h2>
 
+        <!-- 게시글 정보 영역 -->
         <div class="post-info">
-            <p><strong>제목:</strong> <span th:text="${env.title}">제목</span></p>
-            <p><strong>작성자:</strong> <span th:text="${env.nickname}">작성자</span></p>
-            <p><strong>작성일:</strong> <span th:text="${#temporals.format(env.createdAt, 'yyyy-MM-dd')}">날짜</span></p>
-            <p><strong>조회수:</strong> <span th:text="${env.viewCount}">0</span></p>
+            <p><strong>제목:</strong> <span id="postTitle">제목</span></p>
+            <p><strong>작성자:</strong> <span id="postAuthor">작성자</span></p>
+            <p><strong>작성일:</strong> <span id="postDate">날짜</span></p>
+            <p><strong>조회수:</strong> <span id="postViews">0</span></p>
         </div>
 
         <div class="post-content">
             <p><strong>내용:</strong></p>
-            <div th:text="${env.content}" style="white-space: pre-line;"></div>
+            <div id="postContent" style="white-space: pre-line;"></div>
         </div>
 
         <div class="post-buttons" style="margin-top: 30px;">
@@ -53,6 +55,7 @@ GreenCycle 환경톡톡 게시글 상세보기
 
 <th:block layout:fragment="script">
     <script th:src="@{/js/eco-talk-script.js}"></script>
+    <script th:src="@{/js/eco-get.js}"></script>
 </th:block>
 </body>
 </html>
