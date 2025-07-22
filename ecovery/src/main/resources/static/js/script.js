@@ -449,7 +449,7 @@ function addNewActivity() {
         },
         {
             icon: 'community',
-            text: '<strong>환경독톡</strong>에 "일회용품 줄이기 실천법" 새 글이 등록되었습니다',
+            text: '<strong>환경톡톡</strong>에 "일회용품 줄이기 실천법" 새 글이 등록되었습니다',
             engagement: '👍 8개 좋아요',
             type: 'engagement'
         },

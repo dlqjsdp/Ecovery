@@ -815,7 +815,7 @@ function goToBoard() {
     if (isDirty && !confirm('작성 중인 내용이 있습니다. 페이지를 벗어나시겠습니까?')) {
         return;
     }
-    showNotification('환경독톡 게시판으로 이동합니다', 'info');
+    showNotification('환경톡톡 게시판으로 이동합니다', 'info');
     // window.location.href = '/eco-talk';
 }
 

@@ -5,6 +5,7 @@
 
 <!--
     장바구니 Mapper.xml
+    * 장바구니 ID 찾기, 장바구니 없을 경우 생성
     @author : 방희경
     @fileName : CartMapper.xml
     @since : 250721
@@ -18,47 +19,11 @@
         where member_id = #{memberid}
     </select>
 
-    <!-- 장바구니 항목 조회(이미 있으면 수량 증가, 없으면 새로 담음) -->
-    <select id="findCartItem" parameterType="map" resultType="com.ecovery.domain.CartItemVO">
-        select *
-        from cart_item
-        where cart_id = #{cartId} and item_id = #{itemId}
-    </select>
-
-    <!-- 장바구니에 해당 상품이 없으면 호출 -->
-    <insert id="insertCartItem" parameterType="com.ecovery.domain.CartItemVO">
-        insert into cart_item(cart_id, item_id, count, created_at)
-        values (#{cartId}, #{itemId}, #{count}, NOW())
+    <!-- 장바구니가 없을 경우 생성 -->
+    <!-- useGeneratedKeys="true": cart_id 자동 증가값을 VO 객체에 자동으로 주입 -->
+    <!-- keyProperty="cartId": cartVO.setCartId() 자동 호출됨 -->
+    <insert id="insertCart" parameterType="com.ecovery.domain.CartVO" useGeneratedKeys="true" keyProperty="cartId">
+        insert into cart(memberid, created_at)
+        values (#{memberid}, NOW())
     </insert>
-
-    <!-- 기존에 있던 상품이면 수량을 누적 -->
-    <update id="updateCartItem" parameterType="map">
-        update cart_item
-        set count = count + #{addcount}
-    </update>
-
-    <!-- 장바구니 전체 목록 출력 -->
-    <select id="getCartItems" parameterType="long" resultType="com.ecovery.dto.CartDetailDto">
-        select ci.cart_item AS cartItemId,
-               i.item_name AS itemNm,
-               i.price,
-               ci.count,
-               i.stockNumber
-        from cart_item ci
-        join item i ON ci.item_id = i.item_id
-        where ci.cart_id = ${cartId}
-        order by ci.created_at desc
-    </select>
-
-    <!-- 장바구니 상품 수량 수정 -->
-    <update id="updateCartItemCount" parameterType="map">
-        update cart_item
-        set count = #{count}
-        where cart_item_id = #{cartItemId}
-    </update>
-
-    <!-- 장바구니 상품 삭제 -->
-    <delete id="deleteCartItem" parameterType="long">
-        delete from cart_item where cart_item_id = #{cartItemId}
-    </delete>
 </mapper>

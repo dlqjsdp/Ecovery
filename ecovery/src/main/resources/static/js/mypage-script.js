@@ -319,7 +319,7 @@ function quickMarket() {
 }
 
 function quickCommunity() {
-    showNotification('환경독톡 커뮤니티로 이동합니다. 💬', 'info');
+    showNotification('환경톡톡 커뮤니티로 이동합니다. 💬', 'info');
     console.log('빠른 실행: 커뮤니티');
     
     const btn = event.target.closest('.quick-btn-unified');
