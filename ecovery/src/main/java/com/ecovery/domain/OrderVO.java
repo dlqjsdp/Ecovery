@@ -1,6 +1,7 @@
 package com.ecovery.domain;
 
 import com.ecovery.constant.OrderStatus;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@Builder
 public class OrderVO {
 
     private Long orderId;
@@ -22,4 +24,9 @@ public class OrderVO {
     private OrderStatus orderStatus;
     private Date createdAt;
     private Date updatedAt;
+    private String name;
+    private String zipcode;
+    private String roadAddress;
+    private String detailAddress;
+    private String phoneNumber;
 }

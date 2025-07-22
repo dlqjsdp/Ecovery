@@ -1,5 +1,13 @@
 package com.ecovery.service;
 
+import com.ecovery.domain.ItemVO;
+import com.ecovery.dto.Criteria;
+import com.ecovery.dto.ItemFormDto;
+import com.ecovery.dto.ItemListDto;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
 /*
  * 에코마켓 상품 Service
  * @author : sehui
@@ -13,15 +21,9 @@ package com.ecovery.service;
  *  - 250716 | sehui | 상품 등록 기능 추가
  *  - 250717 | sehui | 상품 수정 기능 추가
  *  - 250718 | sehui | 상품 삭제 기능 추가
+ *  - 250722 | sehui | 주문 시 재고 수량 감소 기능 추가
+ *  - 250722 | sehui | 상품 ID로 상품 정보 조회 기능 추가
  */
-
-import com.ecovery.domain.ItemVO;
-import com.ecovery.dto.Criteria;
-import com.ecovery.dto.ItemFormDto;
-import com.ecovery.dto.ItemListDto;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 public interface ItemService {
 
@@ -42,4 +44,10 @@ public interface ItemService {
 
     //상품 삭제
     public boolean deleteItem(Long itemId);
+
+    // 상품 ID로 상품 정보 조회
+    public ItemVO findByItemId(Long itemId);
+
+    //주문 시 재고 수량 감소
+    public void removeStock(Long itemId, int quantity);
 }

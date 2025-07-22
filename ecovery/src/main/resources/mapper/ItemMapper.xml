@@ -17,6 +17,7 @@
      - 250717 | sehui | 상품 수정 기능 추가
      - 250718 | sehui | 전체 상품 조회 기능에 category 조인 추가
      - 250718 | sehui | 상품 삭제 기능 추가
+     - 250722 | sehui | 재고 수량 감소 기능 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.ItemMapper">
@@ -117,5 +118,12 @@
         select * from item
         where item_id = #{itemId}
     </select>
-
+    
+    <!-- 재고 수량 감소 -->
+    <update id="removeStock">
+        update item
+        set stock_number = stock_number - #{quantity}
+        where item_id = #{itemId}
+        AND stock_number >= #{quantity}
+    </update>
 </mapper>

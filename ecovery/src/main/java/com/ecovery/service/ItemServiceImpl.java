@@ -6,6 +6,7 @@ import com.ecovery.dto.Criteria;
 import com.ecovery.dto.ItemFormDto;
 import com.ecovery.dto.ItemImgDto;
 import com.ecovery.dto.ItemListDto;
+import com.ecovery.exception.OutOfStockException;
 import com.ecovery.mapper.ItemImgMapper;
 import com.ecovery.mapper.ItemMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ import java.util.stream.Collectors;
  *  - 250716 | sehui | 상품 등록 기능 추가
  *  - 250717 | sehui | 상품 수정 기능 추가
  *  - 250718 | sehui | 상품 삭제 기능 추가
+ *  - 250722 | sehui | 주문 시 재고 수량 감소 기능 추가
+ *  - 250722 | sehui | 상품 ID로 상품 정보 조회 기능 추가
  */
 
 @Service
@@ -52,6 +55,7 @@ public class ItemServiceImpl implements ItemService     {
 
     //ItemVO -> ItemFormDto 변환 메소드
     private ItemFormDto convertVoToDto(ItemVO itemVO) {
+
         ItemFormDto itemFormDto = new ItemFormDto();
 
         itemFormDto.setItemId(itemVO.getItemId());
@@ -216,5 +220,38 @@ public class ItemServiceImpl implements ItemService     {
         
         //이미지 최소 1개 이상 삭제, 상품 1개 삭제되면 성공
         return deletedImgCount >= 1 && deletedItemCount == 1;
+    }
+
+    // 상품 ID로 상품 정보 조회
+    @Override
+    public ItemVO findByItemId(Long itemId) {
+
+        ItemVO item = itemMapper.findByItemId(itemId);
+
+        if(item == null) {
+            throw new IllegalArgumentException("해당 상품을 찾을 수 없습니다.");
+        }
+
+        return item;
+    }
+
+    //주문 시 재고 수량 감소
+    @Override
+    public void removeStock(Long itemId, int quantity) {
+
+        //재고 조회
+        ItemVO item = itemMapper.getItemDtl(itemId);
+        int currentStock = item.getStockNumber();
+
+        if(currentStock < quantity) {
+            throw new OutOfStockException("상품의 재고가 부족합니다. (현재 재고 수량 : " + currentStock + ")");
+        }
+
+        //재고 수량 감소
+        int updated = itemMapper.removeStock(itemId, quantity);
+
+        if(updated == 0) {
+            throw new RuntimeException("재고 감소 실패");
+        }
     }
 }

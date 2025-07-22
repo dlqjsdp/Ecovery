@@ -9,6 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,9 +30,12 @@ import java.util.List;
  *  - 250716 | sehui | 상품 등록 Test 추가
  *  - 250717 | sehui | 상품 수정 Test 추가
  *  - 250718 | sehui | 상품 삭제 Test 추가
+ *  - 250722 | sehui | 재고 수량 감소 Test 추가
  */
 
 @SpringBootTest
+@Transactional
+@Rollback(false)    //DB 반영
 @Slf4j
 class ItemMapperTest {
 
@@ -170,5 +175,33 @@ class ItemMapperTest {
         //then : 결과 검증
         ItemVO deleteItem = itemMapper.getItemDtl(itemId);
         assertNull(deleteItem, "상품이 삭제되지 않았습니다.");
+    }
+
+    @Test
+    @DisplayName("재고 수량 감소")
+    public void testDecreaseStock(){
+
+        //given : 상품 Id, 주문 수량 설정
+        Long itemId = 11L;
+        int quantity = 3;
+
+        //기존 재고 확인
+        ItemVO beforeItem = itemMapper.getItemDtl(itemId);
+        int beforeStock = beforeItem.getStockNumber();
+
+        //when : 재고 수량 감소
+        itemMapper.removeStock(itemId, quantity);
+
+        //then : 결과 검증
+        ItemVO afterItem = itemMapper.getItemDtl(itemId);
+        int afterStock = afterItem.getStockNumber();
+
+        assertEquals(beforeStock - quantity, afterStock, "재고 수량이 주문 수량만큼 감소하지 않았습니다.");
+
+        log.info("beforeItem >> {}", beforeItem);
+        log.info("beforeStock >> {}", beforeStock);
+        log.info("afterItem >> {}", afterItem);
+        log.info("afterStock >> {}", afterStock);
+
     }
 }
