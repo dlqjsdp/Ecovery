@@ -18,11 +18,11 @@ import java.util.List;
 
 public interface FreeService {
 
-    public void register(FreeVO vo);   // 게시글 등록
+    public void register(FreeDto dto);   // 게시글 등록
 
     public List<FreeDto> getAll(Criteria cri); // 게시글 전체 목록 조회
 
-    public boolean modify(FreeVO vo);  // 게시글 수정
+    public boolean modify(FreeDto dto);  // 게시글 수정
 
     public boolean remove(FreeVO vo);  // 게시글 삭제
 

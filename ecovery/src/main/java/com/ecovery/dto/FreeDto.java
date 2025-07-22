@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /*
  * 무료나눔 게시글 DTO
@@ -36,9 +37,6 @@ public class FreeDto {
     @NotNull(message = "상품 상태를 선택해주세요.")
     private ItemCondition itemCondition; // 상품상태
 
-    @NotBlank(message = "카테고리는 필수입니다.")
-    private String category; // 카테고리
-
     @NotBlank(message = "구 선택은 필수입니다.")
     private String regionGu; // 지역구
 
@@ -54,7 +52,9 @@ public class FreeDto {
     @NotBlank(message = "대표 이미지를 등록해주세요.")
     private String imgUrl; // 이미지 경로
 
-    private CategoryDto categoryName;
+    private String category;
+
+    private List<FreeImgDto> imgList;
 
 
 }

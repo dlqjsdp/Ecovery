@@ -30,11 +30,6 @@
         <result property="itemCondition" column="item_condition"/>
         <result property="dealStatus" column="deal_status"/>
         <result property="nickname" column="nickname"/>
-
-        <association property="category" javaType="com.ecovery.dto.CategoryDto">
-            <result property="categoryId" column="category_id"/>
-            <result property="categoryName" column="category_name"/>
-        </association>
     </resultMap>
 
     <!-- 게시글 전체 목록 조회 -->
@@ -44,17 +39,15 @@
             f.title AS title,
             f.deal_status AS dealStatus,
             i.img_url AS imgUrl,
-            c.category_name AS categoryName
         FROM free f
         LEFT JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'
-        LEFT JOIN category c ON f.category = c.category_id
         <include refid="criteria"/>
         ORDER BY f.free_id DESC
         LIMIT #{amount} OFFSET #{offset}
     </select>
 
     <!-- 게시글 삽입-->
-    <insert id="insert" parameterType="com.ecovery.domain.FreeVO" useGeneratedKeys="true" keyProperty="freeId">
+    <insert id="insert" parameterType="com.ecovery.dto.FreeDto" useGeneratedKeys="true" keyProperty="freeId">
         INSERT INTO free(
                          title, member_id, category, region_gu,
                          region_dong, content, item_condition
@@ -66,7 +59,7 @@
     </insert>
 
     <!-- 게시글 수정 -->
-    <update id="update" parameterType="com.ecovery.domain.FreeVO">
+    <update id="update" parameterType="com.ecovery.dto.FreeDto">
         UPDATE free
         SET title = #{title}, category = #{category}, region_gu = #{regionGu}, region_dong = #{regionDong},
             content = #{content}, item_condition = #{itemCondition}, deal_status = #{dealStatus}
@@ -97,9 +90,6 @@
                     region_gu LIKE CONCAT('%', #{keyword}, '%')
                     OR region_dong LIKE CONCAT('%', #{keyword}, '%')
                 </if>
-                <if test="type == 'G'">  <!-- G는 카테고리 검색 -->
-                    c.category_name LIKE CONCAT('%', #{keyword}, '%')
-                </if>
             </foreach>
         </where>
     </sql>
@@ -108,7 +98,6 @@
     <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
         SELECT COUNT(*)
         FROM free f
-        LEFT JOIN category c ON f.category = c.category_id
         <where>
             <if test="type != null and keyword != null and keyword != ''">
                 <include refid="criteria"></include>
@@ -130,6 +119,7 @@
             f.free_id AS freeId,
             f.title AS title,
             f.content AS content,
+            f.category AS category,
             f.category AS categoryId,
             f.category_name AS categoryName,
             f.region_gu AS regionGu,
@@ -143,7 +133,6 @@
         FROM free f
         JOIN member m ON f.member_id = m.member_id
         LEFT JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'
-        LEFT JOIN category c ON f.category = c.category_id
         WHERE f.free_id = #{freeId}
     </select>
 </mapper>

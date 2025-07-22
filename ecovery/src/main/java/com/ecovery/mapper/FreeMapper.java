@@ -20,7 +20,7 @@ public interface FreeMapper {
 
     public List<FreeDto> getListWithPaging(Criteria cri);         // 게시글 전체 목록 조회
 
-    public void insert(FreeVO freeVO);                    // 게시글 등록
+    public void insert(FreeDto dto);                    // 게시글 등록
 
     public int update(FreeVO freeVO);                     // 게시글 수정 (성공시 1, 실패시 0)
 
