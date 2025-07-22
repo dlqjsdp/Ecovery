@@ -1,43 +1,17 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>GreenCycle - 무료나눔</title>
-    <link rel="stylesheet" href="/css/freesharing.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='무료나눔'">
+    <title>무료나눔</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/freesharing.css}">
+    </th:block>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header" id="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <a href="index.html" class="logo">
-                    <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
-                </a>
-                <ul class="nav-menu" id="navMenu">
-                    <li><a href="index.html#home">홈</a></li>
-                    <li><a href="index.html#services">서비스</a></li>
-                    <li><a href="waste-sorting.html">분리배출</a></li>
-                    <li><a href="free-sharing.html" class="active">무료나눔</a></li>
-                    <li><a href="eco-market.html">에코마켓</a></li>
-                    <li><a href="eco-talk.html">환경독톡</a></li>
-                    <li><a href="notices.html">공지사항</a></li>
-                </ul>
-                <div class="auth-buttons">
-                    <a href="login.html" class="btn-login">로그인</a>
-                    <a href="signup.html" class="btn-signup">회원가입</a>
-                </div>
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </nav>
-    </header>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -94,26 +68,26 @@
                         </select>
                     </div>
                     
-                    <div class="filter-group">
-                        <label>거리</label>
-                        <select id="distanceFilter">
-                            <option value="">전체</option>
-                            <option value="500">500m 이내</option>
-                            <option value="1000">1km 이내</option>
-                            <option value="3000">3km 이내</option>
-                            <option value="5000">5km 이내</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label>상태</label>
-                        <select id="statusFilter">
-                            <option value="">전체</option>
-                            <option value="available">나눔중</option>
-                            <option value="reserved">예약중</option>
-                            <option value="completed">완료</option>
-                        </select>
-                    </div>
+<!--                    <div class="filter-group">-->
+<!--                        <label>거리</label>-->
+<!--                        <select id="distanceFilter">-->
+<!--                            <option value="">전체</option>-->
+<!--                            <option value="500">500m 이내</option>-->
+<!--                            <option value="1000">1km 이내</option>-->
+<!--                            <option value="3000">3km 이내</option>-->
+<!--                            <option value="5000">5km 이내</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                    -->
+<!--                    <div class="filter-group">-->
+<!--                        <label>상태</label>-->
+<!--                        <select id="statusFilter">-->
+<!--                            <option value="">전체</option>-->
+<!--                            <option value="available">나눔중</option>-->
+<!--                            <option value="reserved">예약중</option>-->
+<!--                            <option value="completed">완료</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
                     
                     <div class="search-group">
                         <input type="text" id="searchInput" placeholder="원하는 물건을 검색하세요...">
@@ -164,33 +138,32 @@
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="addItemForm">
+                <form th:action="@{/free/register}" th:object="${FreeDto}" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="itemTitle">제목 *</label>
-                        <input type="text" id="itemTitle" required placeholder="나눔할 물건의 제목을 입력하세요">
+                        <input type="text" id="itemTitle" th:field="*{title}">
                     </div>
                     
                     <div class="form-group">
                         <label for="itemCategory">카테고리 *</label>
-                        <select id="itemCategory" required>
+                        <select id="itemCategory" th:field="*{category}" required>
                             <option value="">선택하세요</option>
-                            <option value="clothes">의류/잡화</option>
-                            <option value="electronics">전자제품</option>
-                            <option value="furniture">가구/인테리어</option>
-                            <option value="books">도서/문구</option>
-                            <option value="kids">유아/아동용품</option>
+                            <option value="furniture">가구</option>
+                            <option value="books">가전</option>
+                            <option value="kids">잡화</option>
                             <option value="etc">기타</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label for="itemDescription">상세 설명</label>
-                        <textarea id="itemDescription" rows="4" placeholder="물건의 상태, 사용 기간, 특징 등을 설명해주세요"></textarea>
+                        <textarea id="itemDescription" rows="4" th:field="*{content}" placeholder="물건의 상태, 사용 기간, 특징 등을 설명해주세요"></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label for="itemLocation">나눔 장소</label>
-                        <input type="text" id="itemLocation" placeholder="예: 강남역 2번 출구 앞">
+                        <input type="text" id="regionGu" th:field="*{regionGu}" placeholder="예: 강남구">
+                        <input type="text" id="regionDong" th:field="*{regionDong}" placeholder="예: 역삼동">
                     </div>
                     
                     <div class="form-group">
@@ -230,55 +203,58 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="logo" style="margin-bottom: 20px;">
-                        <span class="logo-icon">🌱</span>
-                        <span class="logo-text">GreenCycle</span>
-                    </div>
-                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
-                </div>
-                <div class="footer-section">
-                    <h4>서비스</h4>
-                    <ul>
-                        <li><a href="waste-sorting.html">스마트 분리배출</a></li>
-                        <li><a href="free-sharing.html">무료나눔</a></li>
-                        <li><a href="eco-market.html">에코마켓</a></li>
-                        <li><a href="eco-talk.html">환경독톡</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>회사정보</h4>
-                    <ul>
-                        <li><a href="#">회사소개</a></li>
-                        <li><a href="#">기술 특허</a></li>
-                        <li><a href="#">연구개발</a></li>
-                        <li><a href="#">채용정보</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>고객지원</h4>
-                    <ul>
-                        <li><a href="#">문의하기</a></li>
-                        <li><a href="#">이용가이드</a></li>
-                        <li><a href="#">기술지원</a></li>
-                        <li><a href="#">고객센터</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
-                <div class="footer-links">
-                    <a href="#">개인정보처리방침</a>
-                    <a href="#">이용약관</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <th:block layout:fragment="script">
+        <!-- 추가 JS (필요시만) -->
+        <script th:src="@{/js/freesharing.js}"></script>
+    </th:block>
 
-    <script src="/js/freesharing.js"></script>
+
+    <!-- 무료나눔 게시글 목록 비동기로 불러와서 화면에 뿌려주기 -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            console.log("무료나눔 게시글 불러오기 시작");
+
+            // 페이지 로드시 바로 호출
+            loadFreeList();
+
+            function loadFreeList() {
+                $.ajax({
+                    url: "api/free/list", // 이 주소로 GET 요청 보냄
+                    type: "GET",
+                    contentType: "application/json",
+                    dataType: "json",
+                    cache: false,
+                    success: function (response) {
+                        const freeList = response.list; // 서버 응답 데이터 받음
+
+                        let html = '';
+                        freeList.forEach(item => {
+                            // 하나씩 꺼내서 HTMl 태그로 조립
+                            const freeId = item.freeId;
+                            const title = item.title;
+                            const dealStatus = item.dealStatus;
+                            const imgUrl = item.imgUrl || '/img/default.png'; // 이미지 없을 경우 기본 이미지
+
+                            html += `
+              <div class="item" data-id="${freeId}">
+                <a href="/free/${freeId}">
+                  <img src="${imgUrl}" alt="${title}" class="item-img">
+                  <h3 class="item-name">${title}</h3>
+                  <p class="item-status">${dealStatus}</p>
+                </a>
+              </div>
+            `;
+                        });
+
+                        // DOM에 렌더링
+                        $("#itemsGrid").html(html);
+                    },
+                    error: function () {
+                        alert("게시글 목록을 불러오지 못했습니다.");
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
