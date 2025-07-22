@@ -1,5 +1,5 @@
 /*
- * GreenCycle 환경톡톡 JS 파일
+ * 환경톡톡 JS 파일
  * 게시글 목록, 글쓰기, 상세보기 등 다양한 인터랙션 기능을 제공
  * 게시글 클릭 시 상세 페이지 이동(viewPost 함수 수정 포함)
  * 검색, 카테고리 필터링, 모달 미리보기 등 커뮤니티 기능 지원
@@ -8,6 +8,7 @@
  * @since : 250717
  * @history
       - 250721 | yukyeong | viewPost() 함수 수정 - 상세조회 화면으로 이동하도록 변경
+      - 250722 | yukyeong | viewPost() 함수 수정 주석처리
 
  */
 
@@ -212,17 +213,17 @@ function writePost() {
     // window.location.href = '/write-post';
 }
 
-// View post
-function viewPost(postId) {
-    showNotification(`게시글 ${postId}번을 조회합니다`, 'info');
-    // In real app, this would redirect to post detail page
-    // window.location.href = `/post/${postId}`;
-
-    // 해당 게시글의 상세 조회 페이지로 실제 이동
-    // Spring 컨트롤러에서 @GetMapping("/get") 으로 처리함
-    // 쿼리 파라미터로 envId 전달 → /env/get?envId=123
-    window.location.href = `/env/get?envId=${postId}`;
-}
+// // View post
+// function viewPost(postId) {
+//     showNotification(`게시글 ${postId}번을 조회합니다`, 'info');
+//     // In real app, this would redirect to post detail page
+//     // window.location.href = `/post/${postId}`;
+//
+//     // 해당 게시글의 상세 조회 페이지로 실제 이동
+//     // Spring 컨트롤러에서 @GetMapping("/get") 으로 처리함
+//     // 쿼리 파라미터로 envId 전달 → /env/get?envId=123
+//     window.location.href = `/env/get?envId=${postId}`;
+// }
 
 // Pagination
 function changePage(page) {
