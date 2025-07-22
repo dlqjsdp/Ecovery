@@ -19,7 +19,7 @@
     </select>
 
     <!-- 장바구니 항목 조회(이미 있으면 수량 증가, 없으면 새로 담음) -->
-    <select id="insertCartItem" parameterType="map" resultType="com.ecovery.domain.CartItemVO">
+    <select id="findCartItem" parameterType="map" resultType="com.ecovery.domain.CartItemVO">
         select *
         from cart_item
         where cart_id = #{cartId} and item_id = #{itemId}

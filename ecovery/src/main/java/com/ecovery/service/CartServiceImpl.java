@@ -2,6 +2,7 @@ package com.ecovery.service;
 
 import com.ecovery.domain.ItemVO;
 import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.CartDetailDto;
 import com.ecovery.mapper.CartMapper;
 import com.ecovery.mapper.ItemMapper;
 import com.ecovery.mapper.MemberMapper;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /*
  * 장바구니 ServiceImpl
@@ -39,8 +42,29 @@ public class CartServiceImpl implements CartService {
             return "장바구니 정보가 없습니다.";
 
         ItemVO item = itemMapper.findByItemId(itemId);
+        if(item == null)
+            return "상품이 존재하지 않습니다.";
+        
+        if(count > item.getStockNumber()){
+            return "재고 수량을 초과하여 담을 수 없습니다.";
+        }
 
         return nickname;
+    }
+
+    // 장바구니 목록 조회
+    public List<CartDetailDto> getCartItmes(String nickname){
+        return null;
+    }
+
+    // 장바구니 수량 수정
+    public String updateCartCount(Long cartItemId, int count, Long itemId){
+        return null;
+    }
+
+    // 장바구니 상품 삭제
+    public String deleteCartItem(Long cartItemId){
+        return null;
     }
 
 }
