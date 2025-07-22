@@ -36,7 +36,6 @@ public class MemberController {
     //회원가입 처리
     @PostMapping(value = "/signup")
     public String signup(@ModelAttribute("member") MemberVO memberVO) {
-        log.info("### signup POST 메서드 진입! ###");
 
         boolean hasError = false;
 

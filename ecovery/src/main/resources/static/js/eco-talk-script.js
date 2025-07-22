@@ -58,7 +58,7 @@ function initializePage() {
         }, index * 200);
     });
 
-    console.log('🌱 환경독톡 게시판이 로드되었습니다.');
+    console.log('🌱 환경톡톡 게시판이 로드되었습니다.');
 }
 
 // Mobile menu toggle
@@ -334,7 +334,7 @@ function likePost(postId) {
 function sharePost(postId) {
     if (navigator.share) {
         navigator.share({
-            title: '환경독톡 게시글',
+            title: '환경톡톡 게시글',
             text: '흥미로운 환경 관련 게시글을 공유합니다.',
             url: window.location.href
         });
