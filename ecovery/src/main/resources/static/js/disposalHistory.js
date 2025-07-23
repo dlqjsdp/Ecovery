@@ -15,11 +15,11 @@ window.showNotification = showNotification;
 // ====================================
 
 // 서버에서 전달받은 데이터 (Thymeleaf에서 설정)
-var wasteHistoryData = window.wasteHistoryData || [];
-let currentUser = window.currentUser || null;
-let categoriesData = window.categoriesData || [];
-let regionsData = window.regionsData || [];
-let paginationData = window.paginationData || {};
+//var wasteHistoryData = window.wasteHistoryData || [];
+//var currentUser = window.currentUser || null;
+//let categoriesData = window.categoriesData || [];
+//let regionsData = window.regionsData || [];
+//let paginationData = window.paginationData || {};
 
 // 현재 필터 상태
 let currentFilters = {
@@ -411,7 +411,7 @@ function openModal(disposalHistoryId) {
     console.log(`모달 열기: ID ${disposalHistoryId}`);
     
     // 서버에서 상세 데이터 가져오기
-    fetch(`/disposal/${disposalHistoryId}`)
+    fetch(`/disposal/api/${disposalHistoryId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('데이터를 불러올 수 없습니다.');
@@ -420,7 +420,7 @@ function openModal(disposalHistoryId) {
         })
         .then(data => {
             populateModal(data);
-            currentEditingId = id;
+            currentEditingId = disposalHistoryId;
             
             // 모달 표시
             const modal = document.getElementById('detail-modal');
@@ -452,17 +452,17 @@ function populateModal(data) {
     const imageFilename = document.getElementById('image-filename');
     const imageUploadDate = document.getElementById('image-upload-date');
     
-    //if (modalImage) modalImage.src = data.imageUrl || '/img/default-waste.png';
+    if (modalImage) modalImage.src = data.disposalImgUrl;
     if (modalAiPrediction) modalAiPrediction.textContent = data.aiPrediction || '';
     if (modalConfidence) modalConfidence.textContent = `신뢰도: ${data.aiConfidence || 0}%`;
-    if (modalCategory) modalCategory.value = data.finalCategory || '';
-    if (modalRegion) modalRegion.textContent = data.region || '';
-    if (modalNickname) modalNickname.textContent = data.memberNickname || '';
+    if (modalCategory) modalCategory.value = data.finalItem || '';
+    if (modalRegion) modalRegion.textContent = data.regionGu || '';
+    if (modalNickname) modalNickname.textContent = data.nickname || '';
     if (modalMemberGrade) {
-        modalMemberGrade.textContent = data.memberGrade || '';
-        modalMemberGrade.className = `member-grade ${(data.memberGrade || '').toLowerCase()}`;
+        modalMemberGrade.textContent = data.role || '';
+        modalMemberGrade.className = `member-grade ${(data.role || '').toLowerCase()}`;
     }
-    if (modalDate) modalDate.textContent = formatDateTime(data.createdAt);
+    if (modalDate) modalDate.textContent = formatDateTime(data.role);
     if (modalMemo) modalMemo.value = data.memo || '';
     if (modalStatus) modalStatus.value = data.status || 'PENDING';
     
