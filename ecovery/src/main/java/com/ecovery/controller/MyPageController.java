@@ -28,6 +28,17 @@ public class MyPageController {
 
     private final MemberService memberService;
 
+    // 마이페이지 이동
+    @GetMapping(value = "/home")
+    public String myPageHome(@AuthenticationPrincipal CustomUserDetails user, Model model) {
+        Long memberId = user.getMemberVO().getMemberId();
+        MemberVO member = memberService.getMemberById(memberId);
+
+        model.addAttribute("member", member);  // 닉네임, 포인트 등 전달
+
+        return "mypage/home";
+    }
+
     // 마이페이지 정보 수정
     @GetMapping(value = "/edit")
     public String showEditPage(@AuthenticationPrincipal CustomUserDetails user, Model model) {
@@ -50,7 +61,7 @@ public class MyPageController {
         member.setPassword(password); // 비밀번호 전달
 
         memberService.updateMember(member);
-        return "redirect:/mypage";
+        return "redirect:/mypage/home";
     }
 
 }

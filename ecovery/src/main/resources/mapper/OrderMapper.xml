@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+* 구매이력 조회 Mapper XML
+* 구매이력 조회 및 상세 내용 확인을 위한 MyBatis 매퍼 파일
+* @author : 방희경
+* @fileName : OrderMapper.xml
+* @since : 250723
+-->
+
+<mapper namespace="com.ecovery.mapper.OrderMapper">
+    <!-- 주문 + 주문상품 + 결제 정보 포함 -->
+    <resultMap id="orderHistoryMap" type="com.ecovery.dto.OrderHistoryDto">
+        <id property="orderId" column="order_id"></id>
+        <result property="orderStatus" column="order_status"></result>
+        <result property="createdAt" column="created_at"></result>
+        <result property="updatedAt" column="updated_at"></result>
+        <result property="name" column="name"></result>
+        <result property="zipcode" column="zipcode"></result>
+        <result property="roadAddress" column="road_address"></result>
+        <result property="detailAddress" column="detail_address"></result>
+        <result property="phoneNumber" column="phone_number"></result>
+
+        <!-- 결제 정보 -->
+        <result property="paymentId" column="payment_id"></result>
+        <result property="payMethod" column="pay_method"></result>
+        <result property="payAmount" column="pay_amount"></result>
+        <result property="payStatus" column="pay_status"></result>
+        <result property="paidAt" column="paid_at"></result>
+
+        <!-- 주문 상세 상품 리스트 -->
+        <collection property="orderItems" ofType="com.ecovery.dto.OrderItemDto">
+            <result property="itemId" column="item_id"></result>
+            <result property="itemName" column="item_name"></result>
+            <result property="orderItemId" column="order_item_id"></result>
+            <result property="count" column="count"></result>
+            <result property="orderPrice" column="order_price"></result>
+            <result property="itemImgId" column="item_img_id"></result>
+            <result property="imgName" column="img_name"></result>
+        </collection>
+    </resultMap>
+
+    <select id="findOrdersItems" parameterType="long" resultMap="orderHistoryMap">
+        select
+            o.order_id,
+            o.order_status,
+            o.created_at,
+            o.updated_at,
+            o.name,
+            o.zipcode,
+            o.road_address,
+            o.detail_address,
+            o.phone_number,
+
+            p.payment_id,
+            p.pay_method,
+            p.pay_amount,
+            p.pay_status,
+            p.paid_at,
+
+            i.item_id,
+            i.item_name,
+
+            oi.order_item_id,
+            oi.count,
+            oi.order_price,
+
+            ii.item_img_id,
+            ii.img_name
+
+        from orders o
+        join order_item oi ON o.order_id = oi.order_id
+        join item i ON oi.item_id = i.item_id
+        LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
+        LEFT JOIN payment p ON o.order_id = p.order_id
+
+        where o.member_id = #{memberId}
+        order by o.created_at desc
+
+    </select>
+</mapper>
