@@ -2,7 +2,8 @@ package com.ecovery.service;
 
 import com.ecovery.domain.ItemVO;
 import com.ecovery.domain.OrderItemVO;
-import com.ecovery.dto.OrderDto;
+import com.ecovery.dto.OrderItemDto;
+import com.ecovery.dto.OrderItemRequestDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @fileName : OrderItemServiceTest
  * @since : 250722
  * @history
- *  - 250722 | sehui | 주문 상품 객체 생성 Test 추가
+ *  - 250722 | sehui | 주문 페이지 출력용 객체 생성 Test 추가
+ *  - 250723 | sehui | 주문 상품 저장용 객체 생성 Test 추가
  */
 
 @SpringBootTest
@@ -29,27 +31,50 @@ class OrderItemServiceTest {
     @Autowired
     private OrderItemService orderItemService;
 
+    @Autowired
+    private ItemService itemService;
+
     @Test
-    @DisplayName("주문 상품 객체 생성")
-    public void createOrderItem() {
+    @DisplayName("주문 페이지 출력용")
+    public void testBuild() {
 
-        //given : 주문 정보 OrderDto, 해당 상품 ItemVO
-        OrderDto orderDto = new OrderDto();
-        orderDto.setItemId(10L);
-        orderDto.setCount(2);
-
-        ItemVO item = ItemVO.builder()
-                .itemId(10L)
-                .price(5000)
-                .build();
+        //given : 주문 요청 정보 OrderItemRequestDto 생성
+        OrderItemRequestDto requestDto = new OrderItemRequestDto();
+        requestDto.setItemId(10L);
+        requestDto.setCount(2);
 
         //when : 주문 상품 객체 생성
-        OrderItemVO orderItem = orderItemService.createOrderItem(orderDto, item);
+        OrderItemDto dto = orderItemService.buildOrderItem(requestDto);
 
         //then : 결과 검증
-        assertNotNull(orderItem);
-        assertEquals(10L, orderItem.getItemId());
-        assertEquals(2, orderItem.getCount());
-        assertEquals(10000, orderItem.getOrderPrice());
+        assertNotNull(dto);
+        assertEquals(10L, dto.getItemId());
+        assertEquals(2, dto.getCount());
+
+        log.info("dto >> {} ", dto.toString());
+    }
+
+    @Test
+    @DisplayName("주문 상품 저장용")
+    public void testCreate(){
+
+        //given : 주문 상품 정보 OrderItemDto, 주문 id 설정
+        OrderItemDto orderItemDto = OrderItemDto.builder()
+                .itemId(10L)
+                .count(2)
+                .totalPrice(2000)
+                .build();
+
+        Long orderId = 1L;
+
+        //when : 주문 상품 객체 생성
+        OrderItemVO vo = orderItemService.saveOrderItem(orderItemDto, orderId);
+
+        //then : 결과 검증
+        assertNotNull(vo);
+        assertEquals(10L, vo.getItemId());
+        assertEquals(2, vo.getCount());
+
+        log.info("vo >> {} ", vo.toString());
     }
 }

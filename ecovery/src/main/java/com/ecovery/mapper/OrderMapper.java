@@ -11,6 +11,8 @@ import java.util.List;
  * @author : 방희경
  * @fileName : OrderMapper
  * @since : 250722
+ * @history
+ *  - 250723 | sehui | 주문 저장 기능 추가
  */
 
 @Mapper
@@ -18,4 +20,7 @@ public interface OrderMapper {
 
     // 로그인한 사용자의 주문 내역 조회(주문 + 주문상세 + 상품)
     public List<OrderVO> findOrdersItems(Long memberId);
+
+    //주문 저장
+    public int insertOrder(OrderVO orderVO);
 }

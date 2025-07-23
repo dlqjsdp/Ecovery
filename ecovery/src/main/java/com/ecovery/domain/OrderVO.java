@@ -4,6 +4,7 @@ import com.ecovery.constant.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -17,6 +18,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
+@ToString
 public class OrderVO {
 
     private Long orderId;
