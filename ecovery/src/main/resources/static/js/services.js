@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", async() => {
             optionsContainer.appendChild(label);
         });
 
-        modal.style.display = "block";
+        modal.classList.add("show"); // display: flex로 가운데 정렬됨
     }
 
     window.confirmAlert = async function () {
@@ -190,10 +190,6 @@ document.addEventListener("DOMContentLoaded", async() => {
 
 
     window.closeAlert = function () {
-        document.getElementById("classificationModal").style.display = "none";
+        document.getElementById("classificationModal").classList.remove("show"); // 다시 숨김
     };
-
-
-
-
 });
