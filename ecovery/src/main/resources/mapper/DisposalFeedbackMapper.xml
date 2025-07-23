@@ -14,7 +14,7 @@
     <!--오류 신고 내역 저장-->
     <insert id="insertFeedback" parameterType="com.ecovery.domain.DisposalFeedbackVO" useGeneratedKeys="true" keyProperty="feedbackId">
         insert into disposal_feedback(disposal_history_id, member_id, created_at)
-        values (#{disposalHistoryId}, #{memberId}, #{createdAt})
+        values (#{disposalHistoryId}, #{memberId}, now())
     </insert>
 
     <!--특정 disposal_history_id로 기존 신고 여부 확인(중복 신고 방지)-->

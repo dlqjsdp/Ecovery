@@ -31,6 +31,11 @@
                             <div class="result-image">
                                 <img id="resultImage" th:src="${disposalHistory.disposalImgUrl}" alt="분석된 이미지">
                             </div>
+                            <form id="reportForm" th:action="@{/feedback/report}" method="post" style="display: inline;" >
+                                <input type="hidden" name="disposalHistoryId" th:value="${disposalHistory.disposalHistoryId}" />
+                                <input type="hidden" name="memberId" th:value="${disposalHistory.memberId}" />
+                                <button type="button" class="btn-outline" onclick="submitReport()">사물 인식 오류 신고</button>
+                            </form>
 
                             <!-- 이미지 아래 예측 결과
                             <div class="confidence-text"
@@ -102,6 +107,35 @@
     </main>
 </div>
 
-<th:block layout:fragment="script"></th:block>
+<th:block layout:fragment="script">
+    <script>
+        async function submitReport() {
+            const form = document.getElementById('reportForm');
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.redirected) {
+                    // 서버가 바로 redirect하지 않도록 했기 때문에 보통은 이 block이 실행되지 않음
+                    window.location.href = response.url;
+                    return;
+                }
+
+                // 신고 완료 alert → 확인 누르면 이동
+                alert('오류 신고가 완료되었습니다.');
+                window.location.href = '/disposal/disposalMain';
+            } catch (e) {
+                alert('오류 신고 중 문제가 발생했습니다.');
+                console.error(e);
+            }
+        }
+    </script>
+
+</th:block>
 
 </html>
