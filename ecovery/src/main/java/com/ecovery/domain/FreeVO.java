@@ -39,4 +39,6 @@ public class FreeVO {
     private DealStatus dealStatus; // 거래 상태(ONGOING, DONE)
 
     private String nickname;
+
+    private String imgUrl;
 }

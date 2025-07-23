@@ -45,8 +45,8 @@ import java.util.List;
 @Slf4j
 public class FreeController {
 
-    private FreeService freeService;
-    private MemberService memberService;
+    private final FreeService freeService;
+    private final MemberService memberService;
 
     //무료나눔 목록 페이지
     @GetMapping("/list")

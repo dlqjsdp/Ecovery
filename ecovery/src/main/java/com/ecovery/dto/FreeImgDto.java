@@ -1,8 +1,6 @@
 package com.ecovery.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /*
  * 무료나눔 이미지 DTO
@@ -15,6 +13,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class FreeImgDto {
 
     private Long freeImgId;

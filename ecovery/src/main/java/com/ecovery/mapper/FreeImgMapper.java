@@ -21,7 +21,7 @@ public interface FreeImgMapper {
 
     public int update(FreeImgVO freeImgVO);              // 이미지 수정시 이미지 교체
 
-    public List<FreeImgDto> getFreeImgList(Long freeId); // 게시글에 연결된 전체 이미지 조회
+    public List<FreeImgVO> getFreeImgList(Long freeId); // 전체 이미지 조회
 
     public FreeImgDto getById(Long freeImgId);           // 이미지 번호로 이미지 1건 조회
 
