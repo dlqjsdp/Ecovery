@@ -210,7 +210,7 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 삭제
     @Override
-    public boolean deleteItem(Long itemId) {
+    public boolean deleteItem(Long itemId){
 
         //상품 이미지 삭제
         int deletedImgCount = itemImgMapper.deleteItemImg(itemId);
@@ -229,7 +229,7 @@ public class ItemServiceImpl implements ItemService     {
         ItemVO item = itemMapper.findByItemId(itemId);
 
         if(item == null) {
-            throw new IllegalArgumentException("해당 상품을 찾을 수 없습니다.");
+            throw new RuntimeException("해당 상품을 찾을 수 없습니다.");
         }
 
         return item;

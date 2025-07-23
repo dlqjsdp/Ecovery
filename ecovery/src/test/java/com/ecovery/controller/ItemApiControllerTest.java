@@ -1,10 +1,7 @@
 package com.ecovery.controller;
 
 import com.ecovery.constant.ItemSellStatus;
-import com.ecovery.domain.ItemVO;
 import com.ecovery.dto.ItemFormDto;
-import com.ecovery.mapper.ItemMapper;
-import com.ecovery.service.MemberService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +16,12 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureMockMvc       //MockMvc 설정 자동 적용
 @Transactional
-@Rollback(false)    //DB 반영
+@Rollback(false)
 @Slf4j
 class ItemApiControllerTest {
 
@@ -51,7 +49,7 @@ class ItemApiControllerTest {
     public void testList() throws Exception {
 
         //when : 상품 목록
-        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/item/list"))
+        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/list"))
                 .andReturn()           //응답 결과 반환
                 .getResponse()        //응답 객체
                 .getContentAsString();          //응답 본문을 문자열로 반환
@@ -69,7 +67,7 @@ class ItemApiControllerTest {
         Long itemId = 10L;
 
         //when : 상품 상세 조회
-        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/item/{itemId}", itemId))
+        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/{itemId}", itemId))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -84,7 +82,7 @@ class ItemApiControllerTest {
     public void testItemForm() throws Exception {
 
         //when : 상품 등록
-        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/item/new"))
+        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/new"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -146,7 +144,7 @@ class ItemApiControllerTest {
         );
 
         //when : 상품 등록
-        String response = mockMvc.perform(MockMvcRequestBuilders.multipart("/item/new")
+        String response = mockMvc.perform(MockMvcRequestBuilders.multipart("/api/item/new")
                 .file(itemPart)
                 .file(mockFile1)
                 .file(mockFile2)
@@ -172,7 +170,7 @@ class ItemApiControllerTest {
         Long itemId = 10L;
 
         //when : 상품 정보 조회
-        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/item/modify/{itemId}", itemId))
+        String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/modify/{itemId}", itemId))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -188,10 +186,10 @@ class ItemApiControllerTest {
     public void testItemModify() throws Exception {
 
         //given : 상품 수정 정보 생성
-        Long itemId = 13L;
+        Long itemId = 12L;
 
         ItemFormDto item = new ItemFormDto();
-        item.setItemId(13L);
+        item.setItemId(itemId);
         item.setItemNm("test 수정");
         item.setPrice(60000);
         item.setStockNumber(20);
@@ -199,7 +197,7 @@ class ItemApiControllerTest {
         item.setItemDetail("test 상세 설명_수정");
         item.setItemSellStatus(ItemSellStatus.SELL);
 
-        List<Long> imgId = Arrays.asList(12L);     //실제 DB에 존재하는 ItemImgId (수정하려는 이미지)
+        List<Long> imgId = Arrays.asList(10L);     //실제 DB에 존재하는 ItemImgId (수정하려는 이미지)
         item.setItemImgId(imgId);
 
         //DTO -> JSON 변환
@@ -223,7 +221,7 @@ class ItemApiControllerTest {
         );
 
         //when : 상품 등록
-        String response = mockMvc.perform(MockMvcRequestBuilders.multipart("/item/modify/{itemId}", itemId)
+        String response = mockMvc.perform(MockMvcRequestBuilders.multipart("/api/item/modify/{itemId}", itemId)
                         .file(itemPart)
                         .file(mockFile1)
                         .with(request -> {
@@ -246,12 +244,12 @@ class ItemApiControllerTest {
     public void testItemRemove() throws Exception {
 
         //given : 삭제할 상품 ID
-        Long itemId = 13L;
+        Long itemId = 9L;
 
         //when : 상품 삭제
-        mockMvc.perform(MockMvcRequestBuilders.delete("/item/remove/{itemId}", itemId))
-                .andReturn()
-                .getResponse();
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/item/remove/{itemId}", itemId))
+                .andExpect(status().isOk())
+                .andDo(print());
 
         //then : 결과 검증 (DB에서 확인)
     }
