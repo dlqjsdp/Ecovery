@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * 게시글 CRUD 및 목록 조회(페이징)을 DTO로 처리하며, 내부에서는 EnvVO를 사용하여 EnvMapper와 연결
  * Service 계층에서 비즈니스 로직을 담당하며 컨트롤러에 결과를 반환
  * @author : yukyeong
- * @fileName : EnvServiceImpl.java
+ * @fileName : EnvServiceImpl
  * @since : 250715
  * @history
      - 250715 | yukyeong | EnvServiceImpl 클래스 최초 작성 (CRUD 구현)
