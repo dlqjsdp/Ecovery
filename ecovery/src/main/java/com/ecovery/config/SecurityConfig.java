@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 * @history
      - 2507?? | 방희경 | SecurityConfig 클래스 최초 작성
      - 250716 | yukyeong | 환경톡톡 게시판 누구나 접근 가능하게 변경
+     - 250723 | yukyeong | 공지사항 게시판 누구나 접근 가능하게 변경
  */
 @Configuration
 @EnableWebSecurity
@@ -41,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/disposal/*","/disposal/disposalMain/*", "/disposal/history/*", "/api/disposal/*", "/feedback/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
+                        .requestMatchers("/notice/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
                         .requestMatchers("/free/**").permitAll() // 무료나눔 게시판 누구나 접근 가능
                         .requestMatchers("/item/**").permitAll()    //Test용
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용

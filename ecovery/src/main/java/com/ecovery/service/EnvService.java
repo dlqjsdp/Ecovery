@@ -11,7 +11,7 @@ import java.util.List;
  * 게시글 등록, 조회, 수정, 삭제, 목록 조회(페이징) 기능의 서비스 계층 역할을 정의
  * 컨트롤러와 Mapper를 연결하는 중간 레이어
  * @author : yukyeong
- * @fileName : EnvService.java
+ * @fileName : EnvService
  * @since : 250715
  * @history
      - 250715 | yukyeong | EnvService 인터페이스 최초 작성 (CRUD, 페이징)
