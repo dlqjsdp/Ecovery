@@ -4,9 +4,7 @@ import com.ecovery.constant.DealStatus;
 import com.ecovery.constant.ItemCondition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +20,9 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FreeDto {
 
     private Long freeId; // 게시글 번호

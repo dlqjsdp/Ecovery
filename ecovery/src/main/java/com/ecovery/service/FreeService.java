@@ -3,6 +3,7 @@ package com.ecovery.service;
 import com.ecovery.domain.FreeVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,13 +19,13 @@ import java.util.List;
 
 public interface FreeService {
 
-    public void register(FreeDto dto);   // 게시글 등록
+    public Long register(FreeDto dto, List<MultipartFile> freeImgFileList) throws Exception;   // 게시글 등록
 
     public List<FreeDto> getAll(Criteria cri); // 게시글 전체 목록 조회
 
-    public boolean modify(FreeDto dto);  // 게시글 수정
+    public boolean modify(FreeDto dto, List<MultipartFile> freeImgFileList) throws Exception;   // 게시글 수정
 
-    public boolean remove(FreeVO vo);  // 게시글 삭제
+    public boolean remove(FreeDto dto);  // 게시글 삭제
 
     public int getTotalCount(Criteria cri); // 전체 게시글 수 (페이징용)
 

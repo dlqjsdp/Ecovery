@@ -28,12 +28,13 @@
         SET img_name = #{imgName},
             ori_img_name = #{oriImgName},
             img_url = #{imgUrl},
-            repimg_yn = #{repImgYn}
+            repimg_yn = #{repImgYn},
+            created_at = now()
         WHERE free_img_id = #{freeImgId}
     </update>
 
     <!-- 게시글에 연결된 전체 이미지 조회 -->
-    <select id="getFreeImgList" resultType="com.ecovery.dto.FreeImgDto">
+    <select id="getFreeImgList" resultType="com.ecovery.domain.FreeImgVO">
         SELECT free_img_id, free_id, img_name, ori_img_name, img_url, repimg_yn
         FROM free_img
         WHERE free_id = #{freeId}
@@ -48,7 +49,12 @@
 
     <!-- 이미지 번호로 1장 조회 -->
     <select id="getById" resultType="com.ecovery.dto.FreeImgDto">
-        SELECT free_img_id, free_id, img_name, ori_img_name, img_url, repimg_yn
+        SELECT free_img_id AS freeImgId,
+               free_id AS freeId,
+               img_name AS imgName,
+               ori_img_name AS oriImgName,
+               img_url AS imgUrl,
+               repimg_yn AS repImgYn
         FROM free_img
         WHERE free_img_id = #{freeImgId}
     </select>
