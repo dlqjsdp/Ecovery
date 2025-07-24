@@ -40,7 +40,7 @@ public class MemberServiceImpl implements MemberService {
         memberVO.setPassword(encodedPassword);
 
         // 4. 권한 및 시간 세팅
-        memberVO.setRole(Role.ADMIN);
+        memberVO.setRole(Role.USER);
         memberVO.setCreatedAt(new Date());
 
         // 5. DB 저장

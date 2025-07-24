@@ -16,20 +16,29 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
-@RequestMapping("/cart")
+@RequestMapping("/mypage/cart")
 @RequiredArgsConstructor
 @Slf4j
 public class CartController {
 
-    private final CartService cartService;
     private final CartItemService cartItemService;
 
-    // 장바구니 목록 조회
+    // 페이지 이동용 (Thymeleaf용)
+    @GetMapping
+    public String cartPage(HttpSession session, Model model) {
+        String nickname = (String) session.getAttribute("loginNickname");
+        List<CartDetailDto> cartItems = cartItemService.getCartItmes(nickname);
+        model.addAttribute("cartItems", cartItems);
+        return "mypage/cart";
+    }
+
+    // AJAX API: 장바구니 목록 JSON 반환
     @GetMapping(value = "/list")
     public List<CartDetailDto> getCartItems(HttpSession session) {
         String nickname = (String) session.getAttribute("loginNickname");
@@ -50,7 +59,7 @@ public class CartController {
     }
 
     // 장바구니 상품 삭제
-    @DeleteMapping(value = "/delete")
+    @DeleteMapping(value = "/delete/{cartItemId}")
     public String deleteCartItem(@PathVariable Long cartItemId){
         return cartItemService.deleteCartItem(cartItemId);
     }

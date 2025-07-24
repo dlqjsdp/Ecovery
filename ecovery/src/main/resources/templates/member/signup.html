@@ -35,7 +35,7 @@
         <p>지속가능한 미래를 위한 첫 걸음을 내디뎌보세요</p>
       </div>
 
-      <form class="auth-form" id="signupForm" th:action="@{/member/signup}" method="post" th:object="${member}">
+      <form class="auth-form" id="signupForm" action="/member/signup" method="post">
         <div class="form-group">
           <label for="signupEmail">이메일</label>
           <div class="input-wrapper">

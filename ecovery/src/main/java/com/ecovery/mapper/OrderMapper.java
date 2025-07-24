@@ -1,6 +1,6 @@
 package com.ecovery.mapper;
 
-import com.ecovery.domain.OrderVO;
+import com.ecovery.dto.OrderHistoryDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -18,9 +18,10 @@ import java.util.List;
 @Mapper
 public interface OrderMapper {
 
-    // 로그인한 사용자의 주문 내역 조회(주문 + 주문상세 + 상품)
-    public List<OrderVO> findOrdersItems(Long memberId);
+    // 로그인한 사용자의 주문 내역 조회
+    public List<OrderHistoryDto> findOrdersItems(Long memberId);
 
     //주문 저장
     public int insertOrder(OrderVO orderVO);
+
 }

@@ -1,28 +1,35 @@
 package com.ecovery.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /*
- * 에코마켓 주문페이지에 주문 상품 정보 출력용 Dto
- * @author : sehui
+ * 구매이력 조회 DTO
+ * 주문 1건에 포함된 상품 정보
+ * @author : 방희경
  * @fileName : OrderItemDto
  * @since : 250723
  */
 
-@Getter
 @Setter
-@Builder
+@Getter
 @ToString
+@AllArgsConstructor
 public class OrderItemDto {
 
-    private Long orderItemId;       //주문 항목 id
-    private Long itemId;            //상품 id
-    private String itemNm;
+    // 상품 정보(item)
+    private Long itemId;
+    private String itemName;
+
+    // 주문 상품 정보(order_item)
+    private Long orderItemId;
     private int price;
     private int count;
-    private int totalPrice;
+    private int orderPrice;
 
+    // 상품 이미지 정보(item_img)
+    private Long itemImgId;
+    private String imgName;
 }
