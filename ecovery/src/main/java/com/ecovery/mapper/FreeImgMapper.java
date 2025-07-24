@@ -12,6 +12,7 @@ import java.util.List;
  * @author : yeonsu
  * @fileName : FreeImgMapper
  * @since : 250711
+ * @edit : 250724 - 대표이미지 다루는 코드 추가 (3개)
  */
 
 @Mapper
@@ -27,7 +28,7 @@ public interface FreeImgMapper {
 
     public int delete(Long freeImgId);                   // 이미지 고유번호 기준으로 이미지 1건 삭제(성공시 1, 실패시 0)
 
+    public FreeImgDto getRepImg(Long freeId);            // 대표 이미지 조회 (썸네일용)
 
-
-
+    public void setRepImg(Long freeImgId);              // 대표 이미지로 설정 (free_img_id기준)
 }
