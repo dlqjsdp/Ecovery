@@ -33,7 +33,8 @@ import java.util.Map;
    - 250722 | yukyeong | 게시글 등록 API (POST /register) 구현 - 유효성 검사 및 사용자 인증 포함
    - 250722 | yukyeong | 게시글 수정 API (PUT /modify/{envId}) 구현 - 유효성 검사 및 수정 처리
    - 250722 | yukyeong | 게시글 삭제 API (DELETE /remove/{envId}) 구현
-   - 25-723 | yukyeong | 게시글 단건 조회 예외처리 추가 (404 반환)
+   - 250723 | yukyeong | 게시글 단건 조회 예외처리 추가 (404 반환)
+   - 250724 | yukyeong | 게시글 삭제 실패 시 400 Bad Request 응답 처리
  */
 
 @RestController
@@ -196,7 +197,7 @@ public class EnvApiController {
                 return ResponseEntity.ok(response);
             } else {
                 String errorMessage = "삭제에 실패했습니다.";
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
             }
 
         } catch (Exception e) {

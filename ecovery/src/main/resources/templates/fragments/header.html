@@ -25,7 +25,7 @@ Thymeleaf layout:fragment="header"로 정의되어 layout에서 포함하여 사
                 <li><a th:href="@{/free/list}" onclick="showNotification('무료나눔 페이지로 이동합니다')">무료나눔</a></li>
                 <li><a th:href="@{/item/list}" onclick="showNotification('에코마켓 페이지로 이동합니다')">에코마켓</a></li>
                 <li><a th:href="@{/env/list}" onclick="showNotification('환경톡톡 페이지로 이동합니다')">환경톡톡</a></li>
-                <li><a href="#" onclick="showNotification('공지사항 페이지로 이동합니다')">공지사항</a></li>
+                <li><a th:href="@{/notice/list}" onclick="showNotification('공지사항 페이지로 이동합니다')">공지사항</a></li>
             </ul>
             <div class="auth-buttons">
                 <a th:href="@{/member/login}" class="btn-login" onclick="showNotification('로그인 페이지로 이동합니다')">로그인</a>
