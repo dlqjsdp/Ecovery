@@ -1,9 +1,6 @@
 package com.ecovery.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /*
  * 구매이력 조회 DTO
@@ -16,6 +13,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
+@Builder
 @AllArgsConstructor
 public class OrderItemDto {
 

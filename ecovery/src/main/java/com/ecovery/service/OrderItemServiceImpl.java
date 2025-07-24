@@ -39,10 +39,10 @@ public class OrderItemServiceImpl implements OrderItemService {
         //주문 상품 객체 생성
         OrderItemDto dto = OrderItemDto.builder()
                 .itemId(item.getItemId())
-                .itemNm(item.getItemName())
+                .itemName(item.getItemName())
                 .price(item.getPrice())
                 .count(requestDto.getCount())
-                .totalPrice(item.getPrice() * requestDto.getCount())
+                .orderPrice(item.getPrice() * requestDto.getCount())
                 .build();
 
         return dto;
@@ -60,7 +60,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .orderId(orderId)
                 .itemId(orderItemDto.getItemId())
                 .count(orderItemDto.getCount())
-                .orderPrice(orderItemDto.getTotalPrice())
+                .orderPrice(orderItemDto.getCount() * orderItemDto.getPrice())
                 .build();
 
         //DB 저장
