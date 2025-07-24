@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
 
             orderItemList.add(orderItem);
 
-            totalPrice += orderItem.getTotalPrice();
+            totalPrice += orderItem.getOrderPrice();
         }
 
         //주문 OrderDto 객체 생성, 주문 상품 List, 총 금액 값 설정

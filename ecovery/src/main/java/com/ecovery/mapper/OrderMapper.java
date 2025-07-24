@@ -1,5 +1,6 @@
 package com.ecovery.mapper;
 
+import com.ecovery.domain.OrderVO;
 import com.ecovery.dto.OrderHistoryDto;
 import org.apache.ibatis.annotations.Mapper;
 
