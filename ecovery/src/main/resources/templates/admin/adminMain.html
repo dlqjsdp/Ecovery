@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>GreenCycle 관리자 - 스마트 환경 플랫폼 관리 시스템</title>
-    <link rel="stylesheet" href="admin-style.css">
+    <link rel="stylesheet" th:href="@{/css/admin-style.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -509,6 +509,6 @@
         </div>
     </div>
 
-    <script src="admin-script.js"></script>
+    <script th:src="@{/js/admin-script.js}"></script>
 </body>
 </html>
