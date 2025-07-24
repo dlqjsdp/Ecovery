@@ -26,4 +26,17 @@ public interface FreeImgService {
     //상품 이미지 수정
     public boolean updateFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
 
+    //이미지 단건 삭제
+    public void deleteFreeImg(Long freeImgId) throws Exception;
+
+    //다중 이미지 업로드
+    public void saveAllFreeImages(Long freeId, List<MultipartFile> imgFiles) throws Exception;
+
+    //대표 이미지(썸네일) 조회
+    public FreeImgDto getRepImg(Long freeId);
+
+    // 이미지 전체 조회
+    List<FreeImgVO> getAll(Long freeId);
 }
+
+

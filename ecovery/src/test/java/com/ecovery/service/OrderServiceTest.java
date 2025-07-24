@@ -83,18 +83,18 @@ class OrderServiceTest {
 
         OrderItemDto requestDto1 = OrderItemDto.builder()
                 .itemId(10L)
-                .itemNm("test Item3")
+                .itemName("test Item3")
                 .price(15000)
                 .count(2)
-                .totalPrice(15000 * 2)
+                .orderPrice(15000 * 2)
                 .build();
 
         OrderItemDto requestDto2 = OrderItemDto.builder()
                 .itemId(9L)
-                .itemNm("test 등록")
+                .itemName("test 등록")
                 .price(5000)
                 .count(3)
-                .totalPrice(5000 * 3)
+                .orderPrice(5000 * 3)
                 .build();
 
         requestDtoList.add(requestDto1);

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /*
@@ -28,7 +29,7 @@ public class FreeReplyDto {
     private String nickName; // 작성자 닉네임
 
     private String content;   // 댓글 내용
-    private String createdAt; // 댓글 작성 일시
+    private LocalDateTime createdAt; // 댓글 작성 일시
 
     private List<FreeReplyDto> childReplies; // 대댓글 목록
 }
