@@ -7,7 +7,10 @@
     MemberMapper.xml
     - com.ecovery.mapper.MemberMapper 인터페이스와 연결되는 MyBatis 매퍼 XML 파일
     - 회원(MemberVO) 관련 SQL 쿼리 정의
+    @history
+    - 250724 | yukyeong | 소셜 로그인 조회 쿼리(findBySocialId), provider 관련 필드 및 insert 쿼리 추가
 -->
+
 <mapper namespace="com.ecovery.mapper.MemberMapper">
 
     <!--
@@ -23,6 +26,8 @@
         <result property="role" column="role"/>
         <result property="createdAt" column="created_at"/>
         <result property="agreeOptional" column="agree_optional"/>
+        <result property="provider" column="provider"/>
+        <result property="providerId" column="provider_id"/>
     </resultMap>
 
     <!--
@@ -30,13 +35,16 @@
             - useGeneratedKeys: 자동 증가된 PK 값을 memberId에 주입
             - keyProperty는 VO의 필드명과 정확히 일치해야 함 (memberId)
             - ⚠ 오타 주의: 현재 memberid → memberId (대소문자 일치)
+            - 소셜 회원 가입도 저장 가능하게 수정 (provider, provider_id 추가)
         -->
     <insert id="insertMember" parameterType="com.ecovery.domain.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
         insert into member(
-            email, password, nickname, role, created_at, agree_optional
+            email, password, nickname, role, created_at, agree_optional,
+            provider, provider_id
         )
         values (
-            #{email}, #{password}, #{nickname}, #{role}, #{createdAt}, #{agreeOptional}
+            #{email}, #{password}, #{nickname}, #{role}, #{createdAt}, #{agreeOptional},
+            #{provider}, #{providerId}
         )
     </insert>
 
@@ -102,6 +110,18 @@
         from point_history
         where member_id = #{memberId}
         order by created_at desc
+    </select>
+
+    <!--
+        소셜 로그인 사용자 조회
+        - provider(로그인 방식)와 provider_id(소셜 사용자 고유 ID)로 조회
+        - Kakao, Google 등 소셜 로그인 시 기존 회원 여부 확인
+    -->
+    <select id="findBySocialId" resultMap="memberMap">
+        SELECT *
+        FROM member
+        WHERE provider = #{provider}
+          AND provider_id = #{providerId}
     </select>
 
 
