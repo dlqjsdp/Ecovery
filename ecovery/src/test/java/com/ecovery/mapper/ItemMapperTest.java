@@ -23,14 +23,14 @@ import java.util.List;
  * @fileName : ItemMapperTest
  * @since : 250710
  * @history
- *  - 250710 | sehui | 상품 단 건 조회 Test 추가
- *  - 250714 | sehui | 전체 상품 조회 Test 추가
- *  - 250715 | sehui | 전체 상품의 수 조회 Test 추가
- *  - 250715 | sehui | 상품 단일 조건 검색 Test 추가
- *  - 250716 | sehui | 상품 등록 Test 추가
- *  - 250717 | sehui | 상품 수정 Test 추가
- *  - 250718 | sehui | 상품 삭제 Test 추가
- *  - 250722 | sehui | 재고 수량 감소 Test 추가
+ *  - 250710 | sehui | 상품 단 건 조회 Test 실행
+ *  - 250714 | sehui | 전체 상품 조회 Test 실행
+ *  - 250715 | sehui | 전체 상품의 수 조회 Test 실행
+ *  - 250715 | sehui | 상품 단일 조건 검색 Test 실행
+ *  - 250716 | sehui | 상품 등록 Test 실행
+ *  - 250717 | sehui | 상품 수정 Test 실행
+ *  - 250718 | sehui | 상품 삭제 Test 실행
+ *  - 250722 | sehui | 재고 수량 감소 Test 실행
  */
 
 @SpringBootTest

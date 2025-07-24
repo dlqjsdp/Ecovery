@@ -16,28 +16,36 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /*
- * 에코마켓 상품 Controller Test
+ * 에코마켓 ItemApiController 통합 테스트
+ * 에코마켓 REST API Controller의 기능(목록 조회, 단건 조회, 등록, 수정)에 대한 통합 테스트
  * @author : sehui
  * @fileName : ItemControllerTest
  * @since : 250721
  * @history
- *  - 250721 | sehui | ItemController 모든 메소드 Test 추가
+ *  - 250721 | sehui | 에코마켓 목록 조회 API Test 실행
+ *  - 250721 | sehui | 에코마켓 상세 조회 API Test 실행
+ *  - 250721 | sehui | 에코마켓 상품 등록 페이지 API Test 실행
+ *  - 250721 | sehui | 에코마켓 상품 등록 요청 API Test 실행
+ *  - 250721 | sehui | 에코마켓 상품 수정 페이지 API Test 실행
+ *  - 250721 | sehui | 에코마켓 상품 수정 요청 API Test 실행
+ *  - 250721 | sehui | 에코마켓 상품 삭제 요청 API Test 실행
+ *  - 250724 | sehui | 에코마켓 상품 삭제 요청 API Test 제거
+ *  - 250724 | sehui | 에코마켓 전체 API Test 재실행
  */
 
 @SpringBootTest
 @AutoConfigureMockMvc       //MockMvc 설정 자동 적용
 @Transactional
-@Rollback(false)
 @Slf4j
 class ItemApiControllerTest {
 
@@ -50,9 +58,12 @@ class ItemApiControllerTest {
 
         //when : 상품 목록
         String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/list"))
+                .andExpect(status().isOk())     //HTTP 상태 코드 200 OK
+                .andDo(print())
                 .andReturn()           //응답 결과 반환
                 .getResponse()        //응답 객체
                 .getContentAsString();          //응답 본문을 문자열로 반환
+
 
         //then: 응답 내용 출력
         log.info("ItemList >>> {}", responseContent);
@@ -64,10 +75,12 @@ class ItemApiControllerTest {
     public void testItemDtl() throws Exception {
 
         //given : 상품 ID, 테스트용 이메일 설정
-        Long itemId = 10L;
+        Long itemId = 9L;
 
         //when : 상품 상세 조회
         String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/{itemId}", itemId))
+                .andExpect(status().isOk())     //HTTP 상태 코드 200 OK
+                .andDo(print())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -83,6 +96,8 @@ class ItemApiControllerTest {
 
         //when : 상품 등록
         String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/new"))
+                .andExpect(status().isOk())     //HTTP 상태 코드 200 OK
+                .andDo(print())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -153,6 +168,8 @@ class ItemApiControllerTest {
                     return request;
                 })
         )
+        .andExpect(status().isCreated())     //HTTP 상태 코드 201 Created
+        .andDo(print())
         .andReturn()
         .getResponse()
         .getContentAsString();
@@ -167,10 +184,12 @@ class ItemApiControllerTest {
     public void testItemModifyPage() throws Exception {
 
         //given : 수정할 상품 ID
-        Long itemId = 10L;
+        Long itemId = 5L;
 
         //when : 상품 정보 조회
         String responseContent = mockMvc.perform(MockMvcRequestBuilders.get("/api/item/modify/{itemId}", itemId))
+                .andExpect(status().isOk())     //HTTP 상태 코드 200 OK
+                .andDo(print())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -186,7 +205,7 @@ class ItemApiControllerTest {
     public void testItemModify() throws Exception {
 
         //given : 상품 수정 정보 생성
-        Long itemId = 12L;
+        Long itemId = 5L;
 
         ItemFormDto item = new ItemFormDto();
         item.setItemId(itemId);
@@ -197,7 +216,7 @@ class ItemApiControllerTest {
         item.setItemDetail("test 상세 설명_수정");
         item.setItemSellStatus(ItemSellStatus.SELL);
 
-        List<Long> imgId = Arrays.asList(10L);     //실제 DB에 존재하는 ItemImgId (수정하려는 이미지)
+        List<Long> imgId = Arrays.asList(20L);     //실제 DB에 존재하는 ItemImgId (수정하려는 이미지)
         item.setItemImgId(imgId);
 
         //DTO -> JSON 변환
@@ -229,6 +248,8 @@ class ItemApiControllerTest {
                             return request;
                         })
                 )
+                .andExpect(status().isOk())     //HTTP 상태 코드 200 OK
+                .andDo(print())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -236,22 +257,6 @@ class ItemApiControllerTest {
         //then : 결과 출력
         log.info("updateItem >> {}", response);
 
-    }
-
-    @Test
-    @WithMockUser(username = "test@email.com", roles = {"ADMIN"})
-    @DisplayName("상품 삭제")
-    public void testItemRemove() throws Exception {
-
-        //given : 삭제할 상품 ID
-        Long itemId = 9L;
-
-        //when : 상품 삭제
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/item/remove/{itemId}", itemId))
-                .andExpect(status().isOk())
-                .andDo(print());
-
-        //then : 결과 검증 (DB에서 확인)
     }
 
 }

@@ -8,6 +8,9 @@ package com.ecovery.service;
  * @history
  *  - 250716 | sehui | 상품 이미지 등록 기능 추가
  *  - 250716 | sehui | 상품 이미지 수정 기능 추가
+ *  - 250724 | sehui | 상품 전체 이미지 조회 기능 추가
+ *  - 250724 | sehui | 상품 이미지 단건 조회 기능 추가
+ *  - 250724 | sehui | 대표 이미지 조회 Test 추가
  */
 
 import com.ecovery.domain.ItemImgVO;
@@ -23,4 +26,13 @@ public interface ItemImgService {
 
     //상품 이미지 수정
     public boolean updateItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception;
+
+    //상품 전체 이미지 조회
+    public List<ItemImgVO> getItemImgList(Long itemId);
+
+    //상품 이미지 단건 조회
+    public ItemImgVO getItemImg (Long itemImgId);
+
+    //대표 이미지 조회
+    public ItemImgVO getRepImgByItemId(Long itemId);
 }

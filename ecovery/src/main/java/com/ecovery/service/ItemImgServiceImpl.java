@@ -25,6 +25,9 @@ import java.util.List;
  * @history
  *  - 250716 | sehui | 상품 이미지 등록 기능 추가
  *  - 250717 | sehui | 상품 이미지 수정 기능 추가
+ *  - 250724 | sehui | 상품 전체 이미지 조회 기능 추가
+ *  - 250724 | sehui | 상품 이미지 단건 조회 기능 추가
+ *  - 250724 | sehui | 대표 이미지 조회 Test 추가
  */
 
 @Service
@@ -92,5 +95,23 @@ public class ItemImgServiceImpl implements ItemImgService {
         }
 
         return updateRows == 1;
+    }
+
+    //상품 전체 이미지 조회
+    @Override
+    public List<ItemImgVO> getItemImgList(Long itemId) {
+        return itemImgMapper.getItemImgList(itemId);
+    }
+
+    //상품 이미지 단건 조회
+    @Override
+    public ItemImgVO getItemImg(Long itemImgId) {
+        return itemImgMapper.getItemImgById(itemImgId);
+    }
+
+    //대표 이미지 조회
+    @Override
+    public ItemImgVO getRepImgByItemId(Long itemId) {
+        return itemImgMapper.findRepImgByItemId(itemId);
     }
 }

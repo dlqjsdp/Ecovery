@@ -23,6 +23,7 @@ import java.util.List;
  *  - 250718 | sehui | 상품 삭제 기능 추가
  *  - 250722 | sehui | 주문 시 재고 수량 감소 기능 추가
  *  - 250722 | sehui | 상품 ID로 상품 정보 조회 기능 추가
+ *  - 250724 | sehui | 상품 삭제 기능 제거
  */
 
 public interface ItemService {
@@ -41,9 +42,6 @@ public interface ItemService {
 
     //상품 수정
     public boolean updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception;
-
-    //상품 삭제
-    public boolean deleteItem(Long itemId);
 
     // 상품 ID로 상품 정보 조회
     public ItemVO findByItemId(Long itemId);

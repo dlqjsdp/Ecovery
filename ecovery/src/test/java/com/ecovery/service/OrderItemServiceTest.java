@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @fileName : OrderItemServiceTest
  * @since : 250722
  * @history
- *  - 250722 | sehui | 주문 페이지 출력용 객체 생성 Test 추가
- *  - 250723 | sehui | 주문 상품 저장용 객체 생성 Test 추가
+ *  - 250722 | sehui | 주문 페이지 출력용 객체 생성 Test 실행
+ *  - 250723 | sehui | 주문 상품 저장용 객체 생성 Test 실행
  */
 
 @SpringBootTest
@@ -40,16 +40,16 @@ class OrderItemServiceTest {
 
         //given : 주문 요청 정보 OrderItemRequestDto 생성
         OrderItemRequestDto requestDto = new OrderItemRequestDto();
-        requestDto.setItemId(10L);
-        requestDto.setCount(2);
+        requestDto.setItemId(9L);
+        requestDto.setCount(3);
 
         //when : 주문 상품 객체 생성
         OrderItemDto dto = orderItemService.buildOrderItem(requestDto);
 
         //then : 결과 검증
         assertNotNull(dto);
-        assertEquals(10L, dto.getItemId());
-        assertEquals(2, dto.getCount());
+        assertEquals(9L, dto.getItemId());
+        assertEquals(3, dto.getCount());
 
         log.info("dto >> {} ", dto.toString());
     }

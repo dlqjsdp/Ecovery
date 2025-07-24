@@ -12,6 +12,9 @@ import java.util.List;
  * @author : sehui
  * @fileName : OrderDto
  * @since : 250723
+ * @history
+ *  - 250723 | sehui | OrderDto 생성
+ *  - 250724 | sehui | 주문 고유번호 UUID 변수 추가
  */
 
 @Getter
@@ -20,6 +23,8 @@ import java.util.List;
 public class OrderDto {
 
     private Long orderId;           //주문 id
+
+    private String orderUuid;       //주문 고유번호 UUID
 
     private Long memberId;          //주문한 사용자 id
 

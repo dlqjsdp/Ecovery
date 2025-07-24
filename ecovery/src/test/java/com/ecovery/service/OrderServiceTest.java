@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @fileName : OrderServiceTest
  * @since : 250723
  * @history
- *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 기능 Test
- *  - 250723 | sehui | 실제 주문 저장 기능 Test
+ *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 기능 Test 실행
+ *  - 250723 | sehui | 실제 주문 저장 기능 Test 실행
  */
 
 @SpringBootTest
@@ -44,7 +44,7 @@ class OrderServiceTest {
         List<OrderItemRequestDto> requestDtoList = new ArrayList<>();
 
         OrderItemRequestDto requestDto1 = new OrderItemRequestDto();
-        requestDto1.setItemId(10L);
+        requestDto1.setItemId(5L);
         requestDto1.setCount(2);
 
         OrderItemRequestDto requestDto2 = new OrderItemRequestDto();
