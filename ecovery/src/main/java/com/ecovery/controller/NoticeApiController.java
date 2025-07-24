@@ -31,6 +31,7 @@ import java.util.Map;
      - 250723 | yukyeong | 게시글 등록 API (POST /register) 구현 - 유효성 검사 및 로그인 사용자 처리
      - 250723 | yukyeong | 게시글 수정 API (PUT /modify/{noticeId}) 구현 - 수정 성공/실패 처리 포함
      - 250723 | yukyeong | 게시글 삭제 API (DELETE /remove/{noticeId}) 구현
+     - 250724 | yukyeong | 게시글 삭제 실패 시 400 Bad Request 응답 처리
  */
 
 @RestController
@@ -193,7 +194,7 @@ public class NoticeApiController {
                 return ResponseEntity.ok(response);
             } else {
                 String errorMessage = "삭제에 실패했습니다.";
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
             }
 
         } catch (Exception e) {

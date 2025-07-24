@@ -17,6 +17,9 @@ import java.util.Date;
  * MemberVO
  * - 회원 정보를 담는 도메인 객체 (VO: Value Object)
  * - DB 테이블의 member 컬럼과 매핑됨
+ * @fileName : MemberVO
+ * @history
+       - 250724 | yukyeong | 소셜 로그인 필드(provider, providerId) 추가
  */
 @Data
 @Builder
@@ -31,5 +34,8 @@ public class MemberVO {
     private Role role;          // 권한 (USER, ADMIN)
     private Date createdAt;      // 가입일시
     private AgreeType agreeOptional; //선택 약관
+
+    private String provider;       // 로그인 방식 (local, kakao, google 등)
+    private String providerId;     // 소셜 로그인 사용자 고유 ID
 
 }

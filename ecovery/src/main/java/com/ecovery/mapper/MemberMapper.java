@@ -14,6 +14,8 @@ import java.util.List;
  * 마이페이지에서 회원 닉네임, 포인트 조회 진행
  * MyBatis 매퍼 인터페이스 / MemberMapper.xml과 연동되어 SQL 실행
  * 작성자 : 방희경
+ * @history
+      - 250724 | yukyeong | 소셜 로그인 사용자 조회 메서드 추가 (findBySocialId)
  */
 @Mapper
 public interface MemberMapper {
@@ -60,4 +62,7 @@ public interface MemberMapper {
 
     // 마이페이지 포인트 전체 조회
     public List<PointVO> getPointHistoryMemberById(Long memberId);
+
+    // 소셜 로그인(provider + providerId)으로 회원 조회 (카카오, 구글 등 소셜 로그인 사용자 확인용)
+    public MemberVO findBySocialId(String provider, String providerId);
 }

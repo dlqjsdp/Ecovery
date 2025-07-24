@@ -1,5 +1,6 @@
 package com.ecovery.service;
 
+import com.ecovery.domain.ItemImgVO;
 import com.ecovery.domain.ItemVO;
 import com.ecovery.domain.OrderItemVO;
 import com.ecovery.dto.OrderItemDto;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderItemServiceImpl implements OrderItemService {
 
     private final ItemService itemService;
+    private final ItemImgService itemImgService;
     private final OrderItemMapper orderItemMapper;
 
     //주문 페이지 출력용 객체 생성
@@ -36,6 +38,14 @@ public class OrderItemServiceImpl implements OrderItemService {
         //상품 DB 조회
         ItemVO item = itemService.findByItemId(requestDto.getItemId());
 
+        //상품 이미지 DB 조회
+        ItemImgVO itemImg = itemImgService.getRepImgByItemId(item.getItemId());
+
+        //이미지 존재하지 않은 예외 처리
+        if(itemImg == null) {
+            throw new IllegalArgumentException("대표 이미지가 존재하지 않습니다.");
+        }
+
         //주문 상품 객체 생성
         OrderItemDto dto = OrderItemDto.builder()
                 .itemId(item.getItemId())
@@ -43,6 +53,9 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .price(item.getPrice())
                 .count(requestDto.getCount())
                 .orderPrice(item.getPrice() * requestDto.getCount())
+                .itemImgId(itemImg.getItemImgId())
+                .imgName(itemImg.getImgName())
+                .imgUrl(itemImg.getImgUrl())
                 .build();
 
         return dto;

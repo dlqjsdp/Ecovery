@@ -10,7 +10,8 @@
 * @fileName : OrderMapper.xml
 * @since : 250723
 * @history
-     - 250723 | sehui | 주문 저장 기능 
+     - 250723 | sehui | 주문 저장 기능 추가
+     - 250724 | sehui | OrderVO에 주문 고유번호 order_uuid 컬럼 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.OrderMapper">
@@ -48,6 +49,7 @@
     <!-- 주문 저장 -->
     <resultMap id="orderResultMap" type="com.ecovery.domain.OrderVO">
         <id property="orderId" column="order_id" />
+        <result property="orderUuid" column="order_uuid" />
         <result property="memberId" column="member_id" />
         <result property="orderStatus" column="order_status" />
         <result property="createdAt" column="created_at" />
@@ -100,7 +102,7 @@
   
   <!-- 주문 저장 -->
   <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
-      insert into orders (member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number)
-      values (#{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber})
+      insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number)
+      values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber})
   </insert>
 </mapper>

@@ -14,12 +14,14 @@
      - 250716 | sehui | 상품 이미지 수정 기능 추가
      - 250716 | sehui | 상품 이미지 단건 조회 기능 추가
      - 250718 | sehui | 상품 이미지 삭제 기능 추가
+     - 250724 | sehui | 상품 이미지 삭제 기능 제거
+     - 250724 | sehui | 대표 이미지 조회 기능 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.ItemImgMapper">
 
     <!-- 상품의 전체 이미지 조회 -->
-    <select id="getItemList" resultType="com.ecovery.domain.ItemImgVO">
+    <select id="getItemImgList" resultType="com.ecovery.domain.ItemImgVO">
         select * from item_img where item_id = #{itemId}
     </select>
 
@@ -45,9 +47,11 @@
         where item_img_id = #{itemImgId}
     </update>
 
-    <!-- 상품 이미지 삭제 -->
-    <delete id="deleteItemImg">
-        delete from item_img where item_id = #{itemId}
-    </delete>
+    <!-- 대표 이미지 조회 -->
+    <select id="findRepImgByItemId" resultType="com.ecovery.domain.ItemImgVO">
+        SELECT * from item_img
+        where item_id = #{itemId}
+        AND rep_img_yn = 'Y'
+    </select>
 
 </mapper>

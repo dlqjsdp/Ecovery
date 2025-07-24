@@ -72,6 +72,19 @@
                 ORDER BY r.created_at ASC
             </otherwise>
         </choose>
+        LIMIT #{criteria.amount} OFFSET #{criteria.offset}
+    </select>
+
+    <!-- 특정 부모댓글에 달린 대댓글(자식 댓글) 목록 조회 -->
+    <select id="getChildReplies" resultType="com.ecovery.dto.FreeReplyDto">
+        SELECT
+            r.reply_id, r.free_id, r.member_id,
+            r.content, r.parent_id, r.created_at,
+            m.nickname
+        FROM free_reply r
+        JOIN member m ON r.member_id = m.member_id
+        WHERE r.parent_id = #{parentId}
+        ORDER BY r.created_at ASC
     </select>
 
     <!-- 게시글의 전체 댓글 수 (부모 + 대댓글 포함) -->

@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
  *  - 250718 | sehui | 상품 삭제 기능 추가
  *  - 250722 | sehui | 주문 시 재고 수량 감소 기능 추가
  *  - 250722 | sehui | 상품 ID로 상품 정보 조회 기능 추가
+ *  - 250724 | sehui | ItemImgMapper -> ItemImgService로 변경
+ *  - 250724 | sehui | 상품 삭제 기능 제거
  */
 
 @Service
@@ -43,7 +45,6 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService     {
 
     private final ItemMapper itemMapper;
-    private final ItemImgMapper itemImgMapper;
     private final ItemImgService itemImgService;
 
     //ItemImgVo -> ItemImgDto 변환 메소드
@@ -99,7 +100,7 @@ public class ItemServiceImpl implements ItemService     {
         log.info("getItem >>>");
 
         //ItemImgVO 조회
-        List<ItemImgVO> itemImgList = itemImgMapper.getItemList(itemId);
+        List<ItemImgVO> itemImgList = itemImgService.getItemImgList(itemId);
 
         //ItemImgVo -> ItemImgDto로 변환
         List<ItemImgDto> itemImgDtoList = convertImgVoToDto(itemImgList);
@@ -144,6 +145,11 @@ public class ItemServiceImpl implements ItemService     {
             throw new RuntimeException("상품 ID가 null입니다.");
         }
 
+        //상품 이미지 예외 처리
+        if(itemImgFileList == null || itemImgFileList.isEmpty()){
+            throw new IllegalArgumentException("상품 이미지는 최소 1장 이상 등록해야 합니다.");
+        }
+
         //상품 이미지 저장
         for(int i=0; i<itemImgFileList.size(); i++) {
             MultipartFile multipartFile = itemImgFileList.get(i);
@@ -177,11 +183,17 @@ public class ItemServiceImpl implements ItemService     {
 
         int updatedImgCount = 0;
 
-        //상품 이미지 수정
+        //상품 이미지 수정(새로 업로드된 경우만)
         List<Long> itemImgIds = itemFormDto.getItemImgId();
 
         for(int i=0; i<itemImgFileList.size(); i++) {
             MultipartFile multipartFile = itemImgFileList.get(i);
+
+            //새로 업로드 되지 않았다면 skip
+            if(multipartFile == null || multipartFile.isEmpty()){
+                continue;
+            }
+
             Long itemImgId = itemImgIds.get(i);
 
             //ItemImgVo 객체 생성
@@ -206,20 +218,6 @@ public class ItemServiceImpl implements ItemService     {
         }
 
         return (updatedItemCount == 1) & (updatedImgCount == itemImgFileList.size());
-    }
-
-    //상품 삭제
-    @Override
-    public boolean deleteItem(Long itemId){
-
-        //상품 이미지 삭제
-        int deletedImgCount = itemImgMapper.deleteItemImg(itemId);
-
-        //상품 삭제
-        int deletedItemCount = itemMapper.deleteItem(itemId);
-        
-        //이미지 최소 1개 이상 삭제, 상품 1개 삭제되면 성공
-        return deletedImgCount >= 1 && deletedItemCount == 1;
     }
 
     // 상품 ID로 상품 정보 조회
