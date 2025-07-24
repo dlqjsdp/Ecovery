@@ -9,6 +9,8 @@
 * @author : 방희경
 * @fileName : OrderMapper.xml
 * @since : 250723
+* @history
+     - 250723 | sehui | 주문 저장 기능 
 -->
 
 <mapper namespace="com.ecovery.mapper.OrderMapper">
@@ -41,6 +43,20 @@
             <result property="itemImgId" column="item_img_id"></result>
             <result property="imgName" column="img_name"></result>
         </collection>
+    </resultMap>
+    
+    <!-- 주문 저장 -->
+    <resultMap id="orderResultMap" type="com.ecovery.domain.OrderVO">
+        <id property="orderId" column="order_id" />
+        <result property="memberId" column="member_id" />
+        <result property="orderStatus" column="order_status" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="name" column="name" />
+        <result property="zipcode" column="zipcode" />
+        <result property="roadAddress" column="road_address" />
+        <result property="detailAddress" column="detail_address" />
+        <result property="phoneNumber" column="phone_number" />
     </resultMap>
 
     <select id="findOrdersItems" parameterType="long" resultMap="orderHistoryMap">
@@ -80,5 +96,11 @@
         where o.member_id = #{memberId}
         order by o.created_at desc
 
-    </select>
+  </select>
+  
+  <!-- 주문 저장 -->
+  <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
+      insert into orders (member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number)
+      values (#{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber})
+  </insert>
 </mapper>

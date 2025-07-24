@@ -26,13 +26,14 @@ import java.util.Map;
  * 게시글 등록, 조회, 수정, 삭제, 목록 조회(페이징) 기능의 컨트롤러 역할을 수행
  * 클라이언트의 요청을 받아 서비스 계층(EnvService)과 상호작용하여 처리하고 View에 데이터를 전달
  * @author : yukyeong
- * @fileName : EnvApiController.java
+ * @fileName : EnvApiController
  * @since : 250722
  * @history
    - 250722 | yukyeong | REST API 기반 게시글 목록 조회(list), 단건 조회(get/{envId}) 구현
    - 250722 | yukyeong | 게시글 등록 API (POST /register) 구현 - 유효성 검사 및 사용자 인증 포함
    - 250722 | yukyeong | 게시글 수정 API (PUT /modify/{envId}) 구현 - 유효성 검사 및 수정 처리
    - 250722 | yukyeong | 게시글 삭제 API (DELETE /remove/{envId}) 구현
+   - 25-723 | yukyeong | 게시글 단건 조회 예외처리 추가 (404 반환)
  */
 
 @RestController
@@ -120,6 +121,11 @@ public class EnvApiController {
 
             // 2. 게시글 단건 조회
             EnvDto envDto = envService.get(envId);
+
+            if (envDto == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("해당 게시글을 찾을 수 없습니다.");
+            }
 
             // 3. 결과 반환
             return ResponseEntity.ok(envDto); // 상태코드 200 OK + 게시글 정보 반환

@@ -6,7 +6,10 @@ import com.ecovery.domain.MemberVO;
 import com.ecovery.domain.OrderItemVO;
 import com.ecovery.domain.OrderVO;
 import com.ecovery.dto.OrderDto;
+import com.ecovery.dto.OrderItemDto;
+import com.ecovery.dto.OrderItemRequestDto;
 import com.ecovery.mapper.MemberMapper;
+import com.ecovery.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,8 @@ import java.util.List;
  * @fileName : OrderServiceImpl
  * @since : 250722
  * @history
- *  - 250722 | sehui | 단건 상품 + 장바구니 목록 주문 기능 추가 (수정 필요)
+ *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 기능 추가
+ *  - 250723 | sehui | 실제 주문 저장 기능 추가
  */
 
 @Service
@@ -31,44 +35,65 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderItemService orderItemService;
-    private final MemberMapper memberMapper;
-    private final ItemService itemService;
+    private final OrderMapper orderMapper;
 
-    //주문
+    //주문 페이지 출력용 OrderDto 세팅
     @Override
-    public Long order(List<OrderDto> orderDtoList, String email) {
+    public OrderDto prepareOrderDto(List<OrderItemRequestDto> requestDtoList, Long memberId) {
 
-        //회원 정보 조회
-        MemberVO member = memberMapper.findByEmail(email);
+        List<OrderItemDto> orderItemList = new ArrayList<>();
 
-        //주문 정보 생성
-        OrderVO order = OrderVO.builder()
-                .memberId(member.getMemberId())
-                .orderStatus(OrderStatus.ORDER)
-                .build();
+        int totalPrice = 0;
 
-        //주문 상품 리스트 생성
-        List<OrderItemVO> orderItemList = new ArrayList<>();
-
-        for(OrderDto orderDto : orderDtoList) {
-            //상품 정보 조회
-            ItemVO item = itemService.findByItemId(orderDto.getItemId());
-
-            if(item == null) {
-                throw new IllegalArgumentException("해당 상품을 찾을 수 없습니다.");
-            }
-
-            //재고 차감 + 주문 상품 객체 생성
-            OrderItemVO orderItem = orderItemService.createOrderItem(orderDto, item);
+        //주문 상품 orderItem
+        for(OrderItemRequestDto requestDto : requestDtoList) {
+            //주문 상품 객체 생성 + 재고 차감
+            OrderItemDto orderItem = orderItemService.buildOrderItem(requestDto);
 
             orderItemList.add(orderItem);
+
+            totalPrice += orderItem.getTotalPrice();
         }
 
-        //주문 생성 및 저장
-        OrderVO orders = OrderVO.builder()
-                .memberId(member.getMemberId())
+        //주문 OrderDto 객체 생성, 주문 상품 List, 총 금액 값 설정
+        OrderDto orderDto = new OrderDto();
+        orderDto.setMemberId(memberId);
+        orderDto.setOrderItems(orderItemList);
+        orderDto.setTotalPrice(totalPrice);
+
+        return orderDto;
+    }
+
+    //실제 주문 저장
+    @Override
+    public Long saveOrder(OrderDto orderDto, Long memberId) {
+
+        //주문 저장하기 위해 OrderVO 생성 및 값 설정
+        OrderVO order = OrderVO.builder()
+                .memberId(memberId)
+                .orderStatus(OrderStatus.ORDER)
+                .name(orderDto.getName())
+                .zipcode(orderDto.getZipcode())
+                .roadAddress(orderDto.getRoadAddress())
+                .detailAddress(orderDto.getDetailAddress())
+                .phoneNumber(orderDto.getPhoneNumber())
                 .build();
 
-        return 0L;
+        //주문 DB 저장
+        int result = orderMapper.insertOrder(order);
+
+        if(result != 1) {
+            throw new RuntimeException("주문 저장에 실패하였습니다.");
+        }
+
+        //주문 id 확인
+        Long orderId = order.getOrderId();
+
+        //주문 상품 저장
+        for(OrderItemDto orderItemDto : orderDto.getOrderItems()) {
+            orderItemService.saveOrderItem(orderItemDto, orderId);
+        }
+
+        return orderId;
     }
 }

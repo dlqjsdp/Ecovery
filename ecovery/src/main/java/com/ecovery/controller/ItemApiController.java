@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /*
- * 에코마켓 상품 Controller
+ * 에코마켓 상품 Api Controller
  * @author : sehui
  * @fileName : ItemApiController
  * @since : 250711
@@ -55,7 +55,6 @@ public class ItemApiController {
     public ResponseEntity<Map<String, Object>> itemList(@RequestParam(required = false) String itemNm,
                                         @RequestParam(required = false) String category,
                                         Criteria cri) {
-        log.info("Ecomarket List >>>>>>>");
 
         //전체 상품 조회
         List<ItemListDto> itemList = itemService.getItemList(itemNm, category, cri);
@@ -169,12 +168,13 @@ public class ItemApiController {
             //상품 단건 조회
             ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
             response.put("item", itemFormDto);
-        }catch (Exception e){
-            response.put("errorMessage", "존재하지 않는 상품입니다.");
-            response.put("itemFormDto", new ItemFormDto());
-        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (Exception e){
+            response.put("errorMessage", "상품을 조회할 수 없습니다.");
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
     
     //상품 수정 요청
@@ -240,11 +240,13 @@ public class ItemApiController {
                 String errorMessage = "상품 삭제에 실패했습니다.";
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
             }
+
+            return ResponseEntity.status(HttpStatus.OK).body(null);
         }catch (Exception e){
+            e.printStackTrace();
             String errorMessage = "상품 삭제 중 에러가 발생하였습니다.";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

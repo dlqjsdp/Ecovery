@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Member;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -23,7 +24,7 @@ public class DisposalFeedbackVO {
 
     private Long feedbackId;
     private Long disposalHistoryId;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private Long memberId;
 
     private DisposalHistoryVO disposalHistory;

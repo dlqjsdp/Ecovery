@@ -1,6 +1,13 @@
 package com.ecovery.service;
 
 
+import com.ecovery.domain.FreeImgVO;
+import com.ecovery.domain.ItemImgVO;
+import com.ecovery.dto.FreeImgDto;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
 /*
  * 무료나눔 이미지 서비스 인터페이스
  * 실제 구현은 FreeImgServiceImpl에서 처리
@@ -11,22 +18,12 @@ package com.ecovery.service;
  */
 
 
-import com.ecovery.domain.FreeImgVO;
-import com.ecovery.dto.FreeImgDto;
-
-import java.util.List;
-
 public interface FreeImgService {
 
-    public void register(FreeImgVO imgVO); // 이미지 등록
+    //상품 이미지 등록
+    public void saveFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
 
-    public List<FreeImgDto> getAll(Long freeId); // 게시글에 연결된 이미지 전체 조회
+    //상품 이미지 수정
+    public boolean updateFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
 
-    public boolean modify(FreeImgVO imgVO); // 이미지 수정
-
-    public void removeAll(Long freeId); // 게시글에 연결된 이미지 전체 삭제
-
-    public boolean remove(Long freeImgId); // 특정 이미지 한 장 삭제
-
-    FreeImgDto getById(Long freeImgId); // 이미지 1장 조회 (free_img_id 기준)
 }

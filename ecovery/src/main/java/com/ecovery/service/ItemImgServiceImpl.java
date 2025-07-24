@@ -36,7 +36,7 @@ public class ItemImgServiceImpl implements ItemImgService {
     private final ItemImgMapper itemImgMapper;
     private final FileService fileService;
 
-    @Value("${itemImgLocation}")
+    @Value("C:/ecovery/item")
     private String itemImgLocation;
 
     //상품 이미지 DB 등록

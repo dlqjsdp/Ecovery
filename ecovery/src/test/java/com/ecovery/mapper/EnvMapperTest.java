@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * 환경톡톡 게시글 Mapper 테스트
  * Mapper 기능 단위 테스트 클래스
  * @author : yukyeong
- * @fileName : EnvMapperTest.java
+ * @fileName : EnvMapperTest
  * @since : 250711
  * @history
      - 250711 | yukyeong | 게시글 전체 목록 조회, 단건 조회 테스트 작성

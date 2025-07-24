@@ -114,8 +114,18 @@
     </delete>
 
     <!-- 상품 ID로 상품 정보 조회(장바구니) -->
-    <select id="findByItemId" parameterType="long" resultType="com.ecovery.domain.ItemVO">
-        select * from item
+    <select id="findByItemId" parameterType="long" resultMap="itemResultMap">
+        select
+            i.item_id,
+            i.item_name,
+            i.price,
+            i.stock_number,
+            c.category_id,
+            i.item_detail,
+            i.sell_status,
+            i.created_at
+        from item i
+                 Left Join category c ON i.category_id = c.category_id
         where item_id = #{itemId}
     </select>
     
