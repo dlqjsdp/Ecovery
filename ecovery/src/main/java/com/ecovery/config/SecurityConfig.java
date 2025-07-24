@@ -42,8 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/disposal/*","/disposal/disposalMain/*", "/disposal/history/*", "/api/disposal/*", "/feedback/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
-                        .requestMatchers("/item/**").permitAll()    //Test용
-                        .requestMatchers("/notice/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
+                        .requestMatchers("/notice/**").permitAll() // 공지사항 게시판 누구나 접근 가능
                         .requestMatchers("/free/**").permitAll() // 무료나눔 게시판 누구나 접근 가능
                         .requestMatchers("/item/**").permitAll()    //Test용 (추후에 변경)
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
