@@ -8,6 +8,8 @@ import lombok.*;
  * @author : 방희경
  * @fileName : OrderItemDto
  * @since : 250723
+ * @history
+ *  - 250724 | sehui | 상품 이미지 URL 추가
  */
 
 @Setter
@@ -25,9 +27,10 @@ public class OrderItemDto {
     private Long orderItemId;
     private int price;
     private int count;
-    private int orderPrice;
+    private int orderPrice;     //주문 금액
 
     // 상품 이미지 정보(item_img)
     private Long itemImgId;
     private String imgName;
+    private String imgUrl;
 }

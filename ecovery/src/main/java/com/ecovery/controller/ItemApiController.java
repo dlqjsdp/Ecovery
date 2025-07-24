@@ -38,6 +38,7 @@ import java.util.Map;
  *  - 250718 | sehui | REST API 방식으로 변경
  *  - 250718 | sehui | 상품 삭제 요청 추가
  *  - 250721 | sehui | 상품 등록, 수정, 삭제 요청에 관리자 권한 확인 기능 추가
+ *  - 250724 | sehui | 상품 삭제 요청 제거
  */
 
 @RestController
@@ -218,35 +219,6 @@ public class ItemApiController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(null);
-
-    }
-
-    //상품 삭제
-    @DeleteMapping("/remove/{itemId}")
-    public ResponseEntity<String> itemRemove(@PathVariable Long itemId, Principal principal) {
-
-        //관리자 권한 확인
-        String email = principal.getName();
-        Role role = memberService.getMemberByEmail(email).getRole();
-
-        if(role != Role.ADMIN) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
-
-        try{
-            boolean isDeleted = itemService.deleteItem(itemId);
-
-            if(!isDeleted){
-                String errorMessage = "상품 삭제에 실패했습니다.";
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
-            }
-
-            return ResponseEntity.status(HttpStatus.OK).body(null);
-        }catch (Exception e){
-            e.printStackTrace();
-            String errorMessage = "상품 삭제 중 에러가 발생하였습니다.";
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
-        }
 
     }
 }

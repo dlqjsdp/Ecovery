@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /*
  * 에코마켓 주문 ServiceImpl
@@ -26,6 +27,7 @@ import java.util.List;
  * @history
  *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 기능 추가
  *  - 250723 | sehui | 실제 주문 저장 기능 추가
+ *  - 250724 | sehui | 주문 고유번호 UUID 생성하는 로직 추가
  */
 
 @Service
@@ -55,8 +57,12 @@ public class OrderServiceImpl implements OrderService {
             totalPrice += orderItem.getOrderPrice();
         }
 
+        //주문 UUID 생성
+        String orderUuid = UUID.randomUUID().toString();
+
         //주문 OrderDto 객체 생성, 주문 상품 List, 총 금액 값 설정
         OrderDto orderDto = new OrderDto();
+        orderDto.setOrderUuid(orderUuid);
         orderDto.setMemberId(memberId);
         orderDto.setOrderItems(orderItemList);
         orderDto.setTotalPrice(totalPrice);

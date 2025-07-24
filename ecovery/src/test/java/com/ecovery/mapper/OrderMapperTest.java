@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @fileName : OrderMapperTest
  * @since : 250723
  * @history
- *  - 250723 | sehui | 주문 등록 저장 Test 추가
+ *  - 250723 | sehui | 주문 저장 Test 실행
+ *  - 250724 | sehui | orderUuid 추가하여 주문 저장 Test 재실행
  */
 
 @SpringBootTest
@@ -36,12 +37,13 @@ class OrderMapperTest {
 
         //given : OrderVO 객체 설정
         OrderVO order = OrderVO.builder()
+                .orderUuid("test_uuid")
                 .memberId(2L)
                 .orderStatus(OrderStatus.ORDER)
                 .name("tester")
                 .zipcode("12345")
-                .roadAddress("서울시 강남구 테헤란로 123")
-                .detailAddress("101동")
+                .roadAddress("서울시 00구")
+                .detailAddress("1동 1호")
                 .phoneNumber("010-1234-5678")
                 .build();
 

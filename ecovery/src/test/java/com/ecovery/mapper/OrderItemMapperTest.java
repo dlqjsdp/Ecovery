@@ -1,6 +1,7 @@
 package com.ecovery.mapper;
 
 import com.ecovery.domain.OrderItemVO;
+import com.ecovery.dto.OrderItemDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,9 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * 에코마켓 주문 상품 Mapper Test
  * @author : sehui
  * @fileName : OrderItemMapperTest
- * @since : 250722
+ * @since : 250723
  * @history
- *  - 250722 | sehui | 주문한 개별 상품 정보 저장 Test 추가
+ *  - 250723 | sehui | 주문한 개별 상품 정보 저장 Test 실행
+ *  - 250724 | sehui | 주문 상품 단건 조회 Test 실행
  */
 
 @SpringBootTest
@@ -34,7 +36,7 @@ class OrderItemMapperTest {
     public void testInsert() {
 
         //given : 주문한 상품 정보 생성
-        Long orderId = 1L;
+        Long orderId = 4L;
         Long itemId = 11L;
 
         OrderItemVO orderItemVO = OrderItemVO.builder()
@@ -48,12 +50,32 @@ class OrderItemMapperTest {
         orderItemMapper.insertOrderItem(orderItemVO);
 
         //then : 결과 검증
-        OrderItemVO savedOrderItem = orderItemMapper.findByOrderIdAndItemId(orderId, itemId);
+        OrderItemDto savedOrderItem = orderItemMapper.findByOrderIdAndItemId(orderId, itemId);
 
         assertNotNull(savedOrderItem);
+        assertEquals(11, savedOrderItem.getItemId());
+        assertEquals(2, savedOrderItem.getCount());
+        assertEquals(10000, savedOrderItem.getOrderPrice());
 
-        log.info("savedOrderItemId >> {}", savedOrderItem.getOrderItemId());
+        log.info("savedOrderOrderItemId >> {}", savedOrderItem.getOrderItemId());
 
+    }
+
+    @Test
+    @DisplayName("주문 상품 단건 조회")
+    public void testGet(){
+
+        //given : 조회할 주문 상품 id, 상품 id
+        Long orderId = 1L;
+        Long itemId = 10L;
+
+        //when : 주문 상품 단건 조회
+        OrderItemDto orderItem = orderItemMapper.findByOrderIdAndItemId(orderId, itemId);
+
+        //then : 결과 검증
+        assertNotNull(orderItem);
+
+        log.info("orderItemDto >> {}", orderItem);
     }
 
 }

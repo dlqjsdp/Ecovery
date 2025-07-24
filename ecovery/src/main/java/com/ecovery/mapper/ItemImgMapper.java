@@ -11,6 +11,8 @@ package com.ecovery.mapper;
  *  - 250716 | sehui | 상품 이미지 수정 기능 추가
  *  - 250716 | sehui | 상품 이미지 단건 조회 기능 추가
  *  - 250718 | sehui | 상품 이미지 삭제 기능 추가
+ *  - 250724 | sehui | 상품 이미지 삭제 기능 제거
+ *  - 250724 | sehui | 대표 이미지 조회 기능 추가
  */
 
 import com.ecovery.domain.ItemImgVO;
@@ -22,7 +24,7 @@ import java.util.List;
 public interface ItemImgMapper {
 
     //상품 이미지 전체 조회
-    public List<ItemImgVO> getItemList(Long itemId);
+    public List<ItemImgVO> getItemImgList(Long itemId);
 
     //상품 이미지 등록
     public void insertItemImg(ItemImgVO itemImgVO);
@@ -33,6 +35,6 @@ public interface ItemImgMapper {
     //상품 이미지 수정
     public int updateItemImg(ItemImgVO itemImgVO);
 
-    //상품 이미지 삭제
-    public int deleteItemImg(Long itemId);
+    //대표 이미지 조회
+    public ItemImgVO findRepImgByItemId (Long itemId);
 }
