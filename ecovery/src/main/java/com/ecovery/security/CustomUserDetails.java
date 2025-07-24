@@ -25,6 +25,16 @@ public class CustomUserDetails implements UserDetails {
 
     private final MemberVO memberVO;
 
+    // 닉네임 꺼내서 사용
+    public String getNickname() {
+        return memberVO.getNickname();
+    }
+
+    // 사용자 아이디 꺼내서 사용
+    public Long getMemberId() {
+        return memberVO.getMemberId();
+    }
+
     // 사용자 권한 반환(USER / ADMIN)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -40,10 +50,10 @@ public class CustomUserDetails implements UserDetails {
         return memberVO.getPassword();
     }
 
-    // 사용자 ID로 이메일 사용
+    // 사용자 ID로 닉네임 사용
     @Override
     public String getUsername() {
-        return memberVO.getEmail();
+        return memberVO.getNickname();
     }
 
     // 계정 만료 여부 -> true : 만료되지 않음(UserDetails 인터페이스에서 반드시 구현해야하는 필수 값으로 기재 진행)

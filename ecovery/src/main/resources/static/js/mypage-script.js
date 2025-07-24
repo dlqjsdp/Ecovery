@@ -1,3 +1,4 @@
+/*
 // Global variables
 let animationObserver;
 let isInitialized = false;
@@ -1137,4 +1138,4 @@ if (process?.env?.NODE_ENV === 'development') {
     };
     
     console.log('🔧 개발자 도구가 활성화되었습니다. window.devHelpers를 확인하세요.');
-}
+}*/
