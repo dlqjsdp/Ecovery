@@ -2,6 +2,7 @@ package com.ecovery.mapper;
 
 import com.ecovery.domain.MemberVO;
 import com.ecovery.domain.PointVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.MemberPageDto;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -49,7 +50,10 @@ public interface MemberMapper {
     /**
      * 전체 회원 목록 조회
      */
-    public List<MemberVO> findAllMembers();
+    public List<MemberVO> findAllMembers(Criteria cri);
+
+    //페이지당 존재하는 게시물 개수
+    public int getTotalCount(Criteria cri);
 
     // 마이페이지 닉네임, 포인트 조회
     public MemberPageDto getMemberPage(Long memberId);

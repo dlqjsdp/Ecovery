@@ -62,7 +62,7 @@ class OrderItemServiceTest {
         OrderItemDto orderItemDto = OrderItemDto.builder()
                 .itemId(10L)
                 .count(2)
-                .totalPrice(2000)
+                .orderPrice(2000)
                 .build();
 
         Long orderId = 1L;

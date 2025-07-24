@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 public class AdminMainController {
 
-    @GetMapping
+    @GetMapping("/main")
     public String adminMainPage() {
-        return "admin/main";
+        return "admin/adminMain";
     }
 }

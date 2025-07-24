@@ -40,7 +40,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/*", "/css/**", "/js/**", "/img/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
-                        .requestMatchers("/disposal/*","/disposal/disposalMain/*", "/disposal/history/*", "/api/disposal/*", "/feedback/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
+                        .requestMatchers("/disposal/*","/disposal/disposalMain/*", "/disposal/history/*", "/feedback/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
                         .requestMatchers("/notice/**").permitAll() // 공지사항 게시판 누구나 접근 가능
                         .requestMatchers("/item/**").permitAll()    //Test용 (추후에 변경)
@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/free/modify/**", "/free/delete/**").hasAnyRole("USER", "ADMIN") // 무료나눔 수정, 삭제 - USER 또는 ADMIN만 가능 
                         .requestMatchers("/free/**").permitAll() // 무료나눔 목록, 상세 누구나 접근 가능
                         .requestMatchers("/admin/**").hasRole("ADMIN") //관리자 페이지는 관리자만 접근 가능
+                        .requestMatchers("/api/disposal/*").hasRole("ADMIN") //관리자 페이지는 관리자만 접근 가능
                         .requestMatchers("/mypage/**").authenticated() //로그인한 사용자만 마이페이지 접근 가능
                         .anyRequest().authenticated() //그 외 모든 요청은 로그인 필수
                 )
