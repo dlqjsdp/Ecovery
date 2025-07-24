@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,14 +21,17 @@ public class DisposalFeedbackController {
 
     //오류신고 버튼 클릭시 disposalfeedback db에 저장 후 이미지 업로드 페이지로 전환
     @PostMapping("/report")
+    @ResponseBody
     public String feedbackReport(DisposalFeedbackVO feedbackVO) {
         if (!disposalFeedbackService.isAlreadyReported(feedbackVO.getDisposalHistoryId())) {
             disposalFeedbackService.saveFeedback(feedbackVO);
         }
-
-        return "redirect:/disposal/disposalMain";
+        log.info("DisposalFeedbackVO : {}", feedbackVO);
+        log.info("feedbackVo : {}", feedbackVO.getMemberId());
+        return "ok"; // 단순 문자열 응답
     }
-    
+
+
     @GetMapping("/history")
     public String feedbackHistory(Model model) {
         List<DisposalFeedbackDto> adminFeedbackHistory = disposalFeedbackService.getAllFeedback();

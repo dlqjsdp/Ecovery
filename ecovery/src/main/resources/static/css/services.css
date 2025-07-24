@@ -817,7 +817,7 @@ body {
 }
 
 /* Buttons */
-.btn-primary, .btn-secondary, .btn-outline {
+.btn-primary, .btn-secondary, .btn-outline{
     padding: 15px 30px;
     border-radius: 8px;
     font-size: 16px;
