@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  *  - 250715 | sehui | 전체 상품 조회 Test 추가
  *  - 250717 | sehui | 상품 수정 Test 추가
  *  - 250722 | sehui | 주문 시 재고 수량 감소 Test 추가
+ *  - 250723 | sehui | 상품 삭제 Test 추가
  */
 
 @SpringBootTest
@@ -189,5 +190,19 @@ class ItemServiceTest {
         log.info("beforeStock >> {}", beforeStock);
         log.info("afterItem >> {}", afterItem);
         log.info("afterStock >> {}", afterStock);
+    }
+
+    @Test
+    @DisplayName("상품 삭제")
+    public void testDeleteItem(){
+
+        //given : 상품 Id 설정
+        Long itemId = 8L;
+
+        //when : 상품 삭제
+        boolean result = itemService.deleteItem(itemId);
+
+        //then : 결과 검증
+        assertTrue(result, "상품 삭제 실패하였습니다.");
     }
 }

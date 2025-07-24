@@ -17,7 +17,7 @@
 
     <select id="findByDisposalHistoryId" resultType="com.ecovery.dto.DisposalHistoryDto">
         select h.disposal_history_id as disposalHistoryId, h.ai_prediction as aiPrediction,
-               h.region_gu as regionGu, h.final_item as finalItem,
+               h.region_gu as regionGu, h.final_item as finalItem, h.member_id as memberId,
                img.disposal_img_url as disposalImgUrl,
                i.item_name as itemName, i.min_price as minPrice, i.max_price as maxPrice, i.report_url as reportUrl
         from disposal_history h

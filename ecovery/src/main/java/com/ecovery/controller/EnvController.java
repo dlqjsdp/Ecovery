@@ -28,7 +28,7 @@ import java.util.List;
  * 게시글 등록, 조회, 수정, 삭제, 목록 조회(페이징) 기능의 컨트롤러 역할을 수행
  * 클라이언트의 요청을 받아 서비스 계층(EnvService)과 상호작용하여 처리하고 View에 데이터를 전달
  * @author : yukyeong
- * @fileName : EnvController.java
+ * @fileName : EnvController
  * @since : 250716
  * @history
      - 250716 | yukyeong | EnvController 클래스 최초 작성 (목록 조회)

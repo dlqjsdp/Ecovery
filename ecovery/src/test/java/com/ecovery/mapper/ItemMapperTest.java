@@ -178,6 +178,21 @@ class ItemMapperTest {
     }
 
     @Test
+    @DisplayName("itemId로 상품 조회")
+    public void testFindByItemId() {
+
+        //given : 상품 Id 설정
+        Long itemId = 10L;
+
+        //when : 상품 조회
+        ItemVO item = itemMapper.findByItemId(itemId);
+
+        //then : 결과 검증
+        assertNotNull(item, "조회조건을 만족하는 상품이 존재하지 않습니다.");
+        log.info("Item : {}", item);
+    }
+
+    @Test
     @DisplayName("재고 수량 감소")
     public void testDecreaseStock(){
 
