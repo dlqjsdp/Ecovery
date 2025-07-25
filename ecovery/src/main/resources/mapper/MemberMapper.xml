@@ -89,8 +89,6 @@
     -->
     <select id="findAllMembers" resultType="com.ecovery.domain.MemberVO">
         select * from member
-        <include refid="criteria"></include>
-        LIMIT #{amount} OFFSET #{offset}
     </select>
 
 
@@ -114,33 +112,6 @@
         order by created_at desc
     </select>
 
-
-    <!-- 검색 조건(제목, 내용, 지역(구,동) -->
-    <sql id="criteria">
-        <where>
-            <foreach collection="typeArr" item="type" separator="OR">
-                <if test="type == 'E'">
-                    email LIKE CONCAT('%', #{keyword}, '%')
-                </if>
-                <if test="type == 'N'">
-                    nickname LIKE CONCAT('%', #{keyword}, '%')
-                </if>
-            </foreach>
-        </where>
-    </sql>
-
-    <!-- 페이징 처리를 위한 전체 게시글 수를 조회 -->
-    <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
-        SELECT COUNT(*)
-        FROM member
-        <where>
-            <if test="type != null and keyword != null and keyword != ''">
-                <include refid="criteria"></include>
-            </if>
-            member_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
-        </where>
-    </select>
-
     <!--
         소셜 로그인 사용자 조회
         - provider(로그인 방식)와 provider_id(소셜 사용자 고유 ID)로 조회
@@ -152,7 +123,6 @@
         WHERE provider = #{provider}
           AND provider_id = #{providerId}
     </select>
-
 
 
 </mapper>

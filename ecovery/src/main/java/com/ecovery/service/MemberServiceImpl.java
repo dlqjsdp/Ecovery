@@ -3,7 +3,6 @@ package com.ecovery.service;
 import com.ecovery.constant.Role;
 import com.ecovery.domain.MemberVO;
 import com.ecovery.domain.PointVO;
-import com.ecovery.dto.Criteria;
 import com.ecovery.dto.MemberPageDto;
 import com.ecovery.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
@@ -75,14 +74,9 @@ public class MemberServiceImpl implements MemberService {
 
     //전체 회원 조회
     @Override
-    public List<MemberVO> getAllMembers(Criteria cri){
+    public List<MemberVO> getAllMembers(){
 
-        return memberMapper.findAllMembers(cri);
-    }
-
-    @Override
-    public int getTotal(Criteria cri) {
-        return memberMapper.getTotalCount(cri);
+        return memberMapper.findAllMembers();
     }
 
     // 마이페이지 닉네임, 포인트 조회
