@@ -9,11 +9,13 @@ use ecovery;
 CREATE TABLE member (
     member_id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 회원 고유번호 (PK)
     email VARCHAR(255) NOT NULL UNIQUE, -- 로그인 이메일 (중복 불가)
-    password VARCHAR(255) NOT NULL, -- 비밀번호
+    password VARCHAR(255) NULL, -- 비밀번호
     nickname VARCHAR(50) NOT NULL UNIQUE, -- 닉네임 (중복 불가)
     role ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER', -- 권한 (USER, ADMIN)
     created_at DATE NOT NULL DEFAULT (CURRENT_DATE) -- 가입일자
     agree_optional ENUM('Y', 'N') NOT NULL DEFAULT 'Y', -- 선택 약관 동의여부 (Y, N)
+    provider VARCHAR(20) NOT NULL DEFAULT 'local', -- 로그인 방식 구분 (local, kakao, google 등)
+    provider_id VARCHAR(100) -- 소셜 로그인 사용자의 고유 ID
 );
 
 
@@ -225,6 +227,7 @@ CREATE TABLE env (
     member_id BIGINT NOT NULL,
     title VARCHAR(255) NOT NULL,
     content VARCHAR(1000) NOT NULL,
+    category VARCHAR(20), 
     view_count INT NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

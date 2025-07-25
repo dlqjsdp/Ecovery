@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
      - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 추가
      - 250717 | yukyeong | DTO ↔ VO 변환 메서드 추가
      - 250718 | yukyeong | DTO 기반 서비스로 전환
+     - 250725 | yukyeong | 게시글 category 필드 DTO/VO 매핑 처리 추가
  */
 
 @Service
@@ -40,6 +41,7 @@ public class EnvServiceImpl implements EnvService {
         env.setTitle(envDto.getTitle());
         env.setContent(envDto.getContent());
         env.setMemberId(envDto.getMemberId());
+        env.setCategory(envDto.getCategory()); // 카테고리 추가
         return env;
     }
 
@@ -50,6 +52,7 @@ public class EnvServiceImpl implements EnvService {
         envDto.setTitle(env.getTitle());
         envDto.setContent(env.getContent());
         envDto.setMemberId(env.getMemberId());
+        envDto.setCategory(env.getCategory()); // 카테고리 추가
         envDto.setNickname(env.getNickname());
         envDto.setViewCount(env.getViewCount());
         envDto.setCreatedAt(env.getCreatedAt());

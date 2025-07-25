@@ -647,19 +647,32 @@ function setupAgreementHandlers() {
 
 // Setup social login
 function setupSocialLogin() {
-    const socialButtons = document.querySelectorAll('.social-btn');
-
-    socialButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const provider = button.classList.contains('google') ? 'Google' : 'Kakao';
-            showNotification(`${provider} 로그인을 준비 중입니다...`, 'info');
-
-            // Simulate social login
-            setTimeout(() => {
-                showNotification(`${provider} 로그인이 일시적으로 사용할 수 없습니다.`, 'error');
-            }, 1500);
+    // const socialButtons = document.querySelectorAll('.social-btn');
+    //
+    // socialButtons.forEach(button => {
+    //     button.addEventListener('click', () => {
+    //         const provider = button.classList.contains('google') ? 'Google' : 'Kakao';
+    //         showNotification(`${provider} 로그인을 준비 중입니다...`, 'info');
+    //
+    //         // Simulate social login
+    //         setTimeout(() => {
+    //             showNotification(`${provider} 로그인이 일시적으로 사용할 수 없습니다.`, 'error');
+    //         }, 1500);
+    //     });
+    // });
+    const kakaoBtn = document.querySelector('.social-btn.kakao');
+    if (kakaoBtn) {
+        kakaoBtn.addEventListener('click', () => {
+            window.location.href = '/oauth2/authorization/kakao'; // Spring Security가 자동 처리
         });
-    });
+    }
+
+    const googleBtn = document.querySelector('.social-btn.google');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', () => {
+            window.location.href = '/oauth2/authorization/google'; // 구글도 자동 리디렉션
+        });
+    }
 }
 
 // Helper functions

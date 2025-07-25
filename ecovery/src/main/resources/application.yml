@@ -8,6 +8,7 @@
 #   - 250711 | yukyeong | username: ecovery로 수정, map-underscore-to-camel-case 설정 추가
 #   - 250715 | yukyeong | 이미지 경로 수정 (shop -> ecovery)
 #   - 250724 | yukyeong | 소셜 로그인 설정 추가
+#   - 250725 | yukyeong | 구글 로그인 설정 추가
 
 server:
   port: 8080
@@ -47,6 +48,12 @@ spring:
             scope:
               - profile_nickname
               - account_email
+          google:
+            client-id: 92818083858-s0gmb0327116jgvcs1hj7san243astbp.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - profile
+              - email
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
