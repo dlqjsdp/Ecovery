@@ -5,6 +5,7 @@ import com.ecovery.dto.OrderItemRequestDto;
 import com.ecovery.service.MemberService;
 import com.ecovery.service.OrderService;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,16 +17,16 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /*
- * 에코마켓 상품 Api Controller
+ * 에코마켓 주문 Api Controller
  * @author : sehui
  * @fileName : OrderApiController
  * @since : 250723
  * @history
  *  - 250723 | sehui | 주문 페이지 요청 기능 추가
- *  - 250723 | sehui | 실제 주문 저장 기능 추가
+ *  - 250723 | sehui | 결제 버튼 클릭 시 주문 저장 기능 추가
+ *  - 250725 | sehui | 결제 실패 시 주문 페이지 재구성 기능 추가
  */
 
 @RestController
@@ -57,8 +58,8 @@ public class OrderApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderDto);
     }
 
-    //결제 완료 후 주문 저장
-    @PostMapping("/complete")
+    //주문 저장
+    @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> saveOrder(@Valid @RequestBody OrderDto orderDto,
                                                          BindingResult bindingResult,
                                                          Principal principal) {
@@ -87,4 +88,16 @@ public class OrderApiController {
         }
     }
 
+    //주문 페이지 재구성
+    /*
+    @GetMapping("/retry/{orderId}")
+    public ResponseEntity<OrderDto> retryOrder(@PathVariable Long orderId, Principal principal) {
+
+        //로그인한 사용자 정보 조회
+        String email = principal.getName();
+        Long memberId  = memberService.getMemberByEmail(email).getMemberId();
+
+        return
+    }
+    */
 }

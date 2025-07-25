@@ -8,7 +8,9 @@
 #   - 250711 | yukyeong | username: ecovery로 수정, map-underscore-to-camel-case 설정 추가
 #   - 250715 | yukyeong | 이미지 경로 수정 (shop -> ecovery)
 #   - 250724 | yukyeong | 소셜 로그인 설정 추가
+#   - 250725 | sehui | 포트원 API 키 설정 추가
 #   - 250725 | yukyeong | 구글 로그인 설정 추가
+
 
 server:
   port: 8080
@@ -92,3 +94,8 @@ logging:
 ai:
   server:
     url: http://localhost:8000 #uvicorn 포트번호
+
+# 결제(포트원) API 키 설정
+portone:
+  imp-key: 3773346751161481
+  imp-secret: 6UWBTDqNyZUkTxNKIhuqpWmD9JFyrQY87aHtYJjVUOaNrpa14CsoEvyaCaA8zaDsGm4pPprobA58aXjq

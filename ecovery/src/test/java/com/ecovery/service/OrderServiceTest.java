@@ -1,8 +1,10 @@
 package com.ecovery.service;
 
+import com.ecovery.constant.OrderStatus;
 import com.ecovery.dto.OrderDto;
 import com.ecovery.dto.OrderItemDto;
 import com.ecovery.dto.OrderItemRequestDto;
+import com.ecovery.dto.PaymentResultDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
@@ -23,8 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * @fileName : OrderServiceTest
  * @since : 250723
  * @history
- *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 기능 Test 실행
- *  - 250723 | sehui | 실제 주문 저장 기능 Test 실행
+ *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 Test 실행
+ *  - 250723 | sehui | 실제 주문 저장 Test 실행
+ *  - 250725 | sehui | 주문 id 조회 Test 실행
+ *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 Test 실행
  */
 
 @SpringBootTest
@@ -112,6 +116,42 @@ class OrderServiceTest {
 
         log.info("savedOrderId >> {}", savedOrderId);
 
+    }
+
+    @Test
+    @DisplayName("주문 id 조회")
+    public void testGetOrderId(){
+
+        //given : orderUuid 설정 (DB 존재하는 값 사용)
+        String orderUuid = "test_uuid";
+
+        //when : 주문 id 조회
+        Long orderId = orderService.getOrderId(orderUuid);
+
+        //then : 결과 검증
+        assertNotNull(orderId);
+
+        log.info("orderId >> {}", orderId);
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 결제 실패")
+    public void testUpdateOrderStatus(){
+
+        //given : 결제 정보, 주문 상태 설정
+        PaymentResultDto paymentResult = new PaymentResultDto();
+        paymentResult.setPaymentKey("test_imp_key");
+        paymentResult.setOrderUuid("test_uuid");
+        paymentResult.setAmount(2);
+
+        //결제 실패 상태
+        OrderStatus orderStatus = OrderStatus.READY;
+
+        //when : 주문 상태 변경
+        boolean result = orderService.updateOrderStatus(paymentResult, orderStatus);
+
+        //then : 결과 검증
+        assertTrue(result, "주문 상태 변경이 실패했습니다.");
     }
 
 }

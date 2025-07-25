@@ -20,11 +20,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * @history
  *  - 250723 | sehui | 주문 저장 Test 실행
  *  - 250724 | sehui | orderUuid 추가하여 주문 저장 Test 재실행
+ *  - 250725 | sehui | 주문 id 조회 Test 실행
+ *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 Test 실행
  */
 
 @SpringBootTest
 @Transactional
-@Rollback(false)        //DB 확인
+@Rollback(false)
 @Slf4j
 class OrderMapperTest {
 
@@ -55,6 +57,37 @@ class OrderMapperTest {
 
         log.info("저장된 주문 >> {}", order);
 
+    }
+
+    @Test
+    @DisplayName("주문 id 조회")
+    public void testFindOrderId(){
+
+        //given : orderUuid 설정 (DB 존재하는 값 사용)
+        String orderUuid = "test_uuid";
+
+        //when : 주문 id 조회
+        Long orderId = orderMapper.findOrderIdByOrderUuid(orderUuid);
+
+        //then : 결과 검증
+        assertNotNull(orderId);
+
+        log.info("orderId >> {}", orderId);
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 - 결제 실패")
+    public void testUpdateOrderStatus(){
+
+        //given : 주문 id, 주문 상태 설정
+        Long orderId = 1L;
+        OrderStatus orderStatus = OrderStatus.READY;
+
+        //when : 주문 상태 변경
+        int result = orderMapper.updateOrderStatus(orderId, orderStatus);
+
+        //then : 결과 검증
+        assertEquals(1, result);
     }
 
 }

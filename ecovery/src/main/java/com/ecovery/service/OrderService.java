@@ -1,5 +1,12 @@
 package com.ecovery.service;
 
+import com.ecovery.constant.OrderStatus;
+import com.ecovery.dto.OrderDto;
+import com.ecovery.dto.OrderItemRequestDto;
+import com.ecovery.dto.PaymentResultDto;
+
+import java.util.List;
+
 /*
  * 에코마켓 주문 Service
  * @author : sehui
@@ -8,12 +15,10 @@ package com.ecovery.service;
  * @history
  *  - 250723 | sehui | 주문 페이지에 보여줄 주문 정보 세팅 기능 추가
  *  - 250723 | sehui | 실제 주문 저장 기능 추가
+ *  - 250725 | sehui | 주문 id 조회 기능 추가
+ *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
  */
 
-import com.ecovery.dto.OrderDto;
-import com.ecovery.dto.OrderItemRequestDto;
-
-import java.util.List;
 
 public interface OrderService {
 
@@ -23,5 +28,9 @@ public interface OrderService {
     //실제 주문 저장
     public Long saveOrder(OrderDto orderDto, Long memberId);
 
-    //결제 API 요청?
+    //주문 고유 id로 주문 id 조회
+    public Long getOrderId(String orderUuid);
+
+    //주문 상태 변경
+    public boolean updateOrderStatus(PaymentResultDto paymentResult, OrderStatus orderStatus);
 }
