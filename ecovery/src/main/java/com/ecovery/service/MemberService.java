@@ -2,7 +2,6 @@ package com.ecovery.service;
 
 import com.ecovery.domain.MemberVO;
 import com.ecovery.domain.PointVO;
-import com.ecovery.dto.Criteria;
 import com.ecovery.dto.MemberPageDto;
 
 import java.util.List;
@@ -31,15 +30,14 @@ public interface MemberService {
     public MemberVO getMemberByNickname(String nickname);
 
     //전체 회원 조회
-    public List<MemberVO> getAllMembers(Criteria cri);
-
-    //전체 레코드 조회 or 조건에 맞는 데이터 조회
-    public int getTotal(Criteria cri);
+    public List<MemberVO> getAllMembers();
 
     // 마이페이지 닉네임, 포인트 조회
     public MemberPageDto getMemberPage(Long memberId);
 
     // 마이페이지 포인트 전체 조회
     public List<PointVO> getPointHistoryMemberById(Long memberId);
+
+
 
 }
