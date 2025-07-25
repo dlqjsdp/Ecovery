@@ -1,0 +1,66 @@
+# application.yml
+# Spring Boot, MyBatis, 데이터소스 설정 파일
+# @author : jihye
+# @fileName : application.yml
+# @since : 250708
+# @history
+#   - 250708 | jihye | 초기 환경 설정 작성
+#   - 250711 | yukyeong | username: ecovery로 수정, map-underscore-to-camel-case 설정 추가
+#   - 250715 | yukyeong | 이미지 경로 수정 (shop -> ecovery)
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ecovery?serverTimezone=UTC
+    username: ecovery
+    password: 1234
+  # Live Reload 기능 활성화
+  devtools:
+    livereload:
+      enabled: true
+
+  # Thymeleaf cache 사용 중지
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/ # Thymeleaf 템플릿 파일이 있는 기본 경로 설정
+    suffix: .html # Thymeleaf 템플릿 파일의 확장자 설정
+
+  servlet:
+    multipart:
+      max-File-Size: 20MB # 파일 한 개당 최대 사이즈
+      max-request-size: 100MB # 요청당 최대 파일 크기
+
+# 상품 이미지 업로드 경로
+itemImgLocation: C:/ecovery/item
+
+disposalImgLocation: C:/ecovery/disposalImg
+
+# 무료나눔 이미지 업로드 경로
+freeImgLocation: C:/ecovery/free
+
+# 리소스 이미지 업로드 경로
+uploadPath: file:///C:/ecovery/
+
+
+mybatis:
+  #config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+
+  # DB 컬럼명과 Java 필드명 자동 매핑 (snake_case → camelCase)
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: true    #자동으로 생성된 키 처리하기 위한 설정
+
+# 쿼리에 물음표로 출력되는 바인드 파라미터 출력
+logging:
+  level:
+    root: info
+    com.ecovery.mapper: debug
+    org.apache.ibatis: debug
+
+ai:
+  server:
+    url: http://localhost:8000 #uvicorn 포트번호

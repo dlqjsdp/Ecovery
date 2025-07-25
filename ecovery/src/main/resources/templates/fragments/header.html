@@ -1,0 +1,42 @@
+<!--
+GreenCycle 공통 헤더 프래그먼트
+모든 페이지에서 상단 네비게이션으로 포함되는 공통 header 영역
+Thymeleaf layout:fragment="header"로 정의되어 layout에서 포함하여 사용
+로그인/회원가입, 주요 메뉴 링크(홈, 서비스, 분리배출, 무료나눔, 에코마켓 등) 포함
+
+@author : yukyeong
+@fileName : header.html
+@since : 250718
+@history
+    - 250718 | yukyeong | 공통 헤더 프래그먼트 작성
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<header class="header" id="header" th:fragment="header">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/main}" class="logo" onclick="goHome()">
+                <img src="/img/logo.png" alt="GreenCycle 로고" class="logo-img">
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a th:href="@{/main}" onclick="goHome()">홈</a></li>
+                <li><a href="#" onclick="showNotification('서비스 페이지로 이동합니다')">서비스</a></li>
+                <li><a th:href="@{/disposal/disposalMain}" onclick="showNotification('분리배출 페이지로 이동합니다')">분리배출</a></li>
+                <li><a th:href="@{/free/list}" onclick="showNotification('무료나눔 페이지로 이동합니다')">무료나눔</a></li>
+                <li><a th:href="@{/item/list}" onclick="showNotification('에코마켓 페이지로 이동합니다')">에코마켓</a></li>
+                <li><a th:href="@{/env/list}" onclick="showNotification('환경톡톡 페이지로 이동합니다')">환경톡톡</a></li>
+                <li><a href="#" onclick="showNotification('공지사항 페이지로 이동합니다')">공지사항</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a th:href="@{/member/login}" class="btn-login" onclick="showNotification('로그인 페이지로 이동합니다')">로그인</a>
+                <a th:href="@{/member/signup}" class="btn-signup" onclick="showNotification('회원가입 페이지로 이동합니다')">회원가입</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+</header>
+</html>

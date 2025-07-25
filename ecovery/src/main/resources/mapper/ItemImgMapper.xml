@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    에코마켓 상품 이미지 Mapper.xml
+    @author : sehui
+    @fileName : ItemImgMapper.xml
+    @since : 250710
+    @history
+     - 250710 | sehui | 상품 이미지 전체 DB 조회 기능 추가
+     - 250716 | sehui | 상품 이미지 등록 기능 추가
+     - 250716 | sehui | 상품 이미지 수정 기능 추가
+     - 250716 | sehui | 상품 이미지 단건 조회 기능 추가
+     - 250718 | sehui | 상품 이미지 삭제 기능 추가
+-->
+
+<mapper namespace="com.ecovery.mapper.ItemImgMapper">
+
+    <!-- 상품의 전체 이미지 조회 -->
+    <select id="getItemList" resultType="com.ecovery.domain.ItemImgVO">
+        select * from item_img where item_id = #{itemId}
+    </select>
+
+    <!-- 상품 이미지 등록 -->
+    <insert id="insertItemImg" parameterType="com.ecovery.domain.ItemImgVO" useGeneratedKeys="true" keyProperty="itemImgId">
+        INSERT INTO item_img(item_id, img_name, ori_img_name, img_url, rep_img_yn, created_at)
+        values (#{itemId}, #{imgName}, #{oriImgName}, #{imgUrl}, #{repImgYn}, NOW())
+    </insert>
+
+    <!-- 상품 이미지 단건 조회 -->
+    <select id="getItemImgById" resultType="com.ecovery.domain.ItemImgVO">
+        select * from item_img where item_img_id = #{itemImgId}
+    </select>
+
+    <!-- 상품 이미지 수정 -->
+    <update id="updateItemImg">
+        update item_img
+        set img_name = #{imgName},
+            ori_img_name = #{oriImgName},
+            img_url = #{imgUrl},
+            rep_img_yn = #{repImgYn},
+            created_at = now()
+        where item_img_id = #{itemImgId}
+    </update>
+
+    <!-- 상품 이미지 삭제 -->
+    <delete id="deleteItemImg">
+        delete from item_img where item_id = #{itemId}
+    </delete>
+
+</mapper>
