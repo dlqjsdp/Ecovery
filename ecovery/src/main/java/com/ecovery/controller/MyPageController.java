@@ -2,6 +2,7 @@ package com.ecovery.controller;
 
 
 import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.MemberPageDto;
 import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +30,20 @@ public class MyPageController {
     private final MemberService memberService;
 
     // 마이페이지 이동
-    @GetMapping(value = "/home")
+    @GetMapping(value = {"", "/"})
     public String myPageHome(@AuthenticationPrincipal CustomUserDetails user, Model model) {
         Long memberId = user.getMemberVO().getMemberId();
         MemberVO member = memberService.getMemberById(memberId);
 
+        // 1. MemberPageDto 객체생성
+        int temporaryPoints = 400; // 화면 띄우기 임시 포인트 값
+        MemberPageDto memberPageDto = new MemberPageDto(member.getNickname(), temporaryPoints);
+        
+        // 2. Model에 필요한 객체를 담아 전달
+
+
         model.addAttribute("member", member);  // 닉네임, 포인트 등 전달
+        model.addAttribute("memberPageDto", memberPageDto);
 
         return "mypage/home";
     }

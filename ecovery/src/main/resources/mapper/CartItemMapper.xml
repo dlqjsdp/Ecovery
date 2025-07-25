@@ -11,17 +11,23 @@
     @since : 250722
 -->
 
-<mapper namespace="com.ecovery.mapper.CartMapper">
+<mapper namespace="com.ecovery.mapper.CartItemMapper">
     <!-- 장바구니 전체 목록 출력 -->
     <select id="getCartItems" parameterType="long" resultType="com.ecovery.dto.CartDetailDto">
-        select ci.cart_item AS cartItemId,
-               i.item_name AS itemNm,
-               i.price,
-               ci.count,
-               i.stockNumber
-        from cart_item ci
-                 join item i ON ci.item_id = i.item_id
-        where ci.cart_id = ${cartId}
+        SELECT
+            ci.cart_item_id AS cartItemId,
+            i.item_name AS itemNm,
+            i.price,
+            ci.count,
+            ii.img_url AS imgUrl,
+            i.stockNumber AS stockNumber
+        FROM
+            cart_item ci
+                JOIN
+            item i ON ci.item_id = i.item_id
+            left join item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 1
+        WHERE
+            ci.cart_id = #{cartId}
         order by ci.created_at desc
     </select>
 
