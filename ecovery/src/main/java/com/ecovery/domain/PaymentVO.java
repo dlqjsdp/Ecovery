@@ -1,8 +1,11 @@
 package com.ecovery.domain;
 
+import com.ecovery.constant.PayMethod;
 import com.ecovery.constant.PayStatus;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +21,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
+@ToString
 public class PaymentVO {
 
     private Long paymentId;
@@ -28,10 +33,9 @@ public class PaymentVO {
     private Long memberId;      //회원 정보
 
     private String paymentKey;  //API에서 전달받은 결제 키
-    private String payMethod;   //결제 수단(카드, 계좌 등)
+    private PayMethod payMethod;   //결제 수단(카카오페이, 토스페이)
     private int payAmount;      //총 결제 금액
     private PayStatus payStatus;    //결제 처리 상태
     private LocalDateTime paidAt;   //결제 완료 시간
 
-    private Boolean test_mode;      //테스트 환경 여부
 }

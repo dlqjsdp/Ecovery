@@ -1,5 +1,6 @@
 package com.ecovery.mapper;
 
+import com.ecovery.constant.OrderStatus;
 import com.ecovery.domain.OrderVO;
 import com.ecovery.dto.OrderHistoryDto;
 import org.apache.ibatis.annotations.Mapper;
@@ -14,6 +15,8 @@ import java.util.List;
  * @since : 250722
  * @history
  *  - 250723 | sehui | 주문 저장 기능 추가
+ *  - 250725 | sehui | 주문 id 조회 기능 추가
+ *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
  */
 
 @Mapper
@@ -24,5 +27,11 @@ public interface OrderMapper {
 
     //주문 저장
     public int insertOrder(OrderVO orderVO);
+
+    //주문 고유 id로 주문 id 조회
+    public Long findOrderIdByOrderUuid(String orderUuid);
+
+    //주문 상태 변경
+    public int updateOrderStatus(Long orderId, OrderStatus orderStatus);
 
 }

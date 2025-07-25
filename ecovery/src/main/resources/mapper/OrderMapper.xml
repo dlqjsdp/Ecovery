@@ -12,6 +12,8 @@
 * @history
      - 250723 | sehui | 주문 저장 기능 추가
      - 250724 | sehui | OrderVO에 주문 고유번호 order_uuid 컬럼 추가
+     - 250725 | sehui | 주문 id 조회 기능 추가
+     - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.OrderMapper">
@@ -98,11 +100,27 @@
         where o.member_id = #{memberId}
         order by o.created_at desc
 
-  </select>
+    </select>
   
-  <!-- 주문 저장 -->
-  <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
+    <!-- 주문 저장 -->
+    <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
       insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number)
       values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber})
-  </insert>
+    </insert>
+
+    <!-- 주문 id 조회 -->
+    <select id="findOrderIdByOrderUuid" resultType="Long">
+        select order_id
+        from orders
+        where order_uuid = #{orderUuid}
+    </select>
+
+    <!-- 주문 상태 변경 -->
+    <update id="updateOrderStatus" parameterType="map">
+        update orders
+        set order_status = #{orderStatus},
+            updated_at = NOW()
+        where order_id = #{orderId}
+    </update>
+
 </mapper>
