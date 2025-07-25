@@ -30,10 +30,22 @@ public class FreeReplyServiceImpl implements FreeReplyService {
 
     private final FreeReplyMapper freeReplyMapper;
 
-    // 댓글 등록
+    // 댓글 등록 (회원 또는 관리자만 가능)
     @Override
-    public void register(FreeReplyVO freeReply) {
+    public void register(FreeReplyVO freeReply, Long loginMemberId, String role) {
         log.info("댓글 등록 요청: {}", freeReply);
+
+        // 권한 체크 - 로그인한 사용자가 USER 또는 ADMIN이 아니면 예외발생
+        if (!role.equals("USER") && !role.equals("ADMIN")) {
+            throw new SecurityException("회원 또는 관리자만 댓글을 등록할 수 있습니다.");
+        }
+
+        // 요청으로 전달된 댓글 작성자 ID와 로그인한 사용자 ID가 다르면 예외
+        if (!loginMemberId.equals(freeReply.getMemberId())) {
+            throw new SecurityException("본인의 계정으로만 댓글을 등록할 수 있습니다.");
+        }
+
+        // 위 조건 통과 시 DB에 댓글 등록
         freeReplyMapper.insert(freeReply);
     }
 
@@ -44,17 +56,47 @@ public class FreeReplyServiceImpl implements FreeReplyService {
         return freeReplyMapper.read(replyId);
     }
 
-    // 댓글 수정
+    // 댓글 수정 (작성자 본인만 가능)
     @Override
-    public boolean modify(FreeReplyVO freeReply) {
+    public boolean modify(FreeReplyVO freeReply, Long loginMemberId) {
         log.info("댓글 수정 요청: {}", freeReply);
+
+        // 수정 대상 댓글을 DB에서 조회
+        FreeReplyDto original = freeReplyMapper.read(freeReply.getReplyId());
+
+        // 예외처리 - 해당 댓글이 존재하지 않을 경우
+        if (original == null) {
+            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+        }
+
+        // 로그인한 사용자와 댓글 작성자가 다르면 수정 불가
+        if (!loginMemberId.equals(original.getMemberId())) {
+            throw new SecurityException("본인만 댓글을 수정할 수 있습니다.");
+        }
+
+        // 조건을 통과했을 경우 댓글 수정 실행
         return freeReplyMapper.update(freeReply) == 1;
     }
 
-    // 댓글 삭제
+    // 댓글 삭제 (작성자 본인 또는 관리자만 가능)
     @Override
-    public boolean remove(Long replyId) {
+    public boolean remove(Long replyId, Long loginMemberId, String role) {
         log.info("댓글 삭제 요청: {}", replyId);
+
+        // 삭제할 댓글 정보를 DB에서 조회
+        FreeReplyDto reply = freeReplyMapper.read(replyId);
+
+        // 예외 처리 - 댓글이 존재하지 않는 경우
+        if (reply == null) {
+            throw new IllegalArgumentException("댓글이 존재하지 않습니다.");
+        }
+
+        // 작성자가 아니고 관리자도 아니면 삭제 권한 없음
+        if (!loginMemberId.equals(reply.getMemberId()) && !role.equals("ADMIN")) {
+            throw new SecurityException("작성자 또는 관리자만 삭제할 수 있습니다.");
+        }
+
+        // 조건 통과 시 댓글 삭제 실행
         return freeReplyMapper.delete(replyId) == 1;
     }
 
