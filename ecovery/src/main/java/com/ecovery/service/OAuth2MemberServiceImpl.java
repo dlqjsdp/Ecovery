@@ -25,8 +25,10 @@ import java.util.Map;
  * @fileName : OAuth2MemberServiceImpl
  * @since : 250724
  * @history
- *     - 250724 | yukyeong | 소셜 로그인 사용자 정보 처리 로직 최초 작성
- *     - 250724 | yukyeong | CustomUserDetails에 attributes 주입 방식으로 수정
+       - 250724 | yukyeong | 소셜 로그인 사용자 정보 처리 로직 최초 작성
+       - 250724 | yukyeong | CustomUserDetails에 attributes 주입 방식으로 수정
+       - 250725 | yukyeong | 카카오 소셜 로그인 시 nickname 값이 누락될 가능성에 대비해 로직 추가
+       - 250725 | yukyeong | 구글 소셜 로그인 로직 추가 및 nickname 누락 시 기본값 처리
  */
 
 @Service
@@ -49,7 +51,7 @@ public class OAuth2MemberServiceImpl extends DefaultOAuth2UserService
         // 받은 사용자 정보 전체 (JSON 구조)
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        // 소셜 제공자 별로 사용자 정보 파싱 (일단은 카카오 전용)
+        // 소셜 제공자별 공통 사용자 정보 (providerId, email, nickname) 추출
         String providerId;
         String email = null;
         String nickname = null;
@@ -57,13 +59,28 @@ public class OAuth2MemberServiceImpl extends DefaultOAuth2UserService
         if("kakao".equals(provider)){
             // 카카오 응답에서 세부 정보 추출
             Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-            Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
+            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
             providerId = String.valueOf(attributes.get("id")); // 카카오 고유 사용자 ID
             email = (String) kakaoAccount.get("email"); // 사용자 이메일
-            nickname = (String) kakaoAccount.get("nickname"); // 사용자 닉네임
+
+            // nickname 설정 (null 방지)
+            if (profile != null && profile.get("nickname") != null) {
+                nickname = (String) profile.get("nickname");
+            } else {
+                nickname = "카카오사용자_" + providerId;
+            }
+        } else if ("google".equals(provider)) {
+            // 구글은 attributes에서 직접 값 추출
+            providerId = (String) attributes.get("sub"); // 고유 ID
+            email = (String) attributes.get("email"); // 이메일
+            nickname = (String) attributes.get("name"); // 이름 → 닉네임 대체
+
+            if (nickname == null) {
+                nickname = "구글사용자_" + providerId;
+            }
+
         } else {
-            // 카카오 외에 다른 로그인 방식이 들어온다면 예외처리
             throw new IllegalArgumentException("지원하지 않는 소셜 로그인: " + provider);
         }
 

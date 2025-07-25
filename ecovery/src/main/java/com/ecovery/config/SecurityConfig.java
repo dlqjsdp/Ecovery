@@ -1,6 +1,7 @@
 package com.ecovery.config;
 
 import com.ecovery.security.CustomUserDetailsService;
+import com.ecovery.service.OAuth2MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
      - 2507?? | 방희경 | SecurityConfig 클래스 최초 작성
      - 250716 | yukyeong | 환경톡톡 게시판 누구나 접근 가능하게 변경
      - 250723 | yukyeong | 공지사항 게시판 누구나 접근 가능하게 변경
+     - 250725 | yukyeong | OAuth2 소셜 로그인 설정 추가 (카카오 로그인 연동)
  */
 @Configuration
 @EnableWebSecurity
@@ -27,6 +29,10 @@ public class SecurityConfig {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private OAuth2MemberService oAuth2MemberService; // 소셜 로그인 사용자 처리 서비스
+
 
     //보안 정책 정의
     @Bean
@@ -69,6 +75,15 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/") //로그아웃 성공 시
                         .invalidateHttpSession(true) //세션 초기화
                         .deleteCookies("JSESSIONID") //쿠키 삭제
+                )
+
+                // 소셜 로그인 기능을 활성화
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/member/login") // 소셜 로그인 시 보여줄 로그인 페이지 지정
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2MemberService) // 사용자 정보 처리용 커스텀 서비스 연결
+                        )
+                        .defaultSuccessUrl("/main", true) // 로그인 성공 후 이동할 경로 지정
                 );
 
         return http.build();

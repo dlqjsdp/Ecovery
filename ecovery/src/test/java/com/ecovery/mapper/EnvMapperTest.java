@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
      - 250711 | yukyeong | 게시글 전체 목록 조회, 단건 조회 테스트 작성
      - 250714 | yukyeong | 게시글 등록, 삭제, 수정 테스트 작성
      - 250716 | yukyeong | 게시글 페이징 + 검색 목록 조회, 전체 게시글 개수 조회, 조회수 증가 테스트 작성
+     - 250725 | yukyeong | 카테고리 필드 추가에 따른 등록, 수정, 단건 조회(category 포함) 테스트 작성
  */
 
 @SpringBootTest
@@ -57,6 +58,31 @@ class EnvMapperTest {
     }
 
     @Test
+    @DisplayName("게시글 단건 조회 - category 포함 확인")
+    @Transactional
+    public void testReadWithCategory() {
+        // Given: 테스트용 게시글 등록
+        EnvVO vo = new EnvVO();
+        vo.setMemberId(1L);
+        vo.setTitle("조회 테스트 제목");
+        vo.setContent("조회 테스트 내용");
+        vo.setCategory("policy"); // 카테고리 지정
+
+        envMapper.insert(vo);
+        Long insertedId = vo.getEnvId();
+        assertNotNull(insertedId, "등록된 ID는 null이면 안 됩니다.");
+
+        // When: 단건 조회
+        EnvVO readVo = envMapper.read(insertedId);
+
+        // Then: category도 함께 조회되었는지 확인
+        assertNotNull(readVo);
+        assertEquals("policy", readVo.getCategory()); // ✅ category 확인
+        log.info("단건 조회 결과: {}", readVo);
+    }
+
+
+    @Test
     @DisplayName("게시글 등록 테스트")
     @Transactional
     public void testInsert() {
@@ -66,6 +92,7 @@ class EnvMapperTest {
         vo.setMemberId(1L);
         vo.setTitle("게시글 등록 테스트 제목입니다.");
         vo.setContent("게시글 등록 테스트 내용입니다.");
+        vo.setCategory("news"); // 카테고리 추가
 
         // When (실행)
         envMapper.insert(vo); // insert() 호출로 DB에 게시글 저장
@@ -81,6 +108,7 @@ class EnvMapperTest {
         // 3) DB에 저장된 데이터가 내가 입력한 값과 같은지 검증 (예상값과 실제값 비교)
         assertEquals("게시글 등록 테스트 제목입니다.", inserted.getTitle());
         assertEquals("게시글 등록 테스트 내용입니다.", inserted.getContent());
+        assertEquals("news", inserted.getCategory()); // category 검증
 
         log.info("삽입된 게시글: {}", inserted);
     }
@@ -127,6 +155,7 @@ class EnvMapperTest {
         vo.setMemberId(1L);
         vo.setTitle("수정 테스트 제목1");
         vo.setContent("수정 테스트 내용1");
+        vo.setCategory("tips"); // 초기 카테고리
 
         // 2) 게시글 등록
         envMapper.insert(vo);
@@ -136,6 +165,7 @@ class EnvMapperTest {
         // When (실행): 게시글 제목과 내용 수정
         vo.setTitle("수정된 제목");
         vo.setContent("수정된 내용");
+        vo.setCategory("issue"); // 카테고리도 수정
 
         int updatedCount = envMapper.update(vo);
 
@@ -148,6 +178,7 @@ class EnvMapperTest {
         assertNotNull(updated, "수정 후 결과가 null이면 안됩니다.");
         assertEquals("수정된 제목", updated.getTitle());
         assertEquals("수정된 내용", updated.getContent());
+        assertEquals("issue", updated.getCategory());
 
         log.info("수정된 게시글: {}", updated);
     }

@@ -37,13 +37,14 @@ class FreeMapperTest {
 
         // Given (준비)
         FreeVO vo = FreeVO.builder()
-                .title("수요일")
-                .memberId(2L)
+                .title("금요일2")
+                .memberId(1L)
                 .category("기타")
                 .regionGu("송파구")
                 .regionDong("방이동")
-                .content("수요일 폐기물")
+                .content("금요일2 폐기물")
                 .itemCondition(ItemCondition.MEDIUM)
+                .dealStatus(DealStatus.ONGOING)
                 .build();
 
         // When (실행)
@@ -58,8 +59,8 @@ class FreeMapperTest {
         assertNotNull(inserted, "insert 이후에는 null값이면 안됩니다.");
 
         // 3) DB에 저장된 데이터가 내가 입력한 값이랑 같은지 검증 (예상괎과 실제값 비교)
-        assertEquals("수요일", inserted.getTitle());
-        assertEquals("수요일 폐기물", inserted.getContent());
+        assertEquals("금요일2", inserted.getTitle());
+        assertEquals("금요일2 폐기물", inserted.getContent());
 
 
         log.info("삽입된 게시글 : {}", inserted);
@@ -72,7 +73,7 @@ class FreeMapperTest {
         // Given : 페이징 및 검색 조건 설정
         Criteria cri = new Criteria();
         cri.setPageNum(1); // 1페이지
-        cri.setAmount(8);  // 페이지당 10개
+        cri.setAmount(8);  // 페이지당 8개
 
         // 전체 게시글 수 가져오기
         int total = freeMapper.getTotalCount(cri);
