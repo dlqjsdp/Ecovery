@@ -1,6 +1,7 @@
 package com.ecovery.mapper;
 
 import com.ecovery.domain.DisposalFeedbackVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalFeedbackDto;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -26,7 +27,10 @@ public interface DisposalFeedbackMapper {
     public DisposalFeedbackDto selectDetailByDisposalHistoryId(Long disposalHistoryId);
 
     //관리자용 전체 신고 내역 조회
-    public List<DisposalFeedbackDto> findAllFeedbackWithImg();
+    public List<DisposalFeedbackDto> findAllFeedbackWithImg(Criteria cri);
+
+    //페이지당 게시물 개수
+    public int getTotalCount(Criteria cri);
 
     //회원용 신고 내역 조회
     public List<DisposalFeedbackDto> findMyFeedbackWithImg(Long memberId);

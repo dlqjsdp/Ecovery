@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.DisposalFeedbackVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalFeedbackDto;
 import com.ecovery.mapper.DisposalFeedbackMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +28,18 @@ public class DisposalFeedbackServiceImpl implements DisposalFeedbackService {
     }
 
     @Override
-    public DisposalFeedbackDto getFeedbackDetail(Long disposalHistoryId) {
-        return disposalFeedbackMapper.selectDetailByDisposalHistoryId(disposalHistoryId);
+    public List<DisposalFeedbackDto> getAllFeedback(Criteria cri) {
+        return disposalFeedbackMapper.findAllFeedbackWithImg(cri);
     }
 
     @Override
-    public List<DisposalFeedbackDto> getAllFeedback() {
-        return disposalFeedbackMapper.findAllFeedbackWithImg();
+    public int getTotalCount(Criteria cri) {
+        return disposalFeedbackMapper.getTotalCount(cri);
+    }
+
+    @Override
+    public DisposalFeedbackDto getFeedbackDetail(Long disposalHistoryId) {
+        return disposalFeedbackMapper.selectDetailByDisposalHistoryId(disposalHistoryId);
     }
 
     @Override

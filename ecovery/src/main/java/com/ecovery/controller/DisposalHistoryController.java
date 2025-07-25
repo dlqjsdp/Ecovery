@@ -1,6 +1,9 @@
 package com.ecovery.controller;
 
+import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalHistoryDto;
+import com.ecovery.dto.PageDto;
 import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.DisposalHistoryService;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,9 +53,22 @@ public class DisposalHistoryController {
     }
 
     @GetMapping("/history")
-    public String disposalHistoryList(Model model) {
-        List<DisposalHistoryDto> adminDisposalHistory = disposalHistoryService.getAllHistory();
+    public String disposalHistoryList(/*@SessionAttribute("nickname") MemberVO admin, */Criteria cri, Model model) {
+        List<DisposalHistoryDto> adminDisposalHistory = disposalHistoryService.getAllHistory(cri);
         model.addAttribute("adminHistory", adminDisposalHistory);
+        double avgAiConfidence = adminDisposalHistory.stream()
+                .map(DisposalHistoryDto::getAiConfidence)       // Double 객체 스트림
+                .filter(java.util.Objects::nonNull)             // null 제거
+                .mapToDouble(Double::doubleValue)               // double로 변환
+                .average()
+                .orElse(0);
+        model.addAttribute("avgAiConfidence", avgAiConfidence);
+        int total = disposalHistoryService.getTotal(cri);
+        model.addAttribute("disposalHistoryPage", new PageDto(cri, total));
+
+        log.info(adminDisposalHistory.toString());
+
+        //model.addAttribute("admin", admin); // 뷰에 전달
         return "/disposal/disposalHistory";
     }
 

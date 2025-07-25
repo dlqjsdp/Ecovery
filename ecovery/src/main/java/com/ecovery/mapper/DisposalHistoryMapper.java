@@ -2,6 +2,7 @@ package com.ecovery.mapper;
 
 import com.ecovery.domain.DisposalHistoryVO;
 import com.ecovery.domain.MemberVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalHistoryDto;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -22,7 +23,10 @@ public interface DisposalHistoryMapper {
     public DisposalHistoryDto findByDisposalHistoryId(Long disposalHistoryId);
 
     //관리자 페이지에서 볼 수 있는 모든 disposalhistory+img 내역
-    public List<DisposalHistoryDto> findAllDisposalHistory();
+    public List<DisposalHistoryDto> findAllDisposalHistory(Criteria cri);
+
+    //페이지당 존재하는 게시물 개수
+    public int getTotalCount(Criteria cri);
 
     //마이페이지에서 볼 수 있는 해당 회원의 모든 disposalhistory+img 내역
     public List<DisposalHistoryDto> findDisposalHistoryWithImgByMemberId(Long memberId);

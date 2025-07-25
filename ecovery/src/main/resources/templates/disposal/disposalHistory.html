@@ -39,13 +39,13 @@
                 </ul>
 
                 <!-- 관리자 정보 -->
-<!--                <div class="auth-buttons">
+                <!--<div class="auth-buttons">
                     <div class="admin-info">
-                        <span th:text="'관리자 ' + ${session.admin.name} + '님'">관리자님</span>
+                        <span th:text="'관리자 ' + ${admin.nickname} + '님'">관리자님</span>
                         <a th:href="@{/admin/logout}" class="btn-logout">로그아웃</a>
                     </div>
-                </div>
--->
+                </div>-->
+
                 <!-- 모바일 햄버거 메뉴 -->
                 <div class="hamburger" id="hamburger">
                     <span></span>
@@ -80,31 +80,31 @@
                     <div class="stat-card">
                         <div class="stat-icon">📊</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${#numbers.formatInteger(totalCount, 3, 'COMMA')}">1,247</div>
+                            <div class="stat-number" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</div>
                             <div class="stat-label">총 처리 건수</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">🎯</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${accuracyRate} + '%'">94.2%</div>
+                            <div class="stat-number" th:text="${avgAiConfidence} + '%'">94.2%</div>
                             <div class="stat-label">AI 분류 정확도</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">⚡</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${#numbers.formatInteger(todayCount, 3, 'COMMA')}">89</div>
+                            <div class="stat-number" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">89</div>
                             <div class="stat-label">오늘 처리량</div>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <!--<div class="stat-card">
                         <div class="stat-icon">👥</div>
                         <div class="stat-info">
                             <div class="stat-number" th:text="${#numbers.formatInteger(activeUsers, 3, 'COMMA')}">567</div>
                             <div class="stat-label">활성 사용자</div>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </section>
@@ -127,10 +127,31 @@
                         <div class="filter-group">
                             <label for="region-filter">지역</label>
                             <select id="region-filter" class="filter-select">
-                                <option value="">전체 지역</option>
-                                <option th:each="region : ${regions}"
-                                        th:value="${region}" 
-                                        th:text="${region}">지역명</option>
+                                <option value="강남구">강남구</option>
+                                <option value="강동구">강동구</option>
+                                <option value="강북구">강북구</option>
+                                <option value="강서구">강서구</option>
+                                <option value="관악구">관악구</option>
+                                <option value="광진구">광진구</option>
+                                <option value="구로구">구로구</option>
+                                <option value="금천구">금천구</option>
+                                <option value="노원구">노원구</option>
+                                <option value="도봉구">도봉구</option>
+                                <option value="동대문구">동대문구</option>
+                                <option value="동작구">동작구</option>
+                                <option value="마포구">마포구</option>
+                                <option value="서대문구">서대문구</option>
+                                <option value="서초구">서초구</option>
+                                <option value="성동구">성동구</option>
+                                <option value="성북구">성북구</option>
+                                <option value="송파구">송파구</option>
+                                <option value="양천구">양천구</option>
+                                <option value="영등포구">영등포구</option>
+                                <option value="용산구">용산구</option>
+                                <option value="은평구">은평구</option>
+                                <option value="종로구">종로구</option>
+                                <option value="중구">중구</option>
+                                <option value="중랑구">중랑구</option>
                             </select>
                         </div>
 
@@ -138,10 +159,17 @@
                         <div class="filter-group">
                             <label for="category-filter">분류</label>
                             <select id="category-filter" class="filter-select">
-                                <option value="">전체 분류</option>
-                                <option th:each="category : ${adminHistory}"
-                                        th:value="${category}" 
-                                        th:text="${category}">분류명</option>
+                                <option value="chair">chair</option>
+                                <option value="desk_cabinet">desk_cabinet</option>
+                                <option value="electronics">electronics</option>
+                                <option value="etc_misc">etc_misc</option>
+                                <option value="mirror_board">mirror_board</option>
+                                <option value="refrigerator">refrigerator</option>
+                                <option value="sink_stove">sink_stove</option>
+                                <option value="small_item">small_item</option>
+                                <option value="sofa_mat">sofa_mat</option>
+                                <option value="sport_toy">sport_toy</option>
+                                <option value="washmachine">washmachine</option>
                             </select>
                         </div>
 
@@ -185,9 +213,9 @@
                     <!-- 테이블 헤더 정보 -->
                     <div class="table-header">
                         <div class="table-info">
-                            <span class="total-count">총 <span id="total-items" th:text="${#numbers.formatInteger(filteredCount, 3, 'COMMA')}">1,247</span>건</span>
+                            <span class="total-count">총 <span id="total-items" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>건</span>
                             <span class="filter-count" th:if="${isFiltered}">
-                                (필터링된 결과: <span id="filtered-items" th:text="${#numbers.formatInteger(filteredCount, 3, 'COMMA')}">89</span>건)
+                                (필터링된 결과: <span id="filtered-items" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">89</span>건)
                             </span>
                         </div>
                         <div class="table-actions">
@@ -325,51 +353,33 @@
                 </div>
 
                 <!-- 페이지네이션 -->
-                <div class="pagination-container" th:if="${totalPages > 1}">
-                    <div class="pagination">
-                        <!-- 첫 페이지 -->
-                        <a th:href="@{/admin/waste-history(page=1, size=${pageSize})}" 
-                           class="page-btn" 
-                           th:classappend="${currentPage == 1 ? 'disabled' : ''}">
-                            첫 페이지
-                        </a>
-                        
-                        <!-- 이전 페이지 -->
-                        <a th:href="@{/admin/waste-history(page=${currentPage - 1}, size=${pageSize})}" 
-                           class="page-btn" 
-                           th:classappend="${currentPage == 1 ? 'disabled' : ''}">
-                            이전
-                        </a>
-                        
-                        <!-- 페이지 번호들 -->
-                        <div class="page-numbers">
-                            <a th:each="pageNum : ${#numbers.sequence(startPage, endPage)}"
-                               th:href="@{/admin/waste-history(page=${pageNum}, size=${pageSize})}"
-                               th:text="${pageNum}"
-                               class="page-number"
-                               th:classappend="${pageNum == currentPage ? 'active' : ''}">1</a>
-                        </div>
-                        
-                        <!-- 다음 페이지 -->
-                        <a th:href="@{/admin/waste-history(page=${currentPage + 1}, size=${pageSize})}" 
-                           class="page-btn"
-                           th:classappend="${currentPage == totalPages ? 'disabled' : ''}">
-                            다음
-                        </a>
-                        
-                        <!-- 마지막 페이지 -->
-                        <a th:href="@{/admin/waste-history(page=${totalPages}, size=${pageSize})}" 
-                           class="page-btn"
-                           th:classappend="${currentPage == totalPages ? 'disabled' : ''}">
-                            마지막
-                        </a>
-                    </div>
+                <div class="pagination-container">
+                    <div class="pagination" id="pagination">
+                        <!-- 이전 버튼 -->
+                        <a th:if="${disposalHistoryPage.isPrev()}"
+                           th:href="@{/disposal/history(type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount}, pageNum=${disposalHistoryPage.startPage - 1})}"
+                           class="page-btn">◀ 이전</a>
+                        <span th:unless="${disposalHistoryPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
 
+                        <!-- 페이지 번호들 -->
+                        <li th:each="num : ${#numbers.sequence(disposalHistoryPage.startPage, disposalHistoryPage.endPage)}"
+                            th:classappend="${disposalHistoryPage.cri.pageNum == num} ? 'active' : ''">
+                            <a class="page-link"
+                               th:href="@{/disposal/history(pageNum=${num}, type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount})}"
+                               th:text="${num}">1</a>
+                        </li>
+
+                        <!-- 다음 버튼 -->
+                        <a th:if="${disposalHistoryPage.isNext()}"
+                           th:href="@{/disposal/history(type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount}, pageNum=${disposalHistoryPage.endPage + 1})}"
+                           class="page-btn">다음 ▶</a>
+                        <span th:unless="${disposalHistoryPage.isNext()}" class="page-btn disabled">다음 ▶</span>
+                    </div>
                     <!-- 페이지 정보 -->
-                    <div class="page-info">
+                    <!--<div class="page-info">
                         <span>페이지 <span th:text="${currentPage}">1</span> / <span th:text="${totalPages}">10</span></span>
                         <span>총 <span th:text="${#numbers.formatInteger(totalElements, 3, 'COMMA')}">1,247</span>개 항목</span>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </section>
@@ -393,10 +403,10 @@
                     <div class="image-container">
                         <img id="modal-image" src="" alt="분리배출 사진" class="modal-image">
                     </div>
-                    <div class="image-info">
+<!--                    <div class="image-info">
                         <p id="image-filename" class="filename">파일명: image_001.jpg</p>
                         <p id="image-upload-date" class="upload-date">업로드: 2025-01-15 14:30</p>
-                    </div>
+                    </div>-->
                 </div>
 
                 <!-- 정보 섹션 -->
@@ -493,12 +503,11 @@
             </div>
         </div>
     </footer>
-
     <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
     <script th:src="@{/js/disposalHistory.js}"></script>
     
     <!-- 서버 데이터를 JavaScript로 전달 -->
-    <script th:inline="javascript">
+<script th:inline="javascript">
         // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
         var wasteHistoryData = /*[[${wasteHistoryItems}]]*/ [];
         var currentUser = /*[[${session.admin}]]*/ null;

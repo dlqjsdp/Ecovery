@@ -120,7 +120,7 @@
                             <span class="section-icon">♻️</span>
                             분리배출 관리
                         </h2>
-                        <button class="btn btn-primary" onclick="openModal('wasteModal')">바로가기</button>
+                        <a th:href="@{/disposal/history}" class="btn btn-primary">바로가기</a>
                     </div>
 
                     <!-- 분리배출 통계 -->
@@ -178,7 +178,7 @@
                             <span class="section-icon">🤝</span>
                             오류 내역
                         </h2>
-                        <button class="btn btn-primary" onclick="openModal('sharingModal')">바로가기</button>
+                        <a th:href="@{feedback/history}" class="btn btn-primary">바로가기</a>
                     </div>
 
                     <!-- 오류 통계 -->
@@ -242,7 +242,7 @@
                             <span class="section-icon">👥</span>
                             회원 관리
                         </h2>
-                        <a href="user-management.html" class="btn btn-primary">바로가기</a>
+                        <a th:href="@{/admin/member}" class="btn btn-primary">바로가기</a>
                     </div>
 
                     <!-- 회원 통계 -->
@@ -309,7 +309,7 @@
                             <span class="section-icon">💬</span>
                             환경톡톡
                         </h2>
-                        <a href="user-management.html" class="btn btn-primary">바로가기</a>
+                        <a th:href="@{env/list}" class="btn btn-primary">바로가기</a>
                     </div>
 
                     <!-- 환경톡톡 통계 -->
@@ -366,7 +366,7 @@
                             <span class="section-icon">📢</span>
                             공지사항
                         </h2>
-                        <a href="user-management.html" class="btn btn-primary">바로가기</a>
+                        <a th:href="@{notice/list}" class="btn btn-primary">바로가기</a>
                     </div>
 
                     <!-- 공지사항 통계 -->
