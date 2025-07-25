@@ -124,7 +124,7 @@ class FreeReplyMapperTest {
 
 
     @Test
-    @DisplayName("특정 게시글 댓글 수 조회 테스트 ")
+    @DisplayName("특정 게시글 댓글 수 조회 테스트")
     public void testGetTotalReplyCount() {
 
         // Given : 댓글 수를 조회할 게시글 ID

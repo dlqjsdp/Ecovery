@@ -18,17 +18,17 @@ import java.util.List;
 
 public interface FreeReplyService {
 
-    // 댓글 등록
-    public void register(FreeReplyVO freeReply);
+    // 댓글 등록 (회원 또는 관리자만 가능)
+    public void register(FreeReplyVO freeReply, Long loginMemberId, String role);
 
     // 댓글 단건 조회
     public FreeReplyDto get(Long replyId);
 
-    // 댓글 수정
-    public boolean modify(FreeReplyVO freeReply);
+    // 댓글 수정 (작성자 본인만 가능)
+    public boolean modify(FreeReplyVO freeReply, Long loginMemberId);
 
-    // 댓글 삭제
-    public boolean remove(Long replyId);
+    // 댓글 삭제 (작성자 본인 또는 관리자만 가능)
+    public boolean remove(Long replyId, Long loginMemberId, String role);
 
     // 게시글의 부모 댓글 목록 조회(페이징 + 정렬)
     List<FreeReplyDto> getParentReplies(Long freeId, Criteria criteria, String sortType);
