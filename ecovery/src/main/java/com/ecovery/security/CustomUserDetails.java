@@ -30,21 +30,21 @@ import java.util.Map;
 public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private final MemberVO memberVO;
-    private Map<String, Object> attributes; // 소셜 로그인(OAuth2) 사용자 정보
+    private Map<String, Object> attributes; // 소셜 로그인(OAuth2) 사용자 정보 (JSON)
 
 
-    // 소셜 로그인 시 attributes 설정 메서드 (생성자 없이 처리하기 위해 별도 메서드 사용)
+    // 소셜 로그인 시 attributes 설정 메서드 (생성자 없이 attributes 주입하기 위해 별도 메서드 사용)
     public void setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
     }
 
-    // OAuth2User 필수 메서드: 사용자 식별자 반환
+    // OAuth2User 필수 메서드: 사용자 식별자 반환 (OAuth2에서 사용자 ID로 사용할 값)
     @Override
     public String getName() {
         return String.valueOf(memberVO.getProviderId()); // 또는 memberVO.getEmail()
     }
 
-    // OAuth2User 필수 메서드: 사용자 속성 반환
+    // OAuth2User 필수 메서드: 사용자 속성 반환 (OAuth2 전체 속성 반환)
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;

@@ -18,12 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * 환경톡톡 게시글 Service 테스트
  * Service 계층의 CRUD 기능 단위 테스트 클래스
  * @author : yukyeong
- * @fileName : EnvServiceTest.java
+ * @fileName : EnvServiceTest
  * @since : 250715
  * @history
      - 250715 | yukyeong | 게시글 등록, 단건 조회, 수정, 삭제 테스트 작성
      - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 테스트 작성
      - 250718 | yukyeong | 테스트 전반적으로 EnvDto 기반으로 통일 및 로그 개선
+     - 250725 | yukyeong | 게시글 등록/수정 테스트에 category 필드 추가 및 검증
  */
 
 @SpringBootTest
@@ -43,6 +44,8 @@ class EnvServiceTest {
         envDto.setMemberId(1L);
         envDto.setTitle("서비스 등록 테스트 제목");
         envDto.setContent("서비스 등록 테스트 내용");
+        envDto.setCategory("news"); // 카테고리: 환경 뉴스
+
 
         // When - 게시글 등록 (DTO → VO 변환 후 insert 수행)
         envService.register(envDto);
@@ -58,6 +61,7 @@ class EnvServiceTest {
         // 3) 등록한 제목과 내용이 DB에서 정상적으로 조회되는지 확인
         assertEquals("서비스 등록 테스트 제목", inserted.getTitle());
         assertEquals("서비스 등록 테스트 내용", inserted.getContent());
+        assertEquals("news", inserted.getCategory()); // 카테고리 검증
 
         log.info("삽입된 게시글: {}", inserted);
 
@@ -91,6 +95,7 @@ class EnvServiceTest {
         envDto.setMemberId(1L); // 작성자 ID
         envDto.setTitle("수정 테스트 제목1"); // 초기 제목
         envDto.setContent("수정 테스트 내용1"); // 초기 내용
+        envDto.setCategory("tips"); // 초기 카테고리: 환경 팁
 
         envService.register(envDto); // 게시글 등록
         Long insertedId = envDto.getEnvId(); // 등록된 게시글의 ID 확인 (PK)
@@ -100,6 +105,8 @@ class EnvServiceTest {
         // 1) 제목과 내용을 수정
         envDto.setTitle("수정된 제목");
         envDto.setContent("수정된 내용");
+        envDto.setCategory("issue"); // 수정된 카테고리: 주간 이슈
+
         // 2) 수정 메서드 호출
         boolean result = envService.modify(envDto);
 
@@ -113,6 +120,7 @@ class EnvServiceTest {
         // 4) 제목과 내용이 수정되었는지 검증
         assertEquals("수정된 제목", updated.getTitle());
         assertEquals("수정된 내용", updated.getContent());
+        assertEquals("issue", updated.getCategory()); // 카테고리 검증
 
         log.info("수정된 게시글: {}", updated);
 

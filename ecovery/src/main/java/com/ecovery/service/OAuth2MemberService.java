@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 /*
@@ -13,9 +14,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
  * @since : 250724
  * @history
        - 250724 | yukyeong | OAuth2 소셜 로그인 사용자 서비스 인터페이스 최초 작성
+       - 250725 | yukyeong | Spring Security 연동 위해 OAuth2UserService 상속 추가
  */
 
-public interface OAuth2MemberService {
+public interface OAuth2MemberService extends OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     public OAuth2User loadUser(OAuth2UserRequest userRequest);
 }
