@@ -1,0 +1,25 @@
+{{>layouts/header}}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">TITLE</th>
+            <th scope="col">CONTENT</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{! HTML 안에서 변수를 출력하거나 반복/조건을 처리할 수 있도록 도와줌 }}
+        {{#articleList}}
+        <tr>
+            <th>{{id}}</th>
+            <td><a href="/articles/{{id}}">{{title}}</a></td>
+            <td>{{content}}</td>
+        </tr>
+        {{/articleList}}
+    </tbody>
+</table>
+
+<a href="/articles/new">New Article</a>
+
+{{>layouts/footer}}
