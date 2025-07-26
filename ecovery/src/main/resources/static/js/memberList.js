@@ -9,6 +9,26 @@
 // 전역 변수 및 상태 관리
 // ===================================
 
+
+/**
+ * 회원 데이터 가져오기
+ * @param {string} memberId - 회원 ID
+ * @returns {Object|null} 회원 데이터
+ */
+function getMemberData(memberId) {
+    // 서버 데이터에서 먼저 찾기
+    if (window.SERVER_DATA?.memberPage?.content) {
+        const member = window.SERVER_DATA.memberPage.content.find(m => m.memberId == memberId);
+        if (member) {
+            return member;
+        }
+    }
+
+    // 샘플 데이터에서 찾기 (개발/테스트용)
+    return sampleMemberData[memberId] || null;
+}
+
+
 let isEditMode = false; // 편집 모드 상태
 let originalData = {}; // 원본 데이터 백업용
 let currentMemberId = null; // 현재 선택된 회원 ID
@@ -460,7 +480,8 @@ function setupCSRFToken(token, header) {
  * @param {string} memberId - 회원 ID
  */
 function openMemberModal(memberId) {
-    console.log(`회원 모달 열기: ${memberId}`);
+    console.log(`회원 모달 열기: ${memberId}`)
+    console.log(typeof memberId)
     
     try {
         // 편집 모드 초기화
@@ -470,7 +491,8 @@ function openMemberModal(memberId) {
         // 회원 데이터 로드 (서버에서 받아오거나 샘플 데이터 사용)
         const memberData = getMemberData(memberId);
         if (!memberData) {
-            showNotification('회원 정보를 찾을 수 없습니다.', 'error');
+            showNotification('회원 정보를 찾을 수 없습니다.왜안돼493', 'error');
+
             return;
         }
         
@@ -857,24 +879,6 @@ function updateTableRoleBadge(memberId, newRole) {
 // ===================================
 
 /**
- * 회원 데이터 가져오기
- * @param {string} memberId - 회원 ID
- * @returns {Object|null} 회원 데이터
- */
-function getMemberData(memberId) {
-    // 서버 데이터에서 먼저 찾기
-    if (window.SERVER_DATA?.memberPage?.content) {
-        const member = window.SERVER_DATA.memberPage.content.find(m => m.memberId === memberId);
-        if (member) {
-            return member;
-        }
-    }
-    
-    // 샘플 데이터에서 찾기 (개발/테스트용)
-    return sampleMemberData[memberId] || null;
-}
-
-/**
  * 회원 데이터를 모달에 표시
  * @param {Object} memberData - 회원 데이터
  */
@@ -933,7 +937,6 @@ function updateProfileSection(memberData) {
     }
     
     // 상태 배지
-    const memberStatus = document.getElementById('memberStatus');
     if (memberStatus) {
         const statusInfo = STATUS_MAPPING[memberData.status];
         memberStatus.textContent = statusInfo ? statusInfo.displayName : memberData.status;

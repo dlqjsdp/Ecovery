@@ -29,7 +29,7 @@
                 
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
-                    <li><a th:href="@{/admin/adminMain}">대시보드</a></li>
+                    <li><a th:href="@{/admin/main}">대시보드</a></li>
                     <li><a th:href="@{/admin/members}" class="active">회원 관리</a></li>
                     <li><a th:href="@{/admin/services}">서비스 관리</a></li>
                     <li><a th:href="@{/admin/statistics}">통계 관리</a></li>
@@ -300,10 +300,6 @@
                                 </button>
                             </div>
                             <p id="memberEmail">anyoung@example.com</p>
-                            <div class="member-badges">
-                                <span class="status-badge active" id="memberStatus">활성</span>
-                                <span class="type-badge" id="memberType">개인</span>
-                            </div>
                         </div>
                         <!-- 회원 액션 버튼들 -->
                         <div class="member-actions">
