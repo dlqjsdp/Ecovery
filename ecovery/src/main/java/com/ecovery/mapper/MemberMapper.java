@@ -28,9 +28,15 @@ public interface MemberMapper {
 
     /**
      * 회원 정보 수정
-     * - 닉네임, 비밀번호 등 변경
+     * - 닉네임, 비밀번호 변경
      */
-    public void updateMember(MemberVO member);
+    public int updateMember(MemberVO member);
+
+    /**
+     * 회원 정보 수정
+     * - 관리자의 회원 권한 변경
+     */
+    public int updateMemberByAdmin(MemberVO member);
 
     /**
      * 회원 번호(PK)로 회원 조회

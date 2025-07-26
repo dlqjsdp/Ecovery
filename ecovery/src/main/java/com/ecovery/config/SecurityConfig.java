@@ -16,11 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * 로그인, 회원가입, 비밀번호 암호화 등을 처리하기 위한 시큐리티 클래스 파일
  * 작성자 : 방희경
-* @history
-     - 2507?? | 방희경 | SecurityConfig 클래스 최초 작성
-     - 250716 | yukyeong | 환경톡톡 게시판 누구나 접근 가능하게 변경
-     - 250723 | yukyeong | 공지사항 게시판 누구나 접근 가능하게 변경
-     - 250725 | yukyeong | OAuth2 소셜 로그인 설정 추가 (카카오 로그인 연동)
+ * @history
+- 2507?? | 방희경 | SecurityConfig 클래스 최초 작성
+- 250716 | yukyeong | 환경톡톡 게시판 누구나 접근 가능하게 변경
+- 250723 | yukyeong | 공지사항 게시판 누구나 접근 가능하게 변경
+- 250725 | yukyeong | OAuth2 소셜 로그인 설정 추가 (카카오 로그인 연동)
  */
 @Configuration
 @EnableWebSecurity
@@ -54,7 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/order/**").permitAll()   //주문 Test용으로 모두 허용 (추후에 .authenticated()로 변경)
                         .requestMatchers("/ecovery/**").permitAll()
                         .requestMatchers("/free/register").hasAnyRole("USER", "ADMIN") // 무료나눔 등록 - USER 또는 ADMIN만 가능
-                        .requestMatchers("/free/modify/**", "/free/delete/**").hasAnyRole("USER", "ADMIN") // 무료나눔 수정, 삭제 - USER 또는 ADMIN만 가능 
+                        .requestMatchers("/free/modify/**", "/free/delete/**").hasAnyRole("USER", "ADMIN") // 무료나눔 수정, 삭제 - USER 또는 ADMIN만 가능
                         .requestMatchers("/free/**").permitAll() // 무료나눔 목록, 상세 누구나 접근 가능
                         .requestMatchers("/admin/**").hasRole("ADMIN") //관리자 페이지는 관리자만 접근 가능
                         .requestMatchers("/mypage/**").authenticated() //로그인한 사용자만 마이페이지 접근 가능

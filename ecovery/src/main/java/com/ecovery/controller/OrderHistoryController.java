@@ -30,10 +30,10 @@ public class OrderHistoryController {
     private final OrderHistoryService orderHistoryService;
 
     // 구매이력 조회
-    @GetMapping
+    @GetMapping(value = "/list")
     public String orderHistory(Model model, HttpSession session) {
         Long memberId = (Long) session.getAttribute("memberId");
-        
+
         if (memberId == null) {
             return "redirect:/member/login"; //비로그인 상태면 로그인 페이지 이동
         }
@@ -41,6 +41,6 @@ public class OrderHistoryController {
         List<OrderHistoryDto> orderList = orderHistoryService.getOrderHistory(memberId);
         model.addAttribute("orderList", orderList);
 
-        return "mypage/orderHistory";
+        return "order/order-detail";
     }
 }

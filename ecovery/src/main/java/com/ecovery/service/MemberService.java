@@ -19,7 +19,10 @@ public interface MemberService {
     public void registerMember(MemberVO memberVO);
 
     //회원 정보 수정
-    public void updateMember(MemberVO memberVO);
+    public boolean updateMember(MemberVO memberVO);
+
+    //관리자 회원 권한 수정
+    public boolean updateMemberByAdmin(MemberVO memberVO);
 
     //회원 번호(PK)로 회원 조회
     public MemberVO getMemberById(Long memberId);

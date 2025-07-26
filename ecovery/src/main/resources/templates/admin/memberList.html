@@ -22,8 +22,10 @@
             <div class="admin-nav-container">
                 <!-- 관리자 로고 -->
                 <div class="admin-logo">
-                    <span class="logo-icon">🌱</span>
-                    <span class="logo-text">GreenCycle</span>
+                    <a th:href="@{/main}" class="logo" onclick="goHome()">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">Ecovery</span>
+                    </a>
                     <span class="admin-badge">ADMIN</span>
                 </div>
                 
@@ -131,8 +133,8 @@
                         <!-- 권한 등급 필터 -->
                         <select id="roleFilter" name="role" th:field="${memberPage.cri.type}">
                             <option value="">권한 등급</option>
-                            <option value="SEEDLING">새싹</option>
-                            <option value="REGULAR">일반회원</option>
+                            <option value="USER">새싹</option>
+                            <option value="ADMIN">일반회원</option>
                             <option value="EXCELLENT">우수회원</option>
                             <option value="VIP">VIP회원</option>
                         </select>
@@ -332,7 +334,7 @@
                                     <label>닉네임</label>
                                     <span id="detailNickname">환경지킴이</span>
                                 </div>
-                                <div class="info-item">
+                                <!--<div class="info-item">
                                     <label>생년월일</label>
                                     <span id="detailBirthdate">1995년</span>
                                 </div>
@@ -343,15 +345,15 @@
                                 <div class="info-item">
                                     <label>주소</label>
                                     <span id="detailAddress">서울</span>
-                                </div>
+                                </div>-->
                                 <div class="info-item">
                                     <label>가입일</label>
                                     <span id="detailJoinDate">2024-01-15</span>
                                 </div>
-                                <div class="info-item">
+                                <!--<div class="info-item">
                                     <label>최근 방문</label>
                                     <span id="detailLastVisit">2024-07-25 14:30</span>
-                                </div>
+                                </div>-->
                             </div>
 
                             <!-- 편집 모드 -->
@@ -364,11 +366,11 @@
                                     <label>닉네임 *</label>
                                     <input type="text" id="editNickname" class="form-input" placeholder="닉네임을 입력하세요">
                                 </div>
-                                <div class="info-item">
+                                <!--<div class="info-item">
                                     <label>생년월일</label>
                                     <select id="editBirthdate" class="form-select">
                                         <option value="">선택</option>
-                                        <!-- 년도 옵션은 JavaScript에서 동적 생성 -->
+                                        &lt;!&ndash; 년도 옵션은 JavaScript에서 동적 생성 &ndash;&gt;
                                     </select>
                                 </div>
                                 <div class="info-item">
@@ -392,15 +394,15 @@
                                         <option value="daejeon">대전</option>
                                         <option value="ulsan">울산</option>
                                     </select>
-                                </div>
+                                </div>-->
                                 <div class="info-item">
                                     <label>가입일</label>
                                     <input type="text" id="editJoinDate" class="form-input" readonly>
                                 </div>
-                                <div class="info-item">
+                                <!--<div class="info-item">
                                     <label>최근 방문</label>
                                     <input type="text" id="editLastVisit" class="form-input" readonly>
-                                </div>
+                                </div>-->
                             </div>
 
                             <!-- 편집 모드 시 표시되는 위험 구역 -->
@@ -553,11 +555,11 @@
                         <h3>새로운 권한 등급 선택</h3>
                         <div class="role-options">
                             <!-- 새싹 등급 -->
-                            <div class="role-option" data-role="SEEDLING">
+                            <div class="role-option" data-role="USER">
                                 <div class="role-card">
                                     <div class="role-icon">🌱</div>
                                     <div class="role-info">
-                                        <h4>새싹</h4>
+                                        <h4>USER</h4>
                                         <p>신규 가입 회원</p>
                                         <ul class="role-benefits">
                                             <li>기본 서비스 이용</li>
@@ -569,11 +571,11 @@
                             </div>
 
                             <!-- 일반회원 등급 -->
-                            <div class="role-option" data-role="REGULAR">
+                            <div class="role-option" data-role="ADMIN">
                                 <div class="role-card">
                                     <div class="role-icon">🌿</div>
                                     <div class="role-info">
-                                        <h4>일반회원</h4>
+                                        <h4>ADMIN</h4>
                                         <p>활동이 활발한 회원</p>
                                         <ul class="role-benefits">
                                             <li>모든 서비스 이용</li>
@@ -663,7 +665,9 @@
                     keyword: /*[[${memberPage.cri.keyword}]]*/ null
                 }
             },
-            currentAdmin: /*[[${session.admin}]]*/ {}
+            // 현재 로그인한 관리자 정보
+            currentAdmin: /*[[${session.admin}]]*/ {},
+            // CSRF 토큰 (보안을 위해)
         };
         /*]]>*/
     </script>
