@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +82,20 @@ public class AdminController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(member);
+    }
+
+    @PostMapping("/role/update/{memberId}")
+    @ResponseBody
+    public ResponseEntity<MemberVO> updateMemberRole(@PathVariable("memberId") Long memberId,@RequestBody MemberVO memberVO, @ModelAttribute("cri") Criteria cri) {
+        // memberId를 MemberVO에 직접 설정
+        memberVO.setMemberId(memberId);
+
+        log.info("memberVO: {}", memberVO);
+        log.info("role: {}", memberVO.getRole());
+
+        memberService.updateMemberByAdmin(memberVO);
+
+        return ResponseEntity.ok(memberVO);
     }
 
 

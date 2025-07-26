@@ -9,26 +9,6 @@
 // 전역 변수 및 상태 관리
 // ===================================
 
-
-/**
- * 회원 데이터 가져오기
- * @param {string} memberId - 회원 ID
- * @returns {Object|null} 회원 데이터
- */
-function getMemberData(memberId) {
-    // 서버 데이터에서 먼저 찾기
-    if (window.SERVER_DATA?.memberPage?.content) {
-        const member = window.SERVER_DATA.memberPage.content.find(m => m.memberId == memberId);
-        if (member) {
-            return member;
-        }
-    }
-
-    // 샘플 데이터에서 찾기 (개발/테스트용)
-    return sampleMemberData[memberId] || null;
-}
-
-
 let isEditMode = false; // 편집 모드 상태
 let originalData = {}; // 원본 데이터 백업용
 let currentMemberId = null; // 현재 선택된 회원 ID
@@ -139,20 +119,20 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initializeAdminSystem() {
     console.log('관리자 시스템 초기화 시작');
-    
+
     try {
         // 체크박스 전체 선택 기능 초기화
         initializeSelectAll();
-        
+
         // 검색 및 필터 기능 초기화
         initializeSearchAndFilters();
-        
+
         // 페이지 크기 변경 기능 초기화
         initializePageSizeControl();
-        
+
         // 테이블 정렬 기능 초기화
         initializeTableSorting();
-        
+
         console.log('✅ 관리자 시스템 초기화 완료');
     } catch (error) {
         console.error('❌ 시스템 초기화 중 오류:', error);
@@ -165,20 +145,20 @@ function initializeAdminSystem() {
  */
 function setupEventListeners() {
     console.log('이벤트 리스너 설정 시작');
-    
+
     try {
         // 모달 관련 이벤트
         setupModalEvents();
-        
+
         // 키보드 단축키 이벤트
         setupKeyboardShortcuts();
-        
+
         // 권한 수정 관련 이벤트
         setupRoleEditEvents();
-        
+
         // 페이지 이탈 시 경고 (편집 모드일 때)
         setupPageUnloadWarning();
-        
+
         console.log('✅ 이벤트 리스너 설정 완료');
     } catch (error) {
         console.error('❌ 이벤트 리스너 설정 중 오류:', error);
@@ -194,7 +174,7 @@ function setupModalEvents() {
     if (memberModalClose) {
         memberModalClose.addEventListener('click', closeModal);
     }
-    
+
     // 회원 상세 모달 외부 클릭으로 닫기
     const memberModal = document.getElementById('memberModal');
     if (memberModal) {
@@ -204,7 +184,7 @@ function setupModalEvents() {
             }
         });
     }
-    
+
     // 탭 버튼 이벤트
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach(button => {
@@ -236,7 +216,7 @@ function setupKeyboardShortcuts() {
                 closeModal();
             }
         }
-        
+
         // Ctrl + F: 검색 창에 포커스
         if (e.ctrlKey && e.key === 'f') {
             e.preventDefault();
@@ -246,7 +226,7 @@ function setupKeyboardShortcuts() {
                 showNotification('검색 창에 포커스되었습니다.', 'info');
             }
         }
-        
+
         // Ctrl + N: 신규 회원 등록 (추후 구현 예정)
         if (e.ctrlKey && e.key === 'n') {
             e.preventDefault();
@@ -287,9 +267,9 @@ function setupPageUnloadWarning() {
 function initializeSelectAll() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const memberCheckboxes = document.querySelectorAll('.member-checkbox');
-    
+
     if (!selectAllCheckbox) return;
-    
+
     // 전체 선택/해제
     selectAllCheckbox.addEventListener('change', function() {
         memberCheckboxes.forEach(checkbox => {
@@ -297,7 +277,7 @@ function initializeSelectAll() {
         });
         updateSelectedCount();
     });
-    
+
     // 개별 체크박스 변경 시 전체 선택 상태 업데이트
     memberCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
@@ -314,9 +294,9 @@ function updateSelectAllState() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const memberCheckboxes = document.querySelectorAll('.member-checkbox');
     const checkedCount = document.querySelectorAll('.member-checkbox:checked').length;
-    
+
     if (!selectAllCheckbox) return;
-    
+
     selectAllCheckbox.checked = checkedCount === memberCheckboxes.length;
     selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < memberCheckboxes.length;
 }
@@ -327,7 +307,7 @@ function updateSelectAllState() {
 function updateSelectedCount() {
     const checkedCount = document.querySelectorAll('.member-checkbox:checked').length;
     console.log(`선택된 회원 수: ${checkedCount}`);
-    
+
     // 선택된 항목이 있을 때 일괄 작업 버튼 표시 (추후 구현)
     if (checkedCount > 0) {
         // TODO: 일괄 작업 버튼 표시
@@ -341,7 +321,7 @@ function initializeSearchAndFilters() {
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('memberSearch');
     const filterResetBtn = document.querySelector('.filter-reset');
-    
+
     // 검색 폼 제출 이벤트
     if (searchForm) {
         searchForm.addEventListener('submit', function(e) {
@@ -349,7 +329,7 @@ function initializeSearchAndFilters() {
             performSearch();
         });
     }
-    
+
     // 실시간 검색 (디바운스 적용)
     if (searchInput) {
         let searchTimeout;
@@ -362,7 +342,7 @@ function initializeSearchAndFilters() {
             }, 500);
         });
     }
-    
+
     // 필터 초기화 버튼
     if (filterResetBtn) {
         filterResetBtn.addEventListener('click', function(e) {
@@ -370,7 +350,7 @@ function initializeSearchAndFilters() {
             resetFilters();
         });
     }
-    
+
     // 필터 변경 시 자동 검색
     const filterSelects = document.querySelectorAll('#typeFilter, #roleFilter, #statusFilter');
     filterSelects.forEach(select => {
@@ -393,14 +373,14 @@ function initializePageSizeControl() {
  */
 function initializeTableSorting() {
     const sortableHeaders = document.querySelectorAll('.sortable a');
-    
+
     sortableHeaders.forEach(header => {
         header.addEventListener('click', function(e) {
             e.preventDefault();
             const sortBy = this.closest('.sortable').dataset.sort;
             console.log(`테이블 정렬: ${sortBy}`);
             showNotification(`${this.textContent.trim()}(으)로 정렬됩니다.`, 'info');
-            
+
             // 타임리프 URL로 이동 (실제 정렬은 서버에서 처리)
             window.location.href = this.href;
         });
@@ -413,16 +393,16 @@ function initializeTableSorting() {
 function populateYearOptions() {
     const birthYearSelect = document.getElementById('editBirthdate');
     if (!birthYearSelect) return;
-    
+
     const currentYear = new Date().getFullYear();
     const startYear = currentYear - 80; // 80년 전부터
     const endYear = currentYear - 10;   // 10년 전까지
-    
+
     // 기존 옵션 제거 (첫 번째 "선택" 옵션 제외)
     while (birthYearSelect.children.length > 1) {
         birthYearSelect.removeChild(birthYearSelect.lastChild);
     }
-    
+
     // 년도 옵션 추가
     for (let year = endYear; year >= startYear; year--) {
         const option = document.createElement('option');
@@ -430,7 +410,7 @@ function populateYearOptions() {
         option.textContent = year + '년';
         birthYearSelect.appendChild(option);
     }
-    
+
     console.log(`년도 옵션 생성 완료: ${startYear}년 ~ ${endYear}년`);
 }
 
@@ -442,7 +422,7 @@ function loadServerData() {
         // 타임리프에서 전달받은 서버 데이터 확인
         if (typeof window.SERVER_DATA !== 'undefined') {
             console.log('서버 데이터 로드 완료:', window.SERVER_DATA);
-            
+
             // CSRF 토큰 설정
             if (window.SERVER_DATA.csrfToken) {
                 setupCSRFToken(window.SERVER_DATA.csrfToken, window.SERVER_DATA.csrfHeader);
@@ -467,7 +447,7 @@ function setupCSRFToken(token, header) {
             }
         });
     }
-    
+
     console.log('CSRF 토큰 설정 완료');
 }
 
@@ -480,41 +460,39 @@ function setupCSRFToken(token, header) {
  * @param {string} memberId - 회원 ID
  */
 function openMemberModal(memberId) {
-    console.log(`회원 모달 열기: ${memberId}`)
-    console.log(typeof memberId)
-    
+    console.log(`회원 모달 열기: ${memberId}`);
+
     try {
         // 편집 모드 초기화
         isEditMode = false;
         currentMemberId = memberId;
-        
+
         // 회원 데이터 로드 (서버에서 받아오거나 샘플 데이터 사용)
         const memberData = getMemberData(memberId);
         if (!memberData) {
-            showNotification('회원 정보를 찾을 수 없습니다.왜안돼493', 'error');
-
+            showNotification('회원 정보를 찾을 수 없습니다.', 'error');
             return;
         }
-        
+
         // 원본 데이터 백업
         originalData = { ...memberData };
-        
+
         // 모달에 데이터 표시
         displayMemberData(memberData);
-        
+
         // 기본 정보 탭 활성화
         switchTab('basic');
-        
+
         // 편집 모드 UI 초기화
         resetEditMode();
-        
+
         // 모달 표시
         const modal = document.getElementById('memberModal');
         if (modal) {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
         }
-        
+
         console.log('✅ 회원 모달 열기 완료');
     } catch (error) {
         console.error('❌ 회원 모달 열기 중 오류:', error);
@@ -545,14 +523,14 @@ function actuallyCloseModal() {
     if (modal) {
         modal.classList.remove('active');
     }
-    
+
     document.body.style.overflow = ''; // 배경 스크롤 복원
-    
+
     // 상태 초기화
     isEditMode = false;
     currentMemberId = null;
     originalData = {};
-    
+
     console.log('✅ 모달 닫기 완료');
 }
 
@@ -568,37 +546,38 @@ function openRoleModal() {
         showNotification('회원 정보를 먼저 선택해주세요.', 'warning');
         return;
     }
-    
+
     console.log(`권한 수정 모달 열기: ${currentMemberId}`);
-    
+
     try {
         const memberData = getMemberData(currentMemberId);
         if (!memberData) {
             showNotification('회원 정보를 찾을 수 없습니다.', 'error');
             return;
+
         }
-        
+
         // 권한 모달에 회원 정보 표시
         displayRoleModalMemberInfo(memberData);
-        
+
         // 현재 권한 선택 표시
         highlightCurrentRole(memberData.role);
-        
+
         // 권한 변경 사유 초기화
         const reasonTextarea = document.getElementById('roleChangeReason');
         if (reasonTextarea) {
             reasonTextarea.value = '';
         }
-        
+
         // 선택된 권한 초기화
         selectedRole = null;
-        
+
         // 모달 표시
         const roleModal = document.getElementById('roleModal');
         if (roleModal) {
             roleModal.classList.add('active');
         }
-        
+
         console.log('✅ 권한 수정 모달 열기 완료');
     } catch (error) {
         console.error('❌ 권한 수정 모달 열기 중 오류:', error);
@@ -614,11 +593,11 @@ function closeRoleModal() {
     if (roleModal) {
         roleModal.classList.remove('active');
     }
-    
+
     // 선택 상태 초기화
     selectedRole = null;
     clearRoleSelection();
-    
+
     console.log('✅ 권한 수정 모달 닫기 완료');
 }
 
@@ -632,13 +611,13 @@ function displayRoleModalMemberInfo(memberData) {
     if (roleMemberName) {
         roleMemberName.textContent = memberData.name || 'Unknown';
     }
-    
+
     // 회원 이메일
     const roleMemberEmail = document.getElementById('roleMemberEmail');
     if (roleMemberEmail) {
         roleMemberEmail.textContent = memberData.email || '';
     }
-    
+
     // 현재 권한 표시
     const currentRoleDisplay = document.getElementById('currentRoleDisplay');
     if (currentRoleDisplay) {
@@ -656,7 +635,7 @@ function highlightCurrentRole(currentRole) {
     document.querySelectorAll('.role-option').forEach(option => {
         option.classList.remove('current');
     });
-    
+
     // 현재 권한에 current 클래스 추가
     const currentRoleOption = document.querySelector(`.role-option[data-role="${currentRole}"]`);
     if (currentRoleOption) {
@@ -670,16 +649,16 @@ function highlightCurrentRole(currentRole) {
  */
 function selectRoleOption(roleOption) {
     const role = roleOption.dataset.role;
-    
+
     // 이전 선택 해제
     clearRoleSelection();
-    
+
     // 새로운 선택 적용
     roleOption.classList.add('selected');
     selectedRole = role;
-    
+
     console.log(`권한 선택: ${role}`);
-    
+
     const roleInfo = ROLE_MAPPING[role];
     if (roleInfo) {
         showNotification(`${roleInfo.displayName} 권한이 선택되었습니다.`, 'info');
@@ -703,62 +682,62 @@ async function saveRoleChange() {
         showNotification('새로운 권한을 선택해주세요.', 'warning');
         return;
     }
-    
+
     if (!currentMemberId) {
         showNotification('회원 정보가 없습니다.', 'error');
         return;
     }
-    
+
     const memberData = getMemberData(currentMemberId);
     if (!memberData) {
         showNotification('회원 정보를 찾을 수 없습니다.', 'error');
         return;
     }
-    
+
     // 현재 권한과 동일한지 확인
     if (selectedRole === memberData.role) {
         showNotification('현재 권한과 동일합니다.', 'warning');
         return;
     }
-    
+
     const reason = document.getElementById('roleChangeReason').value.trim();
     const oldRole = memberData.role;
     const newRole = selectedRole;
-    
+
     const oldRoleInfo = ROLE_MAPPING[oldRole];
     const newRoleInfo = ROLE_MAPPING[newRole];
-    
+
     // 확인 메시지
     const confirmMessage = `권한을 변경하시겠습니까?\n\n회원: ${memberData.name} (${memberData.email})\n기존 권한: ${oldRoleInfo?.displayName || oldRole}\n새 권한: ${newRoleInfo?.displayName || newRole}${reason ? '\n\n변경 사유: ' + reason : ''}`;
-    
+
     if (!confirm(confirmMessage)) {
         return;
     }
-    
+
     console.log(`권한 변경 시작: ${currentMemberId} ${oldRole} → ${newRole}`);
-    
+
     try {
         // 로딩 상태 표시
         showNotification('권한을 변경하고 있습니다...', 'info');
-        
+
         // 서버에 권한 변경 요청
         const result = await updateMemberRole(currentMemberId, newRole, reason);
-        
+
         if (result.success) {
             // 로컬 데이터 업데이트
             memberData.role = newRole;
-            
+
             // 모달의 권한 표시 업데이트
             updateMemberRoleDisplay(newRole);
-            
+
             // 테이블의 권한 배지 업데이트
             updateTableRoleBadge(currentMemberId, newRole);
-            
+
             // 권한 모달 닫기
             closeRoleModal();
-            
+
             showNotification(`권한이 ${newRoleInfo?.displayName || newRole}(으)로 변경되었습니다.`, 'success');
-            
+
             console.log('✅ 권한 변경 완료');
         } else {
             throw new Error(result.message || '권한 변경에 실패했습니다.');
@@ -780,8 +759,8 @@ async function updateMemberRole(memberId, newRole, reason) {
     try {
         const csrfToken = window.SERVER_DATA?.csrfToken;
         const csrfHeader = window.SERVER_DATA?.csrfHeader;
-        
-        const response = await fetch('/admin/members/role/update', {
+
+        const response = await fetch(`/admin/member/role/update/${memberId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -793,17 +772,17 @@ async function updateMemberRole(memberId, newRole, reason) {
                 reason: reason
             })
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
         return result;
-        
+
     } catch (error) {
         console.error('서버 요청 중 오류:', error);
-        
+
         // 개발/테스트 환경에서는 시뮬레이션 응답 반환
         return simulateRoleUpdateResponse(memberId, newRole, reason);
     }
@@ -817,7 +796,7 @@ function simulateRoleUpdateResponse(memberId, newRole, reason) {
         setTimeout(() => {
             // 90% 성공률로 시뮬레이션
             const success = Math.random() > 0.1;
-            
+
             if (success) {
                 resolve({
                     success: true,
@@ -863,10 +842,10 @@ function updateTableRoleBadge(memberId, newRole) {
         if (roleBadge) {
             // 기존 클래스 제거
             roleBadge.className = 'role-badge';
-            
+
             // 새로운 권한 클래스 추가
             roleBadge.classList.add(newRole.toLowerCase());
-            
+
             // 텍스트 업데이트
             const roleInfo = ROLE_MAPPING[newRole];
             roleBadge.textContent = roleInfo ? roleInfo.displayName : newRole;
@@ -879,6 +858,48 @@ function updateTableRoleBadge(memberId, newRole) {
 // ===================================
 
 /**
+ * 회원 데이터 가져오기
+ * @param {string} memberId - 회원 ID
+ * @returns {Object|null} 회원 데이터
+ */
+function getMemberData(memberId) {
+    console.log(`🔍 getMemberData() 호출됨 - 찾을 ID: ${memberId}`);
+
+    if (!memberId) {
+        console.warn('❌ memberId 값이 null 또는 undefined입니다.');
+        return null;
+    }
+
+    // 1. 서버 데이터 탐색
+    if (window.SERVER_DATA?.memberPage?.content) {
+        const candidates = window.SERVER_DATA.memberPage.content;
+
+        console.log(`📦 서버 데이터에서 검색 시도. 전체 ${candidates.length}명`);
+        console.log('📋 서버 데이터 memberId 목록:', candidates.map(m => m.memberId));
+
+        const member = candidates.find(m => String(m.memberId) === String(memberId));
+
+        if (member) {
+            console.log(`✅ 서버 데이터에서 회원 정보 찾음: ${memberId}`);
+            return member;
+        } else {
+            console.warn(`⚠️ 서버 데이터에 해당 ID(${memberId})를 가진 회원이 없습니다.`);
+        }
+    }
+
+    // 2. 샘플 데이터 탐색
+    if (sampleMemberData[memberId]) {
+        console.log(`🧪 샘플 데이터에서 회원 정보 찾음: ${memberId}`);
+        return sampleMemberData[memberId];
+    } else {
+        console.warn(`❌ 샘플 데이터에도 해당 ID(${memberId})가 없습니다.`);
+    }
+
+    return null;
+}
+
+
+/**
  * 회원 데이터를 모달에 표시
  * @param {Object} memberData - 회원 데이터
  */
@@ -886,25 +907,25 @@ function displayMemberData(memberData) {
     try {
         // 프로필 영역 업데이트
         updateProfileSection(memberData);
-        
+
         // 읽기 모드에 데이터 표시
         displayReadOnlyData(memberData);
-        
+
         // 편집 폼에 데이터 입력
         populateEditForm(memberData);
-        
+
         // 활동 내역 표시
         displayActivityData(memberData.activities);
-        
+
         // 거래 내역 표시
         displayTransactionData(memberData.transactions);
-        
+
         // 포인트 정보 표시
         displayPointsData(memberData.pointsInfo);
-        
+
         // 고객 지원 정보 표시
         displaySupportData(memberData.support);
-        
+
         console.log('✅ 회원 데이터 표시 완료');
     } catch (error) {
         console.error('❌ 회원 데이터 표시 중 오류:', error);
@@ -922,27 +943,28 @@ function updateProfileSection(memberData) {
     if (memberName) {
         memberName.textContent = memberData.name || 'Unknown';
     }
-    
+
     // 회원 이메일
     const memberEmail = document.getElementById('memberEmail');
     if (memberEmail) {
         memberEmail.textContent = memberData.email || '';
     }
-    
+
     // 권한 등급 표시
     const memberRoleDisplay = document.getElementById('memberRoleDisplay');
     if (memberRoleDisplay) {
         const roleInfo = ROLE_MAPPING[memberData.role];
         memberRoleDisplay.textContent = roleInfo ? roleInfo.displayName : memberData.role;
     }
-    
+
     // 상태 배지
+    const memberStatus = document.getElementById('memberStatus');
     if (memberStatus) {
         const statusInfo = STATUS_MAPPING[memberData.status];
         memberStatus.textContent = statusInfo ? statusInfo.displayName : memberData.status;
         memberStatus.className = `status-badge ${memberData.status.toLowerCase()}`;
     }
-    
+
     // 회원 타입
     const memberType = document.getElementById('memberType');
     if (memberType) {
@@ -966,10 +988,10 @@ function displayReadOnlyData(memberData) {
         'detailBirthdate': memberData.birthdate ? memberData.birthdate + '년' : '-',
         'detailGender': formatGender(memberData.gender) || '-',
         'detailAddress': formatAddress(memberData.address) || '-',
-        'detailJoinDate': memberData.joinDate || '-',
+        'detailJoinDate': memberData.createdAt || '-',
         'detailLastVisit': memberData.lastVisit || '-'
     };
-    
+
     // 각 요소에 데이터 설정
     Object.entries(elements).forEach(([id, value]) => {
         const element = document.getElementById(id);
@@ -990,10 +1012,10 @@ function populateEditForm(memberData) {
         'editBirthdate': memberData.birthdate || '',
         'editGender': memberData.gender || '',
         'editAddress': memberData.address || '',
-        'editJoinDate': memberData.joinDate || '',
+        'editJoinDate': memberData.createdAt || '',
         'editLastVisit': memberData.lastVisit || ''
     };
-    
+
     // 각 폼 요소에 데이터 설정
     Object.entries(formElements).forEach(([id, value]) => {
         const element = document.getElementById(id);
@@ -1009,14 +1031,14 @@ function populateEditForm(memberData) {
  */
 function displayActivityData(activities) {
     if (!activities) return;
-    
+
     const activityElements = {
         'wasteClassifications': activities.wasteClassifications || 0,
         'sharingParticipations': activities.sharingParticipations || 0,
         'ecoMarketPurchases': activities.ecoMarketPurchases || 0,
         'communityActivities': activities.communityActivities || 0
     };
-    
+
     Object.entries(activityElements).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
@@ -1031,17 +1053,17 @@ function displayActivityData(activities) {
  */
 function displayTransactionData(transactions) {
     if (!transactions) return;
-    
+
     const totalPurchaseAmount = document.getElementById('totalPurchaseAmount');
     if (totalPurchaseAmount) {
         totalPurchaseAmount.textContent = '₩' + (transactions.totalPurchaseAmount || 0).toLocaleString();
     }
-    
+
     const totalOrderCount = document.getElementById('totalOrderCount');
     if (totalOrderCount) {
         totalOrderCount.textContent = (transactions.totalOrderCount || 0) + '건';
     }
-    
+
     const averageOrderAmount = document.getElementById('averageOrderAmount');
     if (averageOrderAmount) {
         averageOrderAmount.textContent = '₩' + (transactions.averageOrderAmount || 0).toLocaleString();
@@ -1054,17 +1076,17 @@ function displayTransactionData(transactions) {
  */
 function displayPointsData(pointsInfo) {
     if (!pointsInfo) return;
-    
+
     const currentPoints = document.getElementById('currentPoints');
     if (currentPoints) {
         currentPoints.textContent = (pointsInfo.currentPoints || 0).toLocaleString() + 'P';
     }
-    
+
     const totalPoints = document.getElementById('totalPoints');
     if (totalPoints) {
         totalPoints.textContent = (pointsInfo.totalPoints || 0).toLocaleString() + 'P';
     }
-    
+
     const usedPoints = document.getElementById('usedPoints');
     if (usedPoints) {
         usedPoints.textContent = (pointsInfo.usedPoints || 0).toLocaleString() + 'P';
@@ -1077,13 +1099,13 @@ function displayPointsData(pointsInfo) {
  */
 function displaySupportData(support) {
     if (!support) return;
-    
+
     const supportElements = {
         'totalInquiries': support.totalInquiries || 0,
         'completedInquiries': support.completedInquiries || 0,
         'processingInquiries': support.processingInquiries || 0
     };
-    
+
     Object.entries(supportElements).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
@@ -1151,37 +1173,37 @@ function toggleEditMode() {
  */
 function enterEditMode() {
     console.log('편집 모드 진입');
-    
+
     isEditMode = true;
-    
+
     // UI 전환
     const readOnlyInfo = document.getElementById('readOnlyInfo');
     const editableInfo = document.getElementById('editableInfo');
     const dangerZone = document.getElementById('dangerZone');
-    
+
     if (readOnlyInfo) readOnlyInfo.style.display = 'none';
     if (editableInfo) editableInfo.style.display = 'block';
     if (dangerZone) dangerZone.style.display = 'block';
-    
+
     // 편집 버튼 텍스트 변경
     const editBtn = document.querySelector('.btn-edit');
     if (editBtn) {
         editBtn.textContent = '✏️ 편집 취소';
         editBtn.style.backgroundColor = '#e74c3c';
     }
-    
+
     // 저장 버튼 표시
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
         saveBtn.style.display = 'inline-block';
     }
-    
+
     // 첫 번째 편집 가능한 입력 필드에 포커스
     const firstInput = document.querySelector('#editableInfo input:not([readonly])');
     if (firstInput) {
         setTimeout(() => firstInput.focus(), 100);
     }
-    
+
     showNotification('편집 모드로 전환되었습니다. 수정 후 반드시 저장해주세요.', 'info');
 }
 
@@ -1190,34 +1212,34 @@ function enterEditMode() {
  */
 function exitEditMode() {
     console.log('편집 모드 종료');
-    
+
     isEditMode = false;
-    
+
     // UI 전환
     const readOnlyInfo = document.getElementById('readOnlyInfo');
     const editableInfo = document.getElementById('editableInfo');
     const dangerZone = document.getElementById('dangerZone');
-    
+
     if (readOnlyInfo) readOnlyInfo.style.display = 'block';
     if (editableInfo) editableInfo.style.display = 'none';
     if (dangerZone) dangerZone.style.display = 'none';
-    
+
     // 편집 버튼 텍스트 원복
     const editBtn = document.querySelector('.btn-edit');
     if (editBtn) {
         editBtn.textContent = '✏️ 정보 수정';
         editBtn.style.backgroundColor = '#2ecc71';
     }
-    
+
     // 저장 버튼 숨김
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
         saveBtn.style.display = 'none';
     }
-    
+
     // 원본 데이터로 복원
     populateEditForm(originalData);
-    
+
     showNotification('편집이 취소되었습니다.', 'info');
 }
 
@@ -1229,18 +1251,18 @@ function resetEditMode() {
     const readOnlyInfo = document.getElementById('readOnlyInfo');
     const editableInfo = document.getElementById('editableInfo');
     const dangerZone = document.getElementById('dangerZone');
-    
+
     if (readOnlyInfo) readOnlyInfo.style.display = 'block';
     if (editableInfo) editableInfo.style.display = 'none';
     if (dangerZone) dangerZone.style.display = 'none';
-    
+
     // 편집 버튼 원상 복구
     const editBtn = document.querySelector('.btn-edit');
     if (editBtn) {
         editBtn.textContent = '✏️ 정보 수정';
         editBtn.style.backgroundColor = '#2ecc71';
     }
-    
+
     // 저장 버튼 숨김
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
@@ -1257,22 +1279,22 @@ function resetEditMode() {
  */
 async function saveCurrentMember() {
     console.log('변경사항 저장 시작');
-    
+
     try {
         // 폼 유효성 검사
         if (!validateForm()) {
             return;
         }
-        
+
         // 폼 데이터 수집
         const updatedData = collectFormData();
-        
+
         // 로딩 상태 표시
         showNotification('저장 중입니다...', 'info');
-        
+
         // 서버에 데이터 전송
         const result = await saveToServer(updatedData);
-        
+
         if (result.success) {
             // 로컬 데이터 업데이트
             const memberData = getMemberData(currentMemberId);
@@ -1280,21 +1302,21 @@ async function saveCurrentMember() {
                 Object.assign(memberData, updatedData);
                 Object.assign(originalData, updatedData);
             }
-            
+
             // 읽기 모드에 업데이트된 데이터 표시
             displayReadOnlyData(updatedData);
             updateProfileSection(memberData);
-            
+
             // 편집 모드 종료
             exitEditMode();
-            
+
             showNotification('변경사항이 성공적으로 저장되었습니다.', 'success');
-            
+
             console.log('✅ 변경사항 저장 완료');
         } else {
             throw new Error(result.message || '저장에 실패했습니다.');
         }
-        
+
     } catch (error) {
         console.error('❌ 저장 중 오류:', error);
         showNotification(error.message || '저장에 실패했습니다. 다시 시도해주세요.', 'error');
@@ -1323,21 +1345,21 @@ function collectFormData() {
  */
 function validateForm() {
     const nickname = document.getElementById('editNickname').value.trim();
-    
+
     // 닉네임 필수 검사
     if (!nickname) {
         showNotification('닉네임을 입력해주세요.', 'error');
         document.getElementById('editNickname').focus();
         return false;
     }
-    
+
     // 닉네임 길이 검사
     if (nickname.length < 2 || nickname.length > 20) {
         showNotification('닉네임은 2~20자 사이로 입력해주세요.', 'error');
         document.getElementById('editNickname').focus();
         return false;
     }
-    
+
     // 닉네임 특수문자 검사
     const nicknameRegex = /^[가-힣a-zA-Z0-9_]+$/;
     if (!nicknameRegex.test(nickname)) {
@@ -1345,7 +1367,7 @@ function validateForm() {
         document.getElementById('editNickname').focus();
         return false;
     }
-    
+
     return true;
 }
 
@@ -1358,8 +1380,8 @@ async function saveToServer(data) {
     try {
         const csrfToken = window.SERVER_DATA?.csrfToken;
         const csrfHeader = window.SERVER_DATA?.csrfHeader;
-        
-        const response = await fetch('/admin/members/update', {
+
+        const response = await fetch(`/admin/member/role/update/${memberId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1367,17 +1389,17 @@ async function saveToServer(data) {
             },
             body: JSON.stringify(data)
         });
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
         return result;
-        
+
     } catch (error) {
         console.error('서버 요청 중 오류:', error);
-        
+
         // 개발/테스트 환경에서는 시뮬레이션 응답 반환
         return simulateSaveResponse(data);
     }
@@ -1391,7 +1413,7 @@ function simulateSaveResponse(data) {
         setTimeout(() => {
             // 90% 성공률로 시뮬레이션
             const success = Math.random() > 0.1;
-            
+
             if (success) {
                 resolve({
                     success: true,
@@ -1421,19 +1443,19 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // 모든 탭 패널 숨김
     document.querySelectorAll('.tab-panel').forEach(panel => {
         panel.classList.remove('active');
     });
-    
+
     // 선택된 탭 활성화
     const selectedTabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
     const selectedTabPanel = document.getElementById(`${tabName}Tab`);
-    
+
     if (selectedTabBtn) selectedTabBtn.classList.add('active');
     if (selectedTabPanel) selectedTabPanel.classList.add('active');
-    
+
     console.log(`탭 전환: ${tabName}`);
 }
 
@@ -1449,37 +1471,37 @@ function performSearch() {
     const typeFilter = document.getElementById('typeFilter');
     const roleFilter = document.getElementById('roleFilter');
     const statusFilter = document.getElementById('statusFilter');
-    
+
     if (!searchInput) return;
-    
+
     const searchParams = new URLSearchParams();
-    
+
     // 검색어
     if (searchInput.value.trim()) {
         searchParams.set('search', searchInput.value.trim());
     }
-    
+
     // 필터들
     if (typeFilter && typeFilter.value) {
         searchParams.set('type', typeFilter.value);
     }
-    
+
     if (roleFilter && roleFilter.value) {
         searchParams.set('role', roleFilter.value);
     }
-    
+
     if (statusFilter && statusFilter.value) {
         searchParams.set('status', statusFilter.value);
     }
-    
+
     // 현재 페이지 크기 유지
     const currentPageSize = new URLSearchParams(window.location.search).get('size') || '25';
     searchParams.set('size', currentPageSize);
-    
+
     // 페이지 이동
-    const newUrl = `/admin/members?${searchParams.toString()}`;
+    const newUrl = `/admin/member?${searchParams.toString()}`;
     console.log(`검색 실행: ${newUrl}`);
-    
+
     window.location.href = newUrl;
 }
 
@@ -1492,7 +1514,7 @@ function resetFilters() {
     if (searchInput) {
         searchInput.value = '';
     }
-    
+
     // 필터 초기화
     const filters = ['typeFilter', 'roleFilter', 'statusFilter'];
     filters.forEach(filterId => {
@@ -1501,11 +1523,11 @@ function resetFilters() {
             filter.value = '';
         }
     });
-    
+
     showNotification('필터가 초기화되었습니다.', 'info');
-    
+
     // 기본 페이지로 이동
-    window.location.href = '/admin/members';
+    window.location.href = '/admin/member';
 }
 
 // ===================================
@@ -1517,13 +1539,13 @@ function resetFilters() {
  */
 function sendMessageToMember() {
     if (!currentMemberId) return;
-    
+
     const memberData = getMemberData(currentMemberId);
     const memberName = memberData ? memberData.name : 'Unknown';
-    
+
     console.log(`메시지 발송: ${memberName}`);
     showNotification(`${memberName}님에게 메시지를 발송했습니다.`, 'success');
-    
+
     // 실제 구현에서는 메시지 발송 모달 또는 페이지로 이동
 }
 
@@ -1532,26 +1554,26 @@ function sendMessageToMember() {
  */
 async function suspendCurrentMember() {
     if (!currentMemberId) return;
-    
+
     const memberData = getMemberData(currentMemberId);
     const memberName = memberData ? memberData.name : 'Unknown';
-    
+
     if (confirm(`⚠️ 계정 정지 확인\n\n'${memberName}' 회원의 계정을 정지시키겠습니까?\n\n정지된 계정은 관리자가 해제할 때까지 로그인할 수 없습니다.`)) {
         console.log('계정 정지 실행:', memberName);
-        
+
         try {
             showNotification('계정을 정지하고 있습니다...', 'info');
-            
+
             // 서버에 정지 요청 (실제 구현에서는 서버 API 호출)
             const result = await simulateSuspendResponse(currentMemberId);
-            
+
             if (result.success) {
                 // 로컬 데이터 업데이트
                 if (memberData) {
                     memberData.status = 'suspended';
                     updateProfileSection(memberData);
                 }
-                
+
                 showNotification(`${memberName}님의 계정이 정지되었습니다.`, 'success');
             } else {
                 throw new Error(result.message);
@@ -1583,25 +1605,25 @@ function simulateSuspendResponse(memberId) {
  */
 async function deleteCurrentMember() {
     if (!currentMemberId) return;
-    
+
     const memberData = getMemberData(currentMemberId);
     const memberName = memberData ? memberData.name : 'Unknown';
-    
+
     // 2단계 확인
     if (confirm(`⚠️ 위험한 작업 경고 ⚠️\n\n'${memberName}' 회원의 계정을 완전히 삭제하시겠습니까?\n\n• 모든 개인정보가 영구 삭제됩니다\n• 활동 내역, 포인트, 거래 정보가 모두 삭제됩니다\n• 이 작업은 되돌릴 수 없습니다\n\n정말로 삭제하시겠습니까?`)) {
         if (confirm(`🚨 최종 확인 🚨\n\n정말로 '${memberName}' 회원을 영구 삭제하시겠습니까?\n\n이것은 마지막 확인입니다.\n삭제 후에는 복구가 불가능합니다.`)) {
             console.log('회원 계정 완전 삭제 실행:', memberName);
-            
+
             try {
                 // 삭제 처리 중 알림
                 showNotification('회원 데이터를 삭제하고 있습니다...', 'info');
-                
+
                 // 서버에 삭제 요청 (실제 구현에서는 서버 API 호출)
                 const result = await simulateDeleteResponse(currentMemberId);
-                
+
                 if (result.success) {
                     showNotification(`${memberName}님의 계정이 완전히 삭제되었습니다.`, 'success');
-                    
+
                     // 테이블에서 해당 행 제거 (시각적 효과)
                     const tableRow = document.querySelector(`tr[data-member-id="${currentMemberId}"]`);
                     if (tableRow) {
@@ -1609,10 +1631,10 @@ async function deleteCurrentMember() {
                         tableRow.style.textDecoration = 'line-through';
                         tableRow.style.backgroundColor = '#ffebee';
                     }
-                    
+
                     // 샘플 데이터에서 제거
                     delete sampleMemberData[currentMemberId];
-                    
+
                     // 모달 닫기
                     setTimeout(() => {
                         actuallyCloseModal();
@@ -1658,14 +1680,14 @@ function showNotification(message, type = 'info') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     // 자동 제거 (에러는 5초, 나머지는 3초)
     const duration = type === 'error' ? 5000 : 3000;
     setTimeout(() => {
@@ -1712,11 +1734,11 @@ function formatDate(date) {
     if (typeof date === 'string') {
         date = new Date(date);
     }
-    
+
     if (!(date instanceof Date) || isNaN(date)) {
         return '-';
     }
-    
+
     return date.toLocaleDateString('ko-KR');
 }
 
@@ -1746,10 +1768,10 @@ window.addEventListener('unhandledrejection', function(e) {
 window.addEventListener('beforeunload', function() {
     // 편집 모드 상태 정리
     isEditMode = false;
-    
+
     // 모달 상태 정리
     document.body.style.overflow = '';
-    
+
     console.log('페이지 언로드 전 정리 작업 완료');
 });
 
@@ -1810,18 +1832,18 @@ window.devTools = {
             console.log('사용 가능한 권한:', Object.keys(ROLE_MAPPING));
             return;
         }
-        
+
         console.log(`모든 회원의 권한을 ${ROLE_MAPPING[newRole].displayName}로 변경합니다...`);
-        
+
         // 테이블의 모든 권한 배지 업데이트
         document.querySelectorAll('.role-badge').forEach(badge => {
             badge.className = `role-badge ${newRole.toLowerCase()}`;
             badge.textContent = ROLE_MAPPING[newRole].displayName;
         });
-        
+
         console.log('✅ 일괄 권한 변경 완료');
     },
-    
+
     /**
      * 랜덤 알림 메시지 표시 (테스트용)
      */
@@ -1832,31 +1854,31 @@ window.devTools = {
             { text: '경고 테스트 메시지입니다.', type: 'warning' },
             { text: '정보 테스트 메시지입니다.', type: 'info' }
         ];
-        
+
         messages.forEach((msg, index) => {
             setTimeout(() => {
                 showNotification(msg.text, msg.type);
             }, index * 1000);
         });
     },
-    
+
     /**
      * 서버 데이터 상태 확인
      */
     checkServerData: function() {
         console.log('서버 데이터 상태:');
         console.log('  - SERVER_DATA 존재:', typeof window.SERVER_DATA !== 'undefined');
-        
+
         if (window.SERVER_DATA) {
             console.log('  - 회원 통계:', window.SERVER_DATA.memberStats);
             console.log('  - 회원 목록 개수:', window.SERVER_DATA.memberPage?.content?.length || 0);
             console.log('  - CSRF 토큰 존재:', !!window.SERVER_DATA.csrfToken);
             console.log('  - 현재 관리자:', window.SERVER_DATA.currentAdmin?.name || 'Unknown');
         }
-        
+
         console.log('  - 샘플 데이터 개수:', Object.keys(sampleMemberData).length);
     },
-    
+
     /**
      * 현재 상태 정보 출력
      */
@@ -1870,7 +1892,7 @@ window.devTools = {
             roleModal: document.getElementById('roleModal')?.classList.contains('active')
         });
     },
-    
+
     /**
      * 샘플 데이터 추가 (테스트용)
      * @param {number} count - 추가할 회원 수
@@ -1881,7 +1903,7 @@ window.devTools = {
         const nicknames = ['에코워리어', '그린파이터', '환경사랑', '지구지킴이', '리사이클킹', '제로웨이스트'];
         const roles = Object.keys(ROLE_MAPPING);
         const addresses = ['seoul', 'busan', 'daegu', 'incheon', 'gwangju'];
-        
+
         for (let i = 0; i < count; i++) {
             const memberId = 'M' + String(Date.now() + i).slice(-7);
             const randomName = names[Math.floor(Math.random() * names.length)];
@@ -1889,7 +1911,7 @@ window.devTools = {
             const randomNickname = nicknames[Math.floor(Math.random() * nicknames.length)];
             const randomRole = roles[Math.floor(Math.random() * roles.length)];
             const randomAddress = addresses[Math.floor(Math.random() * addresses.length)];
-            
+
             sampleMemberData[memberId] = {
                 memberId: memberId,
                 name: randomName,
@@ -1927,7 +1949,7 @@ window.devTools = {
                 }
             };
         }
-        
+
         console.log(`✅ ${count}개의 샘플 회원 데이터가 추가되었습니다.`);
         console.log('새로 고침 후 테이블에서 확인할 수 있습니다.');
     }

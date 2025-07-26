@@ -49,10 +49,20 @@ public class MemberServiceImpl implements MemberService {
     }
     //회원 정보 수정
     @Override
-    public void updateMember(MemberVO memberVO){
+    public boolean updateMember(MemberVO memberVO){
 
-        memberMapper.updateMember(memberVO);
+        log.info("updateMember.......");
+
+        return memberMapper.updateMember(memberVO) == 1;
     }
+
+    @Override
+    public boolean updateMemberByAdmin(MemberVO memberVO) {
+        log.info("updateMemberByAdmin.......");
+
+        return memberMapper.updateMemberByAdmin(memberVO) == 1;
+    }
+
     //회원 번호(PK)로 회원 조회
     @Override
     public MemberVO getMemberById(Long memberId){

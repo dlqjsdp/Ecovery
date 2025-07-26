@@ -17,6 +17,7 @@ import java.util.List;
  * @author : 방희경
  * @fileName : OrderHistoryDto
  * @since : 250723
+ * @history : 20250725 | 방희경 | 주문 고유번호 추가
  */
 
 @Setter @Getter
@@ -34,7 +35,19 @@ public class OrderHistoryDto {
     private String roadAddress;
     private String detailAddress;
     private String phoneNumber;
-    
+    private String orderUuid;
+
+    // 주문 상품(order_item)
+    private int count;
+
+    // 주문 상품 이미지
+    private Long itemImgId;
+    private String imgName;
+
+    // 상품
+    private String itemName;
+    private String itemDetail;
+
     // 결제 정보(payment)
     private Long paymentId;
     private String payMethod;

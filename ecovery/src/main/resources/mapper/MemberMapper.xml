@@ -57,7 +57,17 @@
         update member
         set nickname = #{nickname},
             password = #{password},
-            role = #{role}
+        where member_id = #{memberId}
+    </update>
+
+    <!--
+        회원 정보 수정
+        - 관리자가 사용자 권한 변경
+        - memberId 기준으로 수정
+    -->
+    <update id="updateMemberByAdmin" parameterType="com.ecovery.domain.MemberVO">
+        update member
+        set role = #{role}
         where member_id = #{memberId}
     </update>
 
