@@ -1,5 +1,6 @@
 package com.ecovery.mapper;
 
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalHistoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -43,12 +44,21 @@ public class DisposalHistoryMapperTest {
 
     @Test
     public void testReadAll() {
-        List<DisposalHistoryDto> dtos = mapper.findAllDisposalHistory();
+        Criteria cri = new Criteria();
+        cri.setPageNum(1); // 1페이지
+        cri.setAmount(3);  // 페이지당 5개
 
-        if(dtos!=null) {
+        int total = mapper.getTotalCount(cri);
+
+        List<DisposalHistoryDto> dtos = mapper.findAllDisposalHistory(cri);
+
+        for(DisposalHistoryDto dto : dtos) {
+            log.info("<UNK> <UNK> : {}", dto.toString());
+        }
+        /*if(dtos!=null) {
             log.info("조회 결과 : {}", dtos.toString());
         }else {
             log.info("조회 실패했습니다.");
-        }
+        }*/
     }
 }

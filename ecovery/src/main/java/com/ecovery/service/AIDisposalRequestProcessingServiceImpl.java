@@ -74,6 +74,7 @@ public class AIDisposalRequestProcessingServiceImpl implements AIDisposalRequest
             // 2. AI 서버 호출: 이미지와 지역 정보를 보내 AI의 예측 결과(주요 품목)를 받아옵니다.
             AIPredictionResultDto aiResult = aiService.predictDisposal(multipartFile, regionGu);
             String aiPrediction = aiResult.getPredictedClass(); // AI가 예측한 주요 품목 (예: "의류")
+            Double aiConfidence = aiResult.getAiConfidence(); //ai 예측 정확도
             log.info("reguionGu : {}", regionGu);
             log.info("processInitialDisposalRequest: AI 예측 결과: '{}'", aiPrediction);
 
@@ -91,6 +92,7 @@ public class AIDisposalRequestProcessingServiceImpl implements AIDisposalRequest
             DisposalHistoryVO initialHistory = DisposalHistoryVO.builder()
                     .memberId(memberId)      // 회원 ID (null 허용)
                     .aiPrediction(aiPrediction) // AI 예측 결과 저장
+                    .aiConfidence(aiConfidence)  // ai 예측 정확도 저장
                     .regionGu(regionGu)      // 지역구 정보 저장
                     .finalItem(null)         // 2단계에서 사용자 선택에 따라 업데이트될 예정이므로 초기값은 null
                     // created_at은 DB 테이블의 DEFAULT 값(CURRENT_DATE)을 사용하므로 여기서 설정할 필요 없음
@@ -109,6 +111,7 @@ public class AIDisposalRequestProcessingServiceImpl implements AIDisposalRequest
             return AIInitialDisposalResponseDto.builder()
                     .disposalHistoryId(disposalHistoryId) // 새로 생성된 이력 ID
                     .aiPrediction(aiPrediction)           // AI 예측 결과
+                    .aiConfidence(aiConfidence)           // AI 예측 정확도
                     .regionGu(regionGu)
                     .secondaryOptions(secondaryOptions)   // 스프링 서버에서 생성한 2차 분류 옵션 목록
                     .tempImgName(savedImgVO.getDisposalImgName())     // 저장된 이미지 파일명

@@ -1,7 +1,9 @@
 package com.ecovery.controller;
 
 import com.ecovery.domain.DisposalFeedbackVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalFeedbackDto;
+import com.ecovery.dto.PageDto;
 import com.ecovery.service.DisposalFeedbackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +35,12 @@ public class DisposalFeedbackController {
 
 
     @GetMapping("/history")
-    public String feedbackHistory(Model model) {
-        List<DisposalFeedbackDto> adminFeedbackHistory = disposalFeedbackService.getAllFeedback();
-
+    public String feedbackHistory(Criteria cri, Model model) {
+        List<DisposalFeedbackDto> adminFeedbackHistory = disposalFeedbackService.getAllFeedback(cri);
         model.addAttribute("adminFeedbackHistory", adminFeedbackHistory);
+
+        int total = disposalFeedbackService.getTotalCount(cri);
+        model.addAttribute("total", new PageDto(cri, total));
 
         return "feedback/feedbackHistory";
     }

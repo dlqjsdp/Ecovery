@@ -1,130 +1,168 @@
-// Global variables
-let currentSection = 'dashboard';
-let activityUpdateInterval;
-let dashboardUpdateInterval;
+// ===================
+// 전역 변수 및 설정
+// ===================
 
-// DOM Elements
-const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-const contentSections = document.querySelectorAll('.content-section');
-const logoutBtn = document.getElementById('logoutBtn');
+// 현재 열려있는 모달 추적
+let currentModal = null;
 
-// Initialize the admin page
+// ===================
+// 페이지 초기화
+// ===================
+
+// DOM이 준비되면 실행되는 초기화 함수
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🌱 ECOVERY 통합 관리자 페이지 초기화 시작');
+    
+    // 각종 초기화 함수들 실행
     initializeAdminPage();
-    startRealTimeUpdates();
     setupEventListeners();
     animateCounters();
-    console.log('🌱 GreenCycle 관리자 페이지가 초기화되었습니다.');
+    loadInitialData();
+    
+    console.log('✅ 통합 관리자 페이지 초기화 완료');
 });
 
-// Initialize admin page
+// 기본 페이지 초기화
 function initializeAdminPage() {
-    // Show dashboard by default
-    showSection('dashboard');
-    
-    // Set active sidebar link
-    updateActiveLink('dashboard');
-    
-    // Add fade-in animation to cards
-    const dashboardCards = document.querySelectorAll('.dashboard-card');
-    dashboardCards.forEach((card, index) => {
+    // 통계 카드들에 페이드인 애니메이션 적용
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
         card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
+        card.style.transform = 'translateY(30px)';
+        
         setTimeout(() => {
             card.style.transition = 'all 0.6s ease';
             card.style.opacity = '1';
             card.style.transform = 'translateY(0)';
         }, index * 100);
     });
+    
+    // 관리 섹션들에도 애니메이션 적용
+    const managementSections = document.querySelectorAll('.management-section');
+    managementSections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            section.style.transition = 'all 0.8s ease';
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }, (index + 4) * 150);
+    });
 }
 
-// Setup event listeners
+// ===================
+// 이벤트 리스너 설정
+// ===================
+
 function setupEventListeners() {
-    // Sidebar navigation
-    sidebarLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const section = this.getAttribute('data-section');
-            showSection(section);
-            updateActiveLink(section);
-        });
-    });
-    
-    // Logout button
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logout);
-    }
-    
-    // Modal close events
+    // 모달 배경 클릭시 닫기
     window.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
             closeModal(e.target.id);
         }
     });
     
-    // Form submissions
-    const addUserForm = document.getElementById('addUserForm');
-    if (addUserForm) {
-        addUserForm.addEventListener('submit', handleAddUser);
-    }
-    
-    // Escape key to close modals
+    // ESC 키로 모달 닫기
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeAllModals();
+        if (e.key === 'Escape' && currentModal) {
+            closeModal(currentModal);
         }
-    });
-}
-
-// Show specific section
-function showSection(sectionId) {
-    // Hide all sections
-    contentSections.forEach(section => {
-        section.classList.remove('active');
     });
     
-    // Show target section
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
-        currentSection = sectionId;
-        
-        // Load section-specific data
-        loadSectionData(sectionId);
-    }
+    // 키보드 단축키 설정
+    setupKeyboardShortcuts();
 }
 
-// Update active sidebar link
-function updateActiveLink(sectionId) {
-    sidebarLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('data-section') === sectionId) {
-            link.classList.add('active');
+// 키보드 단축키 설정
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + 숫자키로 빠른 모달 열기
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+            switch(e.key) {
+                case '1':
+                    e.preventDefault();
+                    openModal('wasteModal');
+                    break;
+                case '2':
+                    e.preventDefault();
+                    openModal('sharingModal');
+                    break;
+                case '3':
+                    e.preventDefault();
+                    openModal('userModal');
+                    break;
+                case '4':
+                    e.preventDefault();
+                    openModal('envTalkModal');
+                    break;
+                case '5':
+                    e.preventDefault();
+                    openModal('noticeModal');
+                    break;
+            }
+        }
+        
+        // Ctrl/Cmd + R로 데이터 새로고침
+        if ((e.ctrlKey || e.metaKey) && e.key === 'r' && !e.shiftKey) {
+            e.preventDefault();
+            refreshAllData();
         }
     });
 }
 
-// Load section-specific data
-function loadSectionData(sectionId) {
-    switch(sectionId) {
-        case 'dashboard':
-            loadDashboardData();
-            break;
-        case 'users':
-            loadUsersData();
-            break;
-        case 'waste-management':
-            loadWasteManagementData();
-            break;
-        case 'analytics':
-            loadAnalyticsData();
-            break;
-        default:
-            console.log(`Loading data for ${sectionId}...`);
-    }
+// ===================
+// 데이터 로드 함수
+// ===================
+
+// 초기 데이터 로드
+function loadInitialData() {
+    // TODO: 백엔드 API에서 초기 데이터 로드
+    console.log('초기 데이터 로드 - 백엔드 API 연결 필요');
+    
+    // 예시: 실제 구현시 다음과 같이 사용
+    /*
+    Promise.all([
+        fetch('/api/admin/stats'),
+        fetch('/api/admin/waste'),
+        fetch('/api/admin/sharing'),
+        fetch('/api/admin/users'),
+        fetch('/api/admin/envtalk'),
+        fetch('/api/admin/notices')
+    ]).then(responses => {
+        return Promise.all(responses.map(response => response.json()));
+    }).then(data => {
+        updateDashboardStats(data[0]);
+        updateWasteData(data[1]);
+        updateSharingData(data[2]);
+        updateUserData(data[3]);
+        updateEnvTalkData(data[4]);
+        updateNoticeData(data[5]);
+    }).catch(error => {
+        console.error('데이터 로드 실패:', error);
+        showNotification('데이터를 불러오는데 실패했습니다.', 'error');
+    });
+    */
 }
 
-// Counter animation
+// 모든 데이터 새로고침
+function refreshAllData() {
+    console.log('🔄 데이터 새로고침 시작');
+    showNotification('데이터를 새로고침하고 있습니다...', 'info');
+    
+    // TODO: 백엔드에서 최신 데이터 가져오기
+    setTimeout(() => {
+        showNotification('데이터 새로고침이 완료되었습니다.', 'success');
+        // 실제로는 loadInitialData() 호출
+        loadInitialData();
+    }, 1000);
+}
+
+// ===================
+// 카운터 애니메이션
+// ===================
+
+// 숫자가 올라가는 애니메이션 함수
 function animateCounter(element, target, duration = 2000) {
     const start = 0;
     const startTime = performance.now();
@@ -133,6 +171,8 @@ function animateCounter(element, target, duration = 2000) {
     function updateCounter(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
+        
+        // easeOutQuart 이징 함수 적용
         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
         const current = start + (target - start) * easeOutQuart;
         
@@ -156,10 +196,11 @@ function animateCounter(element, target, duration = 2000) {
     requestAnimationFrame(updateCounter);
 }
 
-// Animate all counters
+// 모든 카운터 애니메이션 시작
 function animateCounters() {
     const counters = document.querySelectorAll('.card-value[data-count]');
     
+    // Intersection Observer로 화면에 보일 때만 애니메이션 실행
     const counterObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -175,285 +216,183 @@ function animateCounters() {
     });
 }
 
-// Real-time updates
-function startRealTimeUpdates() {
-    // Update activities every 10 seconds
-    activityUpdateInterval = setInterval(() => {
-        updateRecentActivities();
-    }, 10000);
-    
-    // Update dashboard data every 30 seconds
-    dashboardUpdateInterval = setInterval(() => {
-        updateDashboardData();
-    }, 30000);
-}
+// ===================
+// 모달 관리
+// ===================
 
-function stopRealTimeUpdates() {
-    if (activityUpdateInterval) {
-        clearInterval(activityUpdateInterval);
-    }
-    if (dashboardUpdateInterval) {
-        clearInterval(dashboardUpdateInterval);
-    }
-}
-
-// Update recent activities
-function updateRecentActivities() {
-    const activitiesTable = document.getElementById('activitiesTable');
-    if (!activitiesTable) return;
-    
-    const newActivities = [
-        {
-            time: '방금 전',
-            user: '최○○',
-            activity: '캔 분리배출',
-            status: 'active',
-            points: '+20P'
-        },
-        {
-            time: '1분 전',
-            user: '김○○',
-            activity: '무료나눔 완료',
-            status: 'active',
-            points: '+10P'
-        }
-    ];
-    
-    // Add new activity to the top
-    const newActivity = newActivities[Math.floor(Math.random() * newActivities.length)];
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td>${newActivity.time}</td>
-        <td>${newActivity.user}</td>
-        <td>${newActivity.activity}</td>
-        <td><span class="status-badge status-${newActivity.status}">완료</span></td>
-        <td>${newActivity.points}</td>
-    `;
-    
-    // Insert at the beginning
-    activitiesTable.insertBefore(newRow, activitiesTable.firstChild);
-    
-    // Add animation
-    newRow.style.opacity = '0';
-    newRow.style.backgroundColor = 'rgba(45, 90, 61, 0.1)';
-    setTimeout(() => {
-        newRow.style.transition = 'all 0.5s ease';
-        newRow.style.opacity = '1';
-        setTimeout(() => {
-            newRow.style.backgroundColor = 'transparent';
-        }, 2000);
-    }, 100);
-    
-    // Remove old rows (keep only 6)
-    while (activitiesTable.children.length > 6) {
-        activitiesTable.removeChild(activitiesTable.lastChild);
-    }
-}
-
-// Update dashboard data
-function updateDashboardData() {
-    const cardValues = document.querySelectorAll('.card-value[data-count]');
-    cardValues.forEach(card => {
-        const currentValue = parseInt(card.getAttribute('data-count'));
-        const change = Math.floor(Math.random() * 20) - 10; // -10 to +10
-        const newValue = Math.max(0, currentValue + change);
-        
-        card.setAttribute('data-count', newValue);
-        
-        // Animate to new value
-        animateCounter(card, newValue, 1000);
-        
-        // Update change indicator
-        const changeElement = card.parentElement.querySelector('.card-change');
-        if (changeElement && change !== 0) {
-            const isPositive = change > 0;
-            changeElement.className = `card-change ${isPositive ? 'positive' : 'negative'}`;
-            changeElement.innerHTML = `
-                <span>${isPositive ? '↗️' : '↘️'}</span>
-                <span>${isPositive ? '+' : ''}${change} 실시간</span>
-            `;
-        }
-    });
-}
-
-// Modal functions
+// 모달 열기
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('show');
+        currentModal = modalId;
         document.body.style.overflow = 'hidden';
-        
-        // Focus on first input
-        const firstInput = modal.querySelector('input, select, textarea');
-        if (firstInput) {
-            setTimeout(() => firstInput.focus(), 100);
-        }
+        console.log(`모달 열림: ${modalId}`);
     }
 }
 
+// 모달 닫기
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('show');
+        currentModal = null;
         document.body.style.overflow = 'auto';
-        
-        // Reset form if exists
-        const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-        }
+        console.log(`모달 닫힘: ${modalId}`);
     }
 }
 
-function closeAllModals() {
-    const modals = document.querySelectorAll('.modal.show');
-    modals.forEach(modal => {
-        closeModal(modal.id);
-    });
+// ===================
+// 관리 기능들
+// ===================
+
+// 분리배출 데이터 편집
+function editWaste(id) {
+    console.log(`분리배출 데이터 편집: ${id}`);
+    // TODO: 편집 모달 열기 또는 편집 페이지로 이동
+    showNotification('분리배출 데이터 편집 기능은 준비 중입니다.', 'info');
 }
 
-// Form handlers
-function handleAddUser(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const userData = {
-        name: formData.get('name') || e.target.querySelector('input[type="text"]').value,
-        email: formData.get('email') || e.target.querySelector('input[type="email"]').value,
-        points: formData.get('points') || e.target.querySelector('input[type="number"]').value,
-        status: formData.get('status') || e.target.querySelector('select').value
-    };
-    
-    // Simulate API call
-    showNotification('새 사용자가 추가되었습니다.', 'success');
-    closeModal('addUserModal');
-    
-    // Add to users table if on users page
-    if (currentSection === 'users') {
-        addUserToTable(userData);
-    }
-    
-    console.log('User added:', userData);
-}
-
-function addUserToTable(userData) {
-    const usersTable = document.querySelector('#users table tbody');
-    if (usersTable) {
-        const newRow = document.createElement('tr');
-        const userId = String(usersTable.children.length + 1).padStart(3, '0');
-        const currentDate = new Date().toISOString().split('T')[0];
-        
-        newRow.innerHTML = `
-            <td>${userId}</td>
-            <td>${userData.name}</td>
-            <td>${userData.email}</td>
-            <td>${currentDate}</td>
-            <td><span class="status-badge status-${userData.status}">${userData.status === 'active' ? '활성' : '비활성'}</span></td>
-            <td>${userData.points}P</td>
-            <td>
-                <button class="btn btn-secondary btn-sm">수정</button>
-                <button class="btn btn-danger btn-sm">삭제</button>
-            </td>
-        `;
-        
-        usersTable.appendChild(newRow);
-        
-        // Animate new row
-        newRow.style.opacity = '0';
-        newRow.style.backgroundColor = 'rgba(45, 90, 61, 0.1)';
-        setTimeout(() => {
-            newRow.style.transition = 'all 0.5s ease';
-            newRow.style.opacity = '1';
-            setTimeout(() => {
-                newRow.style.backgroundColor = 'transparent';
-            }, 2000);
-        }, 100);
+// 분리배출 데이터 삭제
+function deleteWaste(id) {
+    if (confirm('정말로 이 분리배출 기록을 삭제하시겠습니까?')) {
+        console.log(`분리배출 데이터 삭제: ${id}`);
+        // TODO: 백엔드 API 호출
+        showNotification('분리배출 기록이 삭제되었습니다.', 'success');
     }
 }
 
-// Data loading functions
-function loadDashboardData() {
-    console.log('📊 대시보드 데이터 로딩...');
-    // Simulate data loading
-    setTimeout(() => {
-        console.log('✅ 대시보드 데이터 로딩 완료');
-    }, 500);
+// 나눔 게시글 편집
+function editSharing(id) {
+    console.log(`나눔 게시글 편집: ${id}`);
+    showNotification('나눔 게시글 편집 기능은 준비 중입니다.', 'info');
 }
 
-function loadUsersData() {
-    console.log('👥 사용자 데이터 로딩...');
-    // Simulate data loading
-    setTimeout(() => {
-        console.log('✅ 사용자 데이터 로딩 완료');
-    }, 500);
-}
-
-function loadWasteManagementData() {
-    console.log('♻️ 폐기물 관리 데이터 로딩...');
-    // Simulate data loading
-    setTimeout(() => {
-        console.log('✅ 폐기물 관리 데이터 로딩 완료');
-    }, 500);
-}
-
-function loadAnalyticsData() {
-    console.log('📈 분석 데이터 로딩...');
-    // Simulate data loading
-    setTimeout(() => {
-        console.log('✅ 분석 데이터 로딩 완료');
-    }, 500);
-}
-
-// Utility functions
-function refreshActivities() {
-    showNotification('활동 목록을 새로고침했습니다.', 'info');
-    updateRecentActivities();
-}
-
-function logout() {
-    if (confirm('정말 로그아웃 하시겠습니까?')) {
-        showNotification('로그아웃되었습니다.', 'info');
-        stopRealTimeUpdates();
-        
-        // Simulate logout redirect
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1500);
+// 나눔 게시글 삭제
+function deleteSharing(id) {
+    if (confirm('정말로 이 나눔 게시글을 삭제하시겠습니까?')) {
+        console.log(`나눔 게시글 삭제: ${id}`);
+        showNotification('나눔 게시글이 삭제되었습니다.', 'success');
     }
 }
 
-// Notification system
-function showNotification(message, type = 'success') {
+// 회원 정보 편집
+function editUser(id) {
+    console.log(`회원 정보 편집: ${id}`);
+    showNotification('회원 정보 편집 기능은 준비 중입니다.', 'info');
+}
+
+// 회원 상태 토글
+function toggleUserStatus(id) {
+    console.log(`회원 상태 변경: ${id}`);
+    showNotification('회원 상태가 변경되었습니다.', 'success');
+}
+
+// 환경톡톡 게시글 편집
+function editEnvTalk(id) {
+    console.log(`환경톡톡 게시글 편집: ${id}`);
+    showNotification('환경톡톡 게시글 편집 기능은 준비 중입니다.', 'info');
+}
+
+// 환경톡톡 게시글 삭제
+function deleteEnvTalk(id) {
+    if (confirm('정말로 이 환경톡톡 게시글을 삭제하시겠습니까?')) {
+        console.log(`환경톡톡 게시글 삭제: ${id}`);
+        showNotification('환경톡톡 게시글이 삭제되었습니다.', 'success');
+    }
+}
+
+// 공지사항 편집
+function editNotice(id) {
+    console.log(`공지사항 편집: ${id}`);
+    showNotification('공지사항 편집 기능은 준비 중입니다.', 'info');
+}
+
+// 공지사항 삭제
+function deleteNotice(id) {
+    if (confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
+        console.log(`공지사항 삭제: ${id}`);
+        showNotification('공지사항이 삭제되었습니다.', 'success');
+    }
+}
+
+// ===================
+// 알림 시스템
+// ===================
+
+// 알림 메시지 표시
+function showNotification(message, type = 'info') {
+    // 기존 알림이 있으면 제거
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
     }
     
+    // 새 알림 요소 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <span class="notification-message">${message}</span>
+        <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    // 알림 스타일 설정
     notification.style.cssText = `
         position: fixed;
-        top: 100px;
+        top: 20px;
         right: 20px;
         background: ${getNotificationColor(type)};
         color: white;
-        padding: 15px 20px;
+        padding: 16px 20px;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        z-index: 10001;
+        z-index: 10000;
         transform: translateX(400px);
         transition: transform 0.3s ease;
-        max-width: 300px;
+        max-width: 400px;
         font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     `;
-    notification.textContent = message;
+    
+    const closeButton = notification.querySelector('.notification-close');
+    closeButton.style.cssText = `
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+        margin-left: auto;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    `;
+    
+    closeButton.addEventListener('mouseenter', () => {
+        closeButton.style.opacity = '1';
+        closeButton.style.background = 'rgba(255,255,255,0.2)';
+    });
+    
+    closeButton.addEventListener('mouseleave', () => {
+        closeButton.style.opacity = '0.8';
+        closeButton.style.background = 'none';
+    });
     
     document.body.appendChild(notification);
     
+    // 애니메이션으로 표시
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
     
+    // 3초 후 자동 제거
     setTimeout(() => {
         notification.style.transform = 'translateX(400px)';
         setTimeout(() => {
@@ -465,271 +404,102 @@ function showNotification(message, type = 'success') {
 }
 
 function getNotificationColor(type) {
-    switch(type) {
+    switch (type) {
         case 'success': return '#28a745';
         case 'error': return '#dc3545';
         case 'warning': return '#ffc107';
         case 'info': return '#17a2b8';
-        default: return '#28a745';
+        default: return '#6c757d';
     }
 }
 
-// Chart animation
-function animateChartBars() {
-    const chartBars = document.querySelectorAll('.chart-bar');
-    chartBars.forEach((bar, index) => {
-        const height = bar.style.height;
-        bar.style.height = '0%';
-        setTimeout(() => {
-            bar.style.transition = 'height 0.8s ease-out';
-            bar.style.height = height;
-        }, index * 100);
-    });
+// ===================
+// 데이터 업데이트 함수들
+// ===================
+
+// 대시보드 통계 업데이트
+function updateDashboardStats(stats) {
+    // TODO: 실제 데이터로 통계 카드 업데이트
+    console.log('대시보드 통계 업데이트:', stats);
 }
 
-// Performance monitoring
-function trackPagePerformance() {
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            if (perfData) {
-                const loadTime = Math.round(perfData.loadEventEnd - perfData.loadEventStart);
-                
-                if (loadTime > 0) {
-                    console.log(`⚡ 관리자 페이지 로드 시간: ${loadTime}ms`);
-                    
-                    if (loadTime < 1000) {
-                        setTimeout(() => {
-                            showNotification('관리자 페이지가 빠르게 로드되었습니다!', 'success');
-                        }, 2000);
-                    }
-                }
-            }
-        }, 1000);
-    });
+// 분리배출 데이터 업데이트
+function updateWasteData(data) {
+    // TODO: 분리배출 테이블 업데이트
+    console.log('분리배출 데이터 업데이트:', data);
 }
 
-// Keyboard shortcuts
-function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
-        // Ctrl/Cmd + number keys for quick navigation
-        if ((e.ctrlKey || e.metaKey) && e.key >= '1' && e.key <= '9') {
-            e.preventDefault();
-            const sectionIndex = parseInt(e.key) - 1;
-            const sections = ['dashboard', 'users', 'waste-management', 'sharing', 'marketplace', 'community', 'analytics', 'content', 'settings'];
-            
-            if (sections[sectionIndex]) {
-                showSection(sections[sectionIndex]);
-                updateActiveLink(sections[sectionIndex]);
-            }
-        }
-        
-        // Ctrl/Cmd + R for refresh current section data
-        if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-            e.preventDefault();
-            refreshCurrentSection();
-        }
-        
-        // Ctrl/Cmd + N for new user (when on users page)
-        if ((e.ctrlKey || e.metaKey) && e.key === 'n' && currentSection === 'users') {
-            e.preventDefault();
-            openModal('addUserModal');
-        }
-    });
+// 나눔 데이터 업데이트
+function updateSharingData(data) {
+    // TODO: 나눔 테이블 업데이트
+    console.log('나눔 데이터 업데이트:', data);
 }
 
-function refreshCurrentSection() {
-    loadSectionData(currentSection);
-    showNotification(`${getSectionTitle(currentSection)} 데이터를 새로고침했습니다.`, 'info');
+// 회원 데이터 업데이트
+function updateUserData(data) {
+    // TODO: 회원 테이블 업데이트
+    console.log('회원 데이터 업데이트:', data);
 }
 
-function getSectionTitle(sectionId) {
-    const titles = {
-        'dashboard': '대시보드',
-        'users': '사용자 관리',
-        'waste-management': '폐기물 관리',
-        'sharing': '무료나눔 관리',
-        'marketplace': '마켓플레이스 관리',
-        'community': '커뮤니티 관리',
-        'analytics': '분석 및 리포트',
-        'content': '콘텐츠 관리',
-        'settings': '시스템 설정'
+// 환경톡톡 데이터 업데이트
+function updateEnvTalkData(data) {
+    // TODO: 환경톡톡 테이블 업데이트
+    console.log('환경톡톡 데이터 업데이트:', data);
+}
+
+// 공지사항 데이터 업데이트
+function updateNoticeData(data) {
+    // TODO: 공지사항 테이블 업데이트
+    console.log('공지사항 데이터 업데이트:', data);
+}
+
+// ===================
+// 유틸리티 함수들
+// ===================
+
+// 홈으로 이동
+function goHome() {
+    window.location.href = '/admin';
+}
+
+// 로그아웃 처리
+function logout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+        // TODO: 백엔드 로그아웃 API 호출
+        console.log('로그아웃 처리');
+        window.location.href = '/admin/login';
+    }
+}
+
+// 테이블 정렬 기능
+function sortTable(table, column, order = 'asc') {
+    // TODO: 테이블 정렬 구현
+    console.log(`테이블 정렬: ${table}, 컬럼: ${column}, 순서: ${order}`);
+}
+
+// 페이지네이션
+function changePage(page) {
+    // TODO: 페이지네이션 구현
+    console.log(`페이지 변경: ${page}`);
+}
+
+// 검색 기능
+function searchData(query, type) {
+    // TODO: 검색 기능 구현
+    console.log(`검색: ${query}, 타입: ${type}`);
+}
+
+// ===================
+// 테스트용 함수 내보내기 (Node.js 환경에서 사용)
+// ===================
+
+// Node.js 환경에서 테스트할 때 사용
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        openModal,
+        closeModal,
+        showNotification,
+        animateCounter,
+        refreshAllData
     };
-    return titles[sectionId] || sectionId;
 }
-
-// Enhanced table interactions
-function setupTableInteractions() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        // Add sorting functionality
-        const headers = table.querySelectorAll('th');
-        headers.forEach((header, index) => {
-            header.style.cursor = 'pointer';
-            header.addEventListener('click', function() {
-                sortTable(table, index);
-            });
-        });
-        
-        // Add row selection
-        const rows = table.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            row.addEventListener('click', function(e) {
-                if (!e.target.closest('button')) {
-                    row.classList.toggle('selected');
-                }
-            });
-        });
-    });
-}
-
-function sortTable(table, columnIndex) {
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    
-    const isNumeric = rows.every(row => {
-        const cell = row.cells[columnIndex];
-        if (!cell) return false;
-        const text = cell.textContent.replace(/[^\d.-]/g, '');
-        return !isNaN(text) && text !== '';
-    });
-    
-    rows.sort((a, b) => {
-        const aCell = a.cells[columnIndex];
-        const bCell = b.cells[columnIndex];
-        if (!aCell || !bCell) return 0;
-        
-        const aText = aCell.textContent.trim();
-        const bText = bCell.textContent.trim();
-        
-        if (isNumeric) {
-            return parseFloat(aText.replace(/[^\d.-]/g, '')) - parseFloat(bText.replace(/[^\d.-]/g, ''));
-        } else {
-            return aText.localeCompare(bText);
-        }
-    });
-    
-    rows.forEach(row => tbody.appendChild(row));
-    showNotification('테이블이 정렬되었습니다.', 'info');
-}
-
-// Search and filter functions
-function searchUsers(query) {
-    const rows = document.querySelectorAll('#users table tbody tr');
-    
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        if (text.includes(query.toLowerCase())) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-function filterByStatus(status) {
-    const rows = document.querySelectorAll('#users table tbody tr');
-    
-    rows.forEach(row => {
-        const statusCell = row.querySelector('.status-badge');
-        if (status === 'all' || (statusCell && statusCell.textContent.includes(status))) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-
-// Export functions
-function exportUsers() {
-    const users = [];
-    const rows = document.querySelectorAll('#users table tbody tr');
-    
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length >= 6) {
-            users.push({
-                id: cells[0].textContent,
-                name: cells[1].textContent,
-                email: cells[2].textContent,
-                joinDate: cells[3].textContent,
-                status: cells[4].textContent,
-                points: cells[5].textContent
-            });
-        }
-    });
-    
-    const csvContent = "data:text/csv;charset=utf-8," 
-        + "ID,이름,이메일,가입일,상태,포인트\n"
-        + users.map(user => `${user.id},${user.name},${user.email},${user.joinDate},${user.status},${user.points}`).join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "users.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('사용자 데이터를 내보냈습니다.', 'success');
-}
-
-// Initialize additional features
-function initializeAdditionalFeatures() {
-    setupKeyboardShortcuts();
-    trackPagePerformance();
-    setupTableInteractions();
-    
-    // Animate chart bars when dashboard is visible
-    setTimeout(() => {
-        if (currentSection === 'dashboard') {
-            animateChartBars();
-        }
-    }, 1000);
-}
-
-// Error handling
-window.addEventListener('error', function(e) {
-    console.error('Page error:', e.error);
-    showNotification('오류가 발생했습니다. 페이지를 새로고침해 주세요.', 'error');
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('Unhandled promise rejection:', e.reason);
-    showNotification('네트워크 오류가 발생했습니다.', 'error');
-});
-
-// Page visibility handling
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        stopRealTimeUpdates();
-        console.log('⏸️ 실시간 업데이트 일시정지');
-    } else {
-        startRealTimeUpdates();
-        console.log('▶️ 실시간 업데이트 재시작');
-    }
-});
-
-// Initialize everything when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    initializeAdminPage();
-    startRealTimeUpdates();
-    setupEventListeners();
-    animateCounters();
-    initializeAdditionalFeatures();
-    
-    console.log('🚀 GreenCycle 관리자 시스템 초기화 완료');
-});
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', function() {
-    stopRealTimeUpdates();
-});
-
-// Export global functions for HTML onclick events
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.refreshActivities = refreshActivities;
-window.logout = logout;
-window.exportUsers = exportUsers;
-window.showSection = showSection;

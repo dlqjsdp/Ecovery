@@ -56,8 +56,10 @@
         from disposal_feedback f
                  left join disposal_history h on f.disposal_history_id = h.disposal_history_id
                  left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
-                 join member m on f.member_id = m.member_id
+                 left join member m on f.member_id = m.member_id
+        <include refid="criteria"/>
         order by feedback_id desc
+        LIMIT #{amount} OFFSET #{offset}
     </select>
 
     <!--회원용 신고 내역 조회-->
@@ -70,13 +72,42 @@
                h.region_gu as regionGu,
                h.final_item as finalItem,
                i.disposal_img_url as disposalHistoryImgUrl
+               m.nickname as nickname
         from disposal_feedback f
-                 left join disposal_history h on f.disposal_history_id = h.disposal_history_id
-                 left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
+        left join disposal_history h on f.disposal_history_id = h.disposal_history_id
+        left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
+        left join member m on h.member_id = m.member_id
         where f.member_id = #{memberId}
         order by feedback_id desc
     </select>
 
+    <!-- 검색 조건(제목, 내용, 지역(구,동) -->
+    <sql id="criteria">
+        <where>
+            <foreach collection="typeArr" item="type" separator="OR">
+                <if test="type == 'R'">
+                    region_gu LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+                <if test="type == 'M'">
+                    member_id LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+                <if test="type == 'A'">
+                    ai_prediction LIKE CONCAT('%', #{keyword}, '%')
+                </if>
+            </foreach>
+        </where>
+    </sql>
 
+    <!-- 페이징 처리를 위한 전체 게시글 수를 조회 -->
+    <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
+        SELECT COUNT(*)
+        FROM disposal_feedback
+        <where>
+            <if test="type != null and keyword != null and keyword != ''">
+                <include refid="criteria"/>
+            </if>
+            feedback_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
+        </where>
+    </select>
 
 </mapper>

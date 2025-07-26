@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.DisposalHistoryVO;
+import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalHistoryDto;
 import com.ecovery.mapper.DisposalHistoryMapper;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,13 @@ public class DisposalHistoryServiceImpl implements DisposalHistoryService {
     }
 
     @Override
-    public List<DisposalHistoryDto> getAllHistory() {
-        return disposalHistoryMapper.findAllDisposalHistory();
+    public List<DisposalHistoryDto> getAllHistory(Criteria cri) {
+        return disposalHistoryMapper.findAllDisposalHistory(cri);
+    }
+
+    @Override
+    public int getTotal(Criteria cri) {
+        return disposalHistoryMapper.getTotalCount(cri);
     }
 
     @Override
