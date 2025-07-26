@@ -1,0 +1,156 @@
+<!--
+GreenCycle 환경톡톡 목록 페이지
+환경 커뮤니티 게시판의 글 목록을 보여주는 페이지
+Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
+헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 글쓰기 버튼, 페이징 등을 표시함
+@author : eunji
+@fileName : list.html
+@since : 250717
+@history
+    - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
+    - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
+    - 250722 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='공지사항'">
+    <title>공지사항</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 fragment로 감싸기 -->
+<div layout:fragment="content">
+    <!-- Page Header -->
+    <section class="page-header fade-in">
+        <div class="page-header-content">
+            <h1>💬 공지사항</h1>
+            <p>환경을 사랑하는 사람들과 함께 나누는 소중한 이야기와 경험들</p>
+            <div class="page-stats">
+                <div class="stat-item"><span class="stat-number">1,247</span><span class="stat-label">전체 게시글</span></div>
+                <div class="stat-item"><span class="stat-number">892</span><span class="stat-label">활성 회원</span></div>
+                <div class="stat-item"><span class="stat-number">156</span><span class="stat-label">오늘 글</span></div>
+                <div class="stat-item"><span class="stat-number">34</span><span class="stat-label">실시간 접속</span></div>
+            </div>
+        </div>
+    </section>
+
+        <!-- Board Container -->
+        <div class="board-container">
+            <div class="board-main fade-in">
+                <!-- Board Header -->
+                <div class="board-header">
+                    <h2 class="board-title">환경 실천 커뮤니티</h2>
+                    <div class="board-actions">
+                        <a th:href="@{/notice/register}"
+                           class="btn btn-primary"
+                           sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                            ✏️ 글쓰기
+                        </a>
+                        <div class="search-box">
+                            <form id="searchForm" style="display: flex; align-items: center; gap: 10px;">
+                                <input type="text" id="keyword" class="search-input" name="keyword" placeholder="검색어 입력">
+                                <button type="submit" class="search-btn">🔍</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="category-tabs">
+                    <button class="tab active" onclick="switchTab(this, 'all')">전체</button>
+                    <button class="tab" onclick="switchTab(this, 'tips')">환경 팁</button>
+                    <button class="tab" onclick="switchTab(this, 'review')">실천 후기</button>
+                    <button class="tab" onclick="switchTab(this, 'challenge')">챌린지</button>
+                    <button class="tab" onclick="switchTab(this, 'question')">질문답변</button>
+                    <button class="tab" onclick="switchTab(this, 'news')">환경 뉴스</button>
+                </div>
+
+                <!-- Post List -->
+                <div class="post-list" id="postList">
+                    <!-- JS에서 비동기로 렌더링 -->
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div class="pagination" id="pagination">
+                    <!-- JS에서 동적으로 구성 -->
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="board-sidebar fade-in">
+                <!-- User Info -->
+                <div class="sidebar-card user-stats">
+                    <h3>👤 내 정보</h3>
+                    <div class="user-avatar">🌱</div>
+                    <div class="user-name">환경지킴이</div>
+                    <div class="user-level">🌟 에코마스터</div>
+                    <div class="user-point-stats">
+                        <div class="point-item"><span class="point-number">1,247</span><span class="point-label">에코포인트</span></div>
+                        <div class="point-item"><span class="point-number">89</span><span class="point-label">작성글</span></div>
+                    </div>
+                </div>
+
+                <!-- Popular Posts -->
+                <div class="sidebar-card">
+                    <h3>🔥 인기글</h3>
+                    <div class="popular-list">
+                        <div class="popular-item" onclick="viewPost(1)">
+                            <div class="popular-rank">1</div>
+                            <div class="popular-title">30일 제로웨이스트 챌린지 완주 후기</div>
+                            <div class="popular-stats"><span>👁️ 847</span><span>❤️ 89</span><span>💬 23</span></div>
+                        </div>
+                        <!-- ...더미 데이터 생략... -->
+                    </div>
+                </div>
+
+                <!-- Weekly Challenge -->
+                <div class="challenge-card">
+                    <div class="challenge-icon">🌍</div>
+                    <div class="challenge-title">이번 주 챌린지</div>
+                    <div class="challenge-desc">
+                        일회용품 줄이기<br>7일 동안 일회용품 사용량 50% 줄이기
+                    </div>
+                    <button class="challenge-btn" onclick="joinChallenge()">참여하기</button>
+                </div>
+
+                <!-- Environmental Tips -->
+                <div class="sidebar-card">
+                    <h3>💡 오늘의 환경 팁</h3>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">♻️</div>
+                        <h4 style="color: var(--primary-green); margin-bottom: 10px;">분리배출 핵심</h4>
+                        <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);">
+                            플라스틱 용기는 내용물을 비우고 물로 헹군 후 배출하면 재활용 효율이 <strong>30% 향상</strong>됩니다!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="sidebar-card">
+                    <h3>🔗 바로가기</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="showNotification('분리배출 가이드로 이동합니다')">📋 분리배출 가이드</button>
+                        <button class="btn btn-secondary" onclick="showNotification('에코마켓으로 이동합니다')">🛒 친환경 제품 보기</button>
+                        <button class="btn btn-secondary" onclick="showNotification('무료나눔으로 이동합니다')">🤝 무료나눔 참여</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <!-- 추가 JS (필요시만) -->
+        <script th:src="@{/js/eco-talk-script.js}"></script>
+        <script th:src="@{/js/notice-list.js}"></script> <!-- 목록 전용 -->
+    </th:block>
+</body>
+</html>
+
