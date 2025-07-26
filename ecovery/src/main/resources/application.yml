@@ -10,6 +10,7 @@
 #   - 250724 | yukyeong | 소셜 로그인 설정 추가
 #   - 250725 | sehui | 포트원 API 키 설정 추가
 #   - 250725 | yukyeong | 구글 로그인 설정 추가
+#   - 250726 | yukyeong | 환경톡톡 이미지 업로드 경로 추가
 
 
 server:
@@ -70,6 +71,9 @@ disposalImgLocation: C:/ecovery/disposalImg
 
 # 무료나눔 이미지 업로드 경로
 freeImgLocation: C:/ecovery/free
+
+# 환경톡톡 이미지 업로드 경로
+envImgLocation: C:/ecovery/env
 
 # 리소스 이미지 업로드 경로
 uploadPath: file:///C:/ecovery/
