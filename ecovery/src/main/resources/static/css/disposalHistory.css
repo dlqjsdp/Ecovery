@@ -13,27 +13,31 @@
 
 /* CSS 변수 정의 - GreenCycle 메인 페이지와 동일한 컬러 시스템 */
 :root {
-    /* 메인 컬러 팔레트 */
-    --primary-green: #2d5a3d;      /* 메인 그린 */
-    --secondary-green: #4a7c59;    /* 보조 그린 */
-    --accent-green: #6fa776;       /* 강조 그린 */
-    --light-green: #a8d5b7;       /* 연한 그린 */
-    --sage-green: #9eb3a0;        /* 세이지 그린 */
-    --dark-green: #1e3d2a;        /* 진한 그린 */
-    
-    /* 기본 컬러 */
-    --white: #ffffff;
+    /* 기본 색상 */
+    --primary-color: #2ecc71;
+    --secondary-color: #95a5a6;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    --success-color: #27ae60;
     --light-gray: #f8f9fa;
-    --medium-gray: #6c757d;
-    --dark-gray: #343a40;
-    --black: #212529;
-    
-    /* 폰트 및 공통 설정 */
-    --font-family: 'Noto Sans KR', sans-serif;
-    --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
-    --border-radius: 12px;
-    --container-max-width: 1400px;
-    --container-padding: 20px;
+    --border-color: #ddd;
+    --dark-gray: #2c3e50;
+    --text-color: #333;
+    --hover-color: #27ae60;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --modal-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+    /* 권한별 색상 */
+    --role-seedling: #8bc34a;      /* 새싹 - 연두색 */
+    --role-regular: #2196f3;       /* 일반회원 - 파란색 */
+    --role-excellent: #9c27b0;     /* 우수회원 - 보라색 */
+    --role-vip: #ff9800;           /* VIP회원 - 골드색 */
+
+    /* 상태별 색상 */
+    --status-active: #27ae60;      /* 활성 - 녹색 */
+    --status-inactive: #95a5a6;    /* 비활성 - 회색 */
+    --status-suspended: #e74c3c;   /* 정지 - 빨간색 */
 }
 
 /* 기본 body 스타일 */
@@ -59,7 +63,7 @@ body {
 /* ========================================
    헤더 및 네비게이션 (메인 페이지와 동일)
    ======================================== */
-.header {
+/*.header {
     position: fixed;
     top: 0;
     left: 0;
@@ -84,7 +88,7 @@ body {
     align-items: center;
 }
 
-/* 로고 스타일 */
+!* 로고 스타일 *!
 .logo {
     display: flex;
     align-items: center;
@@ -100,7 +104,7 @@ body {
 }
 
 
-/* 네비게이션 메뉴 */
+!* 네비게이션 메뉴 *!
 .nav-menu {
     display: flex;
     list-style: none;
@@ -135,6 +139,191 @@ body {
 .nav-menu a:hover::after,
 .nav-menu a.active::after {
     width: 100%;
+}*/
+/* ===================================
+   관리자 헤더 스타일
+   =================================== */
+.admin-header {
+    background: white;
+    box-shadow: var(--shadow);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-navbar {
+    padding: 0 20px;
+}
+
+.admin-nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 70px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--primary-green);
+}
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+/* 관리자 로고 스타일 */
+.admin-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.logo-icon {
+    font-size: 1.5rem;
+}
+
+.logo-text {
+    color: var(--primary-color);
+}
+
+.admin-badge {
+    background: var(--danger-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+/* ===================================
+   관리자 헤더 스타일
+   =================================== */
+.admin-header {
+    background: white;
+    box-shadow: var(--shadow);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-navbar {
+    padding: 0 20px;
+}
+
+.admin-nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    height: 70px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--primary-green);
+}
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+/* 관리자 로고 스타일 */
+.admin-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.logo-icon {
+    font-size: 1.5rem;
+}
+
+.logo-text {
+    color: var(--primary-color);
+}
+
+.admin-badge {
+    background: var(--danger-color);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* 관리자 메뉴 스타일 */
+.admin-nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.admin-nav-menu a {
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 10px 15px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.admin-nav-menu a:hover,
+.admin-nav-menu a.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 관리자 프로필 스타일 */
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.admin-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.logout-btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    background: #7f8c8d;
 }
 
 /* 햄버거 메뉴 */
@@ -150,32 +339,6 @@ body {
     height: 3px;
     background: var(--primary-green);
     transition: all 0.3s ease;
-}
-
-/* 관리자 정보 */
-.admin-info {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    color: var(--dark-gray);
-    font-weight: 500;
-}
-
-.btn-logout {
-    padding: 8px 16px;
-    background: transparent;
-    color: var(--primary-green);
-    border: 2px solid var(--primary-green);
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-size: 14px;
-}
-
-.btn-logout:hover {
-    background: var(--primary-green);
-    color: var(--white);
 }
 
 /* ========================================

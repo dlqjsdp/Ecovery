@@ -7,6 +7,7 @@ import com.ecovery.dto.PageDto;
 import com.ecovery.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -86,16 +87,28 @@ public class AdminController {
 
     @PostMapping("/role/update/{memberId}")
     @ResponseBody
-    public ResponseEntity<MemberVO> updateMemberRole(@PathVariable("memberId") Long memberId,@RequestBody MemberVO memberVO, @ModelAttribute("cri") Criteria cri) {
+    public ResponseEntity<Map<String, Object>> updateMemberRole(@PathVariable("memberId") Long memberId,@RequestBody MemberVO memberVO) {
         // memberId를 MemberVO에 직접 설정
         memberVO.setMemberId(memberId);
 
         log.info("memberVO: {}", memberVO);
         log.info("role: {}", memberVO.getRole());
 
-        memberService.updateMemberByAdmin(memberVO);
-
-        return ResponseEntity.ok(memberVO);
+        try {
+            memberService.updateMemberByAdmin(memberVO);
+            // 성공 응답: success: true, message: "..."
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "권한이 성공적으로 변경되었습니다."
+            ));
+        } catch (Exception e) {
+            log.error("권한 변경 중 오류 발생: {}", e.getMessage());
+            // 실패 응답: success: false, message: "..."
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "success", false,
+                    "message", "권한 변경에 실패했습니다."
+            ));
+        }
     }
 
 

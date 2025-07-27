@@ -68,9 +68,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // 네비게이션 기능 (메인 페이지와 동일)
 // ====================================
 function initializeNavigation() {
-    const header = document.getElementById('header');
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('navMenu');
+    const header = document.querySelector('.admin-header');
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.admin-nav-menu');
     
     // 스크롤 시 헤더 스타일 변경
     window.addEventListener('scroll', function() {
