@@ -768,7 +768,7 @@ async function updateMemberRole(memberId, newRole, reason) {
             },
             body: JSON.stringify({
                 memberId: memberId,
-                newRole: newRole,
+                role: newRole,
                 reason: reason
             })
         });

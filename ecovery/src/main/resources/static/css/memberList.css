@@ -70,7 +70,18 @@ body {
     margin: 0 auto;
     height: 70px;
 }
-
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--primary-green);
+}
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
 /* 관리자 로고 스타일 */
 .admin-logo {
     display: flex;

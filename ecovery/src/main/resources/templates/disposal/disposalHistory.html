@@ -4,7 +4,7 @@
     <!-- 기본 메타 정보 설정 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>오류 내역 리스트 페이지 </title>
+    <title>분리 배출 내역 </title>
     
     <!-- 외부 스타일시트 및 폰트 연결 - Thymeleaf 정적 리소스 경로 -->
     <link rel="stylesheet" th:href="@{/css/disposalHistory.css}">
@@ -20,22 +20,25 @@
     <!-- ========================================
          헤더 네비게이션 섹션
     ======================================== -->
-    <header class="header" id="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <!-- 로고 -->
-                <a th:href="@{/}" class="logo">
-                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
-                </a>
-                
-                <!-- 네비게이션 메뉴 -->
-                <ul class="nav-menu" id="navMenu">
-                    <li><a th:href="@{/}">홈</a></li> 
-                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
-                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
-                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
-                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
-                    <li><a th:href="@{/admin/waste-history}" class="active">분리배출 내역</a></li>
+    <header class="admin-header">
+        <nav class="admin-navbar">
+            <div class="admin-nav-container">
+                <!-- 관리자 로고 -->
+                <div class="admin-logo">
+                    <a th:href="@{/main}" class="logo" onclick="goHome()">
+                        <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                    </a>
+                    <span class="admin-badge">ADMIN</span>
+                </div>
+
+                <!-- 관리자 메뉴 -->
+                <ul class="admin-nav-menu">
+                    <li><a th:href="@{/admin/main}">대시보드</a></li>
+                    <li><a th:href="@{/admin/members}">분리 배출</a></li>
+                    <li><a th:href="@{/admin/feedback}">오류 신고</a></li>
+                    <li><a th:href="@{/admin/members}">회원 관리</a></li>
+                    <li><a th:href="@{/admin/statistics}">환경톡톡</a></li>
+                    <li><a th:href="@{/admin/settings}">공지사항</a></li>
                 </ul>
 
                 <!-- 관리자 정보 -->

@@ -22,13 +22,12 @@
             <div class="admin-nav-container">
                 <!-- 관리자 로고 -->
                 <div class="admin-logo">
-                    <a th:href="@{/main}" class="logo" onclick="goHome()">
-                        <span class="logo-icon">🌱</span>
-                        <span class="logo-text">Ecovery</span>
+                    <a th:href="@{/main}" class="logo-icon" onclick="goHome()">
+                        <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
                     </a>
                     <span class="admin-badge">ADMIN</span>
                 </div>
-                
+
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
                     <li><a th:href="@{/admin/main}">대시보드</a></li>
@@ -37,7 +36,7 @@
                     <li><a th:href="@{/admin/statistics}">통계 관리</a></li>
                     <li><a th:href="@{/admin/settings}">설정</a></li>
                 </ul>
-                
+
                 <!-- 관리자 프로필 -->
                 <!--<div class="admin-profile">
                     <span class="admin-name" th:text="${adminName}">관리자님</span>
