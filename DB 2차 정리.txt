@@ -234,6 +234,17 @@ CREATE TABLE env (
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );
 
+-- 환경톡톡 테이블 (env_img)
+CREATE TABLE env_img (
+    env_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    env_id BIGINT NOT NULL,
+    img_name VARCHAR(255) NOT NULL,
+    ori_img_name VARCHAR(255),
+    img_url VARCHAR(500) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE
+);
+
 -- 공지사항 테이블 (notice)
 CREATE TABLE notice (
     notice_id BIGINT AUTO_INCREMENT PRIMARY KEY,

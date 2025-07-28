@@ -73,6 +73,10 @@ public class MemberController {
             return "member/signup";
         }
 
+        // provider 값을 명시적으로 지정
+        memberVO.setProvider("local");
+        memberVO.setProviderId(null);
+
         // 모든 유효성 검사 통과 시
         log.info("회원가입 성공: 모든 유효성 검사 통과");
         memberService.registerMember(memberVO);
