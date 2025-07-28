@@ -1,9 +1,7 @@
 package com.ecovery.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +21,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EnvDto {
 
     private Long envId; // 환경 톡톡 게시글 ID

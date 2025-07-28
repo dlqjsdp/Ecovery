@@ -238,9 +238,9 @@ CREATE TABLE env (
 CREATE TABLE env_img (
     env_img_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     env_id BIGINT NOT NULL,
-    img_name VARCHAR(255) NOT NULL,
+    img_name VARCHAR(255),
     ori_img_name VARCHAR(255),
-    img_url VARCHAR(500) NOT NULL,
+    img_url VARCHAR(500)
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (env_id) REFERENCES env(env_id) ON DELETE CASCADE
 );
