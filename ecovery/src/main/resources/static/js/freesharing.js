@@ -1,8 +1,42 @@
-// Global variables
+/*서버에서 받은 데이터를 사용자가 읽기 좋게 바꿔주는 유틸리티 함수*/
+// 거래생태
+function getStatusText(status){
+    switch (status){
+        case 'ONGOING': return '나눔중';
+        case 'DONE': return '나눔 완료';
+        default: return '나눔중';
+    }
+}
+
+// 상품상태
+function getConditionText(condition){
+    switch (condition){
+        case 'HIGH': return "최상";
+        case 'MEDIUM': return '중간';
+        case 'LOW': return '사용감 있음';
+        default: return '최상';
+    }
+}
+
+function formatTimeAgo(dateTime){
+    const now = new Date();
+    const created = new Date(dateTime);
+    const diff = Math.floor((now - created) / 1000); // 초단위
+
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}일 전`;
+    return created.toLocaleDateString(); // ex: 2025.07.28
+}
+
+
+// 전역 변수 선언
 let currentItems = [];
 let filteredItems = [];
 let currentPage = 1;
 const itemsPerPage = 12;
+let sharingItemsData = [];
 
 // DOM elements
 const header = document.getElementById('header');
@@ -19,122 +53,137 @@ const loadMoreBtn = document.getElementById('loadMoreBtn');
 const totalItems = document.getElementById('totalItems');
 const pagination = document.getElementById('pagination');
 
-// Sample data
-const sampleItems = [
-    {
-        id: 1,
-        title: "아이 전집 세트 (상태 좋음)",
-        category: "books",
-        categoryName: "도서/문구",
-        description: "7살 아이가 보던 전집입니다. 상태 매우 좋고 깨끗합니다. 총 20권으로 구성되어 있어요.",
-        location: "강남역 2번 출구",
-        distance: "500m",
-        status: "available",
-        statusText: "나눔중",
-        time: "10분 전",
-        author: "김○○님",
-        contact: "010-1234-5678",
-        images: ["📚"],
-        views: 24,
-        likes: 5
-    },
-    {
-        id: 2,
-        title: "원목 책상 (IKEA)",
-        category: "furniture",
-        categoryName: "가구/인테리어",
-        description: "이사로 인해 나눔합니다. IKEA에서 구입한 원목 책상으로 스크래치는 거의 없어요.",
-        location: "서초구 반포동",
-        distance: "1.2km",
-        status: "reserved",
-        statusText: "예약중",
-        time: "23분 전",
-        author: "박○○님",
-        contact: "010-2345-6789",
-        images: ["🪑"],
-        views: 45,
-        likes: 12
-    },
-    {
-        id: 3,
-        title: "정장 셔츠 5벌 (새제품)",
-        category: "clothes",
-        categoryName: "의류/잡화",
-        description: "회사 퇴사로 인해 나눔합니다. 한번도 입지 않은 새제품들이에요. 95-100 사이즈입니다.",
-        location: "마포구 홍대입구역",
-        distance: "2.5km",
-        status: "completed",
-        statusText: "완료",
-        time: "1시간 전",
-        author: "이○○님",
-        contact: "010-3456-7890",
-        images: ["👔"],
-        views: 67,
-        likes: 18
-    },
-    {
-        id: 4,
-        title: "무선 이어폰 (삼성)",
-        category: "electronics",
-        categoryName: "전자제품",
-        description: "Galaxy Buds Pro 나눔합니다. 1년 정도 사용했고 기능상 문제없어요. 케이스와 충전기 포함.",
-        location: "송파구 잠실역",
-        distance: "3.8km",
-        status: "available",
-        statusText: "나눔중",
-        time: "2시간 전",
-        author: "최○○님",
-        contact: "010-4567-8901",
-        images: ["🎧"],
-        views: 89,
-        likes: 23
-    },
-    {
-        id: 5,
-        title: "유아용 보행기",
-        category: "kids",
-        categoryName: "유아/아동용품",
-        description: "돌 지난 아이가 사용하던 보행기입니다. 깨끗하게 소독했고 기능 정상입니다.",
-        location: "강동구 천호동",
-        distance: "4.2km",
-        status: "available",
-        statusText: "나눔중",
-        time: "3시간 전",
-        author: "한○○님",
-        contact: "010-5678-9012",
-        images: ["👶"],
-        views: 34,
-        likes: 8
-    },
-    {
-        id: 6,
-        title: "화분 5개 세트",
-        category: "etc",
-        categoryName: "기타",
-        description: "이사로 인해 키우던 화분들을 나눔합니다. 흙과 함께 드려요. 식물 키우기 좋아하시는 분께!",
-        location: "노원구 상계동",
-        distance: "5.1km",
-        status: "available",
-        statusText: "나눔중",
-        time: "4시간 전",
-        author: "정○○님",
-        contact: "010-6789-0123",
-        images: ["🪴"],
-        views: 56,
-        likes: 14
-    }
-];
+/* 페이지가 처음 로딩되었을 때 실행되는 함수*/
+// 1. 페이지 로드 후 실행
+document.addEventListener('DOMContentLoaded', async function(){
+    initializePage(); // 필터/모달 초기화
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    initializePage();
-    loadItems();
-    setupEventListeners();
+    try{
+        // 2. API로 데이터 요청
+        const res = await fetch('/api/free/list'); // 실제 API URL 로딩
+        const result = await res.json();
+
+        console.log('전체 result:', result);
+        console.log('result.list:', result.list);
+        console.log('result.content:', result.content);
+
+        // 3. 응답 데이터 파싱
+        const list = Array.isArray(result.list)
+                ? result.list
+                : Array.isArray(result.content)
+                ? result.content
+                : [];
+
+        sharingItemsData = list;
+
+        // 4. 렌더링 대상 배열 복사
+        currentItems = [...sharingItemsData];
+        filteredItems = [...currentItems];
+
+        // 5. 렌더링 함수 실행
+        renderItems();  // 아이템 카드 렌더링
+        updateItemCount(); // 아이템 수 갱신
+        renderPagination(); // 페이징 처리
+
+        // 6. 버튼, 모달 등의 이벤트 바인딩
+        setupEventListeners();
+
+    } catch (err){
+        console.error('데이터 불러오기 실패 : ', err);
+    }
 });
+
+function updateItemCount() {
+    const totalItems = document.getElementById('totalItems');
+    if (totalItems) {
+        totalItems.textContent = `총 ${filteredItems.length}건`;
+    } else {
+        console.warn('⚠️ totalItems 요소를 찾을 수 없습니다.');
+    }
+}
+
+function renderPagination() {
+    const pagination = document.getElementById('pagination');
+    if (!pagination) {
+        console.warn('⚠️ pagination 요소가 없습니다.');
+        return;
+    }
+
+    pagination.innerHTML = ''; // 기존 내용 초기화
+
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = 'page-btn';
+        if (i === currentPage) {
+            pageBtn.classList.add('active');
+        }
+
+        // 페이지 클릭 이벤트
+        pageBtn.addEventListener('click', () => {
+            currentPage = i;
+            renderItems();
+        });
+
+        pagination.appendChild(pageBtn);
+    }
+}
+
+
+//  아이템 카드 생성 함수
+function createItemElement(item) {
+    const card = document.createElement('div');
+    card.className = 'sharing-card';
+
+    card.innerHTML = `
+        <div class="item-image">
+            <img src="${item.imgUrl || '/img/default-sharing.svg'}" alt="${item.title}">
+            <div class="item-status">${getStatusText(item.dealStatus)}</div>
+        </div>
+        <div class="item-info">
+            <h3 class="item-title">${item.title}</h3>
+            <div class="item-meta">
+                <span class="item-category">${item.category}</span>
+                <span class="item-condition">${getConditionText(item.itemCondition)}</span>
+            </div>
+            <div class="item-location">
+                <span>📍${item.regionGu} ${item.regionDong}</span>
+                <span class="item-time">${formatTimeAgo(item.createdAt)}</span>
+            </div>
+            <div class="item-stats">
+                <span class="stat-item">👁️ ${item.viewCount}</span>
+            </div>
+        </div>
+    `;
+
+    card.addEventListener('click', () => {
+        window.location.href = `/free/${item.freeId}`;
+    });
+
+    return card;
+}
+
+// // 결과 없음 표시 함수
+// function showEmptyState() {
+//     const itemsGrid = document.getElementById('itemsGrid');
+//     if (!itemsGrid) return;
+//
+//     const emptyDiv = document.createElement('div');
+//     emptyDiv.className = 'no-items-content';
+//     emptyDiv.innerHTML = `
+//         <h3>😔 검색 조건에 맞는 나눔이 없습니다</h3>
+//         <p>다른 조건으로 검색해보시거나, 직접 나눔을 등록해보세요!</p>
+//         <a href="/free/register" class="btn btn-primary">나눔 등록하기</a>
+//     `;
+//     itemsGrid.appendChild(emptyDiv);
+// }
+
 
 // Page initialization
 function initializePage() {
-    // Header scroll effect
+    // 헤더 스크롤 효과
     window.addEventListener('scroll', () => {
         if (window.scrollY > 100) {
             header.classList.add('scrolled');
@@ -142,100 +191,119 @@ function initializePage() {
             header.classList.remove('scrolled');
         }
     });
+    // 햄버거 메뉴 클릭 시 모바일 메뉴 토글
+    const hamburger = document.getElementById('hamburger');
+    if (hamburger) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
 
-    // Mobile menu toggle
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
-
-    // Close mobile menu when clicking on a link
-    document.querySelectorAll('.nav-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
+            const navMenu = document.getElementById('navMenu');
+            if (navMenu) {
+                navMenu.classList.toggle('active');
+            }
         });
-    });
+    }
+
 }
 
-// Setup event listeners
+// 페이지가 동작하게 만드는 핵심 JS 함수
 function setupEventListeners() {
-    // Modal controls
+    // 모달 열기 버튼 클릭 시
     addItemBtn.addEventListener('click', () => openModal(addItemModal));
+    // 나눔 등록 버튼 클릭하면 addItemModal 모달이 열림
     closeModal.addEventListener('click', () => closeModalHandler(addItemModal));
     closeDetailModal.addEventListener('click', () => closeModalHandler(itemDetailModal));
     
-    // Close modal when clicking outside
+    // 모달 우측 상단의 X 버튼 클릭 시 모달 닫힘
     window.addEventListener('click', (e) => {
         if (e.target === addItemModal) closeModalHandler(addItemModal);
         if (e.target === itemDetailModal) closeModalHandler(itemDetailModal);
     });
 
-    // Form submission
+    // 모달 영역 바깥을 클릭하면 해당 모달 닫힘
     addItemForm.addEventListener('submit', handleFormSubmit);
     
-    // Cancel button
+    // 나눔 등록 폼 제출 시 handleFormSubmit 함수 실행 (폼 데이터 처리)
     document.getElementById('cancelBtn').addEventListener('click', () => {
-        closeModalHandler(addItemModal);
+        closeModalHandler(addItemModal); // 취소 버튼 누르면 등록 모달 닫힘
     });
 
-    // Filter and search
+    // 필터 & 정렬
     document.getElementById('categoryFilter').addEventListener('change', applyFilters);
     document.getElementById('distanceFilter').addEventListener('change', applyFilters);
     document.getElementById('statusFilter').addEventListener('change', applyFilters);
     document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
     document.getElementById('sortSelect').addEventListener('change', applySorting);
     
-    // Load more button
+    // 더보기 버튼을 누르면 다음 페이지의 아이템을 더 불러옴
     loadMoreBtn.addEventListener('click', loadMoreItems);
 
-    // File upload
+    // 파일 업로드 영역(사진 업로드)을 초기화하고 관련 이벤트를 설정하는 함수
     setupFileUpload();
 }
 
 // Load items
 function loadItems() {
-    currentItems = [...sampleItems];
+     // currentItems = [...sampleItems];
     filteredItems = [...currentItems];
-    currentPage = 1;
-    renderItems();
-    updateItemCount();
+    currentPage = 1;     // 페이징 처리를 위해 현재 페이지를 1페이지로 초기화
+    renderItems();      // 실제 화면에 카드들을 그려주는 함수
+    updateItemCount(); // 상단에 있는 "총 N건의 나눔 물건" 업데이트하는 함수
     renderPagination(); // 페이징 렌더링 추가
 }
 
-// Render items
+// 아이템 전체를 화면에 렌더링
 function renderItems(append = false) {
-    if (!append) {
-        itemsGrid.innerHTML = '';
-        currentPage = currentPage || 1; // currentPage 유지
+    // 1. DOM 요소 존재 여부 확인
+    const itemsGrid = document.getElementById('itemsGrid');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const pagination = document.getElementById('pagination');
+
+    if (!itemsGrid || !loadMoreBtn || !pagination) {
+        console.warn(' 필수 DOM 요소가 존재하지 않아 렌더링을 중단합니다.');
+        return;
     }
 
+    // 2. 초기 렌더링 시 이전 내용 제거
+    if (!append) {
+        itemsGrid.innerHTML = '';
+        currentPage = currentPage || 1;
+    }
+
+    // 3. 현재 보여줄 항목 계산
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const itemsToShow = filteredItems.slice(startIndex, endIndex);
 
+    // 4. 결과가 없을 때
     if (itemsToShow.length === 0 && currentPage === 1) {
-        showEmptyState();
+        showEmptyState?.(); // 함수가 있으면 실행
         loadMoreBtn.style.display = 'none';
         pagination.style.display = 'none';
         return;
     }
 
+    // 5. 아이템 렌더링
     itemsToShow.forEach(item => {
+        if(!item) {
+            console.warn("item이 undefined입니다. 필터링된 데이터:", filteredItems);
+            return;
+        }
+
         const itemElement = createItemElement(item);
         itemsGrid.appendChild(itemElement);
     });
 
-    // Show/hide load more button (기존 기능 유지)
+    // 6. 더보기 버튼 표시 여부
     if (endIndex >= filteredItems.length) {
         loadMoreBtn.style.display = 'none';
     } else {
         loadMoreBtn.style.display = 'block';
     }
 
-    // 페이징 표시
+    // 7. 페이지네이션 표시
     pagination.style.display = 'flex';
-    renderPagination();
+    renderPagination?.(); // 함수가 있으면 실행
 }
 
 // 새로운 페이징 렌더링 함수
@@ -340,16 +408,21 @@ function createItemElement(item) {
 
     itemDiv.innerHTML = `
         <div class="item-image">
-            ${item.images[0]}
-            <div class="item-status ${item.status}">${item.statusText}</div>
+            <img src="${item.imgUrl || '/img/default-sharing.svg'}" alt="${item.title}">
+            <div class="item-status">${getStatusText(item.dealStatus)}</div>
         </div>
         <div class="item-info">
             <h3 class="item-title">${item.title}</h3>
-            <span class="item-category">${item.categoryName}</span>
-            <p class="item-description">${item.description}</p>
             <div class="item-meta">
-                <span class="item-location">📍 ${item.location}</span>
-                <span class="item-time">${item.time}</span>
+                <span class="item-category">${item.category}</span>
+                <span class="item-condition">${getConditionText(item.itemCondition)}</span>
+            </div>
+             <div class="item-location">
+                <span>📍${item.regionGu} ${item.regionDong}</span>
+                <span class="item-time">${formatTimeAgo(item.createdAt)}</span>
+            </div>
+             <div class="item-stats">
+                <span class="stat-item">👁️ ${item.viewCount}</span>
             </div>
         </div>
     `;
@@ -528,7 +601,7 @@ function handleFormSubmit(e) {
         category: document.getElementById('itemCategory').value,
         categoryName: getCategoryName(document.getElementById('itemCategory').value),
         description: document.getElementById('itemDescription').value || '상세 설명이 없습니다.',
-        location: document.getElementById('itemLocation').value || '장소 미정',
+        location: `${document.getElementById('regionGu').value || ''} ${document.getElementById('regionDong').value || ''}`.trim() || '장소 미정',
         distance: '0m',
         status: 'available',
         statusText: '나눔중',
@@ -560,11 +633,9 @@ function resetForm() {
 // Get category name
 function getCategoryName(category) {
     const categories = {
-        'clothes': '의류/잡화',
-        'electronics': '전자제품',
-        'furniture': '가구/인테리어',
-        'books': '도서/문구',
-        'kids': '유아/아동용품',
+        'furniture': '가구',
+        'appliances': '가전',
+        'accessory': '잡화',
         'etc': '기타'
     };
     return categories[category] || '기타';
@@ -709,138 +780,6 @@ function debounce(func, wait) {
     };
 }
 
-// Add more sample data for demonstration
-function addMoreSampleData() {
-    const additionalItems = [
-        {
-            id: 7,
-            title: "노트북 거치대 (알루미늄)",
-            category: "electronics",
-            categoryName: "전자제품",
-            description: "맥북용으로 사용하던 알루미늄 거치대입니다. 각도 조절 가능하고 상태 좋아요.",
-            location: "용산구 이태원역",
-            distance: "2.1km",
-            status: "available",
-            statusText: "나눔중",
-            time: "5시간 전",
-            author: "김○○님",
-            contact: "010-7890-1234",
-            images: ["💻"],
-            views: 41,
-            likes: 9
-        },
-        {
-            id: 8,
-            title: "겨울 패딩 점퍼 (XL)",
-            category: "clothes",
-            categoryName: "의류/잡화",
-            description: "작년에 구입한 겨울 패딩입니다. 거의 입지 않아서 상태 매우 좋아요. XL 사이즈입니다.",
-            location: "영등포구 여의도역",
-            distance: "3.7km",
-            status: "available",
-            statusText: "나눔중",
-            time: "6시간 전",
-            author: "박○○님",
-            contact: "010-8901-2345",
-            images: ["🧥"],
-            views: 73,
-            likes: 19
-        },
-        {
-            id: 9,
-            title: "아기 침대 (원목)",
-            category: "kids",
-            categoryName: "유아/아동용품",
-            description: "아이가 커서 나눔합니다. 원목으로 제작된 아기침대이고 매트리스도 포함이에요.",
-            location: "성북구 성신여대입구역",
-            distance: "4.8km",
-            status: "reserved",
-            statusText: "예약중",
-            time: "7시간 전",
-            author: "이○○님",
-            contact: "010-9012-3456",
-            images: ["🛏️"],
-            views: 92,
-            likes: 27
-        },
-        {
-            id: 10,
-            title: "요리책 모음 (20권)",
-            category: "books",
-            categoryName: "도서/문구",
-            description: "요리에 관심이 없어져서 나눔해요. 한식, 중식, 양식 요리책들로 구성되어 있습니다.",
-            location: "구로구 구로디지털단지역",
-            distance: "6.2km",
-            status: "available",
-            statusText: "나눔중",
-            time: "8시간 전",
-            author: "최○○님",
-            contact: "010-0123-4567",
-            images: ["📖"],
-            views: 38,
-            likes: 11
-        },
-        {
-            id: 11,
-            title: "운동화 (나이키 270mm)",
-            category: "clothes",
-            categoryName: "의류/잡화",
-            description: "사이즈가 맞지 않아 나눔합니다. 한 번만 신어봤고 거의 새제품 상태입니다.",
-            location: "서대문구 신촌역",
-            distance: "3.4km",
-            status: "completed",
-            statusText: "완료",
-            time: "1일 전",
-            author: "한○○님",
-            contact: "010-1234-5670",
-            images: ["👟"],
-            views: 156,
-            likes: 42
-        },
-        {
-            id: 12,
-            title: "식물 가습기",
-            category: "electronics",
-            categoryName: "전자제품",
-            description: "초음파 가습기입니다. 작동 잘 되고 필터도 새것으로 교체해서 드려요.",
-            location: "동대문구 회기역",
-            distance: "5.5km",
-            status: "available",
-            statusText: "나눔중",
-            time: "1일 전",
-            author: "정○○님",
-            contact: "010-2345-6781",
-            images: ["💧"],
-            views: 67,
-            likes: 15
-        }
-    ];
-    
-    // 더 많은 데이터를 추가하여 페이징 효과를 명확히 함
-    for (let i = 13; i <= 50; i++) {
-        additionalItems.push({
-            id: i,
-            title: `나눔 물건 ${i}`,
-            category: ['clothes', 'electronics', 'furniture', 'books', 'kids', 'etc'][Math.floor(Math.random() * 6)],
-            categoryName: ['의류/잡화', '전자제품', '가구/인테리어', '도서/문구', '유아/아동용품', '기타'][Math.floor(Math.random() * 6)],
-            description: `나눔 물건 ${i}에 대한 설명입니다. 상태 좋고 필요하신 분께 나눔해드려요.`,
-            location: `서울시 강남구 역삼동`,
-            distance: `${(Math.random() * 5 + 0.5).toFixed(1)}km`,
-            status: ['available', 'reserved', 'completed'][Math.floor(Math.random() * 3)],
-            statusText: ['나눔중', '예약중', '완료'][Math.floor(Math.random() * 3)],
-            time: `${Math.floor(Math.random() * 24)}시간 전`,
-            author: `사용자${i}님`,
-            contact: '010-****-****',
-            images: ['📦'],
-            views: Math.floor(Math.random() * 100),
-            likes: Math.floor(Math.random() * 30)
-        });
-    }
-    
-    // Add to existing items
-    sampleItems.push(...additionalItems);
-}
-
 // Real-time updates simulation
 function startRealTimeUpdates() {
     setInterval(() => {
@@ -861,47 +800,47 @@ function startRealTimeUpdates() {
     }, 30000); // Every 30 seconds
 }
 
-function simulateNewItem() {
-    const categories = ['clothes', 'electronics', 'furniture', 'books', 'kids', 'etc'];
-    const locations = ['강남역', '홍대입구역', '신촌역', '이태원역', '잠실역', '여의도역'];
-    const items = ['책상', '의자', '가방', '신발', '책', '화분', '램프', '쿠션'];
-    
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-    const randomItem = items[Math.floor(Math.random() * items.length)];
-    
-    const newItem = {
-        id: Date.now() + Math.random(),
-        title: `${randomItem} 나눔합니다`,
-        category: randomCategory,
-        categoryName: getCategoryName(randomCategory),
-        description: `상태 좋은 ${randomItem}입니다. 필요하신 분께 나눔해요.`,
-        location: randomLocation,
-        distance: `${(Math.random() * 5 + 0.5).toFixed(1)}km`,
-        status: 'available',
-        statusText: '나눔중',
-        time: '방금 전',
-        author: `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}○○님`,
-        contact: '010-****-****',
-        images: ['📦'],
-        views: 1,
-        likes: 0
-    };
-    
-    currentItems.unshift(newItem);
-    
-    // If no filters applied, show the new item
-    if (document.getElementById('categoryFilter').value === '' && 
-        document.getElementById('statusFilter').value === '' && 
-        document.getElementById('searchInput').value === '') {
-        filteredItems.unshift(newItem);
-        updateItemCount();
-        renderPagination();
-        
-        // Show notification about new item
-        showNotification(`새로운 나눔이 등록되었습니다: ${newItem.title}`, 'info');
-    }
-}
+// function simulateNewItem() {
+//     const categories = ['clothes', 'electronics', 'furniture', 'books', 'kids', 'etc'];
+//     const locations = ['강남역', '홍대입구역', '신촌역', '이태원역', '잠실역', '여의도역'];
+//     const items = ['책상', '의자', '가방', '신발', '책', '화분', '램프', '쿠션'];
+//
+//     const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+//     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+//     const randomItem = items[Math.floor(Math.random() * items.length)];
+//
+//     const newItem = {
+//         id: Date.now() + Math.random(),
+//         title: `${randomItem} 나눔합니다`,
+//         category: randomCategory,
+//         categoryName: getCategoryName(randomCategory),
+//         description: `상태 좋은 ${randomItem}입니다. 필요하신 분께 나눔해요.`,
+//         location: randomLocation,
+//         distance: `${(Math.random() * 5 + 0.5).toFixed(1)}km`,
+//         status: 'available',
+//         statusText: '나눔중',
+//         time: '방금 전',
+//         author: `${String.fromCharCode(65 + Math.floor(Math.random() * 26))}○○님`,
+//         contact: '010-****-****',
+//         images: ['📦'],
+//         views: 1,
+//         likes: 0
+//     };
+//
+//     currentItems.unshift(newItem);
+//
+//     // If no filters applied, show the new item
+//     if (document.getElementById('categoryFilter').value === '' &&
+//         document.getElementById('statusFilter').value === '' &&
+//         document.getElementById('searchInput').value === '') {
+//         filteredItems.unshift(newItem);
+//         updateItemCount();
+//         renderPagination();
+//
+//         // Show notification about new item
+//         showNotification(`새로운 나눔이 등록되었습니다: ${newItem.title}`, 'info');
+//     }
+// }
 
 function updateItemTimes() {
     // This would update the time display in real applications
@@ -927,10 +866,11 @@ function getCurrentLocation() {
 // Advanced search functionality
 function setupAdvancedSearch() {
     const searchInput = document.getElementById('searchInput');
-    
-    // Add search suggestions
-    searchInput.addEventListener('focus', showSearchSuggestions);
-    searchInput.addEventListener('blur', hideSearchSuggestions);
+    if (searchInput) {
+        // Add search suggestions
+        searchInput.addEventListener('focus', showSearchSuggestions);
+        searchInput.addEventListener('blur', hideSearchSuggestions);
+    }
 }
 
 function showSearchSuggestions() {
@@ -1003,7 +943,7 @@ function optimizeImages() {
 }
 
 // Initialize with more data
-addMoreSampleData();
+// addMoreSampleData();
 
 // Start real-time updates and get location
 setTimeout(() => {

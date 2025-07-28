@@ -106,7 +106,7 @@ CREATE TABLE free_img (
                           img_url VARCHAR(500) NOT NULL,
                           repimg_yn CHAR(1) NOT NULL,
                           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                          FOREIGN KEY (free_id) REFERENCES free(free_id)
+                          CONSTRAINT fk_free_img_free FOREIGN KEY (free_id) REFERENCES free(free_id) ON DELETE CASCADE
 );
 
 
@@ -116,9 +116,11 @@ create table free_reply (
                        free_id BIGINT NOT NULL,
                        member_id BIGINT NOT NULL,
                        content VARCHAR(1000) NOT NULL,
+                       parent_id BIGINT DEFAULT NULL,
                        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                        FOREIGN KEY (free_id) REFERENCES free(free_id),
-                       FOREIGN KEY (member_id) REFERENCES member(member_id)
+                       FOREIGN KEY (member_id) REFERENCES member(member_id),
+                       FOREIGN KEY (parent_id) REFERENCES free_reply(reply_id)
 );
 
 
