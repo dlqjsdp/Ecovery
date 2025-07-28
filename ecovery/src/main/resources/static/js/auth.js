@@ -21,11 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize authentication functionality
 function initializeAuth() {
+    console.log("initializeAuth() 실행됨");
     // Check which page we're on and initialize accordingly
     if (loginForm) {
+        console.log("로그인 페이지 감지됨 → initializeLogin 실행");
         initializeLogin();
     }
     if (signupForm) {
+        console.log("회원가입 페이지 감지됨 → initializeSignup 실행");
         initializeSignup();
     }
 
@@ -45,7 +48,7 @@ function initializeAuth() {
 
 // Initialize login page
 function initializeLogin() {
-    /* loginForm.addEventListener('submit', handleLogin);*/
+    loginForm.addEventListener('submit', handleLogin);
 
     // Auto-focus first input
     const firstInput = loginForm.querySelector('input');
@@ -83,11 +86,11 @@ function initializeSignup() {
 // Handle login form submission
 async function handleLogin(e) {
     e.preventDefault();
+    console.log("handleLogin 함수 실행됨!");
 
     const formData = new FormData(loginForm);
     const email = formData.get('email');
     const password = formData.get('password');
-    const remember = formData.get('remember');
 
     // Clear previous errors
     clearErrors();
@@ -114,24 +117,25 @@ async function handleLogin(e) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: new URLSearchParams({
-                username: email,
+                email: email,
                 password: password
             }),
             credentials: 'same-origin'
         });
 
-        if (response.redirected) {
-            window.location.href = response.url;
-        } else if (response.ok) {
+        const result = await response.json();
+
+        if (response.ok && result.redirect) {
             showNotification('로그인이 완료되었습니다! 🌱', 'success');
             setTimeout(() => {
-                window.location.href = '/main';
-            }, 1500);
+                window.location.href = result.redirect; // 서버가 준 redirect 경로로 이동
+            }, 1000);
         } else {
-            throw new Error('인증 실패');
+            throw new Error(result.error || '로그인 실패');
         }
+
     } catch (error) {
-        showError('passwordError', '이메일 또는 비밀번호가 올바르지 않습니다.');
+        showError('passwordError', error.message || '이메일 또는 비밀번호가 올바르지 않습니다.');
         setFormState(loginForm, 'error');
         setButtonLoading('loginBtn', false);
         setFormLoading(loginForm, false);
@@ -647,32 +651,19 @@ function setupAgreementHandlers() {
 
 // Setup social login
 function setupSocialLogin() {
-    // const socialButtons = document.querySelectorAll('.social-btn');
-    //
-    // socialButtons.forEach(button => {
-    //     button.addEventListener('click', () => {
-    //         const provider = button.classList.contains('google') ? 'Google' : 'Kakao';
-    //         showNotification(`${provider} 로그인을 준비 중입니다...`, 'info');
-    //
-    //         // Simulate social login
-    //         setTimeout(() => {
-    //             showNotification(`${provider} 로그인이 일시적으로 사용할 수 없습니다.`, 'error');
-    //         }, 1500);
-    //     });
-    // });
-    const kakaoBtn = document.querySelector('.social-btn.kakao');
-    if (kakaoBtn) {
-        kakaoBtn.addEventListener('click', () => {
-            window.location.href = '/oauth2/authorization/kakao'; // Spring Security가 자동 처리
-        });
-    }
+    const socialButtons = document.querySelectorAll('.social-btn');
 
-    const googleBtn = document.querySelector('.social-btn.google');
-    if (googleBtn) {
-        googleBtn.addEventListener('click', () => {
-            window.location.href = '/oauth2/authorization/google'; // 구글도 자동 리디렉션
+    socialButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const provider = button.classList.contains('google') ? 'Google' : 'Kakao';
+            showNotification(`${provider} 로그인을 준비 중입니다...`, 'info');
+
+            // Simulate social login
+            setTimeout(() => {
+                showNotification(`${provider} 로그인이 일시적으로 사용할 수 없습니다.`, 'error');
+            }, 1500);
         });
-    }
+    });
 }
 
 // Helper functions
