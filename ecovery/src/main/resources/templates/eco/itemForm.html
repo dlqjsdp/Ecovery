@@ -76,10 +76,10 @@
       </div>
 
       <div th:if="${#strings.isEmpty(itemFormDto.itemId)}">
-        <button type="submit" th:formaction="@{/item/new}">저장</button>
+        <button type="submit" th:formaction="@{/templates/eco/new}">저장</button>
       </div>
       <div th:unless="${#strings.isEmpty(itemFormDto.itemId)}">
-        <button th:formaction="@{/item/{itemId}(itemId=${itemFormDto.itemId})}" type="submit">수정</button>
+        <button th:formaction="@{/templates/eco/{itemId}(itemId=${itemFormDto.itemId})}" type="submit">수정</button>
       </div>
 
     </form>

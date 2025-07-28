@@ -6,6 +6,7 @@ import com.ecovery.dto.OrderDto;
 import com.ecovery.dto.OrderItemDto;
 import com.ecovery.dto.OrderItemRequestDto;
 import com.ecovery.dto.PaymentResultDto;
+import com.ecovery.mapper.OrderItemMapper;
 import com.ecovery.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ import java.util.UUID;
  *  - 250724 | sehui | 주문 고유번호 UUID 생성하는 로직 추가
  *  - 250725 | sehui | 주문 id 조회 기능 추가
  *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
+ *  - 250728 | sehui | 주문 페이지 재출력용 주문 단건 조회 기능 추가
+ *  - 250728 | sehui | 주문 저장 기능에 totalPrice 추가
  */
 
 @Service
@@ -37,6 +40,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderItemService orderItemService;
     private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
 
     //주문 페이지 출력용 임시 OrderDto 생성
     @Override
@@ -73,8 +77,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Long saveOrder(OrderDto orderDto, Long memberId) {
 
+        //DB에 저장하기 전에 totalPrice 다시 계산
+        int calculatedTotalPrice = orderDto.getOrderItems().stream()
+                .mapToInt(item -> item.getPrice() * item.getCount())
+                .sum();
+
         //주문 저장하기 위해 OrderVO 생성 및 값 설정
         OrderVO order = OrderVO.builder()
+                .orderUuid(orderDto.getOrderUuid())
                 .memberId(memberId)
                 .orderStatus(OrderStatus.ORDER)
                 .name(orderDto.getName())
@@ -82,6 +92,7 @@ public class OrderServiceImpl implements OrderService {
                 .roadAddress(orderDto.getRoadAddress())
                 .detailAddress(orderDto.getDetailAddress())
                 .phoneNumber(orderDto.getPhoneNumber())
+                .totalPrice(calculatedTotalPrice)
                 .build();
 
         //주문 DB 저장
@@ -96,6 +107,10 @@ public class OrderServiceImpl implements OrderService {
 
         //주문 상품 저장
         for(OrderItemDto orderItemDto : orderDto.getOrderItems()) {
+            //DB에 저장하기 전에 OrderDto의 orderPrice 다시 계산
+            int calculatedOrderPrice = orderItemDto.getPrice() * orderItemDto.getCount();
+            orderItemDto.setOrderPrice(calculatedOrderPrice);
+
             orderItemService.saveOrderItem(orderItemDto, orderId);
         }
 
@@ -128,5 +143,26 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return true;
+    }
+
+    //주문 단건 조회
+    @Override
+    public OrderDto getOrderDto(Long orderId, Long memberId) {
+        
+        //주문 정보 단건 조회
+        OrderVO order = orderMapper.findOrderById(orderId);
+    
+        if(order == null || !memberId.equals(order.getMemberId())) {
+            throw new IllegalArgumentException("주문이 존재하지 않거나 권한이 없습니다.");
+        }
+
+        //주문 상품 전체 조회
+        List<OrderItemDto> orderItemDtoList = orderItemService.getOrderItemsByOrderId(orderId);
+
+        if(orderItemDtoList == null || orderItemDtoList.isEmpty()) {
+            throw new IllegalArgumentException("주문 상품이 존재하지 않습니다.");
+        }
+
+        return new OrderDto(order, orderItemDtoList);
     }
 }

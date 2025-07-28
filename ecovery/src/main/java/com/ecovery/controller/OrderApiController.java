@@ -26,7 +26,7 @@ import java.util.Map;
  * @history
  *  - 250723 | sehui | 주문 페이지 요청 기능 추가
  *  - 250723 | sehui | 결제 버튼 클릭 시 주문 저장 기능 추가
- *  - 250725 | sehui | 결제 실패 시 주문 페이지 재구성 기능 추가
+ *  - 250728 | sehui | 결제 실패 시 주문 페이지 재구성 기능 추가
  */
 
 @RestController
@@ -89,15 +89,28 @@ public class OrderApiController {
     }
 
     //주문 페이지 재구성
-    /*
     @GetMapping("/retry/{orderId}")
-    public ResponseEntity<OrderDto> retryOrder(@PathVariable Long orderId, Principal principal) {
+    public ResponseEntity<Map<String, Object>> retryOrder(@PathVariable Long orderId, Principal principal) {
 
         //로그인한 사용자 정보 조회
         String email = principal.getName();
         Long memberId  = memberService.getMemberByEmail(email).getMemberId();
 
-        return
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            //주문 조희
+            OrderDto orderDto = orderService.getOrderDto(orderId, memberId);
+            response.put("order", orderDto);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (IllegalArgumentException e) {
+            //주문이 존재하지 않거나 권한이 없는 경우
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.put("message", "서버 내부 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
-    */
 }

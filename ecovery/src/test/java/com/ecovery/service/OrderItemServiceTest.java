@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /*
@@ -21,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @history
  *  - 250722 | sehui | 주문 페이지 출력용 객체 생성 Test 실행
  *  - 250723 | sehui | 주문 상품 저장용 객체 생성 Test 실행
+ *  - 250728 | sehui | 주문 상품 전체 조회 기능 Test 실행
  */
 
 @SpringBootTest
@@ -77,4 +80,22 @@ class OrderItemServiceTest {
 
         log.info("vo >> {} ", vo.toString());
     }
+
+    @Test
+    @DisplayName("주문 상품 전체 조회")
+    public void testGetOrderItems(){
+
+        //given : 주문 id 설정
+        Long orderId = 4L;
+
+        //when : 주문 상품 전체 조희
+        List<OrderItemDto> orderItemList = orderItemService.getOrderItemsByOrderId(orderId);
+
+        //then : 결과 검증
+        assertNotNull(orderItemList);
+
+        orderItemList.forEach(orderItem -> log.info(orderItem.toString()));
+
+    }
+
 }

@@ -29,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
  *  - 250723 | sehui | 실제 주문 저장 Test 실행
  *  - 250725 | sehui | 주문 id 조회 Test 실행
  *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 Test 실행
+ *  - 250728 | sehui | 주문 페이지 재출력용 주문 단건 조회 기능 Test 실행
+ *  - 250728 | sehui | 주문 저장에 totalPrice 추가하여 Test 재실행
  */
 
 @SpringBootTest
@@ -76,26 +78,27 @@ class OrderServiceTest {
 
         //given : 주문 정보 설정
         OrderDto orderDto = new OrderDto();
+        orderDto.setOrderUuid("test_orderUuid1");
         orderDto.setMemberId(2L);
-        orderDto.setName("tester");
+        orderDto.setName("tester22");
         orderDto.setZipcode("12345");
-        orderDto.setRoadAddress("서울시 00구");
-        orderDto.setDetailAddress("1동 1호");
+        orderDto.setRoadAddress("서울시 00구 00동");
+        orderDto.setDetailAddress("000동 000호");
         orderDto.setPhoneNumber("010-1111-2222");
 
         List<OrderItemDto> requestDtoList = new ArrayList<>();
 
         OrderItemDto requestDto1 = OrderItemDto.builder()
-                .itemId(10L)
-                .itemName("test Item3")
-                .price(15000)
+                .itemId(11L)
+                .itemName("수정 제품")
+                .price(10000)
                 .count(2)
-                .orderPrice(15000 * 2)
+                .orderPrice(10000 * 2)
                 .build();
 
         OrderItemDto requestDto2 = OrderItemDto.builder()
-                .itemId(9L)
-                .itemName("test 등록")
+                .itemId(12L)
+                .itemName("test 수정Item")
                 .price(5000)
                 .count(3)
                 .orderPrice(5000 * 3)
@@ -154,4 +157,19 @@ class OrderServiceTest {
         assertTrue(result, "주문 상태 변경이 실패했습니다.");
     }
 
+    @Test
+    @DisplayName("주문 단건 조회 - 재조회")
+    public void testGetOrderDto(){
+
+        //given : 주문 id, 회원 id 설정
+        Long orderId = 4L;
+        Long memberId = 2L;
+
+        //when : 주문 단건 조회
+        OrderDto orderDto = orderService.getOrderDto(orderId, memberId);
+
+        //then : 결과 검증
+        assertNotNull(orderDto);
+        log.info("orderDto >> {}", orderDto.toString());
+    }
 }
