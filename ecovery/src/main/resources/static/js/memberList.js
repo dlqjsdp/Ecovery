@@ -62,16 +62,15 @@ const STATUS_MAPPING = {
 const sampleMemberData = {
     'M0000001': {
         memberId: 'M0000001',
-        name: '안영이',
+        nickname: '안영이',
         email: 'anyoung@example.com',
-        nickname: '환경지킴이',
         role: 'SEEDLING',
         status: 'active',
         type: 'individual',
         birthdate: '1995',
         gender: 'female',
         address: 'seoul',
-        joinDate: '2024-01-15',
+        createdAt: '2024-01-15',
         lastVisit: '2024-07-25 14:30',
         points: 15420,
         activities: {
@@ -609,7 +608,7 @@ function displayRoleModalMemberInfo(memberData) {
     // 회원 이름
     const roleMemberName = document.getElementById('roleMemberName');
     if (roleMemberName) {
-        roleMemberName.textContent = memberData.name || 'Unknown';
+        roleMemberName.textContent = memberData.nickname || 'Unknown';
     }
 
     // 회원 이메일
@@ -708,7 +707,7 @@ async function saveRoleChange() {
     const newRoleInfo = ROLE_MAPPING[newRole];
 
     // 확인 메시지
-    const confirmMessage = `권한을 변경하시겠습니까?\n\n회원: ${memberData.name} (${memberData.email})\n기존 권한: ${oldRoleInfo?.displayName || oldRole}\n새 권한: ${newRoleInfo?.displayName || newRole}${reason ? '\n\n변경 사유: ' + reason : ''}`;
+    const confirmMessage = `권한을 변경하시겠습니까?\n\n회원: ${memberData.nickname} (${memberData.email})\n기존 권한: ${oldRoleInfo?.displayName || oldRole}\n새 권한: ${newRoleInfo?.displayName || newRole}${reason ? '\n\n변경 사유: ' + reason : ''}`;
 
     if (!confirm(confirmMessage)) {
         return;
@@ -941,7 +940,7 @@ function updateProfileSection(memberData) {
     // 회원 이름
     const memberName = document.getElementById('memberName');
     if (memberName) {
-        memberName.textContent = memberData.name || 'Unknown';
+        memberName.textContent = memberData.nickname || 'Unknown';
     }
 
     // 회원 이메일
