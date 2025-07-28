@@ -759,7 +759,7 @@ async function updateMemberRole(memberId, newRole, reason) {
         const csrfToken = window.SERVER_DATA?.csrfToken;
         const csrfHeader = window.SERVER_DATA?.csrfHeader;
 
-        const response = await fetch(`/admin/member/role/update/${memberId}`, {
+        const response = await fetch(`/admin/member/update/role/${memberId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

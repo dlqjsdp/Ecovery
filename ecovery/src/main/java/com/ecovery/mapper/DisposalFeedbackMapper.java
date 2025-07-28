@@ -24,7 +24,7 @@ public interface DisposalFeedbackMapper {
     public int countByDisposalHistoryId(Long disposalHistoryId);
 
     // (2) 상세 조회용 - 단건 조회
-    public DisposalFeedbackDto selectDetailByDisposalHistoryId(Long disposalHistoryId);
+    public DisposalFeedbackDto selectDetailByDisposalHistoryId(Long feedbackId);
 
     //관리자용 전체 신고 내역 조회
     public List<DisposalFeedbackDto> findAllFeedbackWithImg(Criteria cri);

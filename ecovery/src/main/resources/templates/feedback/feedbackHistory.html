@@ -4,33 +4,34 @@
     <!-- 기본 메타 정보 설정 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>분리 배출 내역 </title>
+    <title>분리배출 내역 관리 - GreenCycle</title>
     
     <!-- 외부 스타일시트 및 폰트 연결 - Thymeleaf 정적 리소스 경로 -->
-    <link rel="stylesheet" th:href="@{/css/disposalHistory.css}">
+    <link rel="stylesheet" th:href="@{/css/feedbackHistory.css}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- SEO 메타 태그 -->
-    <meta name="description" content="오류 내역을 효율적으로 관리하고 모니터링하는 관리자 전용 페이지">
+    <meta name="description" content="분리배출 내역을 효율적으로 관리하고 모니터링하는 관리자 전용 페이지">
     <meta name="keywords" content="분리배출, 폐기물관리, AI분류, 관리자, 환경관리">
 </head>
 <body>
     <!-- ========================================
          헤더 네비게이션 섹션
     ======================================== -->
-    <header class="admin-header">
-        <nav class="admin-navbar">
-            <div class="admin-nav-container">
-                <!-- 관리자 로고 -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                 <!-- 로고 - Thymeleaf URL 처리 -->
                 <div class="admin-logo">
                     <a th:href="@{/main}" class="logo" onclick="goHome()">
                         <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
                     </a>
                     <span class="admin-badge">ADMIN</span>
                 </div>
-
+                
+                <!-- 네비게이션 메뉴 -->
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
                     <li><a th:href="@{/admin/main}">대시보드</a></li>
@@ -48,7 +49,7 @@
                         <a th:href="@{/admin/logout}" class="btn-logout">로그아웃</a>
                     </div>
                 </div>
-
+                
                 <!-- 모바일 햄버거 메뉴 -->
                 <div class="hamburger" id="hamburger">
                     <span></span>
@@ -83,21 +84,21 @@
                     <div class="stat-card">
                         <div class="stat-icon">📊</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</div>
+                            <div class="stat-number" th:text="${#numbers.formatInteger(feedbackHistoryPage.getTotal(), 3, 'COMMA')}">1,247</div>
                             <div class="stat-label">총 처리 건수</div>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <!--<div class="stat-card">
                         <div class="stat-icon">🎯</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${avgAiConfidence} + '%'">94.2%</div>
+                            <div class="stat-number" th:text="${accuracyRate} + '%'">94.2%</div>
                             <div class="stat-label">AI 분류 정확도</div>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="stat-card">
                         <div class="stat-icon">⚡</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">89</div>
+                            <div class="stat-number" th:text="${#numbers.formatInteger(feedbackHistoryPage.getTotal(), 3, 'COMMA')}">89</div>
                             <div class="stat-label">오늘 처리량</div>
                         </div>
                     </div>
@@ -119,7 +120,7 @@
                     <!-- 검색창 -->
                     <div class="search-container">
                         <div class="search-input-wrapper">
-                            <input type="text" name="keyword" id="search-input" th:value="${disposalHistoryPage.cri.keyword}" placeholder="회원 닉네임으로 검색..." class="search-input">
+                            <input type="text" id="search-input" placeholder="회원 닉네임으로 검색..." class="search-input">
                             <button id="search-btn" class="search-btn">🔍</button>
                         </div>
                     </div>
@@ -211,16 +212,16 @@
             </div>
         </section>
 
-        <!-- 분리배출 내역 테이블 섹션 -->
+        <!-- 오류 내역 테이블 섹션 -->
         <section class="table-section">
             <div class="container">
                 <div class="table-container">
                     <!-- 테이블 헤더 정보 -->
                     <div class="table-header">
                         <div class="table-info">
-                            <span class="total-count">총 <span id="total-items" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>건</span>
+                            <span class="total-count">총 <span id="total-items" th:text="${#numbers.formatInteger(feedbackHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>건</span>
                             <span class="filter-count" th:if="${isFiltered}">
-                                (필터링된 결과: <span id="filtered-items" th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">89</span>건)
+                                (필터링된 결과: <span id="filtered-items" th:text="${#numbers.formatInteger(feedbackHistoryPage.getTotal(), 3, 'COMMA')}">89</span>건)
                             </span>
                         </div>
                         <div class="table-actions">
@@ -233,7 +234,7 @@
                         </div>
                     </div>
 
-                    <!-- 분리배출 내역 테이블 -->
+                    <!-- 오류 내역 테이블 -->
                     <div class="table-wrapper">
                         <table class="waste-table">
                             <thead>
@@ -249,17 +250,17 @@
                             </thead>
                             <tbody id="waste-table-body">
                                 <!-- 서버에서 전달받은 분리배출 내역 데이터를 반복문으로 출력 -->
-                                <tr th:each="item, iterStat : ${adminHistory}"
-                                    th:data-id="${item.disposalHistoryId}"
+                                <tr th:each="item, iterStat : ${adminFeedbackHistory}"
+                                    th:data-id="${item.feedbackId}"
                                     class="table-row">
                                     <!-- 사진 -->
                                     <td>
                                         <div class="image-cell">
                                             <img th:src="${item.disposalImgUrl}"
-                                                 th:alt="'분리배출 사진 ' + ${item.disposalHistoryId}"
+                                                 th:alt="'분리배출 사진 ' + ${item.feedbackId}"
                                                  class="waste-image">
-                                                 <!--th:onclick="|openModal(${item.disposalHistoryId})|"
-                                                 onerror="this.src='/img/default-waste.png'"-->
+                                                 <!--th:onclick="|openModal(${item.feedbackId})|"
+                                                 onerror="this.src='/img/default-waste.png'">-->
                                         </div>
                                     </td>
                                     
@@ -283,7 +284,7 @@
                                     <!-- 2차 분류 품목 -->
                                     <td>
                                         <span class="category-badge" 
-                                              th:classappend="${item.finalItem != null} ? ${item.finalItem.toLowerCase()} : ''"
+                                              th:classappend="${item.finalItem.toLowerCase()}"
                                               th:text="${item.finalItem}">플라스틱</span>
                                         <!-- AI 예측과 다른 경우 표시 -->
                                         <div th:if="${item.aiPrediction != item.finalItem}" class="category-changed">
@@ -303,7 +304,7 @@
                                             <!-- 회원 등급 배지 -->
                                             <span class="user-grade" 
                                                   th:if="${item.role}"
-                                                  th:classappend="${item.role != null} ? ${item.role.toLowerCase()} : ''"
+                                                  th:classappend="${item.role.toLowerCase()}"
                                                   th:text="${item.role}">VIP</span>
                                         </div>
                                     </td>
@@ -313,7 +314,7 @@
                                         <div class="date-cell">
                                             <span class="date-text" 
                                                   th:text="${#temporals.format(item.createdAt, 'yyyy-MM-dd')}">2025-01-15</span>
-                                            <span class="time-text"
+                                            <span class="time-text" 
                                                   th:text="${#temporals.format(item.createdAt, 'HH:mm')}">14:30</span>
                                         </div>
                                     </td>
@@ -322,17 +323,17 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn-action btn-view" 
-                                                    th:onclick="|openModal(${item.disposalHistoryId})|"
+                                                    th:onclick="|openModal(${item.feedbackId})|"
                                                     title="상세보기">
                                                 👁️
                                             </button>
                                             <button class="btn-action btn-edit" 
-                                                    th:onclick="|editItem(${item.disposalHistoryId})|"
+                                                    th:onclick="|editItem(${item.feedbackId})|"
                                                     title="수정">
                                                 ✏️
                                             </button>
                                             <button class="btn-action btn-delete" 
-                                                    th:onclick="|confirmDelete(${item.disposalHistoryId})|"
+                                                    th:onclick="|confirmDelete(${item.feedbackId})|"
                                                     title="삭제">
                                                 🗑️
                                             </button>
@@ -350,7 +351,7 @@
                     </div>
 
                     <!-- 데이터가 없을 때 표시 -->
-                    <div id="no-data" class="no-data-state" th:classappend="${#lists.isEmpty(adminHistory) ? '' : 'hidden'}">
+                    <div id="no-data" class="no-data-state" th:classappend="${#lists.isEmpty(adminFeedbackHistory) ? '' : 'hidden'}">
                         <div class="no-data-icon">📭</div>
                         <h3>표시할 데이터가 없습니다</h3>
                         <p>검색 조건을 변경하거나 필터를 초기화해보세요.</p>
@@ -358,31 +359,49 @@
                 </div>
 
                 <!-- 페이지네이션 -->
-                <div class="pagination-container">
-                    <div class="pagination" id="pagination">
-                        <!-- 이전 버튼 -->
-                        <a th:if="${disposalHistoryPage.isPrev()}"
-                           th:href="@{/disposal/history(type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount}, pageNum=${disposalHistoryPage.startPage - 1})}"
-                           class="page-btn">◀ 이전</a>
-                        <span th:unless="${disposalHistoryPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
-
+                <div class="pagination-container" th:if="${feedbackHistoryPage.getTotal() > 1}">
+                    <div class="pagination">
+                        <!-- 첫 페이지 -->
+                        <a th:href="@{/feedback/history(page=1, size=${feedbackHistoryPage.cri.amount})}"
+                           class="page-btn" 
+                           th:classappend="${feedbackHistoryPage == 1 ? 'disabled' : ''}">
+                            첫 페이지
+                        </a>
+                        
+                        <!-- 이전 페이지 -->
+                        <a th:href="@{/feedback/history(page=${feedbackHistoryPage.startPage - 1}, size=${feedbackHistoryPage.cri.amount})}"
+                           class="page-btn" 
+                           th:classappend="${feedbackHistoryPage == 1 ? 'disabled' : ''}">
+                            이전
+                        </a>
+                        
                         <!-- 페이지 번호들 -->
-                        <li th:each="num : ${#numbers.sequence(disposalHistoryPage.startPage, disposalHistoryPage.endPage)}"
-                            th:classappend="${disposalHistoryPage.cri.pageNum == num} ? 'active' : ''">
-                            <a class="page-link"
-                               th:href="@{/disposal/history(pageNum=${num}, type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount})}"
-                               th:text="${num}">1</a>
-                        </li>
-
-                        <!-- 다음 버튼 -->
-                        <a th:if="${disposalHistoryPage.isNext()}"
-                           th:href="@{/disposal/history(type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount}, pageNum=${disposalHistoryPage.endPage + 1})}"
-                           class="page-btn">다음 ▶</a>
-                        <span th:unless="${disposalHistoryPage.isNext()}" class="page-btn disabled">다음 ▶</span>
+                        <div class="page-numbers">
+                            <a th:each="pageNum : ${#numbers.sequence(feedbackHistoryPage.startPage, feedbackHistoryPage.endPage)}"
+                               th:href="@{/feedback/history(page=${feedbackHistoryPage.cri.pageNum}, size=${feedbackHistoryPage.cri.amount})}"
+                               th:text="${pageNum}"
+                               class="page-number"
+                               th:classappend="${pageNum == feedbackHistoryPage.cri.pageNum ? 'active' : ''}">1</a>
+                        </div>
+                        
+                        <!-- 다음 페이지 -->
+                        <a th:href="@{/feedback/history(page=${feedbackHistoryPage.endPage + 1}, size=${feedbackHistoryPage.cri.amount})}"
+                           class="page-btn"
+                           th:classappend="${feedbackHistoryPage.cri.pageNum == feedbackHistoryPage.getTotal() ? 'disabled' : ''}">
+                            다음
+                        </a>
+                        
+                        <!-- 마지막 페이지 -->
+                        <a th:href="@{/feedback/history(page=${feedbackHistoryPage.endPage}, size=${feedbackHistoryPage.cri.amount})}"
+                           class="page-btn"
+                           th:classappend="${feedbackHistoryPage.cri.pageNum == feedbackHistoryPage.getTotal() ? 'disabled' : ''}">
+                            마지막
+                        </a>
                     </div>
+
                     <!-- 페이지 정보 -->
                     <!--<div class="page-info">
-                        <span>페이지 <span th:text="${currentPage}">1</span> / <span th:text="${totalPages}">10</span></span>
+                        <span>페이지 <span th:text="${feedbackHistoryPage.getTotal()}">1</span> / <span th:text="${totalPages}">10</span></span>
                         <span>총 <span th:text="${#numbers.formatInteger(totalElements, 3, 'COMMA')}">1,247</span>개 항목</span>
                     </div>-->
                 </div>
@@ -397,7 +416,7 @@
         <div class="modal-content">
             <!-- 모달 헤더 -->
             <div class="modal-header">
-                <h2>분리배출 상세 정보</h2>
+                <h2>오류 내역 상세 정보</h2>
                 <button class="close-modal">&times;</button>
             </div>
 
@@ -406,9 +425,9 @@
                 <!-- 이미지 섹션 -->
                 <div class="modal-image-section">
                     <div class="image-container">
-                        <img id="modal-image" src="" alt="분리배출 사진" class="modal-image">
+                        <img id="modal-image" src="" alt="오류 내역 사진" class="modal-image">
                     </div>
-<!--                    <div class="image-info">
+                    <!--<div class="image-info">
                         <p id="image-filename" class="filename">파일명: image_001.jpg</p>
                         <p id="image-upload-date" class="upload-date">업로드: 2025-01-15 14:30</p>
                     </div>-->
@@ -469,9 +488,9 @@
 
             <!-- 모달 푸터 -->
             <div class="modal-footer">
-                <!--<button id="save-changes" class="btn btn-primary">변경사항 저장</button>
-                <button id="delete-record" class="btn btn-danger">삭제</button>-->
-                <button id="close-modal" class="btn btn-secondary">확인</button>
+                <button id="save-changes" class="btn btn-primary">변경사항 저장</button>
+                <button id="delete-record" class="btn btn-danger">삭제</button>
+                <button id="close-modal" class="btn btn-secondary">취소</button>
             </div>
         </div>
     </div>
@@ -487,12 +506,12 @@
                         <span class="logo-icon">🌱</span>
                         <span class="logo-text">GreenCycle</span>
                     </div>
-                    <p>관리자 전용 분리배출 내역 관리 시스템</p>
+                    <p>관리자 전용 오류 내역 관리 시스템</p>
                 </div>
                 
                 <div class="footer-section">
                     <div class="footer-links">
-                        <a th:href="@{/admin}">관리자 대시보드</a>
+                        <a th:href="@{/templates/admin}">관리자 대시보드</a>
                         <a th:href="@{/admin/settings}">시스템 설정</a>
                         <a th:href="@{/admin/help}">도움말</a>
                     </div>
@@ -504,19 +523,20 @@
             </div>
         </div>
     </footer>
+
     <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
-    <script th:src="@{/js/disposalHistory.js}"></script>
+    <script th:src="@{/js/feedbackHistory.js}"></script>
     
     <!-- 서버 데이터를 JavaScript로 전달 -->
-<script th:inline="javascript">
+    <script th:inline="javascript">
         // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
-        var wasteHistoryData = /*[[${adminHistory}]]*/ [];
+        var wasteHistoryData = /*[[${adminFeedbackHistory}]]*/ [];
         var currentUser = /*[[${session.member}]]*/ null;
         var paginationData = {
-            currentPage: /*[[${disposalHistoryPage.cri.pageNum}]]*/ 1,
-            totalPages: /*[[${disposalHistoryPage}]]*/ 1,
-            pageSize: /*[[${disposalHistoryPage.cri.amount}]]*/ 10,
-            totalElements: /*[[${disposalHistoryPage.cri.amount}]]*/ 0
+            currentPage: /*[[${feedbackHistoryPage.cri.pageNum}]]*/ 1,
+            totalPages: /*[[${feedbackHistoryPage}]]*/ 1,
+            pageSize: /*[[${feedbackHistoryPage.cri.amount}]]*/ 10,
+            totalElements: /*[[${feedbackHistoryPage.cri.amount}]]*/ 0
         };
         
         // 전역 변수로 설정하여 JavaScript 함수들에서 사용
@@ -524,7 +544,7 @@
         window.currentUser = currentUser;
         window.paginationData = paginationData;
         
-        console.log('🌱 분리배출 내역 관리 페이지가 로드되었습니다.');
+        console.log('🌱 오류 내역 페이지가 로드되었습니다.');
     </script>
 </body>
 </html>

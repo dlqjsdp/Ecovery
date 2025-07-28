@@ -17,7 +17,7 @@ public class DisposalHistoryDto {
     private Long disposalHistoryId;
     private Long memberId;
     private String nickname;
-    private Role role;
+    private String role;
     private String aiPrediction;
     private String regionGu;
     private LocalDateTime createdAt;

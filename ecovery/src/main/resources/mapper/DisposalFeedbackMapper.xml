@@ -32,13 +32,15 @@
                h.ai_prediction      AS aiPrediction,
                h.region_gu          AS regionGu,
                h.final_item         AS finalItem,
-               i.disposal_img_url   AS disposalHistoryImgUrl,
-               m.nickname           AS nickname
+               h.ai_confidence      as aiConfidence,
+               i.disposal_img_url   AS disposalImgUrl,
+               m.nickname           AS nickname,
+               m.role as role
         FROM disposal_feedback f
                  LEFT JOIN disposal_history h ON f.disposal_history_id = h.disposal_history_id
                  LEFT JOIN disposal_history_img i ON h.disposal_history_id = i.disposal_history_id
                  LEFT JOIN member m ON f.member_id = m.member_id
-        WHERE f.disposal_history_id = #{disposalHistoryId}
+        WHERE f.feedback_id = #{feedbackId}
             LIMIT 1
     </select>
 
@@ -51,8 +53,10 @@
                h.ai_prediction as aiPrediction,
                h.region_gu as regionGu,
                h.final_item as finalItem,
-               i.disposal_img_url as disposalHistoryImgUrl,
-               m.nickname as nickname
+               h.ai_confidence      as aiConfidence,
+               i.disposal_img_url as disposalImgUrl,
+               m.nickname as nickname,
+               m.role as role
         from disposal_feedback f
                  left join disposal_history h on f.disposal_history_id = h.disposal_history_id
                  left join disposal_history_img i on h.disposal_history_id = i.disposal_history_id
@@ -71,7 +75,8 @@
                h.ai_prediction as aiPrediction,
                h.region_gu as regionGu,
                h.final_item as finalItem,
-               i.disposal_img_url as disposalHistoryImgUrl
+               h.ai_confidence      as aiConfidence,
+               i.disposal_img_url as disposalImgUrl,
                m.nickname as nickname
         from disposal_feedback f
         left join disposal_history h on f.disposal_history_id = h.disposal_history_id
