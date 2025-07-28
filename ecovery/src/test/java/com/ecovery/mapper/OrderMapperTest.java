@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *  - 250724 | sehui | orderUuid 추가하여 주문 저장 Test 재실행
  *  - 250725 | sehui | 주문 id 조회 Test 실행
  *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 Test 실행
+ *  - 250728 | sehui | 주문 단건 조회 기능 Test 실행
+ *  - 250728 | sehui | 주문 저장 기능에 totalPrice 추가하여 Test 재실행
+ *  - 250728 | sehui | 주문 단건 조회 기능 Test 재실행
  */
 
 @SpringBootTest
@@ -42,11 +45,12 @@ class OrderMapperTest {
                 .orderUuid("test_uuid")
                 .memberId(2L)
                 .orderStatus(OrderStatus.ORDER)
-                .name("tester")
+                .name("tester2")
                 .zipcode("12345")
-                .roadAddress("서울시 00구")
+                .roadAddress("서울시 00구 00동")
                 .detailAddress("1동 1호")
                 .phoneNumber("010-1234-5678")
+                .totalPrice(10000)
                 .build();
 
         //when : 주문 저장
@@ -88,6 +92,22 @@ class OrderMapperTest {
 
         //then : 결과 검증
         assertEquals(1, result);
+    }
+
+    @Test
+    @DisplayName("주문 단건 조회")
+    public void testFindOrder() {
+
+        //given : 주문 id 설정
+        Long orderId = 9L;
+
+        //when : 주문 단건 조회
+        OrderVO order = orderMapper.findOrderById(orderId);
+
+        //then : 결과 검증
+        assertNotNull(order);
+
+        log.info("order >> {}", order);
     }
 
 }

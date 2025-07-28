@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /*
@@ -20,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @history
  *  - 250723 | sehui | 주문한 개별 상품 정보 저장 Test 실행
  *  - 250724 | sehui | 주문 상품 단건 조회 Test 실행
+ *  - 250728 | sehui | 주문 상품 단건 조회를 전체 조회로 변경 후 Test 실행
+ *  - 250728 | sehui | 주문한 개별 상품 정보 저장 Test 재실행
  */
 
 @SpringBootTest
@@ -42,40 +46,45 @@ class OrderItemMapperTest {
         OrderItemVO orderItemVO = OrderItemVO.builder()
                 .orderId(orderId)
                 .itemId(itemId)
-                .count(2)
-                .orderPrice(10000)
+                .count(10)
+                .orderPrice(20000)
                 .build();
 
         //when : 주문한 상품 정보 저장
         orderItemMapper.insertOrderItem(orderItemVO);
 
         //then : 결과 검증
-        OrderItemDto savedOrderItem = orderItemMapper.findByOrderIdAndItemId(orderId, itemId);
+        List<OrderItemDto> orderItemList = orderItemMapper.findOrderItemByOrderId(orderId);
+
+        //itemId가 11L인 항목만 필터링
+        OrderItemDto savedOrderItem = orderItemList.stream()
+                .filter(item -> item.getItemId().equals(itemId))
+                .findFirst()
+                .orElse(null);
 
         assertNotNull(savedOrderItem);
         assertEquals(11, savedOrderItem.getItemId());
-        assertEquals(2, savedOrderItem.getCount());
-        assertEquals(10000, savedOrderItem.getOrderPrice());
+        assertEquals(10, savedOrderItem.getCount());
+        assertEquals(20000, savedOrderItem.getOrderPrice());
 
         log.info("savedOrderOrderItemId >> {}", savedOrderItem.getOrderItemId());
 
     }
 
     @Test
-    @DisplayName("주문 상품 단건 조회")
-    public void testGet(){
+    @DisplayName("주문 상품 전체 조회")
+    public void testFindOrderItem(){
 
-        //given : 조회할 주문 상품 id, 상품 id
+        //given : 조회할 주문 상품 id 설정
         Long orderId = 1L;
-        Long itemId = 10L;
 
-        //when : 주문 상품 단건 조회
-        OrderItemDto orderItem = orderItemMapper.findByOrderIdAndItemId(orderId, itemId);
+        //when : 주문 상품 전체 조회
+        List<OrderItemDto> orderItemList = orderItemMapper.findOrderItemByOrderId(orderId);
 
         //then : 결과 검증
-        assertNotNull(orderItem);
+        assertNotNull(orderItemList);
 
-        log.info("orderItemDto >> {}", orderItem);
+        orderItemList.forEach(orderItem -> log.info("orderItem >> {}", orderItem));
     }
 
 }

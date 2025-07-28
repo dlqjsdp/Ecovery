@@ -16,6 +16,7 @@ import java.util.Date;
  * @history
  *  - 250709 | sehui | OrderVO 생성
  *  - 250724 | sehui | 주문 고유번호 orderUuid 변수 추가
+ *  - 250728 | sehui | 총 주문 금액 totalPrice 변수 추가
  */
 
 @Getter
@@ -35,4 +36,5 @@ public class OrderVO {
     private String roadAddress;     //배송지 도로명 주소
     private String detailAddress;   //배송지 상세 주소
     private String phoneNumber;     //주문자 핸드폰 번호
+    private int totalPrice;         //총 주문 금액
 }
