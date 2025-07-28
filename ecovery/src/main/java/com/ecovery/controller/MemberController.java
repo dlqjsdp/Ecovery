@@ -17,6 +17,9 @@ import com.ecovery.domain.MemberVO;
  * 회원가입, 로그인를 위한 Controller
  * 회원가입 시 정보를 DB에 저장하고 회원정보 수정, 목록 조회, 중복검증 가능
  * 작성자 : 방희경
+ * @history
+      - 250728 | yukyeong | 일반 회원가입 시 provider 값이 null로 들어가 DB 제약조건 오류 발생
+                            → provider='local', providerId=null 명시적으로 설정하여 해결
  */
 @Controller
 @RequiredArgsConstructor

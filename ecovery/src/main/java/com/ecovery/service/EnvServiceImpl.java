@@ -3,10 +3,14 @@ package com.ecovery.service;
 import com.ecovery.domain.EnvVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.EnvDto;
+import com.ecovery.dto.EnvFormDto;
+import com.ecovery.dto.EnvImgDto;
 import com.ecovery.mapper.EnvMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
      - 250717 | yukyeong | DTO ↔ VO 변환 메서드 추가
      - 250718 | yukyeong | DTO 기반 서비스로 전환
      - 250725 | yukyeong | 게시글 category 필드 DTO/VO 매핑 처리 추가
+     - 250728 | yukyeong | 이미지 포함 게시글 등록/수정 기능 추가 (EnvFormDto, MultipartFile 활용), 이미지까지 함께 삭제되도록 추가
  */
 
 @Service
@@ -33,6 +38,9 @@ public class EnvServiceImpl implements EnvService {
 
     // EnvMapper는 DB 연동을 위한 MyBatis 인터페이스
     private final EnvMapper envMapper;
+
+    // EnvImgService를 통해 이미지 등록/삭제를 위임 처리
+    private final EnvImgService envImgService;
 
     // DTO를 VO로 변환하는 메서드 (DB 작업용으로 변환)
     private EnvVO dtoToVo(EnvDto envDto) {
@@ -61,13 +69,30 @@ public class EnvServiceImpl implements EnvService {
     }
 
     // 게시글 등록 (DTO → VO 변환 후 Mapper 호출)
-    // DTO를 VO로 변환 후 insert 쿼리 실행, 생성된 ID를 다시 DTO에 설정
+    // EnvFormDto 내부의 EnvDto를 꺼내 VO로 변환 후 Mapper를 통해 DB에 저장
+    // 등록된 게시글의 ID를 다시 DTO에 설정하고, 이미지가 있을 경우 함께 저장
     @Override
-    public void register(EnvDto envDto) {
-        log.info("register() - 게시글 등록");
-        EnvVO env = dtoToVo(envDto);
-        envMapper.insert(env);
+    @Transactional
+    public void register(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception{
+        log.info("register() - 게시글 등록 (이미지 포함)");
+
+        // 1. 본문 내용 등록
+        EnvDto envDto = envFormDto.getEnvDto(); // 클라이언트에서 전달받은 게시글 본문 DTO
+        EnvVO env = dtoToVo(envDto); // DB 저장을 위한 VO로 변환
+        envMapper.insert(env); // 게시글 DB 등록
         envDto.setEnvId(env.getEnvId()); // DB에서 생성된 ID를 DTO에 반영
+
+        // 2. 이미지가 있는 경우 등록 처리
+        for (MultipartFile envImgFile : envImgFiles) {
+            if (!envImgFile.isEmpty()) { // 비어있는 파일 제외
+                EnvImgDto envImgDto = EnvImgDto.builder()
+                        .envId(env.getEnvId()) // FK로 게시글 ID 설정
+                        .build();
+
+                // EnvImgService를 통해 실제 이미지 파일 저장 및 DB 등록 수행
+                envImgService.register(envImgDto, envImgFile);
+            }
+        }
     }
 
     // 게시글 단건 조회
@@ -80,21 +105,56 @@ public class EnvServiceImpl implements EnvService {
         return voToDto(env);
     }
 
-    // 게시글 수정
-    // DTO를 VO로 변환하여 update 쿼리 실행, 결과가 1이면 true 반환
+    // 게시글 수정 (본문 수정 + 기존 이미지 삭제 + 새 이미지 등록)
+    // 게시글 본문은 VO로 변환 후 업데이트, 삭제할 이미지 ID는 delete 처리, 새 파일은 등록 처리
     @Override
-    public boolean modify(EnvDto envDto) {
-        log.info("modify() - 게시글 수정");
-        EnvVO env = dtoToVo(envDto);
-        return envMapper.update(env) == 1; // update() 실행 시 영향받은 행 수가 1이면 true
+    @Transactional
+    public boolean modify(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception{
+        log.info("modify() - 게시글 수정 (이미지 포함)");
+
+        // 1. 게시글 본문 내용 수정
+        EnvDto envDto = envFormDto.getEnvDto(); // 클라이언트 전달 DTO
+        EnvVO env = dtoToVo(envDto); // VO로 변환
+        boolean updated = envMapper.update(env) == 1; // 수정 성공 여부 확인
+
+        if (!updated) return false; // 실패 시 중단
+
+        // 2. 삭제할 이미지 ID 목록이 있다면 반복 삭제
+        List<Long> deleteImgIds = envFormDto.getDeleteImgIds();
+        if (deleteImgIds != null && !deleteImgIds.isEmpty()) {
+            for (Long imgId : deleteImgIds) {
+                envImgService.deleteById(imgId); // 개별 이미지 삭제
+            }
+        }
+
+        // 3. 새 이미지 파일이 있다면 추가 등록 처리
+        for (MultipartFile envImgFile : envImgFiles) {
+            if (!envImgFile.isEmpty()) { // 비어있지 않은 파일만 처리
+                EnvImgDto envImgDto = EnvImgDto.builder()
+                        .envId(env.getEnvId()) // FK로 게시글 ID 설정
+                        .build();
+                envImgService.register(envImgDto, envImgFile); // 실제 이미지 등록
+            }
+        }
+
+        return true;
     }
 
     // 게시글 삭제
     // 전달받은 ID로 delete 쿼리 실행, 결과가 1이면 true 반환
     @Override
+    @Transactional
     public boolean remove(Long envId) {
-        log.info("remove() - 게시글 삭제");
-        return envMapper.delete(envId) == 1;
+        log.info("remove() - 게시글 및 이미지 삭제 시작, envId = {}", envId);
+
+        // 1. 이미지 먼저 삭제 (파일 시스템 + DB)
+        envImgService.deleteByEnvId(envId);
+
+        // 2. 게시글 삭제
+        int deleted = envMapper.delete(envId);
+        log.info("게시글 삭제 결과: {}", deleted);
+
+        return deleted == 1;
     }
 
     // 게시글 목록 조회 (페이징 포함)

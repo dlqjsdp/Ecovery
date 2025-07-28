@@ -3,6 +3,8 @@ package com.ecovery.service;
 import com.ecovery.domain.EnvVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.EnvDto;
+import com.ecovery.dto.EnvFormDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,15 +19,18 @@ import java.util.List;
      - 250715 | yukyeong | EnvService 인터페이스 최초 작성 (CRUD, 페이징)
      - 250716 | yukyeong | 조회수 증가 추가
      - 250718 | yukyeong | VO를 DTO로 변경
+     - 250728 | yukyeong | 이미지 포함 게시글 등록 및 수정 메서드로 변경 (EnvFormDto + MultipartFile)
  */
 
 public interface EnvService {
 
-    public void register(EnvDto envDto); // 게시글 등록 (DTO로 등록)
+    // 게시글 등록 (본문 + 이미지 파일)
+    public void register(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception;
 
     public EnvDto get(Long envId); // 게시글 단건 조회 (DTO 반환)
 
-    public boolean modify(EnvDto envDto); // 게시글 수정 (DTO로 수정)
+    // 게시글 수정 (본문 + 이미지 ID 목록 + 새 이미지 파일)
+    public boolean modify(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception;
 
     public boolean remove(Long envId); // 게시글 삭제 (삭제는 ID만으로)
 

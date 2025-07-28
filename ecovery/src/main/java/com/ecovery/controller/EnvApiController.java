@@ -2,6 +2,7 @@ package com.ecovery.controller;
 
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.EnvDto;
+import com.ecovery.dto.EnvFormDto;
 import com.ecovery.dto.PageDto;
 import com.ecovery.service.EnvService;
 import com.ecovery.service.MemberService;
@@ -14,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -35,6 +37,9 @@ import java.util.Map;
    - 250722 | yukyeong | 게시글 삭제 API (DELETE /remove/{envId}) 구현
    - 250723 | yukyeong | 게시글 단건 조회 예외처리 추가 (404 반환)
    - 250724 | yukyeong | 게시글 삭제 실패 시 400 Bad Request 응답 처리
+   - 250728 | yukyeong | 게시글 등록/수정 multipart/form-data 방식으로 전환 (EnvFormDto + 이미지 포함)
+                         게시글 수정 시 BindingResult 제거 후 수동 유효성 검사 도입
+                         게시글 삭제 시 컨트롤러는 그대로 유지 (서비스에서 이미지 함께 삭제 처리)
  */
 
 @RestController
@@ -76,37 +81,39 @@ public class EnvApiController {
     // 게시글 등록 처리
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody EnvDto envDto,
-                           BindingResult bindingResult,
-                           Principal principal) {
+    public ResponseEntity<?> register(
+            @RequestPart("envFormDto") @Valid EnvFormDto envFormDto,
+            BindingResult bindingResult,
+            @RequestPart("envImgFiles") List<MultipartFile> envImgFiles,
+            Principal principal) {
 
         // 1. @Valid 유효성 검사 + BindingResult로 검증
         // EnvDto에 설정한 유효성 검증에 실패하면 400 Bad Request 응답 반환
         if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("입력값을 다시 확인해주세요.");
         }
 
         // 2. 유효성 검사 통과한 경우에만 로그인 사용자 이메일 → memberId 조회
         String email = principal.getName(); // Principal에서 로그인한 사용자의 이메일을 가져옴 (username 역할)
         Long memberId = memberService.getMemberByEmail(email).getMemberId(); // 이메일을 기준으로 DB에서 memberId 조회
-        envDto.setMemberId(memberId); // 조회한 memberId를 등록할 게시글 DTO에 설정
+        envFormDto.getEnvDto().setMemberId(memberId); // 조회한 memberId를 등록할 게시글 DTO에 설정
 
-        log.info("게시글 등록 처리 전: {}", envDto); // 등록 전 EnvDto 상태 출력 (등록 전에 memberId가 잘 들어갔는지 확인용)
+        log.info("게시글 등록 처리 전: {}", envFormDto); // 등록 전 EnvDto 상태 출력 (등록 전에 memberId가 잘 들어갔는지 확인용)
 
         // 3. 게시글 등록 처리
         try {
-            envService.register(envDto); // DB에 INSERT 수행
+            envService.register(envFormDto, envImgFiles); // DB에 INSERT 수행
 
-            log.info("게시글 등록 처리 후: {}", envDto); // 등록 후 EnvDto 상태 출력 (envId 등 자동 생성된 필드 확인 가능)
+            log.info("게시글 등록 처리 후: {}", envFormDto); // 등록 후 EnvDto 상태 출력 (envId 등 자동 생성된 필드 확인 가능)
 
             // 응답 데이터 구성: 등록된 게시글의 ID(envId)를 JSON으로 반환
             Map<String, Object> response = new HashMap<>();
-            response.put("envId", envDto.getEnvId()); // INSERT 후 Mapper에서 envId가 세팅되었다고 가정
+            response.put("envId", envFormDto.getEnvDto().getEnvId()); // INSERT 후 Mapper에서 envId가 세팅되었다고 가정
             return ResponseEntity.status(HttpStatus.CREATED).body(response); // 상태 코드 201(CREATED)와 함께 응답 본문에 envId 포함
         } catch (Exception e) {
             // 등록 중 예외 발생 시 로그 출력 후 500 INTERNAL_SERVER_ERROR 반환
-            log.error("게시글 등록 중 예외 발생", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 서버 에러 시 500
+            log.error("게시글 등록 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("등록 중 오류가 발생했습니다."); // 서버 에러 시 500
         }
     }
 
@@ -141,38 +148,50 @@ public class EnvApiController {
     // 게시글 수정 처리
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/modify/{envId}")
-    public ResponseEntity<?> modify(@PathVariable Long envId,
-                                    @Valid @RequestBody EnvDto envDto,
-                            BindingResult bindingResult) {
+    public ResponseEntity<?> modify(
+            @PathVariable Long envId,  // URL 경로에서 수정할 게시글의 ID 추출
+            @Valid @RequestPart("envFormDto") EnvFormDto envFormDto,  // multipart/form-data 요청에서 게시글 정보(JSON 형태) 추출
+            @RequestPart(value = "envImgFiles", required = false) List<MultipartFile> envImgFiles) {  // 첨부 이미지 파일 리스트
 
-        log.info("게시글 수정 요청 (API): {}", envDto);
+        log.info("게시글 수정 요청 (API): envId = {}, formDto = {}", envId, envFormDto);
 
-        // 1. 유효성 검사 실패 시 에러 응답 반환
-        if (bindingResult.hasErrors()) {
-            // @Valid 검증에 실패한 경우 400 Bad Request 상태 코드와 메시지 반환
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("입력값을 다시 확인해주세요.");
-        }
-
-        envDto.setEnvId(envId); // 경로에서 받은 ID를 DTO에 주입
-
-        // 2. 수정 로직 처리
         try {
-            boolean success = envService.modify(envDto); // 서비스 계층에서 게시글 수정 수행
-            if (success) {
-                // 수정 성공 시 200 OK와 함께 응답 데이터 반환
-                Map<String, Object> response = new HashMap<>();
-                response.put("message", "수정 성공");
-                response.put("envId", envDto.getEnvId()); // 수정된 게시글 ID도 같이 반환
-                return ResponseEntity.ok(response);
-            } else {
-                // 수정 실패 시 400 Bad Request 상태 코드와 실패 메시지 반환
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("수정에 실패했습니다.");
+            // 1. EnvFormDto에서 게시글 본문 DTO(EnvDto) 추출
+            EnvDto envDto = envFormDto.getEnvDto();
+            // 2. 수정 대상 게시글 ID 설정 (경로에서 받은 값으로 세팅)
+            envDto.setEnvId(envId);
+
+            // 3. 유효성 검증 수동 처리 (클라이언트에서 필수값이 누락되었는지 확인)
+            if (envDto.getTitle() == null || envDto.getTitle().isBlank()) {
+                return ResponseEntity.badRequest().body("제목은 필수입니다.");
             }
+            if (envDto.getContent() == null || envDto.getContent().isBlank()) {
+                return ResponseEntity.badRequest().body("내용은 필수입니다.");
+            }
+
+            // 4. 이미지 파일이 전달되지 않았을 경우 빈 리스트로 초기화 (null 방지)
+            if (envImgFiles == null) {
+                envImgFiles = List.of();
+            }
+
+            // 5. 서비스 계층에 수정 요청 (게시글 + 이미지 수정 처리)
+            boolean success = envService.modify(envFormDto, envImgFiles);
+
+            // 6. 수정 성공 여부에 따라 응답 처리
+            if (success) {
+                // 성공 시 메시지와 수정된 게시글 ID 포함하여 200 OK 응답
+                Map<String, Object> result = new HashMap<>();
+                result.put("message", "수정 성공");
+                result.put("envId", envId);
+                return ResponseEntity.ok(result);
+            } else {
+                // 수정 실패 시 400 Bad Request 응답
+                return ResponseEntity.badRequest().body("수정에 실패했습니다.");
+            }
+
         } catch (Exception e) {
-            // 예외 발생 시 500 Internal Server Error와 함께 오류 메시지 반환
-            log.error("게시글 수정 중 오류 발생", e);
+            // 예외 발생 시 서버 내부 오류로 처리 (500)
+            log.error("게시글 수정 중 예외 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("서버 오류가 발생했습니다.");
         }

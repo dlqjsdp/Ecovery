@@ -3,13 +3,17 @@ package com.ecovery.service;
 import com.ecovery.domain.EnvVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.EnvDto;
+import com.ecovery.dto.EnvFormDto;
+import com.ecovery.dto.EnvImgDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
      - 250716 | yukyeong | 게시글 목록 조회 (페이징 포함), 게시글 총 개수 조회, 조회수 증가 테스트 작성
      - 250718 | yukyeong | 테스트 전반적으로 EnvDto 기반으로 통일 및 로그 개선
      - 250725 | yukyeong | 게시글 등록/수정 테스트에 category 필드 추가 및 검증
+     - 250728 | yukyeong | EnvDto 단독 사용 → EnvFormDto 기반으로 수정, 게시글 + 이미지 등록, 수정, 삭제 테스트 추가
  */
 
 @SpringBootTest
@@ -34,37 +39,89 @@ class EnvServiceTest {
     @Autowired
     private EnvService envService;
 
+    @Autowired
+    private EnvImgService envImgService;
+
     @Test
-    @DisplayName("게시글 등록 테스트")
+    @DisplayName("게시글 + 이미지 등록 테스트")
     @Transactional
-    public void testRegister(){
+    public void testRegisterWithImage() throws Exception{
 
         // Given - 테스트용 게시글 DTO 생성 및 값 세팅
         EnvDto envDto = new EnvDto();
         envDto.setMemberId(1L);
-        envDto.setTitle("서비스 등록 테스트 제목");
-        envDto.setContent("서비스 등록 테스트 내용");
-        envDto.setCategory("news"); // 카테고리: 환경 뉴스
+        envDto.setTitle("통합 테스트 제목");
+        envDto.setContent("통합 테스트 내용");
+        envDto.setCategory("tips");
 
+        // 이미지(MockMultipartFile) 생성
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "imgFile",
+                "test.jpg",
+                "image/jpeg",
+                "sample image content".getBytes()
+        );
 
-        // When - 게시글 등록 (DTO → VO 변환 후 insert 수행)
-        envService.register(envDto);
+        // 게시글과 이미지를 묶는 EnvFormDto 생성
+        // 실제 서비스 메서드에서는 게시글 정보와 파일 리스트를 동시에 받으므로 DTO와 파일을 함께 넘기기 위한 구조
+        EnvFormDto formDto = EnvFormDto.builder()
+                .envDto(envDto)
+                .build();
+
+        // When - 게시글과 이미지 동시 등록
+        envService.register(formDto, List.of(mockFile));
+
+        // 게시글 등록 후 자동 생성된 ID 확인
+        Long envId = envDto.getEnvId();
+        assertNotNull(envId, "게시글 ID는 null이면 안 됩니다.");
+
+        // Then - 이미지까지 함께 등록되었는지 확인
+        List<EnvImgDto> imgList = envImgService.getListByEnvId(envId);
+        assertEquals(1, imgList.size(), "이미지는 1건 등록되어야 합니다."); // 이미지가 1건 등록되었는지 확인
+        // 원본 이미지명과 게시글 ID가 일치하는지 확인
+        assertEquals("test.jpg", imgList.get(0).getOriImgName());
+        assertEquals(envId, imgList.get(0).getEnvId());
+
+        log.info("게시글 + 이미지 등록 성공. 등록된 이미지: {}", imgList.get(0));
+
+    }
+
+    @Test
+    @DisplayName("이미지 없이 게시글만 등록 테스트")
+    @Transactional
+    public void testRegisterWithoutImage() throws Exception {
+        // Given - 게시글 정보만 설정
+        EnvDto envDto = new EnvDto();
+        envDto.setMemberId(1L);
+        envDto.setTitle("이미지 없는 게시글 제목");
+        envDto.setContent("이미지 없이 등록되는 게시글 내용");
+        envDto.setCategory("news");
+
+        // EnvFormDto 생성 (이미지 없음)
+        // 실제 서비스에서는 EnvFormDto를 통해 게시글과 이미지가 함께 전달되므로 구조 동일
+        EnvFormDto formDto = EnvFormDto.builder()
+                .envDto(envDto)
+                .build();
+
+        // When - 게시글만 등록 (이미지 리스트는 빈 리스트로 전달)
+        envService.register(formDto, List.of());
 
         // Then
-        // 1) insert 후 자동 생성된 envId가 DTO에 세팅되었는지 확인
-        assertNotNull(envDto.getEnvId(), "id는 null값이면 안됩니다.");
+        // 1. 등록된 게시글 ID가 null이 아닌지 확인 (등록 성공 여부)
+        Long envId = envDto.getEnvId();
+        assertNotNull(envId, "게시글 ID는 null이면 안 됩니다.");
 
-        // 2) 방금 등록한 게시글을 ID로 다시 조회 (DTO 반환)
-        EnvDto inserted = envService.get(envDto.getEnvId());
-        assertNotNull(inserted, "insert 이후에는 null값이면 안됩니다.");
+        // 2. 등록된 게시글을 DB에서 다시 조회하여 값 확인
+        EnvDto saved = envService.get(envId);
+        assertNotNull(saved, "등록된 게시글은 null이면 안 됩니다.");
+        assertEquals("이미지 없는 게시글 제목", saved.getTitle());
+        assertEquals("이미지 없이 등록되는 게시글 내용", saved.getContent());
 
-        // 3) 등록한 제목과 내용이 DB에서 정상적으로 조회되는지 확인
-        assertEquals("서비스 등록 테스트 제목", inserted.getTitle());
-        assertEquals("서비스 등록 테스트 내용", inserted.getContent());
-        assertEquals("news", inserted.getCategory()); // 카테고리 검증
+        // 3. 이미지가 하나도 저장되지 않았는지 확인
+        List<EnvImgDto> imgList = envImgService.getListByEnvId(envId);
+        assertTrue(imgList.isEmpty(), "이미지가 없어야 합니다.");
 
-        log.info("삽입된 게시글: {}", inserted);
-
+        log.info("이미지 없이 게시글만 등록 성공: {}", saved);
     }
 
 
@@ -86,74 +143,178 @@ class EnvServiceTest {
 
 
     @Test
-    @DisplayName("게시글 수정 테스트")
+    @DisplayName("게시글 + 이미지 수정 테스트")
     @Transactional
-    public void testModify() {
-        // Given
-        // 테스트용 게시글 DTO 생성 및 등록
+    public void testModifyWithImage() throws Exception {
+        // Given - 게시글 등록 + 이미지 1장 등록
         EnvDto envDto = new EnvDto();
-        envDto.setMemberId(1L); // 작성자 ID
-        envDto.setTitle("수정 테스트 제목1"); // 초기 제목
-        envDto.setContent("수정 테스트 내용1"); // 초기 내용
-        envDto.setCategory("tips"); // 초기 카테고리: 환경 팁
+        envDto.setMemberId(1L);
+        envDto.setTitle("수정 테스트 제목");
+        envDto.setContent("수정 테스트 내용");
+        envDto.setCategory("tips");
 
-        envService.register(envDto); // 게시글 등록
-        Long insertedId = envDto.getEnvId(); // 등록된 게시글의 ID 확인 (PK)
-        assertNotNull(insertedId, "등록된 ID는 null값이면 안됩니다."); // 등록된 게시글이 잘 등록되었는지
+        // 기존 이미지
+        MockMultipartFile originalImage = new MockMultipartFile(
+                "imgFile",
+                "original.jpg",
+                "image/jpeg",
+                "original image content".getBytes()
+        );
 
-        // When
-        // 1) 제목과 내용을 수정
+        EnvFormDto formDto = EnvFormDto.builder()
+                .envDto(envDto)
+                .build();
+
+        envService.register(formDto, List.of(originalImage)); // 등록
+        Long envId = envDto.getEnvId();
+        assertNotNull(envId, "등록된 게시글 ID는 null이면 안됩니다.");
+
+        // 기존 이미지 ID 확인
+        List<EnvImgDto> originalImgList = envImgService.getListByEnvId(envId);
+        assertEquals(1, originalImgList.size(), "초기 이미지 1개 등록되어야 함");
+        Long toDeleteImgId = originalImgList.get(0).getEnvImgId();
+
+        // When - 게시글 내용 + 이미지 수정
         envDto.setTitle("수정된 제목");
         envDto.setContent("수정된 내용");
-        envDto.setCategory("issue"); // 수정된 카테고리: 주간 이슈
+        envDto.setCategory("issue");
 
-        // 2) 수정 메서드 호출
-        boolean result = envService.modify(envDto);
+        // 새 이미지
+        MockMultipartFile newImage = new MockMultipartFile(
+                "imgFile",
+                "new.jpg",
+                "image/jpeg",
+                "new image content".getBytes()
+        );
 
-        // Then
-        // 1) 수정 결과가 true(수정 성공)인지 확인
-        assertTrue(result, "수정결과가 false면 안됨.");
-        // 2) 수정된 게시글을 다시 조회
-        EnvDto updated = envService.get(insertedId);
-        // 3) 조회 결과가 null이 아닌지 검증
-        assertNotNull(updated, "수정 후 결과가 null이면 안됩니다.");
-        // 4) 제목과 내용이 수정되었는지 검증
+        EnvFormDto modifiedFormDto = EnvFormDto.builder()
+                .envDto(envDto)
+                .deleteImgIds(List.of(toDeleteImgId)) // 기존 이미지 삭제
+                .build();
+
+        boolean result = envService.modify(modifiedFormDto, List.of(newImage)); // 수정 호출
+
+        // Then - 수정 검증
+        assertTrue(result, "수정 결과가 false면 안 됩니다.");
+
+        EnvDto updated = envService.get(envId);
+        assertNotNull(updated);
         assertEquals("수정된 제목", updated.getTitle());
         assertEquals("수정된 내용", updated.getContent());
-        assertEquals("issue", updated.getCategory()); // 카테고리 검증
+        assertEquals("issue", updated.getCategory());
 
-        log.info("수정된 게시글: {}", updated);
+        // 이미지 검증: 기존 이미지 삭제되고, 새 이미지 1장 등록되어야 함
+        List<EnvImgDto> updatedImgList = envImgService.getListByEnvId(envId);
+        assertEquals(1, updatedImgList.size(), "이미지 1장만 남아야 함");
+        assertEquals("new.jpg", updatedImgList.get(0).getOriImgName());
 
+        log.info("게시글 + 이미지 수정 성공: {}", updated);
     }
 
     @Test
-    @DisplayName("게시글 삭제 테스트")
+    @DisplayName("이미지 없이 게시글만 수정 테스트")
     @Transactional
-    public void testRemove() {
+    public void testModifyWithoutImage() throws Exception {
+        // Given - 게시글만 등록 (이미지 없음)
+        EnvDto envDto = new EnvDto();
+        envDto.setMemberId(1L);
+        envDto.setTitle("초기 제목");
+        envDto.setContent("초기 내용");
+        envDto.setCategory("news");
+
+        EnvFormDto registerForm = EnvFormDto.builder()
+                .envDto(envDto)
+                .build();
+
+        envService.register(registerForm, List.of()); // 이미지 없이 등록
+        Long envId = envDto.getEnvId();
+        assertNotNull(envId, "게시글 ID는 null이면 안 됩니다.");
+
+        // When - 제목, 내용, 카테고리만 수정
+        EnvDto modifiedDto = EnvDto.builder()
+                .envId(envId)
+                .memberId(envDto.getMemberId()) // 수정 시 작성자 ID 필요
+                .title("수정된 제목")
+                .content("수정된 내용")
+                .category("event")
+                .build();
+
+        EnvFormDto modifyForm = EnvFormDto.builder()
+                .envDto(modifiedDto)
+                .build();
+
+        boolean result = envService.modify(modifyForm, List.of()); // 이미지 없음
+
+        // Then - 수정 결과 및 필드 확인
+        assertTrue(result, "수정 결과는 true여야 합니다.");
+        EnvDto updated = envService.get(envId);
+        assertNotNull(updated, "수정 후 게시글이 null이면 안 됩니다.");
+        assertEquals("수정된 제목", updated.getTitle());
+        assertEquals("수정된 내용", updated.getContent());
+        assertEquals("event", updated.getCategory());
+
+        // 이미지가 여전히 없어야 함
+        List<EnvImgDto> imgList = envImgService.getListByEnvId(envId);
+        assertTrue(imgList.isEmpty(), "수정 후에도 이미지가 없어야 합니다.");
+
+        log.info("이미지 없이 게시글만 수정 성공: {}", updated);
+    }
+
+
+    @Test
+    @DisplayName("게시글 + 이미지 삭제 테스트")
+    @Transactional
+    public void testRemoveWithImage() throws Exception {
         // Given
-        // 테스트용 게시글 DTO 생성 및 등록
+        //  1. 게시글 정보 설정
         EnvDto envDto = new EnvDto();
         envDto.setMemberId(1L);
         envDto.setTitle("삭제 테스트 제목");
         envDto.setContent("삭제 테스트 내용");
+        envDto.setCategory("event");
 
-        envService.register(envDto); // 게시글 등록
-        Long insertedId = envDto.getEnvId(); // 등록된 게시글의 ID 가져오기
-        assertNotNull(insertedId, "등록된 ID는 null값이면 안됨");
+        // 2. Mock 이미지 파일 생성 (가짜 이미지 데이터를 포함한 MultipartFile)
+        MockMultipartFile imageFile = new MockMultipartFile(
+                "imgFile",
+                "delete.jpg",
+                "image/jpeg",
+                "image to delete".getBytes()
+        );
 
-        // When - 게시글 삭제
-        boolean result = envService.remove(insertedId);
+        // 3. EnvFormDto 생성 (게시글 + 이미지 등록에 사용)
+        EnvFormDto formDto = EnvFormDto.builder()
+                .envDto(envDto)
+                .build();
+
+        // 4. 서비스 호출을 통해 게시글 + 이미지 등록
+        envService.register(formDto, List.of(imageFile)); // 등록 수행
+
+        // 5. 등록된 게시글의 ID 확인 (null이 아니어야 정상 등록)
+        Long envId = envDto.getEnvId();
+        assertNotNull(envId, "게시글 ID는 null이면 안 됩니다.");
+
+        // 6. 이미지가 정상 등록되었는지 확인 (이미지 1장이어야 함)
+        List<EnvImgDto> imgList = envImgService.getListByEnvId(envId);
+        assertEquals(1, imgList.size(), "이미지 1건이 등록되어야 합니다.");
+
+        // When - 게시글 삭제 (해당 ID 기준 삭제)
+        boolean deleted = envService.remove(envId);
 
         // Then
-        // 1) 삭제되었는지 확인
-        assertTrue(result, "삭제 결과가 false면 실패.");
-        // 2) 삭제된 게시글을 다시 조회했을 때 null값이 나오는지 확인
-        EnvDto deleted = envService.get(insertedId);
-        assertNull(deleted, "삭제 후 조회결과는 null.");
+        // 삭제 결과가 true인지 확인 (삭제 성공)
+        assertTrue(deleted, "게시글 삭제는 성공해야 합니다.");
 
-        log.info("삭제된 게시글 ID: {}", insertedId);
+        // 삭제된 게시글을 조회하면 null이어야 함
+        EnvDto deletedPost = envService.get(envId);
+        assertNull(deletedPost, "삭제된 게시글은 null이어야 합니다.");
 
+        // 해당 게시글의 이미지도 모두 삭제되었는지 확인
+        List<EnvImgDto> afterImgList = envImgService.getListByEnvId(envId);
+        assertTrue(afterImgList.isEmpty(), "이미지도 함께 삭제되어야 합니다.");
+
+        log.info("게시글 및 이미지 삭제 성공: ID = {}", envId);
     }
+
 
     @Test
     @DisplayName("게시글 페이징 + 검색 목록 조회 테스트")
@@ -198,17 +359,24 @@ class EnvServiceTest {
     @Test
     @DisplayName("게시글 조회수 증가 테스트")
     @Transactional
-    public void testUpdateViewCount(){
+    public void testUpdateViewCount() throws Exception{
         // Given
         // 1) 테스트용 DTO 객체 생성
         EnvDto envDto = new EnvDto();
         envDto.setMemberId(1L); // 작성자 ID 설정
         envDto.setTitle("조회수 증가 테스트 제목");
         envDto.setContent("조회수 증가 테스트 내용");
-        // 2) 게시글 등록
-        envService.register(envDto);
-        Long insertedId = envDto.getEnvId(); // 등록된 ID 확인
-        assertNotNull(insertedId, "등록된 ID는 null값이면 안됩니다.");
+
+        // 2) 게시글 등록 (이미지 없이)
+        EnvFormDto formDto = EnvFormDto.builder()
+                .envDto(envDto)
+                .build();
+
+        envService.register(formDto, Collections.emptyList()); // 이미지 없이 등록
+
+        // 등록 후 envDto에서 ID 추출
+        Long insertedId = envDto.getEnvId();
+        assertNotNull(insertedId, "등록된 게시글 ID는 null이면 안 됩니다.");
 
         // When
         // 1) 조회수 증가 전 값 조회
