@@ -1,7 +1,9 @@
 package com.ecovery.config;
 
+import com.ecovery.security.CustomUserDetails;
 import com.ecovery.security.CustomUserDetailsService;
 import com.ecovery.service.OAuth2MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -62,13 +64,27 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form
-                        .loginPage("/member/login") //사용자 정의 로그인 페이지
+                        .loginPage("/member/login")
                         .loginProcessingUrl("/member/login")
-                        .defaultSuccessUrl("/main", true) //성공 시 이동 url
-                        .usernameParameter("email") //로그인 폼 name=email
-                        .passwordParameter("password") //로그인 폼 name=password
-                        .failureUrl("/member/login?error=true") //실패 시 리다이렉트
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .successHandler((request, response, authentication) -> {
+                            // 1. 로그인한 사용자 정보 가져오기
+                            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+                            Long memberId = userDetails.getMemberVO().getMemberId();
 
+                            // 2. 세션에 memberId 저장
+                            request.getSession().setAttribute("memberId", memberId);
+
+                            // 3. 성공 응답 반환 (기존 코드 유지)
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"message\":\"success\", \"redirect\":\"/main\"}");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"error\":\"이메일 또는 비밀번호를 확인해주세요.\"}");
+                        })
                 )
                 .logout(logout -> logout
                         .logoutUrl("/member/logout") //로그아웃 요청 url

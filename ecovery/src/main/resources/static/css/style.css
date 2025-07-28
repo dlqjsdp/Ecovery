@@ -35,9 +35,15 @@ body {
 
 /* Enhanced Container for Large Screens */
 .container {
-    max-width: var(--container-max-width);
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--container-padding);
+    padding: 0 20px;
+}
+
+/* Main Content */
+.main-content {
+    padding: 40px 0;
+    min-height: calc(100vh - 200px);
 }
 
 /* Flexible Grid System */
