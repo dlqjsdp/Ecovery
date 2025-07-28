@@ -1,12 +1,10 @@
 package com.ecovery.controller;
 
 /*
- * 에코마켓 View Controller
- * @author : sehui
- * @fileName : ItemViewController
- * @since : 250721
- * @history
- *  - 250721 | sehui | View 반환을 위해 컨트롤러 생성
+ * 구매 상품 조회 Controller
+ * @author : 방희경
+ * @fileName : OrderHistoryController
+ * @since : 250722
  */
 
 import com.ecovery.dto.OrderHistoryDto;

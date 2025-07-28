@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 /*
  * 장바구니 Dto
- * 게시글 정보를 화면에 전달하기 위한 데이터 전달 객체
- * @author : yeonsu
- * @fileName : FreeDto
- * @since : 250710
+ * 장바구니 상품 조회, 추가, 수정, 삭제 관련 Dto
+ * @author : 방희경
+ * @fileName : CartDetailDto
+ * @since : 0250722
  */
 
 @Data

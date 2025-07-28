@@ -8,12 +8,9 @@ package com.ecovery.controller;
  * @since : 250722
  */
 
-import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.CartDetailDto;
 import com.ecovery.security.CustomUserDetails;
-import com.ecovery.security.CustomUserDetailsService;
 import com.ecovery.service.CartItemService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -39,12 +36,19 @@ public class CartController {
         return userDetails.getUsername();
     }
 
-    // 장바구니 목록 조회
+    // 장바구니 목록 조회(HTML 페이지용)
     @GetMapping(value = "/list")
     public String getCartItems(Model model) {
         List<CartDetailDto> cartList = cartItemService.getCartItmes(getLoginNickname());
         model.addAttribute("cartList", cartList);
         return "cart/cart";
+    }
+
+    // 장바구니 목록 조회(JSON 페이지용)
+    @GetMapping("/api/list")
+    @ResponseBody
+    public List<CartDetailDto> getCartItemsJson() {
+        return cartItemService.getCartItmes(getLoginNickname());
     }
 
     // 장바구니 상품 담기

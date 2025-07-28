@@ -1,59 +1,89 @@
+// cart-script.js - 실무 기준 전체 구조 정리본
+
 let cartItems = [];
 let cartTotal = 0;
 let appliedCoupons = [];
 
-const header = document.getElementById('header');
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('navMenu');
-const cartCountElement = document.getElementById('cartCount');
-const selectedCountElement = document.getElementById('selectedCount');
+// DOMContentLoaded 이후 실행
+document.addEventListener('DOMContentLoaded', function () {
+    initializeHeader();
+    initializeCartItemsFromDOM();
+    initializeEventListeners();
+    bindDynamicEventListeners();
+});
 
-// ✅ 장바구니 데이터 서버에서 불러오기
-function initializeCart() {
-    fetch('/cart/list')
-        .then(response => {
-            if (!response.ok) throw new Error('서버 응답 실패');
-            return response.json();
-        })
-        .then(data => {
-            cartItems = data.map(item => ({
-                ...item,
-                selected: true,
-                quantity: item.count
-            }));
-            updateCartCount();
-            updateSelectedCount();
-            renderCartItems();
-            updateCartSummary();
-        })
-        .catch(error => {
-            handleError(error, '장바구니 데이터 불러오기');
-        });
-}
+// ============================================
+// 초기화 함수들
+// ============================================
 
-// ✅ 장바구니 항목 렌더링
-function renderCartItems() {
-    const cartListElement = document.getElementById('cartList');
-    if (!cartListElement) return;
+function initializeHeader() {
+    const header = document.getElementById('header');
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
 
-    cartListElement.innerHTML = '';
+    window.addEventListener('scroll', () => {
+        header?.classList.toggle('scrolled', window.scrollY > 100);
+    });
 
-    cartItems.forEach((item, index) => {
-        const itemHtml = `
-            <div class="cart-item" data-item-id="${item.cartItemId}">
-                <input type="checkbox" class="item-checkbox" ${item.selected ? 'checked' : ''}>
-                <div class="item-info">
-                    <span class="item-name">${item.itemNm}</span>
-                    <span class="item-price">${formatPrice(item.price)} x ${item.quantity}개</span>
-                </div>
-                <div class="item-actions">
-                    <button onclick="removeItem(${item.cartItemId})">삭제</button>
-                </div>
-            </div>
-        `;
-        cartListElement.insertAdjacentHTML('beforeend', itemHtml);
+    hamburger?.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
     });
 }
+
+function initializeCartItemsFromDOM() {
+    cartItems = [];
+    document.querySelectorAll('.cart-item').forEach(itemEl => {
+        const id = parseInt(itemEl.dataset.itemId);
+        const name = itemEl.querySelector('.item-name').textContent.trim();
+        const price = parseInt(itemEl.querySelector('.sale-price').textContent.replace(/[^0-9]/g, ''));
+        const qtyInput = itemEl.querySelector('.qty-input');
+        const count = parseInt(qtyInput.value);
+        const stock = parseInt(qtyInput.getAttribute('max'));
+        const selected = itemEl.querySelector('.item-checkbox').checked;
+
+        cartItems.push({
+            cartItemId: id,
+            itemNm: name,
+            price: price,
+            quantity: count,
+            stockNumber: stock,
+            selected: selected
+        });
+    });
+
+    updateSelectedCount();
+    updateCartSummary();
+}
+
+function initializeEventListeners() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    selectAllCheckbox?.addEventListener('change', toggleSelectAll);
+}
+
+function bindDynamicEventListeners() {
+    document.querySelectorAll('.item-checkbox').forEach((cb, index) => {
+        cb.addEventListener('change', () => toggleItemSelection(index));
+    });
+
+    document.querySelectorAll('.qty-btn.plus').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const itemId = parseInt(btn.closest('.cart-item').dataset.itemId);
+            updateQuantity(itemId, 1);
+        });
+    });
+
+    document.querySelectorAll('.qty-btn.minus').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const itemId = parseInt(btn.closest('.cart-item').dataset.itemId);
+            updateQuantity(itemId, -1);
+        });
+    });
+}
+
+// ============================================
+// 장바구니 관련 유틸 함수들
+// ============================================
 
 function updateQuantity(itemId, change) {
     const item = cartItems.find(item => item.cartItemId === itemId);
@@ -68,19 +98,10 @@ function updateQuantity(itemId, change) {
     }
 }
 
-function updateItemQuantity(itemId, quantity) {
-    const item = cartItems.find(item => item.cartItemId === itemId);
-    if (item) {
-        item.quantity = quantity;
-        updateCartSummary();
-        showNotification(`수량이 ${quantity}개로 변경되었습니다.`, 'info');
-    }
-}
-
 function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll').checked;
-    cartItems.forEach(item => item.selected = selectAll);
-    document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = selectAll);
+    const isChecked = document.getElementById('selectAll').checked;
+    cartItems.forEach(item => item.selected = isChecked);
+    document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = isChecked);
     updateSelectedCount();
     updateCartSummary();
 }
@@ -95,60 +116,45 @@ function toggleItemSelection(index) {
     }
 }
 
-function updateCartCount() {
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    if (cartCountElement) cartCountElement.textContent = totalItems;
-}
-
-function updateSelectedCount() {
-    const selectedItems = cartItems.filter(item => item.selected).length;
-    if (selectedCountElement) selectedCountElement.textContent = selectedItems;
-}
-
 function updateCartSummary() {
     const selectedItems = cartItems.filter(item => item.selected);
     const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     let finalTotal = subtotal;
 
     appliedCoupons.forEach(coupon => {
-        if (coupon.type === 'percentage') {
-            finalTotal *= (1 - coupon.value / 100);
-        } else if (coupon.type === 'fixed') {
-            finalTotal = Math.max(0, finalTotal - coupon.value);
-        }
+        if (coupon.type === 'percentage') finalTotal *= (1 - coupon.value / 100);
+        else if (coupon.type === 'fixed') finalTotal = Math.max(0, finalTotal - coupon.value);
     });
 
     document.getElementById('subtotal').textContent = formatPrice(subtotal);
     document.getElementById('discount').textContent = formatPrice(subtotal - finalTotal);
     document.getElementById('total').textContent = formatPrice(finalTotal);
 
-    const orderBtn = document.querySelector('.btn-order');
-    if (orderBtn) orderBtn.textContent = `🛒 주문하기 (${formatPrice(finalTotal)})`;
-
+    document.querySelector('.btn-order').textContent = `🛒 주문하기 (${formatPrice(finalTotal)})`;
     cartTotal = finalTotal;
-    updateEnvironmentalImpact(selectedItems);
 }
 
-function updateEnvironmentalImpact(selectedItems) {
-    const totalCarbonSaved = selectedItems.reduce((sum, item) => sum + ((item.carbonSaved || 0) * item.quantity), 0);
-    const plasticSaved = Math.round(totalCarbonSaved * 50);
-    const pointsToEarn = Math.floor(cartTotal * 0.01);
-
-    document.querySelector('.impact-item:nth-child(1) .impact-value').textContent = `${totalCarbonSaved.toFixed(1)}kg CO₂`;
-    document.querySelector('.impact-item:nth-child(2) .impact-value').textContent = `${plasticSaved}g`;
-    document.querySelector('.impact-item:nth-child(3) .impact-value').textContent = `${pointsToEarn}P`;
+function updateSelectedCount() {
+    const selectedCount = cartItems.filter(item => item.selected).length;
+    document.getElementById('selectedCount').textContent = selectedCount;
 }
 
 function removeItem(itemId) {
-    const index = cartItems.findIndex(item => item.cartItemId === itemId);
-    if (index !== -1) {
-        cartItems.splice(index, 1);
-        document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
-        updateCartCount();
-        updateSelectedCount();
-        updateCartSummary();
-        showNotification('상품이 삭제되었습니다.', 'success');
-    }
+    fetch(`/cart/api/delete/${itemId}`, { method: 'DELETE' })
+        .then(res => {
+            if (!res.ok) throw new Error('삭제 실패');
+            const index = cartItems.findIndex(item => item.cartItemId === itemId);
+            if (index !== -1) {
+                cartItems.splice(index, 1);
+                document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
+                updateSelectedCount();
+                updateCartSummary();
+                showNotification('상품이 삭제되었습니다.', 'success');
+            }
+        })
+        .catch(() => {
+            showNotification('삭제 중 오류가 발생했습니다.', 'error');
+        });
 }
 
 function deleteSelected() {
@@ -159,39 +165,12 @@ function deleteSelected() {
     }
 }
 
-function applyCoupon() {
-    const input = document.getElementById('couponCode');
-    const code = input.value.trim().toUpperCase();
-    const coupons = {
-        'FIRST10': { type: 'percentage', value: 10 },
-        'ECO20': { type: 'percentage', value: 20 },
-        'WELCOME5000': { type: 'fixed', value: 5000 }
-    };
+// ============================================
+// 기타 유틸리티 함수들
+// ============================================
 
-    const coupon = coupons[code];
-    if (!coupon) return showNotification('유효하지 않은 쿠폰입니다.', 'error');
-    if (appliedCoupons.some(c => c.code === code)) return showNotification('이미 적용된 쿠폰입니다.', 'warning');
-
-    appliedCoupons.push({ ...coupon, code });
-    updateCartSummary();
-    input.value = '';
-    showNotification(`"${code}" 쿠폰이 적용되었습니다!`, 'success');
-}
-
-function applyCouponDirect(code) {
-    document.getElementById('couponCode').value = code;
-    applyCoupon();
-}
-
-function goToMarket() {
-    showNotification('에코마켓으로 이동합니다.', 'info');
-    window.location.href = '/eco-market';
-}
-
-function proceedToOrder() {
-    const selectedItems = cartItems.filter(item => item.selected);
-    if (selectedItems.length === 0) return showNotification('주문할 상품을 선택해주세요.', 'warning');
-    showNotification(`${selectedItems.length}개 상품 주문 완료 🎉`, 'success');
+function formatPrice(price) {
+    return new Intl.NumberFormat('ko-KR').format(Math.round(price)) + '원';
 }
 
 function showNotification(message, type = 'success') {
@@ -218,7 +197,7 @@ function showNotification(message, type = 'success') {
 }
 
 function getNotificationColor(type) {
-    switch(type) {
+    switch (type) {
         case 'success': return '#2d5a3d';
         case 'error': return '#dc3545';
         case 'warning': return '#ffc107';
@@ -226,30 +205,3 @@ function getNotificationColor(type) {
         default: return '#2d5a3d';
     }
 }
-
-function initializeHeader() {
-    window.addEventListener('scroll', () => {
-        header.classList.toggle('scrolled', window.scrollY > 100);
-    });
-    if (hamburger) {
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-    }
-}
-
-function initializeEventListeners() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    if (selectAllCheckbox) selectAllCheckbox.addEventListener('change', toggleSelectAll);
-}
-
-function formatPrice(price) {
-    return new Intl.NumberFormat('ko-KR').format(Math.round(price)) + '원';
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    initializeHeader();
-    initializeCart();
-    initializeEventListeners();
-});
