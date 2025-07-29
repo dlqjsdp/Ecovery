@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
       - 250723 | yukyeong | 공지사항 삭제 API 테스트 (정상 삭제 케이스) 구현
       - 250723 | yukyeong | 공지사항 단건 조회 API 테스트 (정상 케이스) 구현
       - 250724 | yukyeong | 공지사항 등록/수정/단건조회/삭제 실패 테스트 케이스 추가 (유효성 검증 및 존재하지 않는 ID)
+      - 250729 | yukyeong | 게시글 등록/수정 통합 테스트에 category 필드 테스트 추가
  */
 
 @SpringBootTest
@@ -101,6 +102,7 @@ class NoticeApiControllerTest {
         NoticeDto dto = new NoticeDto(); // 게시글 DTO 객체 생성
         dto.setTitle("API 통합 테스트 제목"); // 제목 설정
         dto.setContent("API 통합 테스트 내용"); // 내용 설정
+        dto.setCategory("event"); // category 추가
 
         // ObjectMapper를 사용해 DTO 객체를 JSON 문자열로 변환
         // 실제 컨트롤러가 @RequestBody로 JSON을 받을 것이기 때문에 이 형식으로 요청을 보냄
@@ -184,6 +186,7 @@ class NoticeApiControllerTest {
         dto.setNoticeId(5L); // 기존 게시글 ID
         dto.setTitle("수정된 제목입니다"); // 수정할 제목
         dto.setContent("수정된 내용입니다"); // 수정할 내용
+        dto.setCategory("important"); // category 추가
 
         // EnvDto 객체를 JSON 문자열로 변환 (HTTP 요청 본문에 담기 위해)
         String json = objectMapper.writeValueAsString(dto);

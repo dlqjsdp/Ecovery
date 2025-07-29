@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 문서 기본 설정 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title th:text="${post.title + ' - ECOVERY 환경톡톡'}">게시글 상세 - GreenCycle 환경톡톡</title>
+    
+    <!-- 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS 파일 연결 -->
+    <link rel="stylesheet" th:href="@{/css/eco-talk-detail.css}">
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" th:content="${post.content != null ? #strings.abbreviate(#strings.unescapeJava(post.content), 150) : ''}">
+    <meta property="og:title" th:content="${post.title}">
+    <meta property="og:description" th:content="${post.content != null ? #strings.abbreviate(#strings.unescapeJava(post.content), 150) : ''}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" th:content="@{'/eco-talk/posts/' + ${post.id}}">
+</head>
+<body>
+    <!-- 상단 헤더 및 네비게이션 -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 영역 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="ECOVERY 로고" class="logo-img">
+                </a>
+                
+                <!-- 메인 네비게이션 메뉴 -->
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/}">홈</a></li>
+                    <li><a th:href="@{/services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}" class="active">환경톡톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                
+                <!-- 로그인/회원가입 버튼 - 사용자 상태에 따른 조건부 렌더링 -->
+                <div class="auth-buttons">
+                    <!-- 로그인하지 않은 경우 -->
+                    <div th:if="${session.user == null}">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user != null}">
+                        <span class="user-welcome" th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/mypage}" class="btn-mypage">마이페이지</a>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                </div>
+                
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 브레드크럼 네비게이션 -->
+            <nav class="breadcrumb fade-in">
+                <a th:href="@{/}">홈</a>
+                <span style="margin: 0 10px; color: var(--medium-gray);">></span>
+                <a th:href="@{/eco-talk}">환경톡톡</a>
+                <span style="margin: 0 10px; color: var(--medium-gray);">></span>
+                <span class="current">상세보기</span>
+            </nav>
+
+            <!-- 게시글 상세 컨테이너 (중앙배치) -->
+            <div class="post-detail-layout">
+                <!-- 게시글 상세 메인 콘텐츠 -->
+                <div class="post-detail-main fade-in">
+                    <!-- 뒤로가기 버튼 -->
+                    <button class="back-btn" onclick="history.back()">
+                        ← 목록으로 돌아가기
+                    </button>
+                    
+                    <!-- 게시글 아티클 -->
+                    <article class="post-article">
+                        <!-- 게시글 헤더 -->
+                        <header class="post-article-header">
+                            <!-- 인기 게시글 뱃지 -->
+                            <div th:if="${post.isPopular}" class="popular-badge-large">
+                                <span th:if="${post.isHot}">🔥 HOT</span>
+                                <span th:if="${!post.isHot}">⭐ 인기</span>
+                            </div>
+                            
+                            <!-- 게시글 제목 -->
+                            <h1 class="post-article-title" th:text="${post.title}">게시글 제목</h1>
+                            
+                            <!-- 게시글 메타 정보 -->
+                            <div class="post-article-meta">
+                                <div class="author-info">
+                                    <span class="author-avatar" 
+                                          th:text="${post.author.avatar != null ? post.author.avatar : '👤'}">👤</span>
+                                    <div>
+                                        <div class="author-name" th:text="${post.author.nickname}">작성자</div>
+                                        <div class="author-level" th:text="${post.author.level}">환경지킴이</div>
+                                    </div>
+                                </div>
+                                <div class="post-info">
+                                    <div class="post-date">
+                                        <span style="font-weight: 500;">작성일:</span>
+                                        <span th:text="${#temporals.format(post.createdAt, 'yyyy년 MM월 dd일')}">2025년 07월 15일</span>
+                                    </div>
+                                    <div class="post-views">
+                                        <span style="font-weight: 500;">조회:</span>
+                                        <span th:text="${#numbers.formatInteger(post.viewCount, 3)} + '회'">1,245회</span>
+                                    </div>
+                                    <div class="post-category" th:if="${post.category}">
+                                        <span style="font-weight: 500;">분류:</span>
+                                        <span th:text="${post.category.displayName}">환경팁</span>
+                                    </div>
+                                    <div class="post-likes">
+                                        <span style="font-weight: 500;">좋아요:</span>
+                                        <span th:text="${#numbers.formatInteger(post.likeCount, 3)} + '개'">125개</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 게시글 태그 -->
+                            <div class="post-tags" th:if="${post.tags != null && !#lists.isEmpty(post.tags)}">
+                                <span th:each="tag : ${post.tags}" 
+                                      class="tag" 
+                                      th:text="${tag.name}">태그</span>
+                            </div>
+                        </header>
+                        
+                        <!-- 게시글 내용 -->
+                        <div class="post-article-content" th:utext="${post.content}">
+                            <!-- 여기에 게시글 내용이 표시됩니다 -->
+                            <h3>🌟 제로웨이스트 실천 후기</h3>
+                            <p>안녕하세요! 제로웨이스트 생활을 시작한지 벌써 3개월이 되었습니다. 처음에는 막막했지만 이제는 생활이 많이 바뀌었어요.</p>
+                            
+                            <div class="post-info-box">
+                                <h4>💡 실천한 것들</h4>
+                                <p>일회용품 사용을 줄이고, 재사용 가능한 용기를 활용하는 방법들을 시도했습니다.</p>
+                            </div>
+                            
+                            <h3>🆕 변화된 점들</h3>
+                            <ul>
+                                <li><strong>텀블러 사용:</strong> 카페에서 항상 개인 텀블러 사용하기</li>
+                                <li><strong>장바구니 활용:</strong> 마트 갈 때 에코백 챙기기</li>
+                                <li><strong>음식 보관:</strong> 유리용기로 음식 보관하기</li>
+                                <li><strong>화장품 교체:</strong> 고체 샴푸와 비누 사용하기</li>
+                            </ul>
+                            
+                            <h3>🔧 어려웠던 점</h3>
+                            <ul>
+                                <li>초기에는 불편함이 많았음</li>
+                                <li>대체 제품 찾기가 쉽지 않았음</li>
+                                <li>비용이 처음에는 더 많이 들었음</li>
+                                <li>가족들의 이해와 협조 구하기</li>
+                            </ul>
+                            
+                            <div class="post-info-box success">
+                                <h4>✅ 얻은 것들</h4>
+                                <p>환경에 대한 의식이 높아졌고, 쓰레기 양이 확실히 줄었습니다. 장기적으로는 비용도 절약되고 있어요!</p>
+                            </div>
+                            
+                            <h3>📅 앞으로의 계획</h3>
+                            <p><strong>더 많은 분들이 함께 실천했으면 좋겠습니다.</strong> 작은 변화라도 모이면 큰 힘이 되거든요.</p>
+                            
+                            <blockquote>
+                                여러분도 쉬운 것부터 하나씩 시작해보세요! 완벽하지 않아도 괜찮습니다.
+                            </blockquote>
+                        </div>
+                        
+                        <!-- 첨부파일 목록 -->
+                        <div class="post-attachments" th:if="${post.attachments != null && !#lists.isEmpty(post.attachments)}">
+                            <h3>📎 첨부파일</h3>
+                            <div class="attachments-list">
+                                <div th:each="attachment : ${post.attachments}" class="attachment-item">
+                                    <a th:href="@{'/api/attachments/' + ${attachment.id} + '/download'}" 
+                                       class="attachment-link"
+                                       th:download="${attachment.originalName}">
+                                        <span class="attachment-icon">📄</span>
+                                        <span class="attachment-name" th:text="${attachment.originalName}">파일명.jpg</span>
+                                        <span class="attachment-size" th:text="'(' + ${attachment.formattedSize} + ')'">(1.2MB)</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 게시글 액션 버튼들 -->
+                        <div class="post-actions-bottom">
+                            <button class="post-action-btn like" th:onclick="|toggleLike(${post.id})|"
+                                    th:classappend="${post.isLiked ? 'active' : ''}">
+                                <span th:if="${post.isLiked}">❤️ 좋아요 취소</span>
+                                <span th:if="${!post.isLiked}">🤍 좋아요</span>
+                            </button>
+                            <button class="post-action-btn share" th:onclick="|sharePost(${post.id}, '${post.title}')|">
+                                🔗 공유하기
+                            </button>
+                            <button class="post-action-btn print" onclick="printPost()">
+                                🖨️ 인쇄하기
+                            </button>
+                            <button class="post-action-btn bookmark" 
+                                    th:onclick="|toggleBookmark(${post.id})|"
+                                    th:classappend="${post.isBookmarked ? 'active' : ''}">
+                                <span th:if="${post.isBookmarked}">⭐ 북마크 해제</span>
+                                <span th:if="${!post.isBookmarked}">☆ 북마크</span>
+                            </button>
+                        </div>
+                    </article>
+                    
+                    <!-- 이전/다음 게시글 네비게이션 -->
+                    <div class="post-navigation" th:if="${prevPost != null || nextPost != null}">
+                        <div class="nav-item prev" th:if="${prevPost != null}" th:onclick="|location.href='@{/eco-talk/posts/{id}(id=${prevPost.id})}'|">
+                            <span class="nav-label">이전 글</span>
+                            <div class="nav-title" th:text="${prevPost.title}">이전 게시글 제목</div>
+                            <span class="nav-date" th:text="${#temporals.format(prevPost.createdAt, 'yyyy.MM.dd')}">2025.07.14</span>
+                        </div>
+                        <div class="nav-item next" th:if="${nextPost != null}" th:onclick="|location.href='@{/eco-talk/posts/{id}(id=${nextPost.id})}'|">
+                            <span class="nav-label">다음 글</span>
+                            <div class="nav-title" th:text="${nextPost.title}">다음 게시글 제목</div>
+                            <span class="nav-date" th:text="${#temporals.format(nextPost.createdAt, 'yyyy.MM.dd')}">2025.07.16</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 관련 게시글 섹션 -->
+                    <section class="related-posts" th:if="${relatedPosts != null && !#lists.isEmpty(relatedPosts)}">
+                        <h3>📎 관련 게시글</h3>
+                        <div class="related-posts-grid">
+                            <div th:each="relatedPost : ${relatedPosts}" 
+                                 class="related-post-item"
+                                 th:onclick="|location.href='@{/eco-talk/posts/{id}(id=${relatedPost.id})}'|">
+                                <div class="related-post-header">
+                                    <span class="related-post-category" th:text="${relatedPost.category.displayName}">카테고리</span>
+                                    <span class="related-post-date" th:text="${#temporals.format(relatedPost.createdAt, 'MM.dd')}">07.15</span>
+                                </div>
+                                <div class="related-post-title" th:text="${relatedPost.title}">관련 게시글 제목</div>
+                                <div class="related-post-meta">
+                                    <span th:text="${relatedPost.author.nickname}">작성자</span>
+                                    <span th:text="'좋아요 ' + ${#numbers.formatInteger(relatedPost.likeCount, 3)}">좋아요 123</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 관리자 전용 액션 버튼들 (관리자만) -->
+                    <section class="admin-actions" th:if="${session.user != null && (session.user.role == 'ADMIN' || session.user.role == 'MANAGER')}">
+                        <div class="admin-action-buttons">
+                            <a th:href="@{'/admin/eco-talk/posts/' + ${post.id} + '/edit'}" class="admin-btn edit-btn">
+                                ✏️ 글 수정
+                            </a>
+                            <button class="admin-btn delete-btn" th:onclick="|deletePost(${post.id})|">
+                                🗑️ 글 삭제
+                            </button>
+                            <a th:href="@{/admin/eco-talk/posts/new}" class="admin-btn new-btn">
+                                ➕ 새 글 작성
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- 독자 의견 섹션 (읽기 전용) -->
+                    <section class="reader-feedback" th:if="${readerComments != null && !#lists.isEmpty(readerComments)}">
+                        <h3>💭 독자 의견 <span th:text="${#lists.size(readerComments)}">0</span></h3>
+                        <p class="feedback-notice">
+                            📧 의견이 있으시면 <a href="mailto:feedback@ecovery.com">feedback@ecovery.com</a>으로 보내주세요.
+                        </p>
+                        
+                        <!-- 선별된 독자 의견 목록 (관리자가 승인한 것만) -->
+                        <div class="feedback-list">
+                            <div th:each="feedback : ${readerComments}" class="feedback-item">
+                                <div class="feedback-header">
+                                    <span class="feedback-author" th:text="${feedback.authorName}">독자명</span>
+                                    <span class="feedback-date" th:text="${#temporals.format(feedback.createdAt, 'yyyy.MM.dd')}">2025.07.15</span>
+                                    <span class="feedback-badge">승인된 의견</span>
+                                </div>
+                                <div class="feedback-content" th:text="${feedback.content}">독자 의견 내용</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <img th:src="@{/img/logo.png}" alt="ECOVERY 로고" class="logo-img">
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경톡톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ECOVERY. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 -->
+    <script th:src="@{/js/eco-talk-detail.js}"></script>
+    
+    <!-- 타임리프 인라인 스크립트 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var post = /*[[${post}]]*/ {};
+        var user = /*[[${session.user}]]*/ null;
+        var csrfToken = /*[[${_csrf.token}]]*/ '';
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+        
+        // API URL 설정
+        var shareUrl = window.location.href;
+        var likeToggleUrl = /*[[@{/api/eco-talk/posts/{id}/like}]]*/ '/api/eco-talk/posts/' + post.id + '/like';
+        var bookmarkToggleUrl = /*[[@{/api/eco-talk/posts/{id}/bookmark}]]*/ '/api/eco-talk/posts/' + post.id + '/bookmark';
+        var deletePostUrl = /*[[@{/eco-talk/posts/{id}}]]*/ '/eco-talk/posts/' + post.id;
+        var commentLikeUrl = /*[[@{/api/eco-talk/comments/{id}/like}]]*/ '/api/eco-talk/comments/';
+        
+        // 조회수 증가 API 호출
+        if (post && post.id) {
+            incrementViewCount(post.id);
+        }
+        
+        // 좋아요 토글 함수 (서버 연동)
+        function toggleLike(postId) {
+            if (!user) {
+                showNotification('로그인이 필요합니다.', 'info');
+                return;
+            }
+            
+            const likeBtn = document.querySelector('.post-action-btn.like');
+            if (!likeBtn) return;
+            
+            likeBtn.disabled = true;
+            
+            fetch(likeToggleUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.liked) {
+                        likeBtn.innerHTML = '❤️ 좋아요 취소';
+                        likeBtn.classList.add('active');
+                        showNotification('좋아요를 눌렀습니다! ❤️', 'success');
+                    } else {
+                        likeBtn.innerHTML = '🤍 좋아요';
+                        likeBtn.classList.remove('active');
+                        showNotification('좋아요를 취소했습니다.', 'info');
+                    }
+                } else {
+                    showNotification('좋아요 처리 중 오류가 발생했습니다.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('좋아요 처리 중 오류가 발생했습니다.', 'error');
+            })
+            .finally(() => {
+                likeBtn.disabled = false;
+            });
+        }
+        
+        // 북마크 토글 함수 (서버 연동)
+        function toggleBookmark(postId) {
+            if (!user) {
+                showNotification('로그인이 필요합니다.', 'info');
+                return;
+            }
+            
+            const bookmarkBtn = document.querySelector('.post-action-btn.bookmark');
+            if (!bookmarkBtn) return;
+            
+            bookmarkBtn.disabled = true;
+            
+            fetch(bookmarkToggleUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.bookmarked) {
+                        bookmarkBtn.innerHTML = '⭐ 북마크 해제';
+                        bookmarkBtn.classList.add('active');
+                        showNotification('북마크에 추가되었습니다!', 'success');
+                    } else {
+                        bookmarkBtn.innerHTML = '☆ 북마크';
+                        bookmarkBtn.classList.remove('active');
+                        showNotification('북마크에서 제거되었습니다.', 'info');
+                    }
+                } else {
+                    showNotification('북마크 처리 중 오류가 발생했습니다.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('북마크 처리 중 오류가 발생했습니다.', 'error');
+            })
+            .finally(() => {
+                bookmarkBtn.disabled = false;
+            });
+        }
+        
+        // 게시글 삭제 함수 (작성자 및 관리자용)
+        function deletePost(postId) {
+            if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
+                return;
+            }
+            
+            fetch(deletePostUrl, {
+                method: 'DELETE',
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('게시글이 삭제되었습니다.', 'success');
+                    setTimeout(() => {
+                        location.href = '/eco-talk';
+                    }, 1500);
+                } else {
+                    showNotification('삭제 중 오류가 발생했습니다.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('삭제 중 오류가 발생했습니다.', 'error');
+            });
+        }
+        
+        // 조회수 증가 함수
+        function incrementViewCount(postId) {
+            // 중복 조회 방지를 위한 세션 스토리지 체크
+            const viewedKey = 'viewed_post_' + postId;
+            if (sessionStorage.getItem(viewedKey)) {
+                return;
+            }
+            
+            fetch('/api/eco-talk/posts/' + postId + '/view', {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    sessionStorage.setItem(viewedKey, 'true');
+                }
+            })
+            .catch(error => {
+                console.error('View count increment error:', error);
+            });
+        }
+        
+        // 댓글 폼 제출 처리
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentForm = document.querySelector('.comment-form');
+            if (commentForm) {
+                commentForm.addEventListener('submit', function(e) {
+                    const textarea = this.querySelector('textarea[name="content"]');
+                    const content = textarea.value.trim();
+                    
+                    if (!content) {
+                        e.preventDefault();
+                        showNotification('댓글 내용을 입력해주세요.', 'info');
+                        return;
+                    }
+                    
+                    if (content.length > 500) {
+                        e.preventDefault();
+                        showNotification('댓글은 500자 이하로 작성해주세요.', 'info');
+                        return;
+                    }
+                    
+                    // 제출 버튼 비활성화
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '등록 중...';
+                    }
+                });
+            }
+        });
+        
+        // 전역 함수 등록
+        window.toggleLike = toggleLike;
+        window.toggleBookmark = toggleBookmark;
+        window.deletePost = deletePost;
+        window.incrementViewCount = incrementViewCount;
+        
+        console.log('📄 환경톡톡 상세 페이지가 로드되었습니다.');
+    </script>
+</body>
+</html>
