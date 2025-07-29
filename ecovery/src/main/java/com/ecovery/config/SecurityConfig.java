@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/disposal/*", "/disposal/disposalMain/*", "/api/disposal/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
                         .requestMatchers("/notice/**").permitAll() // 공지사항 게시판 누구나 접근 가능
-                        .requestMatchers("/item/**").permitAll()    //Test용 (추후에 변경)
+                        .requestMatchers("/eco/**").permitAll()    //에코마켓 게시판 누구나 접근 가능 (수정 필요)
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
                         .requestMatchers("/order/**").permitAll()   //주문 Test용으로 모두 허용 (추후에 .authenticated()로 변경)
                         .requestMatchers("/ecovery/**").permitAll()
