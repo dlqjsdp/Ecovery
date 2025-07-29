@@ -41,8 +41,7 @@
         from disposal_history h
         left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
         left join member m on h.member_id = m.member_id
-        <include refid="criteria"/>
-        where h.disposal_history_id > 0
+        <include refid="dynamicConditions"/>
         order by h.created_at desc
         LIMIT #{amount} OFFSET #{offset}
     </select>
@@ -72,7 +71,7 @@
     </update>
 
     <!-- 검색 조건(제목, 내용, 지역(구,동) -->
-    <sql id="criteria">
+    <sql id="dynamicConditions">
         <where>
             <!-- 항상 참인 기본 조건을 맨 앞에 둡니다. -->
             h.disposal_history_id > 0
@@ -124,6 +123,7 @@
                     </when>
                 </choose>
             </if>
+            h.disposal_history_id > 0
         </where>
     </sql>
 
@@ -133,7 +133,7 @@
         SELECT COUNT(*)
         FROM disposal_history h
         LEFT JOIN member m ON h.member_id = m.member_id
-                <include refid="criteria"/>
+                <include refid="dynamicConditions"/>
         where disposal_history_id > 0
 
     </select>
