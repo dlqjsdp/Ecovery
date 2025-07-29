@@ -53,7 +53,7 @@ public class DisposalHistoryController {
     }
 
     @GetMapping("/history")
-    public String disposalHistoryList(/*@SessionAttribute("nickname") MemberVO admin, */Criteria cri, Model model) {
+    public String disposalHistoryList(Criteria cri, Model model) {
         List<DisposalHistoryDto> adminDisposalHistory = disposalHistoryService.getAllHistory(cri);
         model.addAttribute("adminHistory", adminDisposalHistory);
         double avgAiConfidence = adminDisposalHistory.stream()
@@ -66,6 +66,7 @@ public class DisposalHistoryController {
         int total = disposalHistoryService.getTotal(cri);
         model.addAttribute("disposalHistoryPage", new PageDto(cri, total));
 
+        log.info(cri.toString());
         log.info(adminDisposalHistory.toString());
 
         //model.addAttribute("admin", admin); // 뷰에 전달
@@ -89,10 +90,10 @@ public class DisposalHistoryController {
         DisposalHistoryDto disposalHistory = disposalHistoryService.getHistory(disposalHistoryId);
 
         if (disposalHistory != null) {
-            log.debug("ID {}의 데이터 조회 성공: {}", disposalHistoryId, disposalHistory);
+            log.info("ID {}의 데이터 조회 성공: {}", disposalHistoryId, disposalHistory);
             return ResponseEntity.ok(disposalHistory); // 200 OK와 함께 JSON 데이터 반환
         } else {
-            log.warn("ID {}에 해당하는 분리배출 내역을 찾을 수 없습니다.", disposalHistoryId);
+            log.info("ID {}에 해당하는 분리배출 내역을 찾을 수 없습니다.", disposalHistoryId);
             return ResponseEntity.notFound().build(); // 404 Not Found 반환
         }
     }

@@ -3,6 +3,18 @@ let classificationOptionsByRegion = {};
 // ✅ lastDisposalHistoryId를 전역 스코프에 선언
 let lastDisposalHistoryId = null;
 
+
+/**
+ * 로딩 메시지 배열 (분석 중 순차적으로 표시)
+ */
+const LOADING_MESSAGES = [
+    "이미지를 분석하고 있어요",
+    "AI가 물체를 인식하고 있어요",
+    "분류 카테고리를 결정하고 있어요",
+    "신뢰도를 계산하고 있어요",
+    "결과를 준비하고 있어요"
+];
+
 document.addEventListener("DOMContentLoaded", async() => {
     const imageInput = document.getElementById('imageInput');
     const uploadZone = document.getElementById('uploadZone');

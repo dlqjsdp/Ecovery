@@ -38,8 +38,8 @@ public class DisposalFeedbackServiceImpl implements DisposalFeedbackService {
     }
 
     @Override
-    public DisposalFeedbackDto getFeedbackDetail(Long disposalHistoryId) {
-        return disposalFeedbackMapper.selectDetailByDisposalHistoryId(disposalHistoryId);
+    public DisposalFeedbackDto getFeedbackDetail(Long feedbackId) {
+        return disposalFeedbackMapper.selectDetailByDisposalHistoryId(feedbackId);
     }
 
     @Override

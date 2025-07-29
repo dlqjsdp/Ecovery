@@ -31,7 +31,7 @@
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
                     <li><a th:href="@{/admin/main}">대시보드</a></li>
-                    <li><a th:href="@{/admin/members}" class="active">회원 관리</a></li>
+                    <li><a th:href="@{/admin/member}" class="active">회원 관리</a></li>
                     <li><a th:href="@{/admin/services}">서비스 관리</a></li>
                     <li><a th:href="@{/admin/statistics}">통계 관리</a></li>
                     <li><a th:href="@{/admin/settings}">설정</a></li>
@@ -253,19 +253,19 @@
                     <div class="pagination" id="pagination">
                         <!-- 이전 버튼 -->
                         <a th:if="${memberPage.isPrev()}"
-                           th:href="@{/admin/members(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.startPage - 1})}"
+                           th:href="@{/admin/member(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, pageNum=${memberPage.startPage - 1})}"
                            class="page-btn">◀ 이전</a>
                         <span th:unless="${memberPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
                         
                         <!-- 페이지 번호들 -->
                         <a th:each="num : ${#numbers.sequence(memberPage.startPage, memberPage.endPage)}"
-                           th:href="@{/admin/members(page=${num}, search=${memberPage.cri.keyword}, size=${memberPage.cri.amount})}"
+                           th:href="@{/admin/member(pageNum=${num}, search=${memberPage.cri.keyword}, size=${memberPage.cri.amount})}"
                            th:text="${num}"
                            th:class="${memberPage.cri.pageNum == num} ? 'page-link active' : 'page-link'">1</a>
 
                         <!-- 다음 버튼 -->
                         <a th:if="${memberPage.isNext()}"
-                           th:href="@{/admin/members(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.endPage + 1})}"
+                           th:href="@{/admin/member(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, pageNum=${memberPage.endPage + 1})}"
                            class="page-btn">다음 ▶</a>
                         <span th:unless="${memberPage.isNext()}" class="page-btn disabled">다음 ▶</span>
                     </div>

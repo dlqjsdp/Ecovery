@@ -85,7 +85,7 @@ public class AdminController {
         return ResponseEntity.ok(member);
     }
 
-    @PostMapping("/role/update/{memberId}")
+    @PostMapping("/update/role/{memberId}")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateMemberRole(@PathVariable("memberId") Long memberId,@RequestBody MemberVO memberVO) {
         // memberId를 MemberVO에 직접 설정

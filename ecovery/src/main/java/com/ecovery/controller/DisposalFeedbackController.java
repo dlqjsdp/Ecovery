@@ -7,6 +7,7 @@ import com.ecovery.dto.PageDto;
 import com.ecovery.service.DisposalFeedbackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class DisposalFeedbackController {
         model.addAttribute("adminFeedbackHistory", adminFeedbackHistory);
 
         int total = disposalFeedbackService.getTotalCount(cri);
-        model.addAttribute("total", new PageDto(cri, total));
+        model.addAttribute("feedbackHistoryPage", new PageDto(cri, total));
 
         return "feedback/feedbackHistory";
     }
@@ -58,5 +59,20 @@ public class DisposalFeedbackController {
         DisposalFeedbackDto feedback = disposalFeedbackService.getFeedbackDetail(disposalHistoryId);
         model.addAttribute("feedback", feedback);
         return "feedback/detail"; // 예: detail.jsp
+    }
+
+    @GetMapping("/api/detail/{feedbackId}")
+    @ResponseBody
+    public ResponseEntity<DisposalFeedbackDto> getFeedbackApiDetail(@PathVariable("feedbackId") Long feedbackId) {
+        DisposalFeedbackDto feedbackDetail = disposalFeedbackService.getFeedbackDetail(feedbackId);
+
+        log.info("API 요청: ID {}에 대한 분리배출 상세 내역 조회", feedbackId);
+
+        if (feedbackDetail != null) {
+            log.info("ID {}의 데이터 조회 성공: {}", feedbackId, feedbackDetail);
+            return ResponseEntity.ok(feedbackDetail);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

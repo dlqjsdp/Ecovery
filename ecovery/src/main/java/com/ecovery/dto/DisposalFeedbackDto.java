@@ -1,5 +1,6 @@
 package com.ecovery.dto;
 
+import com.ecovery.constant.Role;
 import com.ecovery.domain.DisposalHistoryImgVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,12 +20,14 @@ public class DisposalFeedbackDto {
     private Long disposalHistoryId;
     private LocalDateTime createdAt;
     private Long memberId;
+    private String role;
 
     private String aiPrediction;
+    private Double aiConfidence;
     private String regionGu;
     private String finalItem;
 
-    private String disposalHistoryImgUrl;
+    private String disposalImgUrl;
 
     private String nickname;
 }
