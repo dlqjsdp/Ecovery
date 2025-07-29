@@ -1,9 +1,8 @@
 package com.ecovery.dto;
 
+import com.ecovery.domain.OrderVO;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,11 +14,13 @@ import java.util.List;
  * @history
  *  - 250723 | sehui | OrderDto 생성
  *  - 250724 | sehui | 주문 고유번호 UUID 변수 추가
+ *  - 250728 | sehui | OrderDto 변환용 생성자 추가
  */
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class OrderDto {
 
     private Long orderId;           //주문 id
@@ -46,7 +47,19 @@ public class OrderDto {
     @NotBlank
     private String phoneNumber;
 
-    //계산 정보
-    private int totalPrice;
+    private int totalPrice;             //총 주문 금액
 
+    //OrderDto 변환용 생성자
+    public OrderDto(OrderVO order, List<OrderItemDto> orderItems) {
+        this.orderId = order.getOrderId();
+        this.orderUuid = order.getOrderUuid();
+        this.memberId = order.getMemberId();
+        this.orderItems = orderItems;
+        this.name = order.getName();
+        this.zipcode = order.getZipcode();
+        this.roadAddress = order.getRoadAddress();
+        this.detailAddress = order.getDetailAddress();
+        this.phoneNumber = order.getPhoneNumber();
+        this.totalPrice = order.getTotalPrice();
+    }
 }

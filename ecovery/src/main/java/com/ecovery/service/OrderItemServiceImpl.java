@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /*
  * 에코마켓 주문 상품 ServiceImpl
  * @author : sehui
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @history
  *  - 250723 | sehui | 주문 페이지 출력용 객체 생성 기능 추가
  *  - 250723 | sehui | 주문 상품 저장용 객체 생성 기능 추가
+ *  - 250728 | sehui | 주문 상품 전체 조회 기능 추가
  */
 
 @Service
@@ -73,12 +76,18 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .orderId(orderId)
                 .itemId(orderItemDto.getItemId())
                 .count(orderItemDto.getCount())
-                .orderPrice(orderItemDto.getCount() * orderItemDto.getPrice())
+                .orderPrice(orderItemDto.getOrderPrice())
                 .build();
 
         //DB 저장
         orderItemMapper.insertOrderItem(orderItem);
 
         return orderItem;
+    }
+
+    //주문 상품 전체 조회
+    @Override
+    public List<OrderItemDto> getOrderItemsByOrderId(Long orderId) {
+        return orderItemMapper.findOrderItemByOrderId(orderId);
     }
 }

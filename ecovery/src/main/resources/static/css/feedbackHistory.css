@@ -20,28 +20,20 @@
     --light-green: #a8d5b7;       /* 연한 그린 */
     --sage-green: #9eb3a0;        /* 세이지 그린 */
     --dark-green: #1e3d2a;        /* 진한 그린 */
-
+    
     /* 기본 컬러 */
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --medium-gray: #6c757d;
     --dark-gray: #343a40;
     --black: #212529;
-    --border-color: #e9ecef;
-
-    /* 상태별 색상 */
-    --success-color: #27ae60;
-    --warning-color: #f39c12;
-    --danger-color: #e74c3c;
-    --info-color: #3498db;
-
+    
     /* 폰트 및 공통 설정 */
     --font-family: 'Noto Sans KR', sans-serif;
     --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
     --border-radius: 12px;
     --container-max-width: 1400px;
     --container-padding: 20px;
-    --modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 /* 기본 body 스타일 */
@@ -49,7 +41,7 @@ body {
     font-family: var(--font-family);
     line-height: 1.6;
     color: var(--dark-gray);
-    background: linear-gradient(135deg, var(--light-gray) 0%, #f0f8f4 100%);
+    background-color: var(--light-gray);
     overflow-x: hidden;
     margin: 0;
     padding: 0;
@@ -101,12 +93,14 @@ body {
     color: var(--primary-green);
 }
 
-.logo-img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
+.logo-icon {
+    font-size: 32px;
 }
 
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+}
 
 !* 네비게이션 메뉴 *!
 .nav-menu {
@@ -144,6 +138,7 @@ body {
 .nav-menu a.active::after {
     width: 100%;
 }*/
+
 /* ===================================
    관리자 헤더 스타일
    =================================== */
@@ -330,6 +325,7 @@ body {
     background: #7f8c8d;
 }
 
+
 /* 햄버거 메뉴 */
 .hamburger {
     display: none;
@@ -343,6 +339,32 @@ body {
     height: 3px;
     background: var(--primary-green);
     transition: all 0.3s ease;
+}
+
+/* 관리자 정보 */
+.admin-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    color: var(--dark-gray);
+    font-weight: 500;
+}
+
+.btn-logout {
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-logout:hover {
+    background: var(--primary-green);
+    color: var(--white);
 }
 
 /* ========================================
@@ -1077,13 +1099,13 @@ body {
 }
 
 @keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-50px) scale(0.95);
+    from { 
+        opacity: 0; 
+        transform: translateY(-50px) scale(0.95); 
     }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
     }
 }
 
@@ -1331,20 +1353,20 @@ body {
         gap: 20px;
         text-align: center;
     }
-
+    
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
+    
     .filter-options {
         justify-content: flex-start;
     }
-
+    
     .modal-body {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-
+    
     .table-header {
         flex-direction: column;
         gap: 15px;
@@ -1357,7 +1379,7 @@ body {
     .hamburger {
         display: flex;
     }
-
+    
     .nav-menu {
         position: fixed;
         top: 100%;
@@ -1372,70 +1394,70 @@ body {
         visibility: hidden;
         transition: all 0.3s ease;
     }
-
+    
     .nav-menu.active {
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
     }
-
+    
     .stats-grid {
         grid-template-columns: 1fr;
     }
-
+    
     .filter-options {
         flex-direction: column;
         align-items: stretch;
     }
-
+    
     .filter-group {
         width: 100%;
     }
-
+    
     .filter-select {
         min-width: auto;
         width: 100%;
     }
-
+    
     .waste-table {
         font-size: 12px;
     }
-
+    
     .waste-table th,
     .waste-table td {
         padding: 12px 8px;
     }
-
+    
     .waste-image {
         width: 60px;
         height: 60px;
     }
-
+    
     .action-buttons {
         flex-direction: column;
         gap: 5px;
     }
-
+    
     .btn-action {
         width: 28px;
         height: 28px;
         font-size: 12px;
     }
-
+    
     .modal-content {
         width: 95%;
         margin: 2% auto;
     }
-
+    
     .modal-header, .modal-body, .modal-footer {
         padding: 20px;
     }
-
+    
     .footer-content {
         flex-direction: column;
         gap: 20px;
     }
-
+    
     .footer-links {
         flex-direction: column;
         text-align: center;
@@ -1448,28 +1470,28 @@ body {
     .page-header {
         padding: 40px 0;
     }
-
+    
     .header-info h1 {
         font-size: 28px;
     }
-
+    
     .header-info p {
         font-size: 16px;
     }
-
+    
     .search-input-wrapper {
         flex-direction: column;
     }
-
+    
     .table-wrapper {
         overflow-x: scroll;
     }
-
+    
     .pagination {
         flex-wrap: wrap;
         justify-content: center;
     }
-
+    
     .page-info {
         flex-direction: column;
         gap: 10px;

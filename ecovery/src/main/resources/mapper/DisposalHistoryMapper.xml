@@ -18,7 +18,7 @@
     <select id="findByDisposalHistoryId" resultType="com.ecovery.dto.DisposalHistoryDto">
         select h.disposal_history_id as disposalHistoryId, h.ai_prediction as aiPrediction,
                h.region_gu as regionGu, h.final_item as finalItem, h.member_id as memberId,
-               h.created_at as createdAt,
+               h.created_at as createdAt, h.ai_confidence as aiConfidence,
                img.disposal_img_url as disposalImgUrl,
                i.item_name as itemName, i.min_price as minPrice, i.max_price as maxPrice, i.report_url as reportUrl,
                m.nickname as nickname,
@@ -42,6 +42,7 @@
         left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
         left join member m on h.member_id = m.member_id
         <include refid="criteria"/>
+        where h.disposal_history_id > 0
         order by h.created_at desc
         LIMIT #{amount} OFFSET #{offset}
     </select>
@@ -50,7 +51,7 @@
         select h.disposal_history_id as disposalHistoryId, h.member_id as memberId,
                h.ai_prediction as aiPrediction, h.region_gu as regionGu,
                h.final_item as finalItem, h.created_at as createdAt,
-               h.ai_confidence as aiConfidence,
+               h.ai_confidence as aiConfidence, h.ai_confidence as aiConfidence,
                img.disposal_img_url as disposalImgUrl,
                m.nickname as nickname,
                m.role as role
@@ -73,27 +74,69 @@
     <!-- 검색 조건(제목, 내용, 지역(구,동) -->
     <sql id="criteria">
         <where>
-            <foreach collection="typeArr" item="type" separator="OR">
-                <if test="type == 'R'">
-                    region_gu LIKE CONCAT('%', #{keyword}, '%')
-                </if>
-                <if test="type == 'M'">
-                    member_id LIKE CONCAT('%', #{keyword}, '%')
-                </if>
-            </foreach>
+            <!-- 항상 참인 기본 조건을 맨 앞에 둡니다. -->
+            h.disposal_history_id > 0
+
+            <!-- 닉네임 검색 -->
+            <if test="type != null and type.toString() == 'N'.toString() and keyword != null and keyword != ''">
+                AND m.nickname LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+
+            <!-- 지역 필터 (JavaScript에서 regionGu 파라미터로 보낼 때) -->
+            <if test="regionGu != null and regionGu != ''">
+                AND h.region_gu = #{regionGu}
+            </if>
+
+            <!-- 분류 필터 (JavaScript에서 aiPrediction 파라미터로 보낼 때) -->
+            <if test="aiPrediction != null and aiPrediction != ''">
+                AND h.ai_prediction = #{aiPrediction}
+            </if>
+
+            <!-- AI 신뢰도 필터 (JavaScript에서 aiConfidenceRange 파라미터로 보낼 때) -->
+            <if test="aiConfidenceRange != null and aiConfidenceRange != ''">
+                <choose>
+                    <when test="aiConfidenceRange.toString() == 'high'.toString()">
+                        AND h.ai_confidence >= 90
+                    </when>
+                    <when test="aiConfidenceRange.toString() == 'medium'.toString()">
+                        AND h.ai_confidence BETWEEN 70 AND 89.99
+                    </when>
+                    <when test="aiConfidenceRange.toString() == 'low'.toString()">
+                        AND h.ai_confidence &lt; 70
+                    </when>
+                </choose>
+            </if>
+
+            <!-- 날짜 필터 (JavaScript에서 dateRange 파라미터로 보낼 때) -->
+            <if test="dateRange != null and dateRange != ''">
+                <choose>
+                    <when test="dateRange.toString() == 'today'.toString()">
+                        AND DATE(h.created_at) = CURDATE()
+                    </when>
+                    <when test="dateRange.toString() == 'week'.toString()">
+                        AND h.created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                    </when>
+                    <when test="dateRange.toString() == 'month'.toString()">
+                        AND h.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+                    </when>
+                    <when test="dateRange.toString() == '3month'.toString()">
+                        AND h.created_at >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+                    </when>
+                </choose>
+            </if>
         </where>
     </sql>
+
 
     <!-- 페이징 처리를 위한 전체 게시글 수를 조회 -->
     <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
         SELECT COUNT(*)
-        FROM disposal_history
-        <where>
-            <if test="type != null and keyword != null and keyword != ''">
+        FROM disposal_history h
+        LEFT JOIN member m ON h.member_id = m.member_id
                 <include refid="criteria"/>
-            </if>
-            disposal_history_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
-        </where>
+        where disposal_history_id > 0
+
     </select>
+
 
 </mapper>

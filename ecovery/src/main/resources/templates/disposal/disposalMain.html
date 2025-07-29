@@ -57,6 +57,25 @@
                             </div>
                         </div>
 
+                        <!-- ========================================
+                         로딩 상태 표시 (새로 추가된 기능)
+                        ======================================== -->
+                        <div id="loading" class="loading-state hidden">
+                            <div class="loading-container">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-content">
+                                    <h3 id="loading-title">AI 분석 중...</h3>
+                                    <p id="loading-message">카테고리를 분석하고 있습니다</p>
+                                    <div class="loading-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="progress-fill"></div>
+                                        </div>
+                                        <span class="progress-text" id="progress-text">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Region Selection - 크기 축소 및 전국 지역 -->
                         <div class="region-selection">
                             <h3>📍 지역 선택</h3>

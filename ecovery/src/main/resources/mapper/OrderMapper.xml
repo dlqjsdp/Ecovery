@@ -14,6 +14,8 @@
      - 250724 | sehui | OrderVO에 주문 고유번호 order_uuid 컬럼 추가
      - 250725 | sehui | 주문 id 조회 기능 추가
      - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
+     - 250728 | sehui | 주문 단건 조회 기능 추가
+     - 250728 | sehui | 주문 저장, 주문 단건 조회 기능에 totalPrice 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.OrderMapper">
@@ -48,7 +50,7 @@
         </collection>
     </resultMap>
     
-    <!-- 주문 저장 -->
+    <!-- 주문 정보 -->
     <resultMap id="orderResultMap" type="com.ecovery.domain.OrderVO">
         <id property="orderId" column="order_id" />
         <result property="orderUuid" column="order_uuid" />
@@ -61,6 +63,7 @@
         <result property="roadAddress" column="road_address" />
         <result property="detailAddress" column="detail_address" />
         <result property="phoneNumber" column="phone_number" />
+        <result property="totalPrice" column="total_price" />
     </resultMap>
 
     <select id="findOrdersItems" parameterType="long" resultMap="orderHistoryMap">
@@ -104,8 +107,8 @@
   
     <!-- 주문 저장 -->
     <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
-      insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number)
-      values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber})
+      insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number, total_price)
+      values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber}, #{totalPrice})
     </insert>
 
     <!-- 주문 id 조회 -->
@@ -122,5 +125,24 @@
             updated_at = NOW()
         where order_id = #{orderId}
     </update>
+
+    <!-- 주문 단건 조회 -->
+    <select id="findOrderById" resultMap="orderResultMap">
+        select
+            order_id,
+            order_uuid,
+            member_id,
+            order_status,
+            created_at,
+            updated_at,
+            name,
+            zipcode,
+            road_address,
+            detail_address,
+            phone_number,
+            total_price
+        from orders
+        where order_id = #{orderId}
+    </select>
 
 </mapper>

@@ -1,5 +1,6 @@
 package com.ecovery.config;
 
+import com.ecovery.domain.MemberVO;
 import com.ecovery.security.CustomUserDetails;
 import com.ecovery.security.CustomUserDetailsService;
 import com.ecovery.service.OAuth2MemberService;
@@ -48,13 +49,14 @@ public class SecurityConfig {
 
                         .requestMatchers("/*", "/css/**", "/js/**", "/img/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
-                        .requestMatchers("/disposal/*","/disposal/disposalMain/*", "/disposal/history/*", "/api/disposal/*", "/feedback/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
+                        .requestMatchers("/disposal/*", "/disposal/disposalMain/*", "/api/disposal/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
                         .requestMatchers("/notice/**").permitAll() // 공지사항 게시판 누구나 접근 가능
                         .requestMatchers("/item/**").permitAll()    //Test용 (추후에 변경)
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
                         .requestMatchers("/order/**").permitAll()   //주문 Test용으로 모두 허용 (추후에 .authenticated()로 변경)
                         .requestMatchers("/ecovery/**").permitAll()
+                        .requestMatchers("/feedback/*", "/error", "/disposal/history/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/free/register").hasAnyRole("USER", "ADMIN") // 무료나눔 등록 - USER 또는 ADMIN만 가능
                         .requestMatchers("/free/modify/**", "/free/delete/**").hasAnyRole("USER", "ADMIN") // 무료나눔 수정, 삭제 - USER 또는 ADMIN만 가능
                         .requestMatchers("/free/**").permitAll() // 무료나눔 목록, 상세 누구나 접근 가능
@@ -71,10 +73,11 @@ public class SecurityConfig {
                         .successHandler((request, response, authentication) -> {
                             // 1. 로그인한 사용자 정보 가져오기
                             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-                            Long memberId = userDetails.getMemberVO().getMemberId();
+                            MemberVO member = userDetails.getMemberVO();  //memverId를 MemberVO로 바꿈
 
                             // 2. 세션에 memberId 저장
-                            request.getSession().setAttribute("memberId", memberId);
+                            request.getSession().setAttribute("memberId", member.getMemberId());
+                            request.getSession().setAttribute("memberNickname", member.getNickname()); // 추가
 
                             // 3. 성공 응답 반환 (기존 코드 유지)
                             response.setContentType("application/json;charset=UTF-8");

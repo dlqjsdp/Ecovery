@@ -17,6 +17,7 @@ import java.util.List;
  *  - 250723 | sehui | 실제 주문 저장 기능 추가
  *  - 250725 | sehui | 주문 id 조회 기능 추가
  *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
+ *  - 250728 | sehui | 주문 단건 조회 기능 추가
  */
 
 
@@ -33,4 +34,8 @@ public interface OrderService {
 
     //주문 상태 변경
     public boolean updateOrderStatus(PaymentResultDto paymentResult, OrderStatus orderStatus);
+
+    //주문 단건 조회
+    public OrderDto getOrderDto(Long orderId, Long memberId);
+
 }

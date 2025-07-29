@@ -19,13 +19,13 @@
         <nav class="navbar">
             <div class="nav-container">
                 <!-- 로고 영역 -->
-                <a th:href="@{/admin}" class="logo">
+                <a th:href="@{/main}" class="logo">
                     <div class="logo-text">ECOVERY</div>
                 </a>
                 
                 <!-- 관리자 정보 및 로그아웃 -->
                 <div class="admin-info">
-                    <button class="btn btn-link" th:text="${session.adminName != null ? session.adminName : '관리자'}">관리자</button>
+                    <button class="btn btn-link" th:text="${session.memberNickname != null ? session.memberNickname : '관리자'}">관리자</button>
                     <button class="btn btn-danger" th:onclick="|location.href='@{/admin/logout}'|">로그아웃</button>
                 </div>
             </div>
@@ -178,7 +178,7 @@
                             <span class="section-icon">🤝</span>
                             오류 내역
                         </h2>
-                        <a th:href="@{feedback/history}" class="btn btn-primary">바로가기</a>
+                        <a th:href="@{/feedback/history}" class="btn btn-primary">바로가기</a>
                     </div>
 
                     <!-- 오류 통계 -->

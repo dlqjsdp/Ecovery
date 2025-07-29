@@ -17,6 +17,7 @@ import java.util.List;
  *  - 250723 | sehui | 주문 저장 기능 추가
  *  - 250725 | sehui | 주문 id 조회 기능 추가
  *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
+ *  - 250728 | sehui | 주문 단건 조회 기능 추가
  */
 
 @Mapper
@@ -34,4 +35,6 @@ public interface OrderMapper {
     //주문 상태 변경
     public int updateOrderStatus(Long orderId, OrderStatus orderStatus);
 
+    //주문 단건 조회
+    public OrderVO findOrderById(Long orderId);
 }
