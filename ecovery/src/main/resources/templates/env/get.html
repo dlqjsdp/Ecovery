@@ -19,43 +19,140 @@ GreenCycle 환경톡톡 게시글 상세보기
 <head th:with="pageTitle='환경톡톡 - 게시글 조회'">
     <title>환경톡톡</title>
     <th:block layout:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
+        <link rel="stylesheet" th:href="@{/css/eco-talk-detail.css}">
     </th:block>
 </head>
 
 <body>
 <!-- 본문 콘텐츠 -->
 <div layout:fragment="content" class="fade-in">
-    <section class="post-detail">
-        <h2>📌 게시글 상세보기</h2>
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 브레드크럼 네비게이션 -->
+            <nav class="breadcrumb fade-in">
+                <a th:href="@{/}">홈</a>
+                <span style="margin: 0 10px; color: var(--medium-gray);">></span>
+                <a th:href="@{/eco-talk}">환경톡톡</a>
+                <span style="margin: 0 10px; color: var(--medium-gray);">></span>
+                <span class="current">상세보기</span>
+            </nav>
 
-        <!-- 게시글 정보 영역 -->
-        <div class="post-info">
-            <p><strong>제목:</strong> <span id="postTitle">제목</span></p>
-            <p><strong>작성자:</strong> <span id="postAuthor">작성자</span></p>
-            <p><strong>작성일:</strong> <span id="postDate">날짜</span></p>
-            <p><strong>조회수:</strong> <span id="postViews">0</span></p>
+            <!-- 게시글 상세 컨테이너 (중앙배치) -->
+            <div class="post-detail-layout">
+                <!-- 게시글 상세 메인 콘텐츠 -->
+                <div class="post-detail-main fade-in">
+                    <!-- 뒤로가기 버튼 -->
+                    <button class="back-btn" onclick="history.back()">
+                        ← 목록으로 돌아가기
+                    </button>
+
+                    <!-- 게시글 아티클 -->
+                    <article class="post-article">
+                        <!-- 게시글 헤더 -->
+                        <header class="post-article-header">
+                            <!-- 인기 게시글 뱃지 -->
+<!--                            <div th:if="${post.isPopular}" class="popular-badge-large">-->
+<!--                                <span th:if="${post.isHot}">🔥 HOT</span>-->
+<!--                                <span th:if="${!post.isHot}">⭐ 인기</span>-->
+<!--                            </div>-->
+
+                            <!-- 게시글 제목 -->
+                            <h1 class="post-article-title" id="post-title">게시글 제목</h1>
+
+                            <!-- 게시글 메타 정보 -->
+                            <div class="post-article-meta">
+                                <div class="author-info">
+                                    <span class="author-avatar" id="post-avatar">👤</span>
+                                    <div class="author-name" id="post-author">작성자</div>
+                                </div>
+                                <div class="post-info">
+                                    <div class="post-date">
+                                        <span style="font-weight: 500;">작성일:</span>
+                                        <span id="post-date">날짜</span>
+                                    </div>
+                                    <div class="post-views">
+                                        <span style="font-weight: 500;">조회:</span>
+                                        <span id="post-views">0회</span>
+                                    </div>
+                                    <div class="post-category" id="post-category-wrapper" style="display: none;">
+                                        <span style="font-weight: 500;">분류:</span>
+                                        <span id="post-category">카테고리</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </header>
+
+                        <!-- 게시글 내용 -->
+                        <div class="post-article-content" id="post-content">
+                            <!-- 게시글 본문 내용이 들어갈 자리 -->
+                        </div>
+
+<!--                        &lt;!&ndash; 첨부파일 목록 &ndash;&gt;-->
+<!--                        <div class="post-attachments" th:if="${post.attachments != null && !#lists.isEmpty(post.attachments)}">-->
+<!--                            <h3>📎 첨부파일</h3>-->
+<!--                            <div class="attachments-list">-->
+<!--                                <div th:each="attachment : ${post.attachments}" class="attachment-item">-->
+<!--                                    <a th:href="@{'/api/attachments/' + ${attachment.id} + '/download'}"-->
+<!--                                       class="attachment-link"-->
+<!--                                       th:download="${attachment.originalName}">-->
+<!--                                        <span class="attachment-icon">📄</span>-->
+<!--                                        <span class="attachment-name" th:text="${attachment.originalName}">파일명.jpg</span>-->
+<!--                                        <span class="attachment-size" th:text="'(' + ${attachment.formattedSize} + ')'">(1.2MB)</span>-->
+<!--                                    </a>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; 게시글 액션 버튼들 &ndash;&gt;-->
+<!--                        <div class="post-actions-bottom">-->
+<!--                            <button class="post-action-btn like" th:onclick="|toggleLike(${post.id})|"-->
+<!--                                    th:classappend="${post.isLiked ? 'active' : ''}">-->
+<!--                                <span th:if="${post.isLiked}">수정하기</span>-->
+<!--                            </button>-->
+<!--                        </div>-->
+                    </article>
+
+<!--                    &lt;!&ndash; 이전/다음 게시글 네비게이션 &ndash;&gt;-->
+<!--                    <div class="post-navigation" th:if="${prevPost != null || nextPost != null}">-->
+<!--                        <div class="nav-item prev" th:if="${prevPost != null}" th:onclick="|location.href='@{/eco-talk/posts/{id}(id=${prevPost.id})}'|">-->
+<!--                            <span class="nav-label">이전 글</span>-->
+<!--                            <div class="nav-title" th:text="${prevPost.title}">이전 게시글 제목</div>-->
+<!--                            <span class="nav-date" th:text="${#temporals.format(prevPost.createdAt, 'yyyy.MM.dd')}">2025.07.14</span>-->
+<!--                        </div>-->
+<!--                        <div class="nav-item next" th:if="${nextPost != null}" th:onclick="|location.href='@{/eco-talk/posts/{id}(id=${nextPost.id})}'|">-->
+<!--                            <span class="nav-label">다음 글</span>-->
+<!--                            <div class="nav-title" th:text="${nextPost.title}">다음 게시글 제목</div>-->
+<!--                            <span class="nav-date" th:text="${#temporals.format(nextPost.createdAt, 'yyyy.MM.dd')}">2025.07.16</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+
+<!--                    &lt;!&ndash; 관리자 전용 액션 버튼들 (관리자만) &ndash;&gt;-->
+<!--                    <section class="admin-actions" th:if="${session.user != null && (session.user.role == 'ADMIN' || session.user.role == 'MANAGER')}">-->
+<!--                        <div class="admin-action-buttons">-->
+<!--                            <a th:href="@{'/admin/eco-talk/posts/' + ${post.id} + '/edit'}" class="admin-btn edit-btn">-->
+<!--                                ✏️ 글 수정-->
+<!--                            </a>-->
+<!--                            <button class="admin-btn delete-btn" th:onclick="|deletePost(${post.id})|">-->
+<!--                                🗑️ 글 삭제-->
+<!--                            </button>-->
+<!--                            <a th:href="@{/admin/eco-talk/posts/new}" class="admin-btn new-btn">-->
+<!--                                ➕ 새 글 작성-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                    </section>-->
+
+
+                </div>
+            </div>
         </div>
-
-        <div class="post-content">
-            <p><strong>내용:</strong></p>
-            <div id="postContent" style="white-space: pre-line;"></div>
-        </div>
-
-        <div class="post-buttons" style="margin-top: 30px;">
-            <!-- 관리자만 수정 버튼 보이게 -->
-            <th:block sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                <a th:href="@{/env/modify(envId=${env.envId})}" class="btn btn-secondary">✏️ 수정</a>
-            </th:block>
-
-            <a th:href="@{/env/list}" class="btn btn-primary">📋 목록으로</a>
-        </div>
-    </section>
+    </main>
 </div>
 
 <th:block layout:fragment="script">
-    <script th:src="@{/js/eco-talk-script.js}"></script>
-    <script th:src="@{/js/eco-get.js}"></script>
+    <script th:src="@{/js/eco-talk-detail.js}"></script>
+    <script th:src="@{/js/env-get.js}"></script>
 </th:block>
 </body>
 </html>

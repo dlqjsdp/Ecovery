@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  * @since    : 250723
  * @history
      - 250723 | yukyeong | 공지사항 서비스 구현 클래스 전체 작성 (CRUD, 페이징, DTO 적용, 조회수 증가 포함)
+     - 250729 | yukyeong | 게시글 category 필드 DTO/VO 매핑 처리 추가
  */
 
 @Service
@@ -38,6 +39,7 @@ public class NoticeServiceImpl implements NoticeService {
         notice.setTitle(noticeDto.getTitle());
         notice.setContent(noticeDto.getContent());
         notice.setMemberId(noticeDto.getMemberId());
+        notice.setCategory(noticeDto.getCategory()); // 카테고리 추가
         return notice;
     }
 
@@ -48,6 +50,7 @@ public class NoticeServiceImpl implements NoticeService {
         noticeDto.setTitle(notice.getTitle());
         noticeDto.setContent(notice.getContent());
         noticeDto.setMemberId(notice.getMemberId());
+        noticeDto.setCategory(notice.getCategory()); // 카테고리 추가
         noticeDto.setNickname(notice.getNickname());
         noticeDto.setViewCount(notice.getViewCount());
         noticeDto.setCreatedAt(notice.getCreatedAt());
