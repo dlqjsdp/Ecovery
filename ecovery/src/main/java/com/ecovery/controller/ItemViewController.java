@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/item")
+@RequestMapping("/eco")
 public class ItemViewController {
 
     //상품 목록 페이지

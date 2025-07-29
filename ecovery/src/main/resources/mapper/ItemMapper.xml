@@ -19,6 +19,8 @@
      - 250718 | sehui | 상품 삭제 기능 추가
      - 250722 | sehui | 재고 수량 감소 기능 추가
      - 250724 | sehui | 상품 삭제 기능 제거
+     - 250729 | sehui | 전체 상품 조회 기능에 전체 검색 조건 추가
+     - 250729 | sehui | 전체 상품의 수 조회 기능에 전체 검색 조건 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.ItemMapper">
@@ -47,12 +49,18 @@
             AND img.rep_img_yn = 'Y'
         LEFT JOIN category c ON i.category_id = c.category_id
         <where>
-           <if test="itemNm != null and itemNm != ''">
-                AND i.item_name LIKE CONCAT('%', #{itemNm}, '%')
-           </if>
-           <if test="category != null and category != ''">
-                AND c.category_name = #{category}
-           </if>
+            <choose>
+                <when test="itemNm != null and itemNm != '' and category != null and category != ''">
+                    (i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                     OR c.category_name LIKE CONCAT('%', #{category}, '%'))
+                </when>
+                <when test="itemNm != null and itemNm != ''">
+                    i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                </when>
+                <when test="category != null and category != ''">
+                    c.category_name LIKE CONCAT('%', #{category}, '%')
+                </when>
+            </choose>
         </where>
         order by item_id desc
         limit #{cri.amount} offset #{cri.offset}
@@ -65,12 +73,20 @@
         LEFT JOIN category c ON i.category_id = c.category_id
         <where>
             item_id > 0
-            <if test="itemNm != null and itemNm != ''">
-                AND i.item_name LIKE CONCAT('%', #{itemNm}, '%')
-            </if>
-            <if test="category != null and category != ''">
-                AND c.category_name = #{category}
-            </if>
+            <choose>
+                <when test="itemNm != null and itemNm != '' and category != null and category != ''">
+                    AND (
+                        i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                    OR c.category_name LIKE CONCAT('%', #{category}, '%')
+                    )
+                </when>
+                <when test="itemNm != null and itemNm != ''">
+                    AND i.item_name LIKE CONCAT('%', #{itemNm}, '%')
+                </when>
+                <when test="category != null and category != ''">
+                    AND c.category_name LIKE CONCAT('%', #{category}, '%')
+                </when>
+            </choose>
         </where>
     </select>
 

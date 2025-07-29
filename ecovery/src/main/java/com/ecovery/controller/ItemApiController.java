@@ -43,7 +43,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/item")
+@RequestMapping("/api/eco")
 @Slf4j
 public class ItemApiController {
 
