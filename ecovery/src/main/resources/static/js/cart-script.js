@@ -36,7 +36,10 @@ function initializeCartItemsFromDOM() {
     document.querySelectorAll('.cart-item').forEach(itemEl => {
         const id = parseInt(itemEl.dataset.itemId);
         const name = itemEl.querySelector('.item-name').textContent.trim();
-        const price = parseInt(itemEl.querySelector('.sale-price').textContent.replace(/[^0-9]/g, ''));
+
+        // 여기! 이제 data-unit-price 속성에서 진짜 단가를 가져옵니다.
+        const unitPrice = parseInt(itemEl.dataset.unitPrice);
+
         const qtyInput = itemEl.querySelector('.qty-input');
         const count = parseInt(qtyInput.value);
         const stock = parseInt(qtyInput.getAttribute('max'));
@@ -45,7 +48,7 @@ function initializeCartItemsFromDOM() {
         cartItems.push({
             cartItemId: id,
             itemNm: name,
-            price: price,
+            price: unitPrice,
             quantity: count,
             stockNumber: stock,
             selected: selected
@@ -86,15 +89,43 @@ function bindDynamicEventListeners() {
 // ============================================
 
 function updateQuantity(itemId, change) {
+    console.log("➡️ updateQuantity 함수 호출됨. itemId:", itemId, "change:", change);
     const item = cartItems.find(item => item.cartItemId === itemId);
     if (item) {
         const newQuantity = item.quantity + change;
+
+        // 새로운 수량이 유효한지 먼저 확인
         if (newQuantity > 0 && newQuantity <= item.stockNumber) {
+            // UI 업데이트 (즉시 반응을 보여주기 위함)
             item.quantity = newQuantity;
             document.getElementById(`qty-${itemId}`).value = newQuantity;
-            updateCartSummary();
-            showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'info');
+            updateCartSummary(); // 총 금액 업데이트
+
+            // 서버에 수량 변경 요청을 보내는 코드 추가
+            const cartItemId = item.cartItemId; // 장바구니 상품 ID
+
+            fetch(`/cart/update?cartItemId=${cartItemId}&count=${newQuantity}&itemId=${itemId}`, {
+                method: 'PUT' // 수량 변경은 PUT 방식으로 요청합니다.
+            })
+                .then(response => {
+                    if (response.ok) { // 서버 응답이 성공적이면
+                        showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'success');
+                    } else { // 서버에서 오류 응답이 오면
+                        showNotification('수량 변경 실패! 서버 오류.', 'error');
+                    }
+                })
+                .catch(error => { // 네트워크 오류 등 예외 발생 시
+                    console.error("수량 변경 중 네트워크 오류:", error);
+                    showNotification('수량 변경 중 문제가 발생했습니다.', 'error');
+                });
+
+        } else {
+            console.log("❌ 수량 변경 실패: 재고 초과 또는 0 이하 (newQuantity:", newQuantity, "stockNumber:", item.stockNumber, ")");
+            showNotification("더 이상 수량을 변경할 수 없습니다. (재고 부족 또는 1개 미만)", 'warning'); // 사용자에게 알림
         }
+    } else {
+        console.log("❓ 수량을 업데이트할 아이템을 찾지 못했습니다. itemId:", itemId);
+        showNotification("장바구니 아이템 정보를 찾을 수 없습니다.", 'error'); // 사용자에게 알림
     }
 }
 
@@ -140,14 +171,14 @@ function updateSelectedCount() {
 }
 
 function removeItem(itemId) {
-    fetch(`/cart/api/delete/${itemId}`, { method: 'DELETE' })
+    fetch(`/cart/delete/${itemId}`, { method: 'DELETE' })
         .then(res => {
             if (!res.ok) throw new Error('삭제 실패');
             const index = cartItems.findIndex(item => item.cartItemId === itemId);
             if (index !== -1) {
                 cartItems.splice(index, 1);
                 document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
-                updateSelectedCount();
+                updateSuielectedCount();
                 updateCartSummary();
                 showNotification('상품이 삭제되었습니다.', 'success');
             }

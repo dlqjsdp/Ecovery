@@ -53,14 +53,28 @@ public class MemberServiceImpl implements MemberService {
 
         log.info("updateMember.......");
 
-        return memberMapper.updateMember(memberVO) == 1;
+        // 비밀번호 암호화
+        String rawPassword = memberVO.getPassword();
+        log.info("rawPassword: {}", rawPassword);
+        if (rawPassword != null && !rawPassword.isEmpty()){
+            String encodedPassword = passwordEncoder.encode(rawPassword);
+            memberVO.setPassword(encodedPassword);
+        }
+
+        int result = memberMapper.updateMember(memberVO);
+        log.info("업데이트된 행 수: {}", result);  // <= ★ 이거 꼭 찍어보기
+
+        return result == 1;
     }
 
     @Override
     public boolean updateMemberByAdmin(MemberVO memberVO) {
         log.info("updateMemberByAdmin.......");
 
-        return memberMapper.updateMemberByAdmin(memberVO) == 1;
+        boolean result = memberMapper.updateMember(memberVO) == 1;
+        log.info("updateMember result: {}", result);
+
+        return result;
     }
 
     //회원 번호(PK)로 회원 조회
