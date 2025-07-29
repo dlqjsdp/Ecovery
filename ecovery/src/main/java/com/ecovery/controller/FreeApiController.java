@@ -114,6 +114,7 @@ public class FreeApiController {
 
         // 페이징 조건에 따라 게시글 목록 조회
         List<FreeDto> list = freeService.getAll(cri);
+        log.info("조회된 게시글 수 : {}", list.size());
 
         // 전체 게시글 수 조회 (페이징 계산용)
         int total = freeService.getTotalCount(cri);
