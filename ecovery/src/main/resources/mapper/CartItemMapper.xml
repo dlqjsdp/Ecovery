@@ -20,7 +20,7 @@
             i.price,
             ci.count,
             ii.img_url AS imgUrl,
-            i.stockNumber AS stockNumber
+            i.stock_number AS stockNumber
         FROM
             cart_item ci
                 JOIN

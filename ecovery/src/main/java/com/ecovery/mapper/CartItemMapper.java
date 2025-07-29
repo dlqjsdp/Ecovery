@@ -21,7 +21,7 @@ public interface CartItemMapper {
     // 장바구니 전체 목록 출력
     public List<CartDetailDto> getCartItems(Long cartId);
 
-    // 장바구니에 해당 상품이 없으면 호출
+    // 장바구니에 상품 추가
     public void insertCartItem(CartItemVO cartItemVO);
 
     // 장바구니 항목 조회(이미 있으면 수량 증가, 없으면 새로 담음)
