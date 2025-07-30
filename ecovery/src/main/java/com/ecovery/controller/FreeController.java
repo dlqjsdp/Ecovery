@@ -2,6 +2,7 @@ package com.ecovery.controller;
 
 import com.ecovery.constant.Role;
 import com.ecovery.domain.FreeVO;
+import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeDto;
 import com.ecovery.dto.FreeImgDto;
@@ -54,15 +55,29 @@ public class FreeController {
         return "free/list"; // 템플릿으로 이동
     }
     //무료나눔 상세 페이지
-    @GetMapping("/{freeId}")
-    public String get(){
+    @GetMapping("/get/{freeId}")
+    public String get(@PathVariable Long freeId, Principal principal, Model model) {
+        // 로그인한 사용자 ID (비로그인 시 null)
+        if (principal != null) {
+            String email = principal.getName();
+            MemberVO loginMember = memberService.getMemberByEmail(email);
+            if (loginMember != null) {
+                model.addAttribute("loginMemberId", loginMember.getMemberId());
+                model.addAttribute("loginMemberNickname", loginMember.getNickname()); // 필요시
+            }
+        }
+
+        // 게시글 ID도 모델에 같이 넘기면 필요 시 Thymeleaf에서 활용 가능
+        model.addAttribute("freeId", freeId);
+
         return "free/get";
     }
 
     //무료나눔 등록 페이지 - 로그인 사용자만 가능
     @GetMapping("/register")
     @PreAuthorize("isAuthenticated()") // 로그인한 사용자만 접근 가능
-    public String register(){
+    public String register(Model model){
+        model.addAttribute("sharingForm", new FreeDto()); // 빈 DTO
         return "free/register";
     }
 
