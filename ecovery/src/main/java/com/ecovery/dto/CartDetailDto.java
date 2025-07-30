@@ -25,5 +25,6 @@ public class CartDetailDto {
     private int count; //수량
     private String imgUrl; //상품 이미지 경로
     private int stockNumber;  // 남은 재고
+    private Long itemId; // 상품 아이디
 
 }

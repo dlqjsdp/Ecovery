@@ -24,19 +24,19 @@ const cartCount = document.getElementById('cartCount');
 document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log('🛍️ GreenCycle 주문상세 페이지 초기화를 시작합니다...');
-        
+
         // URL 파라미터에서 주문번호 추출
         currentOrderId = getOrderIdFromUrl();
-        
+
         if (!currentOrderId) {
             // 주문번호가 없으면 마이페이지로 리다이렉트
             showNotification('잘못된 접근입니다. 마이페이지로 이동합니다.', 'warning');
             setTimeout(() => {
-                window.location.href = 'home.html';
+                window.location.href = 'mypage.html';
             }, 2000);
             return;
         }
-        
+
         // 핵심 기능 초기화
         initializeHeader();              // 헤더 기능 초기화
         initializeCart();                // 장바구니 기능 초기화
@@ -44,15 +44,15 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeInteractions();        // 인터랙션 초기화
         initializeKeyboardShortcuts();   // 키보드 단축키 초기화
         adjustLayoutForScreenSize();     // 반응형 레이아웃 조정
-        
+
         isInitialized = true;
         console.log('🛍️ 주문상세 페이지가 성공적으로 초기화되었습니다.');
-        
+
         // 환영 메시지 표시 (1초 후)
         setTimeout(() => {
             showNotification(`주문번호 ${currentOrderId} 상세 정보를 불러왔습니다! 📋`, 'success');
         }, 1000);
-        
+
     } catch (error) {
         handleError(error, 'Order detail page initialization');
     }
@@ -68,12 +68,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function getOrderIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId');
-    
+
     if (orderId) {
         console.log(`URL에서 주문번호 추출: ${orderId}`);
         return orderId;
     }
-    
+
     console.warn('URL에서 주문번호를 찾을 수 없습니다.');
     return null;
 }
@@ -98,16 +98,16 @@ function initializeHeader() {
             }
         }, 10);
     });
-    
+
     // 모바일 메뉴 토글 기능
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', toggleMobileMenu);
-        
+
         // 메뉴 링크 클릭 시 메뉴 닫기
         document.querySelectorAll('.nav-menu a').forEach(link => {
             link.addEventListener('click', closeMobileMenu);
         });
-        
+
         // 메뉴 외부 클릭 시 닫기
         document.addEventListener('click', (e) => {
             if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
@@ -115,7 +115,7 @@ function initializeHeader() {
             }
         });
     }
-    
+
     console.log('✅ 헤더 기능이 초기화되었습니다.');
 }
 
@@ -124,7 +124,7 @@ function initializeHeader() {
  */
 function toggleMobileMenu() {
     const isActive = hamburger.classList.contains('active');
-    
+
     if (isActive) {
         closeMobileMenu();
     } else {
@@ -139,7 +139,7 @@ function openMobileMenu() {
     hamburger.classList.add('active');
     navMenu.classList.add('active');
     document.body.style.overflow = 'hidden'; // 스크롤 방지
-    
+
     // 햄버거 아이콘 애니메이션
     const spans = hamburger.querySelectorAll('span');
     spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
@@ -152,11 +152,11 @@ function openMobileMenu() {
  */
 function closeMobileMenu() {
     if (!hamburger || !navMenu) return;
-    
+
     hamburger.classList.remove('active');
     navMenu.classList.remove('active');
     document.body.style.overflow = ''; // 스크롤 복구
-    
+
     // 햄버거 아이콘 원상복구
     const spans = hamburger.querySelectorAll('span');
     spans[0].style.transform = 'none';
@@ -175,10 +175,10 @@ function initializeCart() {
     if (cartIcon) {
         // 장바구니 아이콘 클릭 이벤트
         cartIcon.addEventListener('click', handleCartClick);
-        
+
         // 장바구니 개수 초기화
         updateCartCount();
-        
+
         console.log('✅ 장바구니 기능이 초기화되었습니다.');
     }
 }
@@ -189,21 +189,21 @@ function initializeCart() {
  */
 function handleCartClick(event) {
     event.preventDefault();
-    
+
     // 클릭 애니메이션 효과
     cartIcon.style.transform = 'scale(0.9)';
     setTimeout(() => {
         cartIcon.style.transform = '';
     }, 150);
-    
+
     // 장바구니 페이지로 이동하기 전 알림 표시
     showNotification('장바구니 페이지로 이동합니다! 🛒', 'info');
-    
+
     // 실제 구현에서는 cart.html로 페이지 이동
     setTimeout(() => {
         window.location.href = 'cart.html';
     }, 800);
-    
+
     console.log('🛒 장바구니 클릭: cart.html로 이동');
 }
 
@@ -213,14 +213,14 @@ function handleCartClick(event) {
  */
 function updateCartCount(count = null) {
     if (!cartCount) return;
-    
+
     // count가 없으면 로컬 스토리지에서 가져오기
     if (count === null) {
         count = getCartItemCount();
     }
-    
+
     cartCount.textContent = count;
-    
+
     // 개수가 0이면 배지 숨기기
     if (count === 0) {
         cartCount.style.display = 'none';
@@ -254,22 +254,22 @@ function loadOrderData() {
         // 실제 구현에서는 API 호출: fetch(`/api/orders/${currentOrderId}`)
         // 지금은 모의 데이터를 사용합니다
         orderData = getMockOrderData(currentOrderId);
-        
+
         if (!orderData) {
             throw new Error('주문 정보를 찾을 수 없습니다.');
         }
-        
+
         // 주문 정보를 화면에 표시
         displayOrderData(orderData);
-        
+
         console.log(`✅ 주문 데이터 로드 완료: ${currentOrderId}`);
-        
+
     } catch (error) {
         handleError(error, 'Order data loading');
-        
+
         // 에러 발생 시 마이페이지로 리다이렉트
         setTimeout(() => {
-            window.location.href = 'home.html';
+            window.location.href = 'mypage.html';
         }, 3000);
     }
 }
@@ -385,7 +385,7 @@ function getMockOrderData(orderId) {
             }
         }
     };
-    
+
     return mockOrders[orderId] || null;
 }
 
@@ -397,21 +397,21 @@ function displayOrderData(data) {
     try {
         // 주문 기본 정보 표시
         displayBasicOrderInfo(data);
-        
+
         // 주문 상품 정보 표시
         displayOrderProducts(data.products);
-        
+
         // 배송 정보 표시
         displayDeliveryInfo(data.delivery);
-        
+
         // 결제 정보 표시
         displayPaymentInfo(data.payment);
-        
+
         // 주문 상태에 따른 버튼 조정
         adjustActionButtons(data.status);
-        
+
         console.log('✅ 주문 정보 표시 완료');
-        
+
     } catch (error) {
         handleError(error, 'Displaying order data');
     }
@@ -425,19 +425,19 @@ function displayBasicOrderInfo(data) {
     // 주문번호
     const orderNumberEl = document.getElementById('orderNumber');
     if (orderNumberEl) orderNumberEl.textContent = data.orderNumber;
-    
+
     // 주문일자
     const orderDateEl = document.getElementById('orderDate');
     if (orderDateEl) orderDateEl.textContent = data.orderDate;
-    
+
     // 주문자
     const orderNameEl = document.getElementById('orderName');
     if (orderNameEl) orderNameEl.textContent = data.orderName;
-    
+
     // 연락처
     const orderPhoneEl = document.getElementById('orderPhone');
     if (orderPhoneEl) orderPhoneEl.textContent = data.orderPhone;
-    
+
     // 주문 상태 배지
     const statusBadge = document.getElementById('orderStatusBadge');
     if (statusBadge) {
@@ -453,14 +453,14 @@ function displayBasicOrderInfo(data) {
 function displayOrderProducts(products) {
     const productCountEl = document.getElementById('productCount');
     const productListEl = document.getElementById('productList');
-    
+
     if (!productListEl) return;
-    
+
     // 상품 개수 표시
     if (productCountEl) {
         productCountEl.textContent = `총 ${products.length}개 상품`;
     }
-    
+
     // 상품 목록 생성
     productListEl.innerHTML = products.map(product => `
         <div class="product-item">
@@ -495,7 +495,7 @@ function displayOrderProducts(products) {
 function displayDeliveryInfo(delivery) {
     // 배송 타임라인 표시
     displayDeliveryTimeline(delivery.timeline);
-    
+
     // 배송지 정보 표시
     displayDeliveryAddress(delivery);
 }
@@ -507,7 +507,7 @@ function displayDeliveryInfo(delivery) {
 function displayDeliveryTimeline(timeline) {
     const timelineContainer = document.querySelector('.status-timeline');
     if (!timelineContainer) return;
-    
+
     timelineContainer.innerHTML = timeline.map(step => `
         <div class="timeline-step ${step.completed ? 'completed' : ''} ${step.current ? 'current' : ''}">
             <div class="step-icon">${step.icon}</div>
@@ -526,7 +526,7 @@ function displayDeliveryTimeline(timeline) {
 function displayDeliveryAddress(delivery) {
     const addressContainer = document.querySelector('.address-details');
     if (!addressContainer) return;
-    
+
     addressContainer.innerHTML = `
         <div class="address-item">
             <span class="address-label">받는분</span>
@@ -554,7 +554,7 @@ function displayDeliveryAddress(delivery) {
 function displayPaymentInfo(payment) {
     // 결제 요약 정보 표시
     displayPaymentSummary(payment);
-    
+
     // 결제 방법 정보 표시
     displayPaymentMethod(payment.method);
 }
@@ -566,7 +566,7 @@ function displayPaymentInfo(payment) {
 function displayPaymentSummary(payment) {
     const summaryContainer = document.querySelector('.payment-summary');
     if (!summaryContainer) return;
-    
+
     summaryContainer.innerHTML = `
         <div class="summary-row">
             <span class="summary-label">상품금액</span>
@@ -604,9 +604,9 @@ function displayPaymentSummary(payment) {
 function displayPaymentMethod(method) {
     const methodContainer = document.querySelector('.method-details');
     if (!methodContainer) return;
-    
+
     const methodIcon = method.type === 'credit_card' ? '💳' : '💰';
-    
+
     methodContainer.innerHTML = `
         <div class="method-item">
             <span class="method-icon">${methodIcon}</span>
@@ -627,7 +627,7 @@ function displayPaymentMethod(method) {
 function adjustActionButtons(status) {
     const reviewBtn = document.querySelector('.btn-review');
     const cancelBtn = document.querySelector('.btn-cancel');
-    
+
     // 배송완료 상태일 때만 후기 작성 버튼 활성화
     if (reviewBtn) {
         if (status === 'delivered') {
@@ -636,7 +636,7 @@ function adjustActionButtons(status) {
             reviewBtn.style.display = 'none';
         }
     }
-    
+
     // 주문완료/상품준비중 상태일 때만 취소 버튼 표시
     if (cancelBtn) {
         if (status === 'ordered' || status === 'preparing') {
@@ -660,9 +660,9 @@ function goBack() {
         window.history.back();
     } else {
         // 없으면 마이페이지로 이동
-        window.location.href = 'home.html';
+        window.location.href = 'mypage.html';
     }
-    
+
     console.log('뒤로가기 버튼 클릭');
 }
 
@@ -671,13 +671,13 @@ function goBack() {
  */
 function trackDelivery() {
     showNotification('배송 조회 페이지로 이동합니다. 🚚', 'info');
-    
+
     // 실제 구현에서는 택배사 배송조회 페이지로 이동
     setTimeout(() => {
         // 예: window.open('https://tracking.example.com/track?order=' + currentOrderId);
         console.log(`배송조회: ${currentOrderId}`);
     }, 800);
-    
+
     console.log('배송조회 버튼 클릭');
 }
 
@@ -686,12 +686,12 @@ function trackDelivery() {
  */
 function writeReview() {
     showNotification('상품후기 작성 페이지로 이동합니다. ⭐', 'info');
-    
+
     // 실제 구현에서는 후기 작성 페이지로 이동
     setTimeout(() => {
         window.location.href = `review-write.html?orderId=${currentOrderId}`;
     }, 800);
-    
+
     console.log('상품후기 작성 버튼 클릭');
 }
 
@@ -703,9 +703,9 @@ function reorder() {
         showNotification('주문 정보를 불러올 수 없습니다.', 'error');
         return;
     }
-    
+
     showNotification('장바구니에 상품을 담고 있습니다... 🛒', 'info');
-    
+
     // 주문 상품들을 장바구니에 추가
     orderData.products.forEach((product, index) => {
         setTimeout(() => {
@@ -717,7 +717,7 @@ function reorder() {
             });
         }, index * 500); // 순차적으로 추가
     });
-    
+
     // 모든 상품 추가 후 장바구니로 이동
     setTimeout(() => {
         showNotification('장바구니에 모든 상품이 담겼습니다! 장바구니 페이지로 이동합니다.', 'success');
@@ -725,7 +725,7 @@ function reorder() {
             window.location.href = 'cart.html';
         }, 1500);
     }, orderData.products.length * 500 + 1000);
-    
+
     console.log('재주문 버튼 클릭');
 }
 
@@ -734,12 +734,12 @@ function reorder() {
  */
 function orderInquiry() {
     showNotification('주문 문의 페이지로 이동합니다. ❓', 'info');
-    
+
     // 실제 구현에서는 문의 페이지로 이동
     setTimeout(() => {
         window.location.href = `inquiry.html?type=order&orderId=${currentOrderId}`;
     }, 800);
-    
+
     console.log('주문문의 버튼 클릭');
 }
 
@@ -748,7 +748,7 @@ function orderInquiry() {
  */
 function downloadReceipt() {
     showNotification('영수증을 다운로드하고 있습니다... 📄', 'info');
-    
+
     // 실제 구현에서는 서버에서 PDF 생성 후 다운로드
     setTimeout(() => {
         // 모의 다운로드 기능
@@ -758,11 +758,11 @@ function downloadReceipt() {
         // document.body.appendChild(link);
         // link.click();
         // document.body.removeChild(link);
-        
+
         showNotification('영수증 다운로드가 완료되었습니다! 📄', 'success');
         console.log(`영수증 다운로드: ${currentOrderId}`);
     }, 2000);
-    
+
     console.log('영수증 다운로드 버튼 클릭');
 }
 
@@ -773,7 +773,7 @@ function downloadReceipt() {
 function addToCart(item) {
     const currentCount = getCartItemCount();
     updateCartCount(currentCount + item.quantity);
-    
+
     showNotification(`"${item.name}" ${item.quantity}개가 장바구니에 추가되었습니다!`, 'success');
     console.log('장바구니에 아이템 추가:', item);
 }
@@ -791,7 +791,7 @@ function initializeInteractions() {
     cards.forEach(card => {
         card.addEventListener('mouseenter', handleCardHover);
     });
-    
+
     console.log('✅ 인터랙션 이벤트가 초기화되었습니다.');
 }
 
@@ -801,7 +801,7 @@ function initializeInteractions() {
  */
 function handleCardHover(event) {
     const card = event.currentTarget;
-    
+
     // 미묘한 그림자 효과
     card.style.transition = 'all 0.3s ease';
     card.style.boxShadow = '0 20px 60px rgba(45, 90, 61, 0.15)';
@@ -819,7 +819,7 @@ function initializeKeyboardShortcuts() {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
             return;
         }
-        
+
         switch(e.key) {
             case 'Escape':
                 closeMobileMenu();
@@ -858,7 +858,7 @@ function initializeKeyboardShortcuts() {
                 break;
         }
     });
-    
+
     console.log('✅ 키보드 단축키가 초기화되었습니다.');
 }
 
@@ -873,7 +873,7 @@ function showKeyboardShortcuts() {
         'Shift + T: 배송조회',
         '?: 이 도움말 표시'
     ];
-    
+
     const helpMessage = '키보드 단축키:\n' + shortcuts.join('\n');
     showNotification(helpMessage.replace(/\n/g, '<br>'), 'info');
 }
@@ -886,7 +886,7 @@ function showKeyboardShortcuts() {
  */
 function adjustLayoutForScreenSize() {
     const width = window.innerWidth;
-    
+
     if (width < 768) {
         adjustMobileLayout();
     } else if (width < 1200) {
@@ -902,11 +902,11 @@ function adjustLayoutForScreenSize() {
 function adjustMobileLayout() {
     const deliveryDetails = document.querySelector('.delivery-details');
     const paymentDetails = document.querySelector('.payment-details');
-    
+
     if (deliveryDetails) {
         deliveryDetails.style.gridTemplateColumns = '1fr';
     }
-    
+
     if (paymentDetails) {
         paymentDetails.style.gridTemplateColumns = '1fr';
     }
@@ -918,11 +918,11 @@ function adjustMobileLayout() {
 function adjustTabletLayout() {
     const deliveryDetails = document.querySelector('.delivery-details');
     const paymentDetails = document.querySelector('.payment-details');
-    
+
     if (deliveryDetails) {
         deliveryDetails.style.gridTemplateColumns = '1fr';
     }
-    
+
     if (paymentDetails) {
         paymentDetails.style.gridTemplateColumns = '1fr';
     }
@@ -934,11 +934,11 @@ function adjustTabletLayout() {
 function adjustDesktopLayout() {
     const deliveryDetails = document.querySelector('.delivery-details');
     const paymentDetails = document.querySelector('.payment-details');
-    
+
     if (deliveryDetails) {
         deliveryDetails.style.gridTemplateColumns = '1fr 1fr';
     }
-    
+
     if (paymentDetails) {
         paymentDetails.style.gridTemplateColumns = '1fr 1fr';
     }
@@ -968,7 +968,7 @@ function showNotification(message, type = 'success') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -979,7 +979,7 @@ function showNotification(message, type = 'success') {
             <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
         </div>
     `;
-    
+
     // 스타일 적용
     notification.style.cssText = `
         position: fixed;
@@ -997,7 +997,7 @@ function showNotification(message, type = 'success') {
         min-width: 280px;
         overflow: hidden;
     `;
-    
+
     // 내부 콘텐츠 스타일
     const content = notification.querySelector('.notification-content');
     content.style.cssText = `
@@ -1006,14 +1006,14 @@ function showNotification(message, type = 'success') {
         padding: 15px 20px;
         gap: 10px;
     `;
-    
+
     // 아이콘 스타일
     const icon = notification.querySelector('.notification-icon');
     icon.style.cssText = `
         font-size: 18px;
         flex-shrink: 0;
     `;
-    
+
     // 텍스트 스타일
     const text = notification.querySelector('.notification-text');
     text.style.cssText = `
@@ -1022,7 +1022,7 @@ function showNotification(message, type = 'success') {
         font-size: 14px;
         line-height: 1.4;
     `;
-    
+
     // 닫기 버튼 스타일
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.style.cssText = `
@@ -1040,22 +1040,22 @@ function showNotification(message, type = 'success') {
         flex-shrink: 0;
         transition: background 0.3s ease;
     `;
-    
+
     closeBtn.addEventListener('mouseenter', () => {
         closeBtn.style.background = 'rgba(255, 255, 255, 0.3)';
     });
-    
+
     closeBtn.addEventListener('mouseleave', () => {
         closeBtn.style.background = 'rgba(255, 255, 255, 0.2)';
     });
-    
+
     document.body.appendChild(notification);
-    
+
     // 알림 표시
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // 자동 숨김 (에러가 아닌 경우)
     if (type !== 'error') {
         setTimeout(() => {

@@ -267,7 +267,7 @@
             <div class="modal-content" onclick="event.stopPropagation()">
                 <div class="modal-header">
                     <h3>회원정보 수정</h3>
-                    <button class="modal-close" onclick="closeProfileModal()" aria-label="모달 닫기">×</button>
+                    <button class="modal-close" onclick="isFormDirty = false; closeProfileModal()" aria-label="모달 닫기">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="profileEditForm" method="post">
@@ -291,30 +291,31 @@
                         <div class="form-group">
                             <label for="currentPassword">현재 비밀번호</label>
                             <input type="password" id="currentPassword" placeholder="현재 비밀번호를 입력하세요">
-                            <div id="currentPasswordError" class="validation-message">현재 비밀번호가 맞지 않습니다.</div>
+                            <div id="currentPasswordError" class="validation-message error-hidden">현재 비밀번호가 맞지 않습니다.</div>
                         </div>
 
                         <div class="form-group">
                             <label for="newPassword">새 비밀번호</label>
                             <input type="password" id="newPassword" placeholder="새 비밀번호를 입력하세요">
-                            <div id="newPasswordError" class="validation-message">영문/숫자/특수문자 포함 8자 이상이여야 합니다.</div>
+                            <div id="newPasswordError" class="validation-message error-hidden">영문/숫자/특수문자 포함 8자 이상이여야 합니다.</div>
                         </div>
 
                         <div class="form-group">
                             <label for="confirmPassword">새 비밀번호 확인</label>
                             <input type="password" id="confirmPassword" placeholder="새 비밀번호를 다시 입력하세요">
-                            <div id="confirmPasswordError" class="validation-message">작성하신 새 비밀번호와 맞지 않습니다.</div>
+                            <div id="confirmPasswordError" class="validation-message error-hidden">작성하신 새 비밀번호와 맞지 않습니다.</div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeProfileModal()">취소</button>
+                    <button type="button" class="btn-secondary" onclick="isFormDirty = false; closeProfileModal();">취소</button>
                     <button type="button" class="btn-primary" onclick="saveProfileChanges()">저장</button>
                 </div>
             </div>
         </div>
 
     </main>
+<div th:replace="fragments/footer :: footer"></div>
 <script src="/js/mypage-script.js"></script>
 </body>
 </html>

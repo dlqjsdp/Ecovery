@@ -34,7 +34,8 @@ function initializeHeader() {
 function initializeCartItemsFromDOM() {
     cartItems = [];
     document.querySelectorAll('.cart-item').forEach(itemEl => {
-        const id = parseInt(itemEl.dataset.itemId);
+        const cartItemId = parseInt(itemEl.dataset.itemId);
+        const realItemId = parseInt(itemEl.dataset.realItemId);
         const name = itemEl.querySelector('.item-name').textContent.trim();
 
         // 여기! 이제 data-unit-price 속성에서 진짜 단가를 가져옵니다.
@@ -46,7 +47,8 @@ function initializeCartItemsFromDOM() {
         const selected = itemEl.querySelector('.item-checkbox').checked;
 
         cartItems.push({
-            cartItemId: id,
+            cartItemId: cartItemId,
+            realItemId: realItemId,
             itemNm: name,
             price: unitPrice,
             quantity: count,
@@ -71,15 +73,17 @@ function bindDynamicEventListeners() {
 
     document.querySelectorAll('.qty-btn.plus').forEach(btn => {
         btn.addEventListener('click', () => {
-            const itemId = parseInt(btn.closest('.cart-item').dataset.itemId);
-            updateQuantity(itemId, 1);
+            const cartItemId = parseInt(btn.closest('.cart-item').dataset.itemId);
+            const realItemId = parseInt(btn.closest('.cart-item').dataset.realItemId);
+            updateQuantity(cartItemId, 1, realItemId);
         });
     });
 
     document.querySelectorAll('.qty-btn.minus').forEach(btn => {
         btn.addEventListener('click', () => {
-            const itemId = parseInt(btn.closest('.cart-item').dataset.itemId);
-            updateQuantity(itemId, -1);
+            const cartItemId = parseInt(btn.closest('.cart-item').dataset.itemId);
+            const realItemId = parseInt(btn.closest('.cart-item').dataset.realItemId);
+            updateQuantity(cartItemId, -1, realItemId);
         });
     });
 }
@@ -88,9 +92,8 @@ function bindDynamicEventListeners() {
 // 장바구니 관련 유틸 함수들
 // ============================================
 
-function updateQuantity(itemId, change) {
-    console.log("➡️ updateQuantity 함수 호출됨. itemId:", itemId, "change:", change);
-    const item = cartItems.find(item => item.cartItemId === itemId);
+function updateQuantity(cartItemIdToUpdate, change, realItemId) {
+    const item = cartItems.find(item => item.cartItemId === cartItemIdToUpdate);
     if (item) {
         const newQuantity = item.quantity + change;
 
@@ -98,13 +101,22 @@ function updateQuantity(itemId, change) {
         if (newQuantity > 0 && newQuantity <= item.stockNumber) {
             // UI 업데이트 (즉시 반응을 보여주기 위함)
             item.quantity = newQuantity;
-            document.getElementById(`qty-${itemId}`).value = newQuantity;
+            document.getElementById(`qty-${cartItemIdToUpdate}`).value = newQuantity;
+
+            // 상품별 개별 금액 업데이트
+            const itemElement = document.querySelector(`[data-item-id="${cartItemIdToUpdate}"]`);
+            if (itemElement) {
+                const salePriceElement = itemElement.querySelector('.sale-price');
+                if (salePriceElement) {
+                    const updatedItemPrice = item.price * newQuantity; // 단가 * 새로운 수량
+                    salePriceElement.textContent = formatPrice(updatedItemPrice); // 포맷하여 표시
+                }
+            }
+
             updateCartSummary(); // 총 금액 업데이트
 
             // 서버에 수량 변경 요청을 보내는 코드 추가
-            const cartItemId = item.cartItemId; // 장바구니 상품 ID
-
-            fetch(`/cart/update?cartItemId=${cartItemId}&count=${newQuantity}&itemId=${itemId}`, {
+            fetch(`/cart/update?cartItemId=${cartItemIdToUpdate}&count=${newQuantity}&itemId=${realItemId}`, {
                 method: 'PUT' // 수량 변경은 PUT 방식으로 요청합니다.
             })
                 .then(response => {
@@ -112,6 +124,7 @@ function updateQuantity(itemId, change) {
                         showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'success');
                     } else { // 서버에서 오류 응답이 오면
                         showNotification('수량 변경 실패! 서버 오류.', 'error');
+                        response.text().then(errorMessage => console.error("서버 오류 메시지:", errorMessage)); // 서버 오류 메시지 확인용
                     }
                 })
                 .catch(error => { // 네트워크 오류 등 예외 발생 시

@@ -83,10 +83,14 @@ public class CartItemItemServiceImpl implements CartItemService {
     // 장바구니 수량 수정
     public String updateCartCount(Long cartItemId, int count, Long itemId){
         ItemVO item = itemMapper.findByItemId(itemId);
+        if (item == null){
+            return "상품 정보를 찾을 수 없습니다.";
+        }
         if(count > item.getStockNumber()){
             return "재고 초과.";
         }
-        cartItemMapper.updateCartItem(cartItemId, count);
+
+        cartItemMapper.updateCartItemCount(cartItemId, count);
 
         return "수량 변경 완료";
     }

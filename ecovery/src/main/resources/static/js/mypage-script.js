@@ -191,9 +191,6 @@ function resetModalForm() {
  * 프로필 변경사항 저장
  */
 function saveProfileChanges() {
-    const currentPassword = document.getElementById('currentPassword')?.value || '';
-    const newPassword = document.getElementById('newPassword')?.value || '';
-    const confirmPassword = document.getElementById('confirmPassword')?.value || '';
 
     const currentPwInput = document.getElementById('currentPassword');
     const newPwInput = document.getElementById('newPassword');
@@ -204,13 +201,28 @@ function saveProfileChanges() {
     const confirmPwError = document.getElementById('confirmPasswordError');
 
     // 에러 초기화
-    if (currentPwError) currentPwError.style.display = 'none';
-    if (newPwError) newPwError.style.display = 'none';
-    if (confirmPwError) confirmPwError.style.display = 'none';
+    if (currentPwError) {
+        currentPwError.classList.add('error-hidden');
+        currentPwError.textContent = ''; // 이전 메시지 내용을 비워줍니다.
+    }
+    if (newPwError) {
+        newPwError.classList.add('error-hidden');
+        newPwError.textContent = '';
+    }
+    if (confirmPwError) {
+        confirmPwError.classList.add('error-hidden');
+        confirmPwError.textContent = '';
+    }
 
     if (currentPwInput) currentPwInput.classList.remove('error');
     if (newPwInput) newPwInput.classList.remove('error');
     if (confirmPwInput) confirmPwInput.classList.remove('error');
+
+    // 2. 입력 필드 값 가져오기
+    const currentPassword = document.getElementById('currentPassword')?.value || '';
+    const newPassword = document.getElementById('newPassword')?.value || '';
+    const confirmPassword = document.getElementById('confirmPassword')?.value || '';
+
 
     // 유효성 검사
     let isValid = true;
@@ -218,7 +230,7 @@ function saveProfileChanges() {
     // 현재 비밀번호 입력 확인
     if (!currentPassword) {
         if (currentPwError) {
-            currentPwError.style.display = 'block';
+            currentPwError.classList.remove('error-hidden'); // 에러 메시지 보이기
             currentPwError.textContent = '현재 비밀번호를 입력해주세요.';
         }
         if (currentPwInput) currentPwInput.classList.add('error');
@@ -231,7 +243,7 @@ function saveProfileChanges() {
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
     if (!newPassword || newPassword.length < 8 || !hasLetter || !hasNumber || !hasSpecial) {
         if (newPwError) {
-            newPwError.style.display = 'block';
+            newPwError.classList.remove('error-hidden'); // 에러 메시지 보이기
             newPwError.textContent = '8자 이상, 영문/숫자/특수문자를 포함해야 합니다.';
         }
         if (newPwInput) newPwInput.classList.add('error');
@@ -241,14 +253,16 @@ function saveProfileChanges() {
     // 새 비밀번호 일치 확인
     if (newPassword !== confirmPassword) {
         if (confirmPwError) {
-            confirmPwError.style.display = 'block';
+            confirmPwError.classList.remove('error-hidden'); // 에러 메시지 보이기
             confirmPwError.textContent = '비밀번호가 일치하지 않습니다.';
         }
         if (confirmPwInput) confirmPwInput.classList.add('error');
         isValid = false;
     }
 
-    if (!isValid) return;
+    if (!isValid) {
+        return;
+    }
 
     // 서버에 fetch 요청
     fetch("/mypage/update", {
@@ -268,10 +282,11 @@ function saveProfileChanges() {
                 showNotification(data.message, "success");
                 closeProfileModal();
             } else {
+                // 서버에서 오류 응답을 받았을 때
                 if (data.errorCode === "WRONG_PASSWORD") {
                     if (currentPwError) {
+                        currentPwError.classList.remove('error-hidden'); // 에러 메시지 보이기
                         currentPwError.textContent = data.message;
-                        currentPwError.style.display = 'block';
                     }
                     if (currentPwInput) currentPwInput.classList.add('error');
                 } else {
@@ -706,11 +721,15 @@ function clearValidationMessage(input) {
  */
 function clearValidationMessages() {
     const messages = document.querySelectorAll('.validation-message');
-    messages.forEach(message => message.remove());
+    messages.forEach(message => {
+        message.classList.add('error-hidden');
+        message.textContent = '';
+    });
 
     const inputs = document.querySelectorAll('#profileEditForm input');
     inputs.forEach(input => {
         input.style.borderColor = '';
+        input.classList.remove('error');
     });
 }
 

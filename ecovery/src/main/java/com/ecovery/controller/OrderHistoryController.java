@@ -21,7 +21,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping(value = "/mypage/orders")
+@RequestMapping(value = "/orders")
 @Slf4j
 public class OrderHistoryController {
 
@@ -39,6 +39,6 @@ public class OrderHistoryController {
         List<OrderHistoryDto> orderList = orderHistoryService.getOrderHistory(memberId);
         model.addAttribute("orderList", orderList);
 
-        return "order/order-detail";
+        return "order/orderhistory";
     }
 }
