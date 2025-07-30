@@ -35,8 +35,8 @@ function initializePage() {
     // Auto-save setup
     setupAutoSave();
     
-    // Load saved draft
-    loadSavedDraft();
+    // // Load saved draft
+    // loadSavedDraft();
     
     // Close mobile menu when clicking on nav links
     document.querySelectorAll('.nav-menu a').forEach(link => {
@@ -134,13 +134,13 @@ function setupFormEventListeners() {
         postCategory.addEventListener('change', markAsDirty);
     }
 
-    // Form submission
-    if (writeForm) {
-        writeForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitPost();
-        });
-    }
+    // // Form submission
+    // if (writeForm) {
+    //     writeForm.addEventListener('submit', function(e) {
+    //         e.preventDefault();
+    //         submitPost();
+    //     });
+    // }
 }
 
 function updateCharCount(elementId, currentLength, maxLength) {
@@ -609,99 +609,99 @@ function showAutoSaveIndicator() {
     }
 }
 
-function saveDraft() {
-    autoSave();
-    showNotification('임시저장되었습니다', 'success');
-}
+// function saveDraft() {
+//     autoSave();
+//     showNotification('임시저장되었습니다', 'success');
+// }
+//
+// function loadSavedDraft() {
+//     try {
+//         const savedDraft = localStorage.getItem('postDraft');
+//         if (!savedDraft) return;
+//
+//         const draft = JSON.parse(savedDraft);
+//         const draftAge = new Date() - new Date(draft.timestamp);
+//         const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+//
+//         if (draftAge > maxAge) {
+//             localStorage.removeItem('postDraft');
+//             return;
+//         }
+//
+//         if (confirm('저장된 임시글이 있습니다. 불러오시겠습니까?')) {
+//             loadDraft();
+//         }
+//     } catch (error) {
+//         console.error('Failed to load draft:', error);
+//     }
+// }
+//
+// function loadDraft() {
+//     try {
+//         const savedDraft = localStorage.getItem('postDraft');
+//         if (!savedDraft) {
+//             showNotification('저장된 임시글이 없습니다', 'info');
+//             return;
+//         }
+//
+//         const draft = JSON.parse(savedDraft);
+//
+//         if (postTitle) postTitle.value = draft.title || '';
+//         if (postContent) postContent.value = draft.content || '';
+//         if (postCategory) postCategory.value = draft.category || '';
+//
+//         selectedTags = draft.tags || [];
+//         renderTags();
+//
+//         // Update character counts
+//         updateCharCount('titleCount', draft.title?.length || 0, 100);
+//         updateCharCount('contentCount', draft.content?.length || 0, 5000);
+//
+//         showNotification('임시글을 불러왔습니다', 'success');
+//         markAsDirty();
+//     } catch (error) {
+//         console.error('Failed to load draft:', error);
+//         showNotification('임시글 불러오기에 실패했습니다', 'error');
+//     }
+// }
 
-function loadSavedDraft() {
-    try {
-        const savedDraft = localStorage.getItem('postDraft');
-        if (!savedDraft) return;
-        
-        const draft = JSON.parse(savedDraft);
-        const draftAge = new Date() - new Date(draft.timestamp);
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-        
-        if (draftAge > maxAge) {
-            localStorage.removeItem('postDraft');
-            return;
-        }
-        
-        if (confirm('저장된 임시글이 있습니다. 불러오시겠습니까?')) {
-            loadDraft();
-        }
-    } catch (error) {
-        console.error('Failed to load draft:', error);
-    }
-}
-
-function loadDraft() {
-    try {
-        const savedDraft = localStorage.getItem('postDraft');
-        if (!savedDraft) {
-            showNotification('저장된 임시글이 없습니다', 'info');
-            return;
-        }
-        
-        const draft = JSON.parse(savedDraft);
-        
-        if (postTitle) postTitle.value = draft.title || '';
-        if (postContent) postContent.value = draft.content || '';
-        if (postCategory) postCategory.value = draft.category || '';
-        
-        selectedTags = draft.tags || [];
-        renderTags();
-        
-        // Update character counts
-        updateCharCount('titleCount', draft.title?.length || 0, 100);
-        updateCharCount('contentCount', draft.content?.length || 0, 5000);
-        
-        showNotification('임시글을 불러왔습니다', 'success');
-        markAsDirty();
-    } catch (error) {
-        console.error('Failed to load draft:', error);
-        showNotification('임시글 불러오기에 실패했습니다', 'error');
-    }
-}
-
-// Form submission
-function submitPost() {
-    // Validate form
-    if (!validateForm()) return;
-    
-    // Collect form data
-    const formData = {
-        title: postTitle.value.trim(),
-        content: postContent.value.trim(),
-        category: postCategory.value,
-        tags: selectedTags,
-        allowComments: document.getElementById('allowComments')?.checked || true,
-        notifyReplies: document.getElementById('notifyReplies')?.checked || true,
-        files: uploadedFiles
-    };
-    
-    // Show loading state
-    const submitBtn = document.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = '게시 중...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Clear draft
-        localStorage.removeItem('postDraft');
-        isDirty = false;
-        
-        showNotification('게시글이 성공적으로 등록되었습니다! 🎉', 'success');
-        
-        // Redirect to board
-        setTimeout(() => {
-            goToBoard();
-        }, 2000);
-        
-    }, 1500);
-}
+// // Form submission
+// function submitPost() {
+//     // Validate form
+//     if (!validateForm()) return;
+//
+//     // Collect form data
+//     const formData = {
+//         title: postTitle.value.trim(),
+//         content: postContent.value.trim(),
+//         category: postCategory.value,
+//         tags: selectedTags,
+//         allowComments: document.getElementById('allowComments')?.checked || true,
+//         notifyReplies: document.getElementById('notifyReplies')?.checked || true,
+//         files: uploadedFiles
+//     };
+//
+//     // Show loading state
+//     const submitBtn = document.querySelector('button[type="submit"]');
+//     const originalText = submitBtn.textContent;
+//     submitBtn.textContent = '게시 중...';
+//     submitBtn.disabled = true;
+//
+//     // Simulate API call
+//     setTimeout(() => {
+//         // Clear draft
+//         localStorage.removeItem('postDraft');
+//         isDirty = false;
+//
+//         showNotification('게시글이 성공적으로 등록되었습니다! 🎉', 'success');
+//
+//         // Redirect to board
+//         setTimeout(() => {
+//             goToBoard();
+//         }, 2000);
+//
+//     }, 1500);
+// }
 
 function validateForm() {
     const title = postTitle?.value.trim();
@@ -801,32 +801,32 @@ function formatPreviewContent(content) {
         .replace(/\n/g, '<br>')
         .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
 }
-
-// Navigation functions
-function goHome() {
-    if (isDirty && !confirm('작성 중인 내용이 있습니다. 페이지를 벗어나시겠습니까?')) {
-        return;
-    }
-    showNotification('메인 페이지로 이동합니다', 'info');
-    // window.location.href = '/';
-}
-
-function goToBoard() {
-    if (isDirty && !confirm('작성 중인 내용이 있습니다. 페이지를 벗어나시겠습니까?')) {
-        return;
-    }
-    showNotification('환경톡톡 게시판으로 이동합니다', 'info');
-    // window.location.href = '/eco-talk';
-}
-
-// Page leave warning
-function handleBeforeUnload(e) {
-    if (isDirty) {
-        e.preventDefault();
-        e.returnValue = '';
-        return '';
-    }
-}
+//
+// // Navigation functions
+// function goHome() {
+//     if (isDirty && !confirm('작성 중인 내용이 있습니다. 페이지를 벗어나시겠습니까?')) {
+//         return;
+//     }
+//     showNotification('메인 페이지로 이동합니다', 'info');
+//     // window.location.href = '/';
+// }
+//
+// function goToBoard() {
+//     if (isDirty && !confirm('작성 중인 내용이 있습니다. 페이지를 벗어나시겠습니까?')) {
+//         return;
+//     }
+//     showNotification('환경톡톡 게시판으로 이동합니다', 'info');
+//     // window.location.href = '/eco-talk';
+// }
+//
+// // Page leave warning
+// function handleBeforeUnload(e) {
+//     if (isDirty) {
+//         e.preventDefault();
+//         e.returnValue = '';
+//         return '';
+//     }
+// }
 
 // Notification system
 function showNotification(message, type = 'info') {
@@ -858,16 +858,16 @@ function showNotification(message, type = 'info') {
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
     // Ctrl/Cmd + S for save draft
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        saveDraft();
-    }
+    // if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    //     e.preventDefault();
+    //     saveDraft();
+    // }
     
-    // Ctrl/Cmd + Enter for submit
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        submitPost();
-    }
+    // // Ctrl/Cmd + Enter for submit
+    // if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    //     e.preventDefault();
+    //     submitPost();
+    // }
     
     // ESC to close modal
     if (e.key === 'Escape') {
@@ -899,11 +899,11 @@ window.insertList = insertList;
 window.insertLink = insertLink;
 window.insertEmoji = insertEmoji;
 window.loadTemplate = loadTemplate;
-window.saveDraft = saveDraft;
-window.loadDraft = loadDraft;
+// window.saveDraft = saveDraft;
+// window.loadDraft = loadDraft;
 window.previewPost = previewPost;
 window.closePreview = closePreview;
-window.submitPost = submitPost;
+// window.submitPost = submitPost;
 window.goHome = goHome;
 window.goToBoard = goToBoard;
 

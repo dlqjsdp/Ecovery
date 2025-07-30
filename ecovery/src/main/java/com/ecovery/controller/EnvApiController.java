@@ -1,17 +1,23 @@
 package com.ecovery.controller;
 
+import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.EnvDto;
 import com.ecovery.dto.EnvFormDto;
 import com.ecovery.dto.PageDto;
+import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.EnvService;
+import com.ecovery.service.FileService;
 import com.ecovery.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +47,12 @@ import java.util.Map;
    - 250728 | yukyeong | 게시글 등록/수정 multipart/form-data 방식으로 전환 (EnvFormDto + 이미지 포함)
                          게시글 수정 시 BindingResult 제거 후 수동 유효성 검사 도입
                          게시글 삭제 시 컨트롤러는 그대로 유지 (서비스에서 이미지 함께 삭제 처리)
+   - 250730 | yukyeong | 이미지 임시 업로드 API (POST /upload-temp) 구현 - Multipart 이미지 리스트 받아 UUID로 저장 후 파일명 반환
+   - 250730 | yukyeong | 이메일 null 방지를 위한 사용자 인증 정보 처리 보강
+                           - Authentication → CustomUserDetails로 이메일 안전하게 추출
+                           - 회원 정보 없을 경우 401 UNAUTHORIZED 반환
+                           - 등록 전후 EnvDto 상태 로깅(log.info) 추가
+   - 250730 | yukyeong | 이미지 임시 업로드 API (POST /upload-temp) 구현 - Multipart 이미지 리스트 받아 UUID로 저장 후 파일명 반환
  */
 
 @RestController
@@ -50,6 +63,11 @@ public class EnvApiController {
 
     private final EnvService envService;
     private final MemberService memberService;
+
+    private final FileService fileService;
+
+    @Value("${envImgLocation}")
+    private String envImgLocation;
 
     // 목록 조회
     // @RequestParam(required = false)은 검색 조건이 없어도 요청 가능하게 함
@@ -78,14 +96,38 @@ public class EnvApiController {
     }
 
 
+    @PostMapping("/upload-temp")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> uploadTempImages(@RequestPart List<MultipartFile> imageFiles) {
+        try {
+            List<String> fileNames = new ArrayList<>();
+
+            for (MultipartFile file : imageFiles) {
+                String originalName = file.getOriginalFilename();
+                if (originalName != null && !originalName.isBlank()) {
+                    // UUID로 파일 저장
+                    String savedName = fileService.uploadFile(envImgLocation, originalName, file.getBytes());
+                    fileNames.add(savedName); // 저장된 파일명(UUID 확장자)
+                }
+            }
+
+            // 실제 저장된 파일명을 리스트로 반환
+            return ResponseEntity.ok(fileNames);
+
+        } catch (Exception e) {
+            log.error("임시 이미지 업로드 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
+        }
+    }
+
     // 게시글 등록 처리
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @RequestPart("envFormDto") @Valid EnvFormDto envFormDto,
             BindingResult bindingResult,
-            @RequestPart("envImgFiles") List<MultipartFile> envImgFiles,
-            Principal principal) {
+            @RequestPart(value = "envImgFiles", required = false) List<MultipartFile> envImgFiles,
+            Authentication auth) {
 
         // 1. @Valid 유효성 검사 + BindingResult로 검증
         // EnvDto에 설정한 유효성 검증에 실패하면 400 Bad Request 응답 반환
@@ -94,9 +136,25 @@ public class EnvApiController {
         }
 
         // 2. 유효성 검사 통과한 경우에만 로그인 사용자 이메일 → memberId 조회
-        String email = principal.getName(); // Principal에서 로그인한 사용자의 이메일을 가져옴 (username 역할)
-        Long memberId = memberService.getMemberByEmail(email).getMemberId(); // 이메일을 기준으로 DB에서 memberId 조회
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail(); // Principal에서 로그인한 사용자의 이메일을 가져옴 (username 역할)
+
+        MemberVO member = memberService.getMemberByEmail(email);
+
+        if (member == null) {
+            log.error("회원 정보를 찾을 수 없습니다. 이메일: {}", email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 만료되었거나, 사용자 정보를 찾을 수 없습니다.");
+        }
+
+        Long memberId = member.getMemberId();
+
         envFormDto.getEnvDto().setMemberId(memberId); // 조회한 memberId를 등록할 게시글 DTO에 설정
+
+        if (envImgFiles == null || envImgFiles.isEmpty()) {
+            log.info("이미지 파일이 없습니다. 이미지 없이 등록을 진행합니다.");
+        } else {
+            log.info("업로드된 이미지 수: {}", envImgFiles.size());
+        }
 
         log.info("게시글 등록 처리 전: {}", envFormDto); // 등록 전 EnvDto 상태 출력 (등록 전에 memberId가 잘 들어갔는지 확인용)
 

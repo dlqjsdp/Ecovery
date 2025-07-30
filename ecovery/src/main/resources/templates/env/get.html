@@ -8,6 +8,8 @@ GreenCycle 환경톡톡 게시글 상세보기
 @history
     - 250721 | yukyeong | 단건 조회, 수정버튼 출력을 확인하기 위한 임시 뷰 최조 작성, 수정 버튼은 작성자 또는 관리자만 볼 수 있도록 설정
     - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용
+    - 250730 | yukyeong | 상세페이지 전체 구조 전면 수정 (레이아웃 개선, 관리자 버튼 정비 등)
+
 -->
 
 <!DOCTYPE html>
@@ -29,14 +31,39 @@ GreenCycle 환경톡톡 게시글 상세보기
     <!-- 메인 콘텐츠 영역 -->
     <main class="main-content">
         <div class="container">
-            <!-- 브레드크럼 네비게이션 -->
-            <nav class="breadcrumb fade-in">
-                <a th:href="@{/}">홈</a>
-                <span style="margin: 0 10px; color: var(--medium-gray);">></span>
-                <a th:href="@{/eco-talk}">환경톡톡</a>
-                <span style="margin: 0 10px; color: var(--medium-gray);">></span>
-                <span class="current">상세보기</span>
-            </nav>
+            <!-- 게시글 상세보기 헤더 섹션 (새로 추가) -->
+            <section class="post-detail-hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <!-- 아이콘과 메인 제목 -->
+                        <div class="hero-title-section">
+                            <div class="hero-icon">📖</div>
+                            <h1 class="hero-title">게시글 상세보기</h1>
+                        </div>
+
+                        <!-- 설명 텍스트 -->
+                        <p class="hero-description">
+                            환경 보호에 대한 소중한 경험과 생각을 나누어 주세요
+                        </p>
+
+                        <!-- 브레드크럼 정보 -->
+                        <div class="hero-breadcrumb">
+                            <span>홈</span>
+                            <span class="separator">›</span>
+                            <span>환경톡톡</span>
+                            <span class="separator">›</span>
+                            <span class="current">상세보기</span>
+                        </div>
+                    </div>
+
+                    <!-- 장식용 배경 요소들 -->
+                    <div class="hero-decoration">
+                        <div class="decoration-circle decoration-1"></div>
+                        <div class="decoration-circle decoration-2"></div>
+                        <div class="decoration-circle decoration-3"></div>
+                    </div>
+                </div>
+            </section>
 
             <!-- 게시글 상세 컨테이너 (중앙배치) -->
             <div class="post-detail-layout">
@@ -88,21 +115,6 @@ GreenCycle 환경톡톡 게시글 상세보기
                             <!-- 게시글 본문 내용이 들어갈 자리 -->
                         </div>
 
-<!--                        &lt;!&ndash; 첨부파일 목록 &ndash;&gt;-->
-<!--                        <div class="post-attachments" th:if="${post.attachments != null && !#lists.isEmpty(post.attachments)}">-->
-<!--                            <h3>📎 첨부파일</h3>-->
-<!--                            <div class="attachments-list">-->
-<!--                                <div th:each="attachment : ${post.attachments}" class="attachment-item">-->
-<!--                                    <a th:href="@{'/api/attachments/' + ${attachment.id} + '/download'}"-->
-<!--                                       class="attachment-link"-->
-<!--                                       th:download="${attachment.originalName}">-->
-<!--                                        <span class="attachment-icon">📄</span>-->
-<!--                                        <span class="attachment-name" th:text="${attachment.originalName}">파일명.jpg</span>-->
-<!--                                        <span class="attachment-size" th:text="'(' + ${attachment.formattedSize} + ')'">(1.2MB)</span>-->
-<!--                                    </a>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
 
 <!--                        &lt;!&ndash; 게시글 액션 버튼들 &ndash;&gt;-->
 <!--                        <div class="post-actions-bottom">-->
@@ -128,20 +140,20 @@ GreenCycle 환경톡톡 게시글 상세보기
 <!--                    </div>-->
 
 
-<!--                    &lt;!&ndash; 관리자 전용 액션 버튼들 (관리자만) &ndash;&gt;-->
-<!--                    <section class="admin-actions" th:if="${session.user != null && (session.user.role == 'ADMIN' || session.user.role == 'MANAGER')}">-->
-<!--                        <div class="admin-action-buttons">-->
-<!--                            <a th:href="@{'/admin/eco-talk/posts/' + ${post.id} + '/edit'}" class="admin-btn edit-btn">-->
-<!--                                ✏️ 글 수정-->
-<!--                            </a>-->
-<!--                            <button class="admin-btn delete-btn" th:onclick="|deletePost(${post.id})|">-->
-<!--                                🗑️ 글 삭제-->
-<!--                            </button>-->
-<!--                            <a th:href="@{/admin/eco-talk/posts/new}" class="admin-btn new-btn">-->
-<!--                                ➕ 새 글 작성-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                    </section>-->
+                    <!-- 관리자 전용 액션 버튼들 (관리자만) -->
+                    <section class="admin-actions" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <div class="admin-action-buttons">
+                            <a id="editBtn" class="admin-btn edit-btn">
+                                ✏️ 글 수정
+                            </a>
+                            <button type="button" id="deleteBtn" class="admin-btn delete-btn">
+                                🗑️ 글 삭제
+                            </button>
+                            <a th:href="@{/env/register}" class="admin-btn new-btn">
+                                ➕ 새 글 작성
+                            </a>
+                        </div>
+                    </section>
 
 
                 </div>

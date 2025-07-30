@@ -17,6 +17,7 @@ import java.util.List;
  * @since : 250728
  * @history
      - 250728 | yukyeong | 게시글 등록 및 수정용 EnvFormDto 생성 (EnvDto + 이미지 리스트)
+     - 250730 | yukyeong | EnvDto만으로 초기화 가능한 생성자 추가, envImgFiles 초기화(null 방지) 포함
  */
 
 @Getter
