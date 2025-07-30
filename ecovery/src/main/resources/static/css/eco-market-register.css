@@ -349,19 +349,19 @@ body {
    가격 입력 관련 스타일
    ========================= */
 
-.price-group {
+.price-group, .stock-group {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.price-input-wrapper {
+.price-input-wrapper, .stock-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
 }
 
-.price-input {
+.price-input, .stock-input {
     padding-right: 50px; /* 통화 단위를 위한 공간 */
     font-size: 18px;
     font-weight: 600;
@@ -382,7 +382,7 @@ body {
 }
 
 /* 가격 분석 표시 */
-.price-analysis {
+.price-analysis, .stockAnalysis {
     margin-top: 10px;
     padding: 12px;
     background: var(--light-green);

@@ -5,6 +5,7 @@ import com.ecovery.dto.Criteria;
 import com.ecovery.dto.ItemFormDto;
 import com.ecovery.dto.ItemListDto;
 import com.ecovery.dto.PageDto;
+import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.CategoryService;
 import com.ecovery.service.ItemService;
 import com.ecovery.service.MemberService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,10 +96,13 @@ public class ItemApiController {
 
     //상품 등록 페이지 요청
     @GetMapping("/new")
-    public ResponseEntity<Map<String, Object>> itemForm(Principal principal) {
+    public ResponseEntity<Map<String, Object>> itemForm(Authentication auth) {
+
+        //로그인한 사용자의 email 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail();
 
         //관리자 권한 확인
-        String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
         if(role != Role.ADMIN) {
@@ -116,9 +121,13 @@ public class ItemApiController {
     public ResponseEntity<Map<String, Object>> saveItem(@Valid @RequestPart("itemFormDto") ItemFormDto itemFormDto,
                                                         BindingResult bindingResult,
                                                         @RequestPart("itemImgFile") List<MultipartFile> itemImgFileList,
-                                                        Principal principal) {
+                                                        Authentication auth) {
+
+        //로그인한 사용자의 email 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail();
+
         //관리자 권한 확인
-        String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
         if(role != Role.ADMIN) {

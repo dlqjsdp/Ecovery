@@ -64,8 +64,8 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-# 상품 이미지 업로드 경로
-itemImgLocation: C:/ecovery/item
+# 에코마켓 상품 이미지 업로드 경로
+ecoImgLocation: C:/ecovery/item
 
 disposalImgLocation: C:/ecovery/disposalImg
 
