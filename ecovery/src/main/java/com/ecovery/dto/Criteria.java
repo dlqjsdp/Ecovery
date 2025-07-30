@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 /*
  * 페이징 처리 Criteria
  * 게시판 검색 및 페이징 처리를 위한 기준 클래스
@@ -40,11 +42,21 @@ public class Criteria {
 
         return type == null? new String[] {}: type.split("");
     }
-    
+
     // MySQL용 offset
     public int getOffset() {
-        
+
         return (pageNum - 1) * amount;
     }
 
+
+    //disposal 검색 조건을 위해 추가
+    private String regionGu;
+    private String aiPrediction;
+    private String aiConfidenceRange;
+    private String dateRange;
+
+    //memberList 검색 조건을 위해 추가
+    private String role;
+    private String provider;
 }

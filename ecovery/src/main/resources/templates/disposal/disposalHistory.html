@@ -45,7 +45,7 @@
                 <div class="auth-buttons">
                     <div class="admin-info">
                         <span th:text="'관리자 ' + ${session.memberNickname} + '님'">관리자님</span>
-                        <a th:href="@{/admin/logout}" class="btn-logout">로그아웃</a>
+                        <a th:href="@{/member/logout}" class="btn-logout">로그아웃</a>
                     </div>
                 </div>
 
@@ -266,9 +266,9 @@
                                     <!-- AI 예측 -->
                                     <td>
                                         <div class="ai-prediction-cell">
-                                            <span class="ai-prediction-badge" 
-                                                  th:classappend="${item.aiPrediction.toLowerCase()}"
-                                                  th:text="${item.aiPrediction}">플라스틱</span>
+                                            <span class="ai-prediction-badge"
+                                                  th:classappend="${item.aiPrediction != null} ? ${item.aiPrediction.toLowerCase()} : 'none'"
+                                                  th:text="${item.aiPrediction != null} ? ${item.aiPrediction} : '예측 불가'">AI 예측 불가</span>
                                             <div class="confidence-score">
                                                 <span class="confidence-text" th:text="'신뢰도: ' + ${item.aiConfidence} + '%'">신뢰도: 94.2%</span>
                                                 <div class="confidence-bar">
@@ -282,13 +282,13 @@
                                     
                                     <!-- 2차 분류 품목 -->
                                     <td>
-                                        <span class="category-badge" 
-                                              th:classappend="${item.finalItem != null} ? ${item.finalItem.toLowerCase()} : ''"
-                                              th:text="${item.finalItem}">플라스틱</span>
+                                        <span class="category-badge"
+                                              th:classappend="${item.finalItem != null} ? ${item.finalItem.toLowerCase()} : 'none'"
+                                              th:text="${item.finalItem != null} ? ${item.finalItem} : '예측 불가'">AI 예측 불가</span>
                                         <!-- AI 예측과 다른 경우 표시 -->
-                                        <div th:if="${item.aiPrediction != item.finalItem}" class="category-changed">
+                                        <!--<div th:if="${item.aiPrediction != item.finalItem}" class="category-changed">
                                             <span class="changed-indicator">✏️ 수정됨</span>
-                                        </div>
+                                        </div>-->
                                     </td>
                                     
                                     <!-- 지역 -->
@@ -362,29 +362,55 @@
                     <div class="pagination" id="pagination">
                         <!-- 이전 버튼 -->
                         <a th:if="${disposalHistoryPage.isPrev()}"
-                           th:href="@{/disposal/history(type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount}, pageNum=${disposalHistoryPage.startPage - 1})}"
+                           th:href="@{/disposal/history(
+                                      pageNum=${disposalHistoryPage.startPage - 1},
+                                      amount=${disposalHistoryPage.cri.amount},
+                                      type=${disposalHistoryPage.cri.type},
+                                      keyword=${disposalHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
                            class="page-btn">◀ 이전</a>
                         <span th:unless="${disposalHistoryPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
 
                         <!-- 페이지 번호들 -->
-                        <li th:each="num : ${#numbers.sequence(disposalHistoryPage.startPage, disposalHistoryPage.endPage)}"
-                            th:classappend="${disposalHistoryPage.cri.pageNum == num} ? 'active' : ''">
-                            <a class="page-link"
-                               th:href="@{/disposal/history(pageNum=${num}, type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount})}"
-                               th:text="${num}">1</a>
-                        </li>
+                        <a class="page-number"
+                           th:each="num : ${#numbers.sequence(disposalHistoryPage.startPage, disposalHistoryPage.endPage)}"
+                           th:classappend="${disposalHistoryPage.cri.pageNum == num} ? 'active' : ''"
+                           th:href="@{/disposal/history(
+                                      pageNum=${num},
+                                      amount=${disposalHistoryPage.cri.amount},
+                                      type=${disposalHistoryPage.cri.type},
+                                      keyword=${disposalHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           th:text="${num}">1</a>
 
                         <!-- 다음 버튼 -->
                         <a th:if="${disposalHistoryPage.isNext()}"
-                           th:href="@{/disposal/history(type=${disposalHistoryPage.cri.type}, keyword=${disposalHistoryPage.cri.keyword}, amount=${disposalHistoryPage.cri.amount}, pageNum=${disposalHistoryPage.endPage + 1})}"
+                           th:href="@{/disposal/history(
+                                      pageNum=${disposalHistoryPage.endPage + 1},
+                                      amount=${disposalHistoryPage.cri.amount},
+                                      type=${disposalHistoryPage.cri.type},
+                                      keyword=${disposalHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
                            class="page-btn">다음 ▶</a>
                         <span th:unless="${disposalHistoryPage.isNext()}" class="page-btn disabled">다음 ▶</span>
                     </div>
                     <!-- 페이지 정보 -->
-                    <!--<div class="page-info">
-                        <span>페이지 <span th:text="${currentPage}">1</span> / <span th:text="${totalPages}">10</span></span>
-                        <span>총 <span th:text="${#numbers.formatInteger(totalElements, 3, 'COMMA')}">1,247</span>개 항목</span>
-                    </div>-->
+                    <div class="page-info">
+                        <span>페이지 <span th:text="${disposalHistoryPage.cri.pageNum}">1</span> / <span th:text="${disposalHistoryPage.getEndPage()}">10</span></span>
+                        <span>총 <span th:text="${#numbers.formatInteger(disposalHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>개 항목</span>
+                    </div>
                 </div>
             </div>
         </section>

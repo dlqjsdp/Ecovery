@@ -3,6 +3,7 @@ package com.ecovery.controller;
 import com.ecovery.domain.DisposalFeedbackVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.DisposalFeedbackDto;
+import com.ecovery.dto.DisposalHistoryDto;
 import com.ecovery.dto.PageDto;
 import com.ecovery.service.DisposalFeedbackService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,14 @@ public class DisposalFeedbackController {
     public String feedbackHistory(Criteria cri, Model model) {
         List<DisposalFeedbackDto> adminFeedbackHistory = disposalFeedbackService.getAllFeedback(cri);
         model.addAttribute("adminFeedbackHistory", adminFeedbackHistory);
-
+        double avgAiConfidence = adminFeedbackHistory.stream()
+                .map(DisposalFeedbackDto::getAiConfidence)       // Double 객체 스트림
+                .filter(java.util.Objects::nonNull)             // null 제거
+                .mapToDouble(Double::doubleValue)               // double로 변환
+                .average()
+                .orElse(0);
+        avgAiConfidence = Math.round(avgAiConfidence * 100.0) / 100.0;
+        model.addAttribute("avgAiConfidence", avgAiConfidence);
         int total = disposalFeedbackService.getTotalCount(cri);
         model.addAttribute("feedbackHistoryPage", new PageDto(cri, total));
 

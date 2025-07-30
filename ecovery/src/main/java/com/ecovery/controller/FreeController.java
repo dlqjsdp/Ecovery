@@ -6,6 +6,7 @@ import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeDto;
 import com.ecovery.dto.FreeImgDto;
 import com.ecovery.dto.PageDto;
+import com.ecovery.service.CategoryService;
 import com.ecovery.service.FreeImgService;
 import com.ecovery.service.FreeService;
 import com.ecovery.service.MemberService;
@@ -47,6 +48,7 @@ public class FreeController {
 
     private final FreeService freeService;
     private final MemberService memberService;
+    private final CategoryService categoryService;
 
     //무료나눔 목록 페이지
     @GetMapping("/list")
@@ -62,7 +64,8 @@ public class FreeController {
     //무료나눔 등록 페이지 - 로그인 사용자만 가능
     @GetMapping("/register")
     @PreAuthorize("isAuthenticated()") // 로그인한 사용자만 접근 가능
-    public String register(){
+    public String register(Model model){
+        model.addAttribute("sharingForm", new FreeDto()); // 빈 DTO
         return "free/register";
     }
 

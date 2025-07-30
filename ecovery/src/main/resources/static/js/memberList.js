@@ -330,7 +330,7 @@ function initializeSearchAndFilters() {
     }
 
     // 실시간 검색 (디바운스 적용)
-    if (searchInput) {
+    /*if (searchInput) {
         let searchTimeout;
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
@@ -340,7 +340,7 @@ function initializeSearchAndFilters() {
                 }
             }, 500);
         });
-    }
+    }*/
 
     // 필터 초기화 버튼
     if (filterResetBtn) {
@@ -351,7 +351,7 @@ function initializeSearchAndFilters() {
     }
 
     // 필터 변경 시 자동 검색
-    const filterSelects = document.querySelectorAll('#typeFilter, #roleFilter, #statusFilter');
+    const filterSelects = document.querySelectorAll('#roleFilter, #providerFilter');
     filterSelects.forEach(select => {
         select.addEventListener('change', function() {
             performSearch();
@@ -1467,9 +1467,8 @@ function switchTab(tabName) {
  */
 function performSearch() {
     const searchInput = document.getElementById('memberSearch');
-    const typeFilter = document.getElementById('typeFilter');
     const roleFilter = document.getElementById('roleFilter');
-    const statusFilter = document.getElementById('statusFilter');
+    const providerFilter = document.getElementById('providerFilter');
 
     if (!searchInput) return;
 
@@ -1477,20 +1476,16 @@ function performSearch() {
 
     // 검색어
     if (searchInput.value.trim()) {
-        searchParams.set('search', searchInput.value.trim());
+        searchParams.set('keyword', searchInput.value.trim());
     }
 
     // 필터들
-    if (typeFilter && typeFilter.value) {
-        searchParams.set('type', typeFilter.value);
-    }
-
     if (roleFilter && roleFilter.value) {
         searchParams.set('role', roleFilter.value);
     }
 
-    if (statusFilter && statusFilter.value) {
-        searchParams.set('status', statusFilter.value);
+    if (providerFilter && providerFilter.value) {
+        searchParams.set('provider', providerFilter.value);
     }
 
     // 현재 페이지 크기 유지
@@ -1515,7 +1510,7 @@ function resetFilters() {
     }
 
     // 필터 초기화
-    const filters = ['typeFilter', 'roleFilter', 'statusFilter'];
+    const filters = ['roleFilter', 'providerFilter'];
     filters.forEach(filterId => {
         const filter = document.getElementById(filterId);
         if (filter) {
@@ -1524,6 +1519,12 @@ function resetFilters() {
     });
 
     showNotification('필터가 초기화되었습니다.', 'info');
+
+    //필터 초기화 후, 검색어와 필터 값이 모두 비워진 상태로 URL을 구성하여 이동합니다.
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.delete('keyword'); // 검색어 파라미터 삭제
+    searchParams.delete('role');     // role 파라미터 삭제
+    searchParams.delete('provider'); // provider 파라미터 삭제
 
     // 기본 페이지로 이동
     window.location.href = '/admin/member';

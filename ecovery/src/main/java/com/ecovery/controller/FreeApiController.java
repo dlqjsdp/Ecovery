@@ -2,6 +2,7 @@ package com.ecovery.controller;
 
 import com.ecovery.constant.Role;
 import com.ecovery.domain.FreeVO;
+import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeDto;
 import com.ecovery.dto.FreeImgDto;
@@ -87,8 +88,15 @@ public class FreeApiController {
         }
 
         // 회원 이메일 -> DB에서 memberId 조회 후 DTO에 설정
-        String email = principal.getName();
-        Long memberId = memberService.getMemberByEmail(email).getMemberId();
+        /*String email = principal.getName();
+        Long memberId = memberService.getMemberByEmail(email).getMemberId();*/
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+        if (member == null) {
+            log.error("로그인된 사용자의 닉네임({})으로 회원 정보를 찾을 수 없습니다.", nickname);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+        }
+        Long memberId = member.getMemberId();
         freeDto.setMemberId(memberId);
 
         // 게시글 등록 시도 (서비스 호출)

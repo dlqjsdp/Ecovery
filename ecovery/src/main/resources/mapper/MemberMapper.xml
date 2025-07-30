@@ -101,6 +101,7 @@
     <select id="findAllMembers" resultType="com.ecovery.domain.MemberVO">
         select * from member
         <include refid="criteria"></include>
+        order by member_id desc
         LIMIT #{amount} OFFSET #{offset}
     </select>
 
@@ -140,14 +141,21 @@
     <!-- 검색 조건(제목, 내용, 지역(구,동) -->
     <sql id="criteria">
         <where>
-            <foreach collection="typeArr" item="type" separator="OR">
-                <if test="type == 'E'">
-                    email LIKE CONCAT('%', #{keyword}, '%')
-                </if>
-                <if test="type == 'N'">
-                    nickname LIKE CONCAT('%', #{keyword}, '%')
-                </if>
-            </foreach>
+            member_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
+            <!-- 닉네임, 이메일 검색 -->
+            <if test="keyword != null and keyword != ''">
+                AND  (nickname LIKE CONCAT('%', #{keyword}, '%') OR email LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+
+            <!-- 지역 필터 (JavaScript에서 role 파라미터로 보낼 때) -->
+            <if test="role != null and role != ''">
+                AND role = #{role}
+            </if>
+
+            <!-- 분류 필터 (JavaScript에서 provider 파라미터로 보낼 때) -->
+            <if test="provider != null and provider != ''">
+                AND provider = #{provider}
+            </if>
         </where>
     </sql>
 
@@ -155,12 +163,7 @@
     <select id="getTotalCount" parameterType="com.ecovery.dto.Criteria" resultType="int">
         SELECT COUNT(*)
         FROM member
-        <where>
-            <if test="type != null and keyword != null and keyword != ''">
-                <include refid="criteria"></include>
-            </if>
-            member_id > 0 <!-- 항상 참인 기본 조건  : WHRER 문이 비어있을 때 대비용-->
-        </where>
+        <include refid="criteria"></include>
     </select>
 
 

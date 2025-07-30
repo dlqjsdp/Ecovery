@@ -62,6 +62,7 @@ public class DisposalHistoryController {
                 .mapToDouble(Double::doubleValue)               // double로 변환
                 .average()
                 .orElse(0);
+        avgAiConfidence = Math.round(avgAiConfidence * 100.0) / 100.0;
         model.addAttribute("avgAiConfidence", avgAiConfidence);
         int total = disposalHistoryService.getTotal(cri);
         model.addAttribute("disposalHistoryPage", new PageDto(cri, total));

@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 <th:block layout:fragment="css">
-    <link rel="stylesheet" href="/css/services.css">
+    <link rel="stylesheet" href="/css/disposalMain.css">
 </th:block>
 
 <div layout:fragment="content">
@@ -60,7 +60,7 @@
                         <!-- ========================================
                          로딩 상태 표시 (새로 추가된 기능)
                         ======================================== -->
-                        <div id="loading" class="loading-state hidden">
+                        <div id="loading" class="loading-state hidden" style="display: none;">
                             <div class="loading-container">
                                 <div class="loading-spinner"></div>
                                 <div class="loading-content">
@@ -186,7 +186,7 @@
 </div>
 
 <th:block layout:fragment="script">
-    <script src="/js/services.js"></script>
+    <script src="/js/disposalMain.js"></script>
 </th:block>
 
 </html>

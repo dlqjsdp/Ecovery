@@ -1,58 +1,17 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <!-- 페이지 기본 설정 -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GreenCycle - 무료나눔 등록</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<th:block layout:fragment="css">
+    <link rel="stylesheet" href="/css/free-sharing-register.css">
+</th:block>
 
-    <!-- CSS 파일 연결 - Thymeleaf 정적 리소스 경로 -->
-    <link rel="stylesheet" th:href="@{/css/free-sharing-register.css}">
+<!-- Main Content -->
+<div layout:fragment="content">
 
-    <!-- 구글 폰트 연결 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
-<!-- 상단 헤더 메뉴 -->
-<header class="header">
-    <nav class="navbar">
-        <div class="nav-container">
-            <!-- 로고 - Thymeleaf URL 처리 -->
-            <a th:href="@{/}" class="logo">
-                <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
-            </a>
 
-            <!-- 메뉴 목록 -->
-            <ul class="nav-menu">
-                <li><a th:href="@{/}">홈</a></li>
-                <li><a th:href="@{/#services}">서비스</a></li>
-                <li><a th:href="@{/waste-sorting}">분리배출</a></li>
-                <li><a th:href="@{/free-sharing}" class="active">무료나눔</a></li>
-                <li><a th:href="@{/eco-market}">에코마켓</a></li>
-                <li><a th:href="@{/eco-talk}">환경독톡</a></li>
-                <li><a th:href="@{/notices}">공지사항</a></li>
-            </ul>
-
-            <!-- 로그인/회원가입 버튼 - 로그인 상태에 따른 조건부 표시 -->
-            <div class="auth-buttons">
-                <!-- 로그인한 경우 -->
-                <div th:if="${session.user}" class="user-menu">
-                    <span th:text="${session.user.nickname + '님'}">사용자님</span>
-                    <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
-                </div>
-                <!-- 비로그인 상태 (에러 케이스 - 로그인 필요) -->
-                <div th:unless="${session.user}" class="guest-menu">
-                    <a th:href="@{/login}" class="btn-login">로그인</a>
-                    <a th:href="@{/signup}" class="btn-signup">회원가입</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>
-
-<!-- 메인 내용 -->
-<main class="main-content">
-    <!-- 현재 위치 표시 (빵부스러기) -->
+<!-- 현재 위치 표시 (빵부스러기) -->
     <section class="breadcrumb">
         <div class="container">
             <nav class="breadcrumb-nav">
@@ -86,7 +45,7 @@
 
                 <!-- 실제 폼 - Thymeleaf 폼 객체 바인딩 -->
                 <form class="form-body" id="registrationForm"
-                      th:action="@{/free-sharing/register}"
+                      th:action="@{/free/register}"
                       th:object="${sharingForm}"
                       method="post"
                       enctype="multipart/form-data">
@@ -118,10 +77,10 @@
                             <input type="text"
                                    class="form-input"
                                    id="author"
-                                   th:value="${session.user.nickname}"
+                                   th:value="${session.memberNickname}"
                                    readonly>
                             <!-- 숨겨진 필드로 작성자 ID 전송 -->
-                            <input type="hidden" th:field="*{authorId}" th:value="${session.user.id}">
+                            <input type="hidden" th:field="*{memberId}" th:value="${session.memberId}" id="memberId">
                             <div class="help-text">로그인한 사용자 정보가 자동으로 표시됩니다</div>
                         </div>
                     </div>
@@ -146,13 +105,13 @@
                             <label class="form-label">상품상태 <span class="required">*</span></label>
                         </div>
                         <div class="form-input-section">
-                            <select class="form-select" th:field="*{condition}" id="condition" required>
+                            <select class="form-select" th:field="*{itemCondition}" id="condition" required>
                                 <option value="">상태를 선택해주세요</option>
-                                <option value="EXCELLENT">상 (매우 좋음)</option>
-                                <option value="GOOD">중 (보통)</option>
-                                <option value="FAIR">하 (사용감 있음)</option>
+                                <option value="HIGH">상 (매우 좋음)</option>
+                                <option value="MEDIUM">중 (보통)</option>
+                                <option value="LOW">하 (사용감 있음)</option>
                             </select>
-                            <div class="error-message" th:if="${#fields.hasErrors('condition')}" th:errors="*{condition}"></div>
+                            <div class="error-message" th:if="${#fields.hasErrors('itemCondition')}" th:errors="*{itemCondition}"></div>
                             <div class="help-text">물품의 전반적인 상태를 선택해주세요</div>
                             <!-- 상품 상태 미리보기 (JavaScript로 제어) -->
                             <div class="condition-preview" id="conditionPreview"></div>
@@ -166,21 +125,42 @@
                         </div>
                         <div class="form-input-section">
                             <div class="form-group">
-                                <!-- 시/도 선택 -->
-                                <select class="form-select" th:field="*{region1}" id="region1" required>
-                                    <option value="">시/도</option>
-                                    <!-- 서버에서 전달받은 지역 목록 -->
-                                    <option th:each="region : ${regions}"
-                                            th:value="${region.code}"
-                                            th:text="${region.name}">서울특별시</option>
+                                <!-- 구 선택 -->
+                                <select class="form-select" th:field="*{regionGu}" id="region1" required>
+                                    <option value="">구</option>
+                                    <option value="강남구">강남구</option>
+                                    <option value="강동구">강동구</option>
+                                    <option value="강북구">강북구</option>
+                                    <option value="강서구">강서구</option>
+                                    <option value="관악구">관악구</option>
+                                    <option value="광진구">광진구</option>
+                                    <option value="구로구">구로구</option>
+                                    <option value="금천구">금천구</option>
+                                    <option value="노원구">노원구</option>
+                                    <option value="도봉구">도봉구</option>
+                                    <option value="동대문구">동대문구</option>
+                                    <option value="동작구">동작구</option>
+                                    <option value="마포구">마포구</option>
+                                    <option value="서대문구">서대문구</option>
+                                    <option value="서초구">서초구</option>
+                                    <option value="성동구">성동구</option>
+                                    <option value="성북구">성북구</option>
+                                    <option value="송파구">송파구</option>
+                                    <option value="양천구">양천구</option>
+                                    <option value="영등포구">영등포구</option>
+                                    <option value="용산구">용산구</option>
+                                    <option value="은평구">은평구</option>
+                                    <option value="종로구">종로구</option>
+                                    <option value="중구">중구</option>
+                                    <option value="중랑구">중랑구</option>
                                 </select>
-                                <!-- 구/군 선택 (JavaScript로 동적 로드) -->
-                                <select class="form-select" th:field="*{region2}" id="region2" required>
-                                    <option value="">구/군</option>
+                                <!-- 동 선택 (JavaScript로 동적 로드) -->
+                                <select class="form-select" th:field="*{regionDong}" id="region2" required>
+                                    <option value="">동</option>
                                 </select>
                             </div>
-                            <div class="error-message" th:if="${#fields.hasErrors('region1')}" th:errors="*{region1}"></div>
-                            <div class="error-message" th:if="${#fields.hasErrors('region2')}" th:errors="*{region2}"></div>
+                            <div class="error-message" th:if="${#fields.hasErrors('regionGu')}" th:errors="*{regionGu}"></div>
+                            <div class="error-message" th:if="${#fields.hasErrors('regionDong')}" th:errors="*{regionDong}"></div>
                             <div class="help-text">나눔을 진행할 지역을 선택해주세요</div>
                         </div>
                     </div>
@@ -191,14 +171,15 @@
                             <label class="form-label">카테고리 <span class="required">*</span></label>
                         </div>
                         <div class="form-input-section">
-                            <select class="form-select" th:field="*{categoryId}" id="category" required>
+                            <select class="form-select" th:field="*{category}" id="category" required>
                                 <option value="">카테고리를 선택해주세요</option>
                                 <!-- 서버에서 전달받은 카테고리 목록 출력 -->
-                                <option th:each="category : ${categories}"
-                                        th:value="${category.id}"
-                                        th:text="${category.name}">가구/인테리어</option>
+                                <option value="가구" th:selected="${sharingForm.category == '가구'}">가구</option>
+                                <option value="가전" th:selected="${sharingForm.category == '가전'}">가전</option>
+                                <option value="잡화" th:selected="${sharingForm.category == '잡화'}">잡화</option>
+                                <option value="기타" th:selected="${sharingForm.category == '기타'}">기타</option>
                             </select>
-                            <div class="error-message" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                            <div class="error-message" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
                         </div>
                     </div>
 
@@ -209,17 +190,17 @@
                         </div>
                         <div class="form-input-section">
                                 <textarea class="form-input form-textarea"
-                                          th:field="*{description}"
+                                          th:field="*{content}"
                                           id="description"
                                           placeholder="물품에 대한 자세한 설명을 적어주세요"
                                           required></textarea>
-                            <div class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                            <div class="error-message" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
                             <div class="help-text">물품의 상태, 사용 기간, 특이사항 등을 자세히 적어주시면 좋아요</div>
                         </div>
                     </div>
 
                     <!-- 거래 방법 선택 -->
-                    <div class="form-row">
+                    <!--<div class="form-row">
                         <div class="form-label-section">
                             <label class="form-label">거래 방법 <span class="required">*</span></label>
                         </div>
@@ -239,10 +220,10 @@
                             <div class="error-message" th:if="${#fields.hasErrors('tradeMethods')}" th:errors="*{tradeMethods}"></div>
                             <div class="help-text">가능한 거래 방법을 선택해주세요</div>
                         </div>
-                    </div>
+                    </div>-->
 
                     <!-- 연락처 정보 -->
-                    <div class="form-row">
+                    <!--<div class="form-row">
                         <div class="form-label-section">
                             <label class="form-label">연락처</label>
                         </div>
@@ -259,7 +240,7 @@
                             </div>
                             <div class="help-text">연락 받을 수 있는 연락처를 입력해주세요</div>
                         </div>
-                    </div>
+                    </div>-->
 
                     <!-- 사진 업로드 -->
                     <div class="form-row">
@@ -268,14 +249,14 @@
                         </div>
                         <div class="form-input-section">
                             <!-- 사진 업로드 영역 -->
-                            <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('imageInput').click()">
+                            <div class="image-upload-area" id="imageUploadArea">
                                 <div class="upload-icon">📷</div>
                                 <div class="upload-text">사진을 업로드하거나 여기를 클릭하세요</div>
                                 <div class="upload-hint">최대 5개까지 업로드 가능 (JPG, PNG)</div>
                             </div>
                             <!-- 실제 파일 입력 -->
-                            <input type="file" th:field="*{images}" id="imageInput" multiple accept="image/*" style="display: none;">
-                            <div class="error-message" th:if="${#fields.hasErrors('images')}" th:errors="*{images}"></div>
+                            <input type="file" th:field="*{imgList}" id="imageInput" multiple accept="image/*" name="imgFile" style="display: none;">
+                            <div class="error-message" th:if="${#fields.hasErrors('imgList')}" th:errors="*{imgList}"></div>
                             <!-- 업로드된 사진 미리보기 (JavaScript로 제어) -->
                             <div class="image-preview" id="imagePreview"></div>
                             <div class="help-text">물품 사진을 올려주시면 나눔 성공률이 높아져요</div>
@@ -291,67 +272,20 @@
             </div>
         </div>
     </section>
-</main>
-
-<!-- 하단 푸터 -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <!-- 회사 정보 -->
-            <div class="footer-section">
-                <div class="logo">
-                    <span class="logo-icon">🌱</span>
-                    <span class="logo-text">GreenCycle</span>
-                </div>
-                <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
-            </div>
-
-            <!-- 서비스 링크 -->
-            <div class="footer-section">
-                <h4>서비스</h4>
-                <ul>
-                    <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
-                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
-                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
-                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
-                </ul>
-            </div>
-
-            <!-- 회사 정보 링크 -->
-            <div class="footer-section">
-                <h4>회사정보</h4>
-                <ul>
-                    <li><a th:href="@{/about}">회사소개</a></li>
-                    <li><a th:href="@{/careers}">채용정보</a></li>
-                </ul>
-            </div>
-
-            <!-- 고객 지원 링크 -->
-            <div class="footer-section">
-                <h4>고객지원</h4>
-                <ul>
-                    <li><a th:href="@{/contact}">문의하기</a></li>
-                    <li><a th:href="@{/customer-service}">고객센터</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- 저작권 정보 -->
-        <div class="footer-bottom">
-            <p>&copy; 2025 GreenCycle. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+</div>
 
 <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
-<script th:src="@{/js/free-sharing-register.js}"></script>
+<th:block layout:fragment="script">
+    <script src="/js/free-sharing-register.js"></script>
+
+
 
 <!-- 폼 데이터를 JavaScript로 전달 -->
 <script th:inline="javascript">
     // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
-    var categoriesData = /*[[${categories}]]*/ [];
-    var regionsData = /*[[${regions}]]*/ [];
-    var currentUser = /*[[${session.user}]]*/ {};
+    var categoriesData = /*[[${sharingForm.category}]]*/ [];
+    var regionsData = /*[[${sharingForm.regionGu}]]*/ [];
+    var currentUser = /*[[${session.memberNickname}]]*/ {};
 
     // 전역 변수로 설정
     window.categoriesData = categoriesData;
@@ -368,15 +302,15 @@
             let stars = '';
 
             switch(selectedValue) {
-                case 'EXCELLENT':
+                case 'HIGH':
                     conditionText = '매우 좋음 - 거의 사용하지 않아 새 제품과 같은 상태';
                     stars = '⭐⭐⭐⭐⭐';
                     break;
-                case 'GOOD':
+                case 'MEDIUM':
                     conditionText = '보통 - 일반적인 사용감이 있지만 기능상 문제없음';
                     stars = '⭐⭐⭐';
                     break;
-                case 'FAIR':
+                case 'LOW':
                     conditionText = '사용감 있음 - 오래 사용하여 흔적이 있지만 사용 가능';
                     stars = '⭐⭐';
                     break;
@@ -393,34 +327,8 @@
         }
     });
 
-    // 지역 선택 변경시 하위 지역 로드
-    document.getElementById('region1').addEventListener('change', function() {
-        const region2Select = document.getElementById('region2');
-        const selectedRegion = this.value;
-
-        // 하위 지역 초기화
-        region2Select.innerHTML = '<option value="">구/군</option>';
-
-        if (selectedRegion) {
-            // 서버에서 하위 지역 데이터 로드
-            fetch(`/api/regions/${selectedRegion}/sub-regions`)
-                .then(response => response.json())
-                .then(subRegions => {
-                    subRegions.forEach(subRegion => {
-                        const option = document.createElement('option');
-                        option.value = subRegion.code;
-                        option.textContent = subRegion.name;
-                        region2Select.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading sub-regions:', error);
-                });
-        }
-    });
-
     // 이미지 업로드 처리
-    document.getElementById('imageInput').addEventListener('change', function(event) {
+    /*document.getElementById('imageInput').addEventListener('change', function(event) {
         const files = event.target.files;
         const imagePreview = document.getElementById('imagePreview');
 
@@ -449,7 +357,7 @@
                 reader.readAsDataURL(file);
             }
         });
-    });
+    });*/
 
     // 이미지 제거 함수
     function removeImage(index) {
@@ -467,5 +375,7 @@
         imageInput.dispatchEvent(changeEvent);
     }
 </script>
-</body>
+
+</th:block>
+
 </html>

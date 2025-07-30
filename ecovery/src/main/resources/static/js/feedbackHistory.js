@@ -66,6 +66,10 @@ function initializeNavigation() {
     
     // 스크롤 시 헤더 스타일 변경
     window.addEventListener('scroll', function() {
+        const header = document.querySelector('.admin-header');
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.admin-nav-menu');
+
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
@@ -115,7 +119,7 @@ function setupEventListeners() {
         });
         
         // 실시간 검색 (디바운스 적용)
-        searchInput.addEventListener('input', debounce(handleSearch, 300));
+        //searchInput.addEventListener('input', debounce(handleSearch, 300));
     }
     
     if (searchBtn) {
@@ -165,10 +169,10 @@ function setupEventListeners() {
 // 검색 기능
 // ====================================
 function handleSearch() {
-    const searchTerm = document.getElementById('search-input').value.trim();
-    console.log(`검색어: ${searchTerm}`);
-    
-    currentFilters.search = searchTerm;
+    currentFilters.keyword = document.getElementById('search-input').value.trim();
+    currentFilters.pageNum = 1; // 검색 시 첫 페이지로 이동
+    console.log(`검색어: ${currentFilters.keyword}`);
+
     applyFiltersAndReload();
 }
 
@@ -184,15 +188,11 @@ function applyFilters() {
     console.log('필터 적용 중...');
     
     // 현재 선택된 필터 값들 수집
-    const regionFilter = document.getElementById('region-filter');
-    const categoryFilter = document.getElementById('category-filter');
-    const accuracyFilter = document.getElementById('accuracy-filter');
-    const dateFilter = document.getElementById('date-filter');
-    
-    currentFilters.region = regionFilter ? regionFilter.value : '';
-    currentFilters.category = categoryFilter ? categoryFilter.value : '';
-    currentFilters.accuracy = accuracyFilter ? accuracyFilter.value : '';
-    currentFilters.dateRange = dateFilter ? dateFilter.value : '';
+    currentFilters.region = document.getElementById('region-filter').value;
+    currentFilters.category = document.getElementById('category-filter').value;
+    currentFilters.accuracy = document.getElementById('accuracy-filter').value;
+    currentFilters.dateRange = document.getElementById('date-filter').value;
+    currentFilters.pageNum = 1; // 필터 적용 시 첫 페이지로 이동
     
     applyFiltersAndReload();
 }
@@ -201,17 +201,11 @@ function resetFilters() {
     console.log('필터 초기화');
     
     // 모든 필터 입력값 초기화
-    const searchInput = document.getElementById('search-input');
-    const regionFilter = document.getElementById('region-filter');
-    const categoryFilter = document.getElementById('category-filter');
-    const accuracyFilter = document.getElementById('accuracy-filter');
-    const dateFilter = document.getElementById('date-filter');
-    
-    if (searchInput) searchInput.value = '';
-    if (regionFilter) regionFilter.value = '';
-    if (categoryFilter) categoryFilter.value = '';
-    if (accuracyFilter) accuracyFilter.value = '';
-    if (dateFilter) dateFilter.value = '';
+    document.getElementById('search-input').value = '';
+    document.getElementById('region-filter').value = '';
+    document.getElementById('category-filter').value = '';
+    document.getElementById('accuracy-filter').value = '';
+    document.getElementById('date-filter').value = '';
     
     // 필터 상태 초기화
     currentFilters = {
@@ -220,7 +214,8 @@ function resetFilters() {
         category: '',
         accuracy: '',
         dateRange: '',
-        pageSize: currentFilters.pageSize
+        pageSize: currentFilters.pageSize,
+        pageNum: 1 // 초기화 시 첫 페이지로
     };
     
     applyFiltersAndReload();
@@ -229,19 +224,32 @@ function resetFilters() {
 function applyFiltersAndReload() {
     // 서버에 필터링된 데이터 요청
     const params = new URLSearchParams();
-    
-    if (currentFilters.search) params.append('search', currentFilters.search);
-    if (currentFilters.region) params.append('region', currentFilters.region);
-    if (currentFilters.category) params.append('category', currentFilters.category);
-    if (currentFilters.accuracy) params.append('accuracy', currentFilters.accuracy);
+
+    // 닉네임 검색어는 'keyword' 파라미터로 보냄 (Criteria의 keyword 필드와 매핑)
+    if (currentFilters.keyword) {
+        params.append('keyword', currentFilters.keyword);
+        params.append('type', 'N'); // 'N'은 닉네임 검색을 의미한다고 가정 (Mybatis에서 해석)
+    } else {
+        params.append('type', ''); // keyword가 없으면 type도 초기화 (아니면 null로 보냄)
+    }
+
+    // 각 필터는 별도의 파라미터 이름으로 보냄
+    // 이 파라미터들은 Criteria DTO의 필드와 직접 매핑되지 않더라도,
+    // Mybatis XML 매퍼에서 직접 참조하여 사용 가능하도록 구성합니다.
+    if (currentFilters.region) params.append('regionGu', currentFilters.region);
+    if (currentFilters.category) params.append('aiPrediction', currentFilters.category);
+    if (currentFilters.accuracy) params.append('aiConfidenceRange', currentFilters.accuracy);
     if (currentFilters.dateRange) params.append('dateRange', currentFilters.dateRange);
-    if (currentFilters.pageSize) params.append('size', currentFilters.pageSize);
-    if (currentSort.column) params.append('sort', currentSort.column + ',' + currentSort.direction);
-    
-    // 첫 페이지로 이동
-    params.append('page', '1');
-    
-    // 페이지 새로고침
+
+
+    params.append('pageNum', currentFilters.pageNum); // 현재 페이지 번호 유지
+    params.append('amount', currentFilters.pageSize); // 페이지 사이즈 유지
+
+    // 정렬 상태가 있으면
+    if (currentSort.column) {
+        params.append('sort', currentSort.column + ',' + currentSort.direction);
+    }
+
     const newUrl = window.location.pathname + '?' + params.toString();
     window.location.href = newUrl;
 }
@@ -251,51 +259,52 @@ function applyFiltersAndReload() {
 // ====================================
 function loadFiltersFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // URL 파라미터에서 필터 값 읽기
-    const searchParam = urlParams.get('search') || '';
-    const regionParam = urlParams.get('region') || '';
-    const categoryParam = urlParams.get('category') || '';
-    const accuracyParam = urlParams.get('accuracy') || '';
-    const dateRangeParam = urlParams.get('dateRange') || '';
-    const sizeParam = urlParams.get('size') || '10';
+
+    // Criteria DTO의 'keyword'와 'type'을 이용한 닉네임 검색어 로드
+    // URL에서 type이 'N'일 경우에만 keyword를 닉네임 검색어로 간주
+    if (urlParams.get('type') === 'N') {
+        currentFilters.keyword = urlParams.get('keyword') || '';
+    } else {
+        currentFilters.keyword = ''; // type이 N이 아니면 닉네임 검색어는 없다고 간주
+    }
+
+
+    // 각 필터 파라미터 로드
+    currentFilters.region = urlParams.get('regionGu') || '';
+    currentFilters.category = urlParams.get('aiPrediction') || '';
+    currentFilters.accuracy = urlParams.get('aiConfidenceRange') || '';
+    currentFilters.dateRange = urlParams.get('dateRange') || '';
+
+    currentFilters.pageNum = parseInt(urlParams.get('pageNum') || '1');
+    currentFilters.pageSize = parseInt(urlParams.get('amount') || '10');
+
+    // UI에 값 반영
+    document.getElementById('search-input').value = currentFilters.keyword;
+    document.getElementById('region-filter').value = currentFilters.region;
+    document.getElementById('category-filter').value = currentFilters.category;
+    document.getElementById('accuracy-filter').value = currentFilters.accuracy;
+    document.getElementById('date-filter').value = currentFilters.dateRange;
+
+    const pageSizeSelect = document.getElementById('page-size');
+    if (pageSizeSelect) pageSizeSelect.value = currentFilters.pageSize;
+
+
+    // 정렬 상태 로드
     const sortParam = urlParams.get('sort') || '';
-    
-    // 필터 상태 업데이트
-    currentFilters = {
-        search: searchParam,
-        region: regionParam,
-        category: categoryParam,
-        accuracy: accuracyParam,
-        dateRange: dateRangeParam,
-        pageSize: parseInt(sizeParam)
-    };
-    
-    // 정렬 상태 업데이트
     if (sortParam) {
         const [column, direction] = sortParam.split(',');
         currentSort = {
-            column: column,
-            direction: direction || 'asc'
+            column: column || 'date', // 기본 정렬 컬럼
+            direction: direction || 'desc' // 기본 정렬 방향
+        };
+    } else {
+        currentSort = {
+            column: 'date', // 기본값
+            direction: 'desc' // 기본값
         };
     }
-    
-    // 폼 요소에 값 설정
-    const searchInput = document.getElementById('search-input');
-    const regionFilter = document.getElementById('region-filter');
-    const categoryFilter = document.getElementById('category-filter');
-    const accuracyFilter = document.getElementById('accuracy-filter');
-    const dateFilter = document.getElementById('date-filter');
-    const pageSizeSelect = document.getElementById('page-size');
-    
-    if (searchInput) searchInput.value = searchParam;
-    if (regionFilter) regionFilter.value = regionParam;
-    if (categoryFilter) categoryFilter.value = categoryParam;
-    if (accuracyFilter) accuracyFilter.value = accuracyParam;
-    if (dateFilter) dateFilter.value = dateRangeParam;
-    if (pageSizeSelect) pageSizeSelect.value = sizeParam;
-    
-    console.log('URL에서 필터 파라미터를 로드했습니다:', currentFilters);
+
+    console.log('필터 파라미터를 URL에서 불러왔습니다:', currentFilters);
 }
 
 // ====================================

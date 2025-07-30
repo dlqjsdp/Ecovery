@@ -31,20 +31,20 @@
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
                     <li><a th:href="@{/admin/main}">대시보드</a></li>
-                    <li><a th:href="@{/admin/member}" class="active">회원 관리</a></li>
-                    <li><a th:href="@{/admin/services}">서비스 관리</a></li>
-                    <li><a th:href="@{/admin/statistics}">통계 관리</a></li>
-                    <li><a th:href="@{/admin/settings}">설정</a></li>
+                    <li><a th:href="@{/disposal/history}">분리 배출</a></li>
+                    <li><a th:href="@{/feedback/history}">오류 신고</a></li>
+                    <li><a th:href="@{/admin/member}">회원 관리</a></li>
+                    <li><a th:href="@{/env/list}">환경톡톡</a></li>
+                    <li><a th:href="@{/notice/list}">공지사항</a></li>
                 </ul>
 
                 <!-- 관리자 프로필 -->
-                <!--<div class="admin-profile">
-                    <span class="admin-name" th:text="${adminName}">관리자님</span>
-                    <div class="admin-avatar">👨‍💼</div>
-                    <form th:action="@{/admin/logout}" method="post" style="display: inline;">
-                        <button type="submit" class="logout-btn">로그아웃</button>
-                    </form>
-                </div>-->
+                <div class="auth-buttons">
+                    <div class="admin-info">
+                        <span th:text="'관리자 ' + ${session.memberNickname} + '님'">관리자님</span>
+                        <a th:href="@{/member/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
@@ -59,10 +59,10 @@
                 <div class="menu-group">
                     <h3>회원 관리</h3>
                     <ul>
-                        <li><a th:href="@{/admin/members}" class="active">전체 회원</a></li>
-                        <li><a th:href="@{/admin/members(filter=new)}">신규 회원</a></li>
-                        <li><a th:href="@{/admin/members(filter=active)}">활성 회원</a></li>
-                        <li><a th:href="@{/admin/members(filter=inactive)}">비활성 회원</a></li>
+                        <li><a th:href="@{/admin/member}" class="active">전체 회원</a></li>
+                        <li><a th:href="@{/admin/member(filter=new)}">신규 회원</a></li>
+                        <li><a th:href="@{/admin/member(filter=active)}">활성 회원</a></li>
+                        <li><a th:href="@{/admin/member(filter=inactive)}">비활성 회원</a></li>
                     </ul>
                 </div>
             </div>
@@ -80,25 +80,25 @@
                 <div class="stat-card">
                     <div class="stat-icon">👥</div>
                     <div class="stat-info">
-                        <div class="stat-number" th:text="${#numbers.formatInteger(memberStats.totalMembers, 0, 'COMMA')}">15,247</div>
+                        <div class="stat-number" th:text="${#numbers.formatInteger(memberPage.getTotal(), 0, 'COMMA')}">15,247</div>
                         <div class="stat-label">전체 회원</div>
-                        <div class="stat-change positive" th:text="'+' + ${memberStats.totalMembersGrowth} + '%'">+12.5%</div>
+                        <!--<div class="stat-change positive" th:text="'+' + ${memberStats.totalMembersGrowth} + '%'">+12.5%</div>-->
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🆕</div>
                     <div class="stat-info">
-                        <div class="stat-number" th:text="${#numbers.formatInteger(memberStats.newMembersThisMonth, 0, 'COMMA')}">1,234</div>
+                        <div class="stat-number" th:text="${#numbers.formatInteger(memberPage.getTotal(), 0, 'COMMA')}">1,234</div>
                         <div class="stat-label">신규 회원 (이번 달)</div>
-                        <div class="stat-change positive" th:text="'+' + ${memberStats.newMembersGrowth} + '%'">+8.7%</div>
+                        <!--<div class="stat-change positive" th:text="'+' + ${memberStats.newMembersGrowth} + '%'">+8.7%</div>-->
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">⚡</div>
                     <div class="stat-info">
-                        <div class="stat-number" th:text="${#numbers.formatInteger(memberStats.activeMembers, 0, 'COMMA')}">8,956</div>
+                        <div class="stat-number" th:text="${#numbers.formatInteger(memberPage.getTotal(), 0, 'COMMA')}">8,956</div>
                         <div class="stat-label">활성 회원</div>
-                        <div class="stat-change positive" th:text="'+' + ${memberStats.activeMembersGrowth} + '%'">+5.2%</div>
+                        <!--<div class="stat-change positive" th:text="'+' + ${memberStats.activeMembersGrowth} + '%'">+5.2%</div>-->
                     </div>
                 </div>
                 <div class="stat-card">
@@ -106,47 +106,44 @@
                     <div class="stat-info">
                         <div class="stat-number" th:text="'₩' + ${#numbers.formatInteger(memberStats.totalTransactionAmount, 0, 'COMMA')}">₩2,847,392</div>
                         <div class="stat-label">총 거래액</div>
-                        <div class="stat-change positive" th:text="'+' + ${memberStats.transactionGrowth} + '%'">+15.3%</div>
+                        <!--<div class="stat-change positive" th:text="'+' + ${memberStats.transactionGrowth} + '%'">+15.3%</div>-->
                     </div>
                 </div>
             </div>
 
             <!-- 검색 및 필터 영역 -->
             <div class="search-filter-section">
-                <form th:action="@{/admin/members}" method="get" id="searchForm">
+                <form th:action="@{/admin/member}" method="get" id="searchForm">
                     <div class="search-box">
-                        <input type="text" id="memberSearch" name="search" 
+                        <input type="text" id="memberSearch" name="keyword"
                                th:value="${memberPage.cri.keyword}"
-                               placeholder="회원명, 이메일, 닉네임으로 검색...">
+                               placeholder="이메일 또는 닉네임으로 검색...">
                         <button type="submit" class="search-btn">🔍</button>
                     </div>
                     <div class="filter-options">
                         <!-- 회원 구분 필터 -->
-                        <select id="typeFilter" name="type" th:field="${memberPage.cri.type}">
+                        <!--<select id="typeFilter" name="type" th:field="${memberPage.cri.type}">
                             <option value="">회원 구분</option>
                             <option value="individual">개인</option>
                             <option value="business">기업</option>
                             <option value="organization">단체</option>
-                        </select>
+                        </select>-->
                         
                         <!-- 권한 등급 필터 -->
-                        <select id="roleFilter" name="role" th:field="${memberPage.cri.type}">
-                            <option value="">권한 등급</option>
-                            <option value="USER">새싹</option>
-                            <option value="ADMIN">일반회원</option>
-                            <option value="EXCELLENT">우수회원</option>
-                            <option value="VIP">VIP회원</option>
+                        <select id="roleFilter" name="role">
+                            <option value="" th:selected="${memberPage.cri.role == null or memberPage.cri.role == ''}">권한 등급</option>
+                            <option value="USER" th:selected="${memberPage.cri.role == 'USER'}">일반회원</option>
+                            <option value="ADMIN" th:selected="${memberPage.cri.role == 'ADMIN'}">관리자</option>
+                        </select>
+
+                        <select id="providerFilter" name="provider">
+                            <option value="" th:selected="${memberPage.cri.provider == null or memberPage.cri.provider == ''}">로그인 종류</option>
+                            <option value="local" th:selected="${memberPage.cri.provider == 'local'}">일반</option>
+                            <option value="kakao" th:selected="${memberPage.cri.provider == 'kakao'}">카카오</option>
+                            <option value="google" th:selected="${memberPage.cri.provider == 'google'}">구글</option>
                         </select>
                         
-                        <!-- 상태 필터 -->
-                        <select id="statusFilter" name="status" th:field="${memberPage.cri.type}">
-                            <option value="">전체 상태</option>
-                            <option value="active">활성</option>
-                            <option value="inactive">비활성</option>
-                            <option value="suspended">정지</option>
-                        </select>
-                        
-                        <a th:href="@{/admin/members}" class="filter-reset">🔄 초기화</a>
+                        <a th:href="@{/admin/member}" class="filter-reset">🔄 초기화</a>
                     </div>
                 </form>
             </div>
@@ -156,18 +153,21 @@
                 <div class="table-header">
                     <h2>회원 목록</h2>
                     <div class="table-controls">
-                        <form th:action="@{/admin/members}" method="get" style="display: inline;">
-                            <input type="hidden" name="search" th:value="${memberPage.cri.keyword}">
-                            <input type="hidden" name="type" th:value="${memberPage.cri.type}">
-                            <input type="hidden" name="amount" th:value="${memberPage.cri.amount}">
-                            <input type="hidden" name="status" th:value="${memberPage.cri.pageNum}">
-                            <select name="size" onchange="this.form.submit()" th:field="${memberPage.cri.amount}">
-                                <option value="10">10개씩 보기</option>
-                                <option value="25">25개씩 보기</option>
-                                <option value="50">50개씩 보기</option>
-                                <option value="100">100개씩 보기</option>
+                        <form id="pageSizeForm" th:action="@{/admin/member}" method="get" style="display: inline;">
+                            <!-- 기존 검색/필터 조건을 유지하려면 아래 숨겨진 input들을 같이 둡니다 -->
+                            <input type="hidden" name="keyword" th:value="${memberPage.cri.keyword}" />
+                            <input type="hidden" name="type" th:value="${memberPage.cri.type}" />
+                            <input type="hidden" name="role" th:value="${memberPage.cri.role}" />
+                            <input type="hidden" name="provider" th:value="${memberPage.cri.provider}" />
+                            <input type="hidden" name="pageNum" value="1" /> <!-- 페이지 사이즈 바꾸면 페이지 1로 초기화 권장 -->
+                            <select name="amount" th:value="${memberPage.cri.amount}" onchange="document.getElementById('pageSizeForm').submit()">
+                                <option value="10" th:selected="${memberPage.cri.amount == 10}">10개씩 보기</option>
+                                <option value="25" th:selected="${memberPage.cri.amount == 25}">25개씩 보기</option>
+                                <option value="50" th:selected="${memberPage.cri.amount == 50}">50개씩 보기</option>
+                                <option value="100" th:selected="${memberPage.cri.amount == 100}">100개씩 보기</option>
                             </select>
                         </form>
+
                     </div>
                 </div>
 
@@ -177,27 +177,27 @@
                             <tr>
                                 <th><input type="checkbox" id="selectAll"></th>
                                 <th class="sortable" data-sort="id">
-                                    <a th:href="@{/admin/members(search=${memberPage.cri.keyword}, sort='id', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/member(search=${memberPage.cri.keyword}, sort='id', size=${memberPage.cri.amount})}">
                                         회원ID
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="name">
-                                    <a th:href="@{/admin/members(keyword=${memberPage.cri.keyword}, sort='name', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/member(keyword=${memberPage.cri.keyword}, sort='name', size=${memberPage.cri.amount})}">
                                         이름/닉네임
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="email">
-                                    <a th:href="@{/admin/members(keyword=${memberPage.cri.keyword}, sort='email', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/member(keyword=${memberPage.cri.keyword}, sort='email', size=${memberPage.cri.amount})}">
                                         이메일
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="role">
-                                    <a th:href="@{/admin/members(keyword=${memberPage.cri.keyword}, sort='role', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/member(keyword=${memberPage.cri.keyword}, sort='role', size=${memberPage.cri.amount})}">
                                         권한등급
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="joinDate">
-                                    <a th:href="@{/admin/members(keyword=${memberPage.cri.keyword}, sort='joinDate', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/member(keyword=${memberPage.cri.keyword}, sort='joinDate', size=${memberPage.cri.amount})}">
                                         가입일
                                     </a>
                                 </th>
@@ -230,7 +230,7 @@
                                 </td>
                                 <td th:text="${#dates.format(member.createdAt, 'yyyy-MM-dd')}">2024-01-15</td>
                                 <td>
-                                    <span class="status-badge" >활성</span>
+                                    <span class="status-badge" th:text="${member.provider}">활성</span>
                                           <!--th:classappend="${#strings.toLowerCase(member.status)}"
                                           th:text="${T(com.greencycle.util.StatusUtil).getStatusDisplayName(member.status)}">활성</span>-->
                                 </td>
@@ -253,19 +253,40 @@
                     <div class="pagination" id="pagination">
                         <!-- 이전 버튼 -->
                         <a th:if="${memberPage.isPrev()}"
-                           th:href="@{/admin/member(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, pageNum=${memberPage.startPage - 1})}"
+                           th:href="@{/admin/member (
+                                    pageNum=${memberPage.startPage - 1},
+                                    amount=${memberPage.cri.amount},
+                                    type=${memberPage.cri.type},
+                                    keyword=${memberPage.cri.keyword},
+                                    role=${param.role},
+                                    provider=${param.provider}
+                                    )}"
                            class="page-btn">◀ 이전</a>
                         <span th:unless="${memberPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
                         
                         <!-- 페이지 번호들 -->
                         <a th:each="num : ${#numbers.sequence(memberPage.startPage, memberPage.endPage)}"
-                           th:href="@{/admin/member(pageNum=${num}, search=${memberPage.cri.keyword}, size=${memberPage.cri.amount})}"
+                           th:href="@{/admin/member (
+                                    pageNum=${num},
+                                    amount=${memberPage.cri.amount},
+                                    type=${memberPage.cri.type},
+                                    keyword=${memberPage.cri.keyword},
+                                    role=${param.role},
+                                    provider=${param.provider}
+                                    )}"
                            th:text="${num}"
                            th:class="${memberPage.cri.pageNum == num} ? 'page-link active' : 'page-link'">1</a>
 
                         <!-- 다음 버튼 -->
                         <a th:if="${memberPage.isNext()}"
-                           th:href="@{/admin/member(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, pageNum=${memberPage.endPage + 1})}"
+                           th:href="@{/admin/member (
+                                    pageNum=${memberPage.endPage + 1},
+                                    amount=${memberPage.cri.amount},
+                                    type=${memberPage.cri.type},
+                                    keyword=${memberPage.cri.keyword},
+                                    role=${param.role},
+                                    provider=${param.provider}
+                                    )}"
                            class="page-btn">다음 ▶</a>
                         <span th:unless="${memberPage.isNext()}" class="page-btn disabled">다음 ▶</span>
                     </div>
