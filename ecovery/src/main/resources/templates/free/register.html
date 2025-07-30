@@ -274,6 +274,7 @@
     </section>
 </div>
 
+
 <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
 <th:block layout:fragment="script">
     <script src="/js/free-sharing-register.js"></script>
@@ -317,11 +318,13 @@
                 }
 
                 conditionPreview.innerHTML = `
+
                     <div style="padding: 10px; background: #f5f5f5; border-radius: 5px; margin-top: 10px;">
                         <span style="font-size: 16px;">${stars}</span>
                         <span style="margin-left: 10px; color: #666;">${conditionText}</span>
                     </div>
                 `;
+
             } else {
                 conditionPreview.innerHTML = '';
             }
@@ -340,6 +343,7 @@
                 this.value = '';
                 return;
             }
+
 
             // 이미지 미리보기 생성
             Array.from(files).forEach((file, index) => {

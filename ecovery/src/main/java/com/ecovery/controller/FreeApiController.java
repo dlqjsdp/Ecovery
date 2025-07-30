@@ -97,7 +97,7 @@ public class FreeApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
         }
         Long memberId = member.getMemberId();
-        freeDto.setMemberId(memberId);
+
         freeDto.setMemberId(memberId);
 
         // 게시글 등록 시도 (서비스 호출)

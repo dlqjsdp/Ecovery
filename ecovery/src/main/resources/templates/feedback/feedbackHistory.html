@@ -4,7 +4,7 @@
     <!-- 기본 메타 정보 설정 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>분리배출 내역 관리 - GreenCycle</title>
+    <title>분리배출 내역 관리 - Ecovery</title>
     
     <!-- 외부 스타일시트 및 폰트 연결 - Thymeleaf 정적 리소스 경로 -->
     <link rel="stylesheet" th:href="@{/css/feedbackHistory.css}">
@@ -20,18 +20,17 @@
     <!-- ========================================
          헤더 네비게이션 섹션
     ======================================== -->
-    <header class="header" id="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                 <!-- 로고 - Thymeleaf URL 처리 -->
+    <header class="admin-header">
+        <nav class="admin-navbar">
+            <div class="admin-nav-container">
+                <!-- 관리자 로고 -->
                 <div class="admin-logo">
                     <a th:href="@{/main}" class="logo" onclick="goHome()">
                         <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
                     </a>
                     <span class="admin-badge">ADMIN</span>
                 </div>
-                
-                <!-- 네비게이션 메뉴 -->
+
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
                     <li><a th:href="@{/admin/main}">대시보드</a></li>
@@ -46,10 +45,10 @@
                 <div class="auth-buttons">
                     <div class="admin-info">
                         <span th:text="'관리자 ' + ${session.memberNickname} + '님'">관리자님</span>
-                        <a th:href="@{/admin/logout}" class="btn-logout">로그아웃</a>
+                        <a th:href="@{/member/logout}" class="btn-logout">로그아웃</a>
                     </div>
                 </div>
-                
+
                 <!-- 모바일 햄버거 메뉴 -->
                 <div class="hamburger" id="hamburger">
                     <span></span>
@@ -88,13 +87,13 @@
                             <div class="stat-label">총 처리 건수</div>
                         </div>
                     </div>
-                    <!--<div class="stat-card">
+                    <div class="stat-card">
                         <div class="stat-icon">🎯</div>
                         <div class="stat-info">
-                            <div class="stat-number" th:text="${accuracyRate} + '%'">94.2%</div>
+                            <div class="stat-number" th:text="${avgAiConfidence} + '%'">94.2%</div>
                             <div class="stat-label">AI 분류 정확도</div>
                         </div>
-                    </div>-->
+                    </div>
                     <div class="stat-card">
                         <div class="stat-icon">⚡</div>
                         <div class="stat-info">
@@ -120,7 +119,7 @@
                     <!-- 검색창 -->
                     <div class="search-container">
                         <div class="search-input-wrapper">
-                            <input type="text" id="search-input" placeholder="회원 닉네임으로 검색..." class="search-input">
+                            <input type="text" name="keyword" id="search-input" th:value="${feedbackHistoryPage.cri.keyword}" placeholder="회원 닉네임으로 검색..." class="search-input">
                             <button id="search-btn" class="search-btn">🔍</button>
                         </div>
                     </div>
@@ -224,7 +223,7 @@
                                 (필터링된 결과: <span id="filtered-items" th:text="${#numbers.formatInteger(feedbackHistoryPage.getTotal(), 3, 'COMMA')}">89</span>건)
                             </span>
                         </div>
-                        <div class="table-actions">
+                        <div class="table-actions" name="amount">
                             <select id="page-size" class="page-size-select">
                                 <option value="10">10개씩 보기</option>
                                 <option value="20">20개씩 보기</option>
@@ -359,51 +358,60 @@
                 </div>
 
                 <!-- 페이지네이션 -->
-                <div class="pagination-container" th:if="${feedbackHistoryPage.getTotal() > 1}">
-                    <div class="pagination">
-                        <!-- 첫 페이지 -->
-                        <a th:href="@{/feedback/history(page=1, size=${feedbackHistoryPage.cri.amount})}"
-                           class="page-btn" 
-                           th:classappend="${feedbackHistoryPage == 1 ? 'disabled' : ''}">
-                            첫 페이지
-                        </a>
-                        
-                        <!-- 이전 페이지 -->
-                        <a th:href="@{/feedback/history(page=${feedbackHistoryPage.startPage - 1}, size=${feedbackHistoryPage.cri.amount})}"
-                           class="page-btn" 
-                           th:classappend="${feedbackHistoryPage == 1 ? 'disabled' : ''}">
-                            이전
-                        </a>
-                        
+                <div class="pagination-container">
+                    <div class="pagination" id="pagination">
+                        <!-- 이전 버튼 -->
+                        <a th:if="${feedbackHistoryPage.isPrev()}"
+                           th:href="@{/feedback/history(
+                                      pageNum=${feedbackHistoryPage.startPage - 1}s,
+                                      amount=${feedbackHistoryPage.cri.amount},
+                                      type=${feedbackHistoryPage.cri.type},
+                                      keyword=${feedbackHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           class="page-btn">◀ 이전</a>
+                        <span th:unless="${feedbackHistoryPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
+
                         <!-- 페이지 번호들 -->
-                        <div class="page-numbers">
-                            <a th:each="pageNum : ${#numbers.sequence(feedbackHistoryPage.startPage, feedbackHistoryPage.endPage)}"
-                               th:href="@{/feedback/history(page=${feedbackHistoryPage.cri.pageNum}, size=${feedbackHistoryPage.cri.amount})}"
-                               th:text="${pageNum}"
-                               class="page-number"
-                               th:classappend="${pageNum == feedbackHistoryPage.cri.pageNum ? 'active' : ''}">1</a>
-                        </div>
-                        
-                        <!-- 다음 페이지 -->
-                        <a th:href="@{/feedback/history(page=${feedbackHistoryPage.endPage + 1}, size=${feedbackHistoryPage.cri.amount})}"
-                           class="page-btn"
-                           th:classappend="${feedbackHistoryPage.cri.pageNum == feedbackHistoryPage.getTotal() ? 'disabled' : ''}">
-                            다음
-                        </a>
-                        
-                        <!-- 마지막 페이지 -->
-                        <a th:href="@{/feedback/history(page=${feedbackHistoryPage.endPage}, size=${feedbackHistoryPage.cri.amount})}"
-                           class="page-btn"
-                           th:classappend="${feedbackHistoryPage.cri.pageNum == feedbackHistoryPage.getTotal() ? 'disabled' : ''}">
-                            마지막
-                        </a>
+                        <a class="page-number"
+                           th:each="num : ${#numbers.sequence(feedbackHistoryPage.startPage, feedbackHistoryPage.endPage)}"
+                           th:classappend="${feedbackHistoryPage.cri.pageNum == num} ? 'active' : ''"
+                           th:href="@{/feedback/history(
+                                      pageNum=${num},
+                                      amount=${feedbackHistoryPage.cri.amount},
+                                      type=${feedbackHistoryPage.cri.type},
+                                      keyword=${feedbackHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           th:text="${num}">1</a>
+
+                        <!-- 다음 버튼 -->
+                        <a th:if="${feedbackHistoryPage.isNext()}"
+                           th:href="@{/feedback/history(
+                                      pageNum=${feedbackHistoryPage.endPage + 1},
+                                      amount=${feedbackHistoryPage.cri.amount},
+                                      type=${feedbackHistoryPage.cri.type},
+                                      keyword=${feedbackHistoryPage.cri.keyword},
+                                      regionGu=${param.regionGu},
+                                      aiPrediction=${param.aiPrediction},
+                                      aiConfidenceRange=${param.aiConfidenceRange},
+                                      dateRange=${param.dateRange}
+                                    )}"
+                           class="page-btn">다음 ▶</a>
+                        <span th:unless="${feedbackHistoryPage.isNext()}" class="page-btn disabled">다음 ▶</span>
                     </div>
 
                     <!-- 페이지 정보 -->
-                    <!--<div class="page-info">
-                        <span>페이지 <span th:text="${feedbackHistoryPage.getTotal()}">1</span> / <span th:text="${totalPages}">10</span></span>
-                        <span>총 <span th:text="${#numbers.formatInteger(totalElements, 3, 'COMMA')}">1,247</span>개 항목</span>
-                    </div>-->
+                    <div class="page-info">
+                        <span>페이지 <span th:text="${feedbackHistoryPage.cri.pageNum}">1</span> / <span th:text="${feedbackHistoryPage.getEndPage()}">10</span></span>
+                        <span>총 <span th:text="${#numbers.formatInteger(feedbackHistoryPage.getTotal(), 3, 'COMMA')}">1,247</span>개 항목</span>
+                    </div>
                 </div>
             </div>
         </section>

@@ -24,26 +24,25 @@
                m.nickname as nickname,
                m.role as role
         from disposal_history h
-        left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
-        left join disposal_info i on h.region_gu = i.region and h.final_item = i.item_name
-        left join member m on h.member_id = m.member_id
+                 left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
+                 left join disposal_info i on h.region_gu = i.region and h.final_item = i.item_name
+                 left join member m on h.member_id = m.member_id
         where h.disposal_history_id = #{disposalHistoryId}
     </select>
 
     <select id="findAllDisposalHistory" resultType="com.ecovery.dto.DisposalHistoryDto">
         select h.disposal_history_id as disposalHistoryId, h.member_id as memberId,
-               h.ai_prediction as aiPrediction, h.region_gu as regionGu,
-               h.final_item as finalItem, h.created_at as createdAt,
-               h.ai_confidence as aiConfidence,
-               img.disposal_img_url as disposalImgUrl,
-               m.nickname as nickname,
-               m.role as role
+        h.ai_prediction as aiPrediction, h.region_gu as regionGu,
+        h.final_item as finalItem, h.created_at as createdAt,
+        h.ai_confidence as aiConfidence,
+        img.disposal_img_url as disposalImgUrl,
+        m.nickname as nickname,
+        m.role as role
         from disposal_history h
         left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
         left join member m on h.member_id = m.member_id
-        <include refid="criteria"/>
-        where h.disposal_history_id > 0
-        order by h.created_at desc
+        <include refid="dynamicConditions"/>
+        order by h.disposal_history_id desc
         LIMIT #{amount} OFFSET #{offset}
     </select>
 
@@ -57,8 +56,8 @@
                m.role as role
         from
             disposal_history h
-        left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
-        left join member m on h.member_id = m.member_id
+                left join disposal_history_img img on h.disposal_history_id = img.disposal_history_id
+                left join member m on h.member_id = m.member_id
         where
             h.member_id = #{memberId}
         order by h.created_at desc
@@ -72,7 +71,7 @@
     </update>
 
     <!-- 검색 조건(제목, 내용, 지역(구,동) -->
-    <sql id="criteria">
+    <sql id="dynamicConditions">
         <where>
             <!-- 항상 참인 기본 조건을 맨 앞에 둡니다. -->
             h.disposal_history_id > 0
@@ -133,9 +132,7 @@
         SELECT COUNT(*)
         FROM disposal_history h
         LEFT JOIN member m ON h.member_id = m.member_id
-                <include refid="criteria"/>
-        where disposal_history_id > 0
-
+        <include refid="dynamicConditions"/>
     </select>
 
 
