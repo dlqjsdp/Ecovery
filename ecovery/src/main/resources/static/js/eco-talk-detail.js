@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // 페이지 기능 초기화
 function initializeDetailPage() {
     console.log('📄 환경톡톡 상세페이지가 로드되었습니다.');
-    
+
     // 기본 초기화
     initializePage();
-    
+
     // 상세페이지 전용 기능들
     initScrollTopButton();
     setupKeyboardShortcuts();
-    
+
     // 댓글 폼 이벤트 리스너
     const commentForm = document.querySelector('.comment-form');
     if (commentForm) {
@@ -39,7 +39,7 @@ function initializeDetailPage() {
             }
         });
     }
-    
+
     // 외부 링크 새 창에서 열기
     document.querySelectorAll('.post-article-content a[href^="http"]').forEach(link => {
         if (!link.hostname || link.hostname !== window.location.hostname) {
@@ -47,7 +47,7 @@ function initializeDetailPage() {
             link.rel = 'noopener noreferrer';
         }
     });
-    
+
     console.log('✅ 환경톡톡 상세페이지 초기화 완료');
 }
 
@@ -78,7 +78,7 @@ function initializePage() {
 function toggleMobileMenu() {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
-    
+
     // 햄버거 아이콘 애니메이션
     const spans = hamburger.querySelectorAll('span');
     if (hamburger.classList.contains('active')) {
@@ -97,7 +97,7 @@ function closeMobileMenu() {
     if (hamburger && navMenu) {
         hamburger.classList.remove('active');
         navMenu.classList.remove('active');
-        
+
         // 햄버거 아이콘 원상복구
         const spans = hamburger.querySelectorAll('span');
         spans[0].style.transform = 'none';
@@ -144,19 +144,19 @@ function showNotification(message, type = 'info') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     // 알림 표시 애니메이션
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
-    
+
     // 3초 후 알림 자동 숨김
     setTimeout(() => {
         notification.classList.remove('show');
@@ -182,7 +182,7 @@ function initScrollTopButton() {
         scrollTopBtn.onclick = scrollToTop;
         document.body.appendChild(scrollTopBtn);
     }
-    
+
     // 스크롤 이벤트 리스너
     window.addEventListener('scroll', toggleScrollTopButton);
 }
@@ -216,7 +216,7 @@ function sharePost(postId, title) {
         text: 'GreenCycle 환경톡톡에서 환경 이야기를 확인해보세요!',
         url: window.location.href
     };
-    
+
     if (navigator.share) {
         navigator.share(shareData)
             .then(() => {
@@ -236,7 +236,7 @@ function sharePost(postId, title) {
 function fallbackShare() {
     const shareModal = createShareModal();
     document.body.appendChild(shareModal);
-    
+
     // 모달 표시 애니메이션
     setTimeout(() => {
         shareModal.classList.add('show');
@@ -272,14 +272,14 @@ function createShareModal() {
             </div>
         </div>
     `;
-    
+
     // 모달 외부 클릭시 닫기
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeShareModal();
         }
     });
-    
+
     return modal;
 }
 
@@ -297,7 +297,7 @@ function copyShareUrl() {
     const input = document.getElementById('shareUrlInput');
     input.select();
     input.setSelectionRange(0, 99999); // 모바일 호환성
-    
+
     if (navigator.clipboard) {
         navigator.clipboard.writeText(input.value).then(() => {
             showNotification('링크가 클립보드에 복사되었습니다! 📋', 'success');
@@ -350,7 +350,7 @@ function openShareWindow(url, platform) {
     const height = 400;
     const left = (window.innerWidth - width) / 2;
     const top = (window.innerHeight - height) / 2;
-    
+
     window.open(
         url,
         `share_${platform}`,
@@ -365,9 +365,9 @@ function openShareWindow(url, platform) {
 function toggleLike(postId) {
     const likeBtn = document.querySelector('.post-action-btn.like');
     if (!likeBtn) return;
-    
+
     isLiked = !isLiked;
-    
+
     if (isLiked) {
         likeBtn.innerHTML = '❤️ 좋아요 취소';
         likeBtn.classList.add('active');
@@ -384,9 +384,9 @@ function toggleLike(postId) {
 function toggleBookmark(postId) {
     const bookmarkBtn = document.querySelector('.post-action-btn.bookmark');
     if (!bookmarkBtn) return;
-    
+
     isBookmarked = !isBookmarked;
-    
+
     if (isBookmarked) {
         bookmarkBtn.innerHTML = '⭐ 북마크 해제';
         bookmarkBtn.classList.add('active');
@@ -407,9 +407,9 @@ function toggleBookmark(postId) {
 function toggleCommentLike(commentId) {
     const commentLikeBtn = document.querySelector(`[onclick="toggleCommentLike(${commentId})"]`);
     if (!commentLikeBtn) return;
-    
+
     const isCommentLiked = commentLikeBtn.classList.contains('active');
-    
+
     if (isCommentLiked) {
         commentLikeBtn.classList.remove('active');
         const countSpan = commentLikeBtn.querySelector('span');
@@ -439,9 +439,9 @@ function showReplyForm(commentId) {
     if (existingReplyForm) {
         existingReplyForm.remove();
     }
-    
+
     const commentItem = document.querySelector(`[onclick="showReplyForm(${commentId})"]`).closest('.comment-item');
-    
+
     const replyForm = document.createElement('div');
     replyForm.className = 'reply-form';
     replyForm.innerHTML = `
@@ -453,7 +453,7 @@ function showReplyForm(commentId) {
             </div>
         </div>
     `;
-    
+
     commentItem.appendChild(replyForm);
     replyForm.querySelector('textarea').focus();
 }
@@ -462,12 +462,12 @@ function submitReply(commentId) {
     const replyForm = document.querySelector('.reply-form');
     const textarea = replyForm.querySelector('textarea');
     const content = textarea.value.trim();
-    
+
     if (!content) {
         showNotification('답글 내용을 입력해주세요.', 'info');
         return;
     }
-    
+
     // 시뮬레이션: 답글 추가
     showNotification('답글이 등록되었습니다! 💬', 'success');
     cancelReply();
@@ -537,20 +537,20 @@ function printPost() {
             }
         </style>
     `;
-    
+
     // 기존 인쇄 스타일 제거 후 새로 추가
     const existingStyles = document.getElementById('printStyles');
     if (existingStyles) {
         existingStyles.remove();
     }
     document.head.insertAdjacentHTML('beforeend', printStyles);
-    
+
     // 인쇄 실행
     window.print();
-    
+
     showNotification('인쇄 준비가 완료되었습니다! 🖨️', 'info');
     trackPrintEvent(1); // 실제로는 postId 전달
-    
+
     // 인쇄 완료 후 스타일 제거
     setTimeout(() => {
         const printStylesElement = document.getElementById('printStyles');
@@ -566,17 +566,17 @@ function printPost() {
 
 function submitComment(form) {
     const content = form.querySelector('textarea[name="content"]').value.trim();
-    
+
     if (!content) {
         showNotification('댓글 내용을 입력해주세요.', 'info');
         return false;
     }
-    
+
     if (content.length > 500) {
         showNotification('댓글은 500자 이하로 작성해주세요.', 'info');
         return false;
     }
-    
+
     // 시뮬레이션: 댓글 추가
     const commentsList = document.querySelector('.comments-list');
     const newComment = document.createElement('div');
@@ -596,21 +596,21 @@ function submitComment(form) {
             </button>
         </div>
     `;
-    
+
     commentsList.appendChild(newComment);
-    
+
     // 댓글 수 업데이트
     const commentCount = document.querySelector('.post-comments h3 span');
     if (commentCount) {
         const currentCount = parseInt(commentCount.textContent);
         commentCount.textContent = currentCount + 1;
     }
-    
+
     // 폼 초기화
     form.reset();
-    
+
     showNotification('댓글이 등록되었습니다! 💬', 'success');
-    
+
     return false; // 폼 제출 방지
 }
 
@@ -673,33 +673,33 @@ function setupKeyboardShortcuts() {
             e.preventDefault();
             sharePost(1, '게시글 제목'); // 실제로는 동적으로 설정
         }
-        
+
         // Ctrl/Cmd + Shift + P: 인쇄
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
             e.preventDefault();
             printPost();
         }
-        
+
         // Ctrl/Cmd + Shift + L: 좋아요 토글
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
             e.preventDefault();
             toggleLike(1); // 실제로는 동적으로 설정
         }
-        
+
         // Ctrl/Cmd + Shift + B: 북마크 토글
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'B') {
             e.preventDefault();
             toggleBookmark(1); // 실제로는 동적으로 설정
         }
-        
+
         // 백스페이스: 뒤로가기 (입력 필드에서는 제외)
-        if (e.key === 'Backspace' && 
+        if (e.key === 'Backspace' &&
             !['INPUT', 'TEXTAREA'].includes(e.target.tagName) &&
             !e.target.isContentEditable) {
             e.preventDefault();
             history.back();
         }
-        
+
         // ESC: 모달 닫기
         if (e.key === 'Escape') {
             closeShareModal();
@@ -719,7 +719,7 @@ function handleExternalLinks() {
         if (!link.hostname || link.hostname !== window.location.hostname) {
             link.target = '_blank';
             link.rel = 'noopener noreferrer';
-            
+
             // 외부 링크 클릭 시 확인
             link.addEventListener('click', function(e) {
                 if (!confirm('외부 사이트로 이동하시겠습니까?')) {

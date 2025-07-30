@@ -18,6 +18,14 @@ document.addEventListener("DOMContentLoaded", function () { // 웹 페이지의 
         loadEnvList(1); // 검색어가 입력되었으므로, 1페이지부터 검색 결과를 다시 불러오도록 요청
     }); // searchForm.addEventListener의 끝 — 폼 제출 이벤트 등록 완료
 
+    document.querySelectorAll(".category-tab").forEach(tab => {
+        tab.addEventListener("click", function () {
+            document.querySelectorAll(".category-tab").forEach(t => t.classList.remove("active"));
+            this.classList.add("active");
+            loadEnvList(1); // 탭 바뀌면 1페이지부터 다시
+        });
+    });
+
     loadEnvList(); // 페이지 처음 열렸을 때, 검색 조건 없이 전체 게시글 목록을 가져옴
 }) // DOMContentLoaded의 끝 — HTML 로딩 후 실행되는 초기화 작업 완료
 
@@ -28,12 +36,19 @@ function loadEnvList(pageNum = 1) { // pageNum은 현재 몇 번째 페이지를
     // .trim()은 앞뒤 공백 제거 (예: " 환경 " → "환경")
     const keyword = document.getElementById("searchInput").value.trim();
 
+    // ✅ 현재 선택된 카테고리 버튼 확인 (선택된 탭에 'active' 클래스 있음)
+    const selectedCategoryBtn = document.querySelector(".category-tab.active");
+    const category = selectedCategoryBtn?.dataset.category || ""; // 없으면 전체
+
     const url = new URL("/api/env/list", window.location.origin); // API 호출을 위한 URL 객체 생성
     url.searchParams.set("pageNum", pageNum); // URL에 pageNum=1 같은 쿼리 파라미터를 추가
     url.searchParams.set("amount", 10); // url.searchParams.set("amount", 10);
     if (keyword) { // 검색어가 존재하면 (빈 값이 아니면)
         url.searchParams.set("type", "TCW"); // 검색 타입을 설정함
         url.searchParams.set("keyword", keyword); // 검색어도 URL 파라미터에 추가함 (예: keyword=환경)
+    }
+    if (category && category !== "all") {
+        url.searchParams.set("category", category); // ✅ 카테고리 쿼리 추가
     }
 
     fetch(url) // 위에서 만든 URL로 GET 요청을 보냄 (AJAX)
@@ -44,6 +59,7 @@ function loadEnvList(pageNum = 1) { // pageNum은 현재 몇 번째 페이지를
         })
         .catch(err => console.error("목록 로딩 실패", err)); // 만약 fetch나 파싱 중 에러가 발생하면 콘솔에 오류 메시지 출력
 }
+
 
 // 서버에서 받은 게시글 목록 데이터를 화면에 출력하는 함수
 function renderPostList(posts) { // posts는 게시글 리스트 배열 (예: data.list)

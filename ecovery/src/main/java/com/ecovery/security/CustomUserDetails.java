@@ -61,6 +61,11 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return memberVO.getMemberId();
     }
 
+    // 사용자 email 꺼내서 사용
+    public String getEmail() {
+        return memberVO.getEmail();
+    }
+
     // 사용자 권한 반환(USER / ADMIN)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

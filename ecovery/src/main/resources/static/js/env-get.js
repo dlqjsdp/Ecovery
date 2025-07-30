@@ -8,8 +8,20 @@
  * @since : 250722
  * @history
      - 250722 | yukyeong | 게시글 단건 조회 비동기 처리 기능 최초 작성
+     - 250730 | yukyeong | 전체 리팩토링:
+                           - 카테고리 코드 → 이름 변환(categoryMap) 적용
+                           - 작성자 닉네임 비동기 렌더링
+                           - 글 삭제 버튼 이벤트 바인딩 기능 추가
+                           - 본문 내용에 포함된 이미지 자동 렌더링 처리
  */
 
+
+const categoryMap = {
+    "policy": "정책/제도",
+    "news": "환경 뉴스",
+    "issue": "환경 이슈",
+    "tips": "생활 속 팁"
+};
 
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
@@ -28,22 +40,35 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             // 날짜 포맷 처리
             const formattedDate = formatDate(data.createdAt);
-
-            // 조회수 포맷 처리
             const views = new Intl.NumberFormat().format(data.viewCount) + '회';
 
-            // DOM에 렌더링
+            // 게시글 정보 렌더링
             document.getElementById("post-title").textContent = data.title;
-            document.getElementById("post-author").textContent = data.author?.nickname ?? "알 수 없음";
-            document.getElementById("post-avatar").textContent = data.author?.avatar ?? '👤';
+            document.getElementById("post-author").textContent = data.nickname ?? "알 수 없음";
+            document.getElementById("post-avatar").textContent = data.avatar ?? '👤';
             document.getElementById("post-date").textContent = formattedDate;
             document.getElementById("post-views").textContent = views;
             document.getElementById("post-content").innerHTML = data.content;
 
-            // 카테고리 렌더링
-            if (data.category?.displayName) {
-                document.getElementById("post-category").textContent = data.category.displayName;
+            // ✅ JS에서 category 코드 → 표시 이름 매핑
+            if (data.category) {
+                const displayName = categoryMap[data.category] || "기타";
+                document.getElementById("post-category").textContent = displayName;
                 document.getElementById("post-category-wrapper").style.display = 'block';
+            }
+
+            // ✅ 글 수정 버튼 href 설정
+            const editBtn = document.getElementById("editBtn");
+            if (editBtn) {
+                editBtn.href = `/env/modify/${data.envId}`;
+            }
+
+            // ✅ 글 삭제 버튼 이벤트 바인딩
+            const deleteBtn = document.getElementById("deleteBtn");
+            if (deleteBtn) {
+                deleteBtn.addEventListener("click", function () {
+                    deletePost(data.envId);
+                });
             }
         })
         .catch(err => {
@@ -59,3 +84,24 @@ function formatDate(dateTime) {
     const d = ("0" + date.getDate()).slice(-2);
     return `${y}.${m}.${d}`;
 }
+
+function deletePost(envId) {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+
+    fetch(`/api/env/remove/${envId}`, {
+        method: 'DELETE'
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("삭제 실패");
+            return res.json();
+        })
+        .then(data => {
+            alert(data.message); // "삭제되었습니다."
+            window.location.href = "/env/list";
+        })
+        .catch(err => {
+            console.error("삭제 오류", err);
+            alert("삭제 중 오류가 발생했습니다.");
+        });
+}
+

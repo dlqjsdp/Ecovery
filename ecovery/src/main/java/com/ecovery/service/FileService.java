@@ -37,6 +37,7 @@ public class FileService {
         // 3. 저장할 파일명 생성 (uuid + 확장자 조합)
         String savedFileName = uuid.toString() + extension;
 
+
         // 4. 전체 저장 경로 조합
         String fileUploadFullUrl = uploadPath + "/" + savedFileName;
 
