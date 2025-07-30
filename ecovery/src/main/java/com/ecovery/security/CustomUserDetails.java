@@ -21,6 +21,7 @@ import java.util.Map;
  * @history
       - 250724 | yukyeong | OAuth2User 인터페이스 구현 및 소셜 로그인 대응 필드/메서드 추가
       - 250724 | yukyeong | attributes 필드 및 setAttributes(), getAttributes(), getName() 메서드 구현
+      - 250730 | sehui | getEamil() 메서드 추가
 
  */
 
@@ -59,6 +60,11 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     // 사용자 아이디 꺼내서 사용
     public Long getMemberId() {
         return memberVO.getMemberId();
+    }
+
+    // 사용자 email 꺼내서 사용
+    public String getEmail() {
+        return memberVO.getEmail();
     }
 
     // 사용자 권한 반환(USER / ADMIN)

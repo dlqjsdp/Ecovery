@@ -24,6 +24,8 @@ import org.springframework.security.web.SecurityFilterChain;
 - 250716 | yukyeong | 환경톡톡 게시판 누구나 접근 가능하게 변경
 - 250723 | yukyeong | 공지사항 게시판 누구나 접근 가능하게 변경
 - 250725 | yukyeong | OAuth2 소셜 로그인 설정 추가 (카카오 로그인 연동)
+- 250730 | sehui | 에코마켓 상품 등록 관리자 권한 추가
+- 250730 | sehui | 정적 리소스에 "/images/**" 누구나 접근 가능하게 변경
  */
 @Configuration
 @EnableWebSecurity
@@ -47,12 +49,13 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/*", "/css/**", "/js/**", "/img/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
+                        .requestMatchers("/*", "/css/**", "/js/**", "/img/**", "/images/**", "/fonts/**", "/main").permitAll() //정적 리소스는 누구나 접근 가능
                         .requestMatchers("/", "/member/signup", "/member/login", "/member/check-email", "/member/check-nickname").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/disposal/*", "/disposal/disposalMain/*", "/api/disposal/*", "/error").permitAll() //기본 공개 페이지도 누구나 접근 가능
                         .requestMatchers("/env/**").permitAll() // 환경톡톡 게시판 누구나 접근 가능
                         .requestMatchers("/notice/**").permitAll() // 공지사항 게시판 누구나 접근 가능
                         .requestMatchers("/eco/**").permitAll()    //에코마켓 게시판 누구나 접근 가능 (수정 필요)
+                        .requestMatchers("/api/eco/new").hasRole("ADMIN")       //에코마켓 상품 등록 게시판 관리자만 접근 가능
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
                         .requestMatchers("/order/**").permitAll()   //주문 Test용으로 모두 허용 (추후에 .authenticated()로 변경)
                         .requestMatchers("/ecovery/**").permitAll()

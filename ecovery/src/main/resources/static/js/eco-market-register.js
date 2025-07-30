@@ -68,7 +68,8 @@ function setupEventListeners() {
     
     if (imageUploadArea && imageInput) {
         // 업로드 영역 클릭시
-        imageUploadArea.addEventListener('click', function() {
+        imageUploadArea.addEventListener('click', function(e) {
+            e.preventDefault();     //이벤트 전파 막기
             imageInput.click();
         });
         
@@ -349,123 +350,11 @@ function validateForm() {
 // 폼 제출 관련 함수
 // =========================
 
-// 폼 제출 처리
-function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    console.log('폼 제출 시도');
-    
-    // 유효성 검사
-    if (!validateForm()) {
-        showNotification('필수 입력 항목을 모두 작성해주세요.', 'error');
-        return;
-    }
-    
-    // 제출 버튼 상태 변경
-    const submitBtn = document.querySelector('.btn-submit');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = '등록 중...';
-    submitBtn.disabled = true;
-    
-    // FormData 객체 생성
-    const formData = new FormData();
-    
-    // 폼 필드 데이터 추가
-    formData.append('title', document.getElementById('title').value);
-    formData.append('author', document.getElementById('author').value);
-    formData.append('condition', document.getElementById('condition').value);
-    formData.append('region1', document.getElementById('region1').value);
-    formData.append('region2', document.getElementById('region2').value);
-    formData.append('category', document.getElementById('category').value);
-    formData.append('description', document.getElementById('description').value);
-    
-    // 이미지 파일들 추가
-    uploadedImages.forEach(function(imageData, index) {
-        formData.append(`images[${index}]`, imageData.file);
-    });
-    
-    // 서버에 전송
-    fetch('/api/free-sharing/posts', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('나눔 등록이 완료되었습니다! 🎉', 'success');
-            
-            // 임시 저장 데이터 삭제
-            clearDraft();
-            
-            // 2초 후 이동 확인
-            setTimeout(function() {
-                if (confirm('나눔 목록 페이지로 이동하시겠습니까?')) {
-                    window.location.href = '/free-sharing/list';
-                }
-            }, 2000);
-        } else {
-            showNotification(data.message || '등록 중 오류가 발생했습니다.', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('등록 오류:', error);
-        showNotification('등록 중 오류가 발생했습니다.', 'error');
-    })
-    .finally(() => {
-        // 버튼 상태 복원
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    });
-}
+//eco-market-register-request.js에 작성
 
 // =========================
-// 상품 상태 관련 함수
+// 카테고리 관련 함수
 // =========================
-
-// 상품 상태 변경시 미리보기 표시
-function handleConditionChange() {
-    const conditionSelect = document.getElementById('condition');
-    const conditionPreview = document.getElementById('conditionPreview');
-    
-    if (!conditionSelect || !conditionPreview) return;
-    
-    const selectedCondition = conditionSelect.value;
-    
-    // 미리보기 초기화
-    conditionPreview.className = 'condition-preview';
-    conditionPreview.style.display = 'none';
-    
-    if (selectedCondition) {
-        let previewText = '';
-        let previewClass = '';
-        
-        switch(selectedCondition) {
-            case '상':
-                previewText = '👍 상태가 매우 좋은 상품입니다';
-                previewClass = 'good';
-                break;
-            case '중':
-                previewText = '👌 일반적인 사용감이 있는 상품입니다';
-                previewClass = 'fair';
-                break;
-            case '하':
-                previewText = '⚠️ 사용감이 많이 있는 상품입니다';
-                previewClass = 'poor';
-                break;
-        }
-        
-        // 미리보기 표시
-        conditionPreview.textContent = previewText;
-        conditionPreview.classList.add(previewClass);
-        conditionPreview.style.display = 'block';
-        
-        // 애니메이션 효과
-        setTimeout(function() {
-            conditionPreview.style.opacity = '1';
-            conditionPreview.style.transform = 'translateY(0)';
-        }, 100);
-    }
-}
 
 // 카테고리 변경시 도움말 표시
 function handleCategoryChange() {
@@ -607,91 +496,6 @@ function checkFormHasContent() {
 }
 
 // =========================
-// 자동 저장 기능
-// =========================
-
-// 자동 저장
-function autoSave() {
-    const formData = {
-        title: document.getElementById('title').value,
-        condition: document.getElementById('condition').value,
-        region1: document.getElementById('region1').value,
-        region2: document.getElementById('region2').value,
-        category: document.getElementById('category').value,
-        description: document.getElementById('description').value
-    };
-    
-    // 서버에 임시 저장
-    fetch('/api/free-sharing/draft', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-    })
-    .catch(error => {
-        console.error('자동 저장 오류:', error);
-    });
-}
-
-// 저장된 임시 데이터 복원
-function restoreDraft() {
-    fetch('/api/free-sharing/draft')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.draft) {
-                const formData = data.draft;
-                
-                // 각 필드에 저장된 값 복원
-                if (formData.title) document.getElementById('title').value = formData.title;
-                if (formData.condition) document.getElementById('condition').value = formData.condition;
-                if (formData.region1) {
-                    document.getElementById('region1').value = formData.region1;
-                    handleRegion1Change();
-                    setTimeout(function() {
-                        if (formData.region2) {
-                            document.getElementById('region2').value = formData.region2;
-                        }
-                    }, 100);
-                }
-                if (formData.category) {
-                    document.getElementById('category').value = formData.category;
-                    handleCategoryChange();
-                }
-                if (formData.description) document.getElementById('description').value = formData.description;
-                
-                console.log('임시 저장된 데이터를 복원했습니다.');
-            }
-        })
-        .catch(error => {
-            console.error('임시저장 데이터 복원 중 오류:', error);
-        });
-}
-
-// 임시 저장 데이터 삭제
-function clearDraft() {
-    fetch('/api/free-sharing/draft', { method: 'DELETE' })
-        .catch(error => {
-            console.error('임시 저장 데이터 삭제 오류:', error);
-        });
-}
-
-// 자동 저장 타이머 설정
-function setupAutoSave() {
-    const inputs = document.querySelectorAll('.form-input, .form-select');
-    
-    inputs.forEach(function(input) {
-        input.addEventListener('input', function() {
-            // 기존 타이머가 있으면 취소
-            clearTimeout(input.autoSaveTimeout);
-            
-            // 1초 후에 자동 저장 실행
-            input.autoSaveTimeout = setTimeout(autoSave, 1000);
-        });
-    });
-}
-
-// =========================
 // 키보드 단축키
 // =========================
 
@@ -717,14 +521,14 @@ document.addEventListener('keydown', function(event) {
 // =========================
 
 // 페이지를 벗어나려 할 때 경고 메시지
-window.addEventListener('beforeunload', function(event) {
-    // 폼에 내용이 있을 때만 경고
-    if (checkFormHasContent()) {
-        event.preventDefault();
-        event.returnValue = '';
-        return '';
-    }
-});
+// window.addEventListener('beforeunload', function(event) {
+//     // 폼에 내용이 있을 때만 경고
+//     if (checkFormHasContent()) {
+//         event.preventDefault();
+//         event.returnValue = '';
+//         return '';
+//     }
+// });
 
 // =========================
 // 페이지 초기화 완료 후 실행
@@ -734,9 +538,9 @@ window.addEventListener('beforeunload', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     // 자동 저장 기능 설정
     setupAutoSave();
-    
+
     // 임시 저장된 데이터 복원
-    restoreDraft();
+    // restoreDraft();
     
     // 폼 제출 성공시 임시 저장 데이터 삭제는 handleFormSubmit에서 처리
 });

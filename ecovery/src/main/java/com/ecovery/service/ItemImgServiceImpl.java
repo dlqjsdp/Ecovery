@@ -40,7 +40,7 @@ public class ItemImgServiceImpl implements ItemImgService {
     private final FileService fileService;
 
     @Value("C:/ecovery/item")
-    private String itemImgLocation;
+    private String ecoImgLocation;
 
     //상품 이미지 DB 등록
     @Override
@@ -52,7 +52,7 @@ public class ItemImgServiceImpl implements ItemImgService {
 
         //파일 업로드
         if(!StringUtils.isEmpty(oriImgName)){
-            imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes());
+            imgName = fileService.uploadFile(ecoImgLocation, oriImgName, itemImgFile.getBytes());
             imgUrl = "/images/item/" + imgName;
         }
 
@@ -63,6 +63,10 @@ public class ItemImgServiceImpl implements ItemImgService {
 
         //상품 이미지 정보 저장
         itemImgMapper.insertItemImg(itemImgVO);
+        System.out.println("원본 이미지명 >> " + oriImgName);
+        System.out.println("저장된 이미지명 >> " + imgName);
+        System.out.println("DB 저장 itemId >> " + itemImgVO.getItemId());
+        System.out.println("DB 저장 repImgYn >> " + itemImgVO.getRepImgYn());
     }
 
     //상품 이미지 수정
@@ -77,12 +81,12 @@ public class ItemImgServiceImpl implements ItemImgService {
 
             //기존 이미지 파일 삭제
             if(!StringUtils.isEmpty(savedItemImg.getImgName())){
-                fileService.deleteFile(itemImgLocation + "/" + savedItemImg.getImgName());
+                fileService.deleteFile(ecoImgLocation + "/" + savedItemImg.getImgName());
             }
 
             //새로운 이미지 업로드
             String oriImgName = itemImgFile.getOriginalFilename();
-            String imgName = fileService.uploadFile(itemImgLocation, oriImgName, itemImgFile.getBytes());
+            String imgName = fileService.uploadFile(ecoImgLocation, oriImgName, itemImgFile.getBytes());
             String imgUrl = "/images/item/" + imgName;
 
             //이미지 정보 수정한 VO 객체

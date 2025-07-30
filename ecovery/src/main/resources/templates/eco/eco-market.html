@@ -1,10 +1,10 @@
 <!--
-    에코마켓 목록 페이지
+    에코마켓 상품 목록 페이지
     @author : sehui
     @fileName : eco-market.html
     @since : 250729
     @history
-     - 250729 | sehui | 에코마켓 목록 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250729 | sehui | 에코마켓 상품 목록 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
 -->
 
 <!DOCTYPE html>
@@ -13,7 +13,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 
-<head th:with="pageTitel='에코마켓'">
+<head th:with="pageTitle='에코마켓'">
     <title>에코마켓</title>
 
     <!-- 추가 css -->
@@ -121,7 +121,6 @@
 
     <!-- 추가 JS -->
     <th:block layout:fragment="script">
-        <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
         <script th:src="@{/js/eco-market.js}"></script>
         <script th:src="@{/js/eco-market-list.js}"></script>    <!-- 목록 전용-->
     </th:block>
