@@ -50,13 +50,16 @@
 
     <!--
         회원 정보 수정
-        - 닉네임과 비밀번호만 변경 가능
+        - 비밀번호만 변경 가능
         - memberId 기준으로 수정
     -->
     <update id="updateMember" parameterType="com.ecovery.domain.MemberVO">
         update member
-        set nickname = #{nickname},
-            password = #{password},
+        <set>
+            <if test="password != null and password != ''">
+                password = #{password}
+            </if>
+        </set>
         where member_id = #{memberId}
     </update>
 

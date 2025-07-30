@@ -52,7 +52,8 @@
                     </div>
 
                     <div class="cart-items-list" id="cartItemsList">
-                        <div class="cart-item" th:each="cart : ${cartList}" th:attr="data-item-id=${cart.cartItemId}">
+                        <div class="cart-item" th:each="cart : ${cartList}"
+                             th:attr="data-item-id=${cart.cartItemId}, data-unit-price=${cart.price}">
                             <div class="item-select">
                                 <label class="checkbox-container">
                                     <input type="checkbox" class="item-checkbox" checked>
@@ -81,8 +82,9 @@
                                         <button class="qty-btn plus">+</button>
                                     </div>
 
+
                                     <div class="item-price">
-                                        <span class="sale-price" th:text="${#numbers.formatInteger(cart.price, 3, 'COMMA') + '원'}"></span>
+                                        <span class="sale-price" th:text="${#numbers.formatInteger(cart.price * cart.count, 3, 'COMMA') + '원'}"></span>
                                     </div>
                                 </div>
                             </div>
@@ -250,6 +252,7 @@
             </div>-->
         </div>
     </section>
+</main>
 </main>
 
 <!-- Footer -->

@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout1}">
-<th:block layout:fragment="css">
-    <link rel="stylesheet" href="/css/mypage-style.css">
-</th:block>
-
-<div layout:fragment="content">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 마이페이지</title>
+    <link rel="stylesheet" th:href="@{/css/mypage-style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
 
     <!-- 메인 콘텐츠 영역 -->
     <main id="mainContent">
@@ -264,22 +270,20 @@
                     <button class="modal-close" onclick="closeProfileModal()" aria-label="모달 닫기">×</button>
                 </div>
                 <div class="modal-body">
-                    <form id="profileEditForm">
-                        <!-- 닉네임 수정 -->
+                    <form id="profileEditForm" method="post">
+                        <!-- 닉네임 수정 불가 -->
                         <div class="form-group">
                             <label for="editNickname">닉네임</label>
                             <div class="input-group">
-                                <input type="text" id="editNickname" th:value="${member.nickname}" placeholder="닉네임을 입력하세요">
-                                <button type="button" class="btn-validate" onclick="validateNickname()">중복확인</button>
+                                <input type="text" id="editNickname" class="form-control" th:value="${member.nickname}" readonly style="background-color: darkgray;">
                             </div>
                         </div>
 
-                        <!-- 이메일 수정 -->
+                        <!-- 이메일 수정 불가 -->
                         <div class="form-group">
                             <label for="editEmail">이메일</label>
                             <div class="input-group">
-                                <input type="email" id="editEmail" th:value="${member.email}" placeholder="이메일을 입력하세요">
-                                <button type="button" class="btn-validate" onclick="validateEmail()">중복확인</button>
+                                <input type="email" id="editEmail" class="form-control" th:value="${member.email}" style="background-color: darkgray;">
                             </div>
                         </div>
 
@@ -287,16 +291,19 @@
                         <div class="form-group">
                             <label for="currentPassword">현재 비밀번호</label>
                             <input type="password" id="currentPassword" placeholder="현재 비밀번호를 입력하세요">
+                            <div id="currentPasswordError" class="validation-message">현재 비밀번호가 맞지 않습니다.</div>
                         </div>
 
                         <div class="form-group">
                             <label for="newPassword">새 비밀번호</label>
                             <input type="password" id="newPassword" placeholder="새 비밀번호를 입력하세요">
+                            <div id="newPasswordError" class="validation-message">영문/숫자/특수문자 포함 8자 이상이여야 합니다.</div>
                         </div>
 
                         <div class="form-group">
                             <label for="confirmPassword">새 비밀번호 확인</label>
                             <input type="password" id="confirmPassword" placeholder="새 비밀번호를 다시 입력하세요">
+                            <div id="confirmPasswordError" class="validation-message">작성하신 새 비밀번호와 맞지 않습니다.</div>
                         </div>
                     </form>
                 </div>
@@ -308,47 +315,6 @@
         </div>
 
     </main>
-</div>
-<th:block layout:fragment="script">
-    <script src="/js/mypage-script.js"></script>
-</th:block>
-<!-- 마이페이지 데이터를 JavaScript로 전달 -->
-<script th:inline="javascript">
-    // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
-    var userData = /*[[${user}]]*/ {};
-    var userStatsData = /*[[${userStats}]]*/ {};
-    var recentActivitiesData = /*[[${recentActivities}]]*/ [];
-
-    // 전역 변수로 설정
-    window.userData = userData;
-    window.userStatsData = userStatsData;
-    window.recentActivitiesData = recentActivitiesData;
-
-    // 기간 변경 함수
-    function changePeriod(period) {
-        const currentUrl = new URL(window.location);
-        currentUrl.searchParams.set('period', period);
-        window.location.href = currentUrl.toString();
-    }
-
-    // 프로필 편집 함수
-    function editProfile() {
-        // 프로필 편집 모달 또는 페이지로 이동
-        location.href = '/mypage/profile/edit';
-    }
-
-    // 개인정보 다운로드 함수
-    function downloadPersonalData() {
-        if (confirm('개인정보를 다운로드하시겠습니까?')) {
-            location.href = '/mypage/data/download';
-        }
-    }
-
-    // 회원 탈퇴 확인 함수
-    function confirmDeleteAccount() {
-        if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-            location.href = '/mypage/account/delete';
-        }
-    }
-</script>
+<script src="/js/mypage-script.js"></script>
+</body>
 </html>

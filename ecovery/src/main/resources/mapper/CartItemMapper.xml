@@ -18,7 +18,7 @@
             ci.cart_item_id AS cartItemId,
             i.item_name AS itemNm,
             i.price,
-            ci.count,
+            LEAST(ci.count, i.stock_number) AS count,
             ii.img_url AS imgUrl,
             i.stock_number AS stockNumber
         FROM

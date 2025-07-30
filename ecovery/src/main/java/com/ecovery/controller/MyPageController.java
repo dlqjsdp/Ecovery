@@ -8,12 +8,13 @@ import com.ecovery.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 마이페이지 비밀번호 수정 전용 컨트롤러
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MyPageController {
 
     private final MemberService memberService;
+    private final PasswordEncoder passwordEncoder;
 
     // 마이페이지 이동
     @GetMapping(value = {"", "/"})
@@ -40,10 +42,11 @@ public class MyPageController {
         MemberPageDto memberPageDto = new MemberPageDto(member.getNickname(), temporaryPoints);
         
         // 2. Model에 필요한 객체를 담아 전달
-
-
         model.addAttribute("member", member);  // 닉네임, 포인트 등 전달
         model.addAttribute("memberPageDto", memberPageDto);
+
+        // 탭 제목 수정
+        model.addAttribute("pageTitle", "마이페이지");
 
         return "mypage/home";
     }
@@ -60,17 +63,33 @@ public class MyPageController {
     }
 
     // 마이페이지 정보 수정 처리
-    @PostMapping(value = "/update")
-    // 비밀번호만 수정 가능
-    public String update(@AuthenticationPrincipal CustomUserDetails user, @RequestParam("password") String password) {
+    @PostMapping(value = "/update", produces = "application/json")
+    @ResponseBody
+    public Map<String, Object> updatePassword(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam("currentPassword") String currentPassword,
+            @RequestParam("password") String newPassword) {
 
-        MemberVO member = new MemberVO();
+        Map<String, Object> result = new HashMap<>();
 
-        member.setMemberId(user.getMemberVO().getMemberId());
-        member.setPassword(password); // 비밀번호 전달
+        MemberVO member = memberService.getMemberById(user.getMemberVO().getMemberId());
 
-        memberService.updateMember(member);
-        return "redirect:/mypage/home";
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, member.getPassword())) {
+            result.put("success", false);
+            result.put("errorCode", "WRONG_PASSWORD");
+            result.put("message", "현재 비밀번호가 일치하지 않습니다.");
+            return result;
+        }
+
+        // 비밀번호 업데이트
+        member.setPassword(newPassword);
+        boolean updated = memberService.updateMember(member);
+
+        result.put("success", updated);
+        result.put("message", updated ? "비밀번호가 성공적으로 변경되었습니다." : "비밀번호 변경 실패");
+
+        return result;
     }
 
 }

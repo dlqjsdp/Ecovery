@@ -558,6 +558,7 @@ function setupNicknameCheck() {
     const nicknameBtn = document.getElementById('checkNickname');
 
     if (!nicknameBtn || !nicknameMsg || !nicknameInput) return;
+    if (!nicknameBtn || !nicknameMsg || !nicknameInput) return;
 
     nicknameBtn.addEventListener('click', () => {
         const nickname = nicknameInput.value.trim();
