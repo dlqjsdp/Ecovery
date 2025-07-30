@@ -4,7 +4,7 @@
  * 제목, 작성자, 작성일, 조회수, 내용을 동적으로 렌더링
  *
  * @author : yukyeong
- * @fileName : eco-get.js
+ * @fileName : env-get.js
  * @since : 250722
  * @history
      - 250722 | yukyeong | 게시글 단건 조회 비동기 처리 기능 최초 작성

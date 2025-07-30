@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since : 250723
  * @history
      - 250723 | yukyeong | 게시글 등록, 조회, 수정, 삭제, 목록(페이징+검색), 전체 개수, 조회수 증가, 예외 상황 테스트까지 전반적인 단위 테스트 작성 완료
+     - 250729 | yukyeong | 게시글 등록/수정 테스트에 category 필드 추가 및 검증
  */
 
 @SpringBootTest
@@ -41,6 +42,7 @@ class NoticeServiceTest {
         noticeDto.setMemberId(1L);
         noticeDto.setTitle("서비스 등록 테스트 제목");
         noticeDto.setContent("서비스 등록 테스트 내용");
+        noticeDto.setCategory("important"); // 카테고리: 중요 공지
 
         // When - 게시글 등록 (DTO → VO 변환 후 insert 수행)
         noticeService.register(noticeDto);
@@ -56,6 +58,7 @@ class NoticeServiceTest {
         // 3) 등록한 제목과 내용이 DB에서 정상적으로 조회되는지 확인
         assertEquals("서비스 등록 테스트 제목", inserted.getTitle());
         assertEquals("서비스 등록 테스트 내용", inserted.getContent());
+        assertEquals("important", inserted.getCategory()); // 카테고리 검증
 
         log.info("삽입된 게시글: {}", inserted);
 
@@ -89,6 +92,7 @@ class NoticeServiceTest {
         noticeDto.setMemberId(1L); // 작성자 ID
         noticeDto.setTitle("수정 테스트 제목1"); // 초기 제목
         noticeDto.setContent("수정 테스트 내용1"); // 초기 내용
+        noticeDto.setCategory("general"); // 초기 카테고리: 일반 공지
 
         noticeService.register(noticeDto); // 게시글 등록
         Long insertedId = noticeDto.getNoticeId(); // 등록된 게시글의 ID 확인 (PK)
@@ -98,6 +102,8 @@ class NoticeServiceTest {
         // 1) 제목과 내용을 수정
         noticeDto.setTitle("수정된 제목");
         noticeDto.setContent("수정된 내용");
+        noticeDto.setCategory("important"); // 수정된 카테고리: 중요 공지
+
         // 2) 수정 메서드 호출
         boolean result = noticeService.modify(noticeDto);
 
@@ -111,6 +117,7 @@ class NoticeServiceTest {
         // 4) 제목과 내용이 수정되었는지 검증
         assertEquals("수정된 제목", updated.getTitle());
         assertEquals("수정된 내용", updated.getContent());
+        assertEquals("important", updated.getCategory()); // 카테고리 검증
 
         log.info("수정된 게시글: {}", updated);
 

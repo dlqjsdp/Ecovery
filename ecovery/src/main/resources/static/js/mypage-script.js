@@ -16,7 +16,19 @@ let isFormDirty = false;                // 폼 수정 상태 플래그
 // ==========================================================================
 // 페이지 초기화 - DOMContentLoaded 이벤트 리스너
 // ==========================================================================
-/*document.addEventListener('DOMContentLoaded', function() {
+
+function initializeHeader() {}
+function initializeCart() {}
+function initializeCounters() {}
+function initializeObserver() {}
+function initializeSettings() {}
+function initializeInteractions() {}
+function initializePageLifecycle() {}
+function adjustLayoutForScreenSize() {}
+function enhanceAccessibility() {}
+function loadUserPreferences() {}
+
+document.addEventListener('DOMContentLoaded', function() {
     try {
         console.log('🌱 GreenCycle 개선된 마이페이지 초기화를 시작합니다...');
 
@@ -29,6 +41,9 @@ let isFormDirty = false;                // 폼 수정 상태 플래그
         initializeInteractions();        // 인터랙션 초기화
         initializeKeyboardShortcuts();   // 키보드 단축키 초기화
         initializePageLifecycle();       // 페이지 라이프사이클 관리
+
+        // 모달 초기화
+        initializeModal();
 
         // 성능 최적화
         optimizePerformance();
@@ -53,7 +68,7 @@ let isFormDirty = false;                // 폼 수정 상태 플래그
     } catch (error) {
         handleError(error, 'Page initialization');
     }
-});*/
+});
 
 // ==========================================================================
 // 모달창 관련 기능
@@ -125,7 +140,7 @@ function closeProfileModal() {
 
     // 폼이 수정된 경우 확인 메시지
     if (isFormDirty) {
-        if (!confirm('변경사항이 저장되지 않습니다. 정말 닫으시겠습니까?')) {
+        if (!confirm('변경사항을 저장하시겠습니까?')) {
             return;
         }
     }
@@ -173,135 +188,117 @@ function resetModalForm() {
 }
 
 /**
- * 닉네임 중복 확인
- */
-function validateNickname() {
-    const nicknameInput = document.getElementById('editNickname');
-    const nickname = nicknameInput.value.trim();
-
-    if (!nickname) {
-        showValidationMessage(nicknameInput, '닉네임을 입력해주세요.', 'error');
-        return;
-    }
-
-    if (nickname.length < 2 || nickname.length > 20) {
-        showValidationMessage(nicknameInput, '닉네임은 2-20자 사이여야 합니다.', 'error');
-        return;
-    }
-
-    // 서버 API 호출 시뮬레이션
-    simulateApiCall(() => {
-        // 랜덤하게 성공/실패 결정 (실제로는 서버 응답에 따라)
-        const isAvailable = Math.random() > 0.3;
-
-        if (isAvailable) {
-            showValidationMessage(nicknameInput, '사용 가능한 닉네임입니다.', 'success');
-        } else {
-            showValidationMessage(nicknameInput, '이미 사용중인 닉네임입니다.', 'error');
-        }
-    }, 1000);
-
-    showValidationMessage(nicknameInput, '중복 확인 중...', 'info');
-    console.log(`닉네임 중복 확인: ${nickname}`);
-}
-
-/**
- * 이메일 중복 확인
- */
-function validateEmail() {
-    const emailInput = document.getElementById('editEmail');
-    const email = emailInput.value.trim();
-
-    if (!email) {
-        showValidationMessage(emailInput, '이메일을 입력해주세요.', 'error');
-        return;
-    }
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-        showValidationMessage(emailInput, '올바른 이메일 형식이 아닙니다.', 'error');
-        return;
-    }
-
-    // 서버 API 호출 시뮬레이션
-    simulateApiCall(() => {
-        const isAvailable = Math.random() > 0.3;
-
-        if (isAvailable) {
-            showValidationMessage(emailInput, '사용 가능한 이메일입니다.', 'success');
-        } else {
-            showValidationMessage(emailInput, '이미 사용중인 이메일입니다.', 'error');
-        }
-    }, 1200);
-
-    showValidationMessage(emailInput, '중복 확인 중...', 'info');
-    console.log(`이메일 중복 확인: ${email}`);
-}
-
-/**
  * 프로필 변경사항 저장
  */
 function saveProfileChanges() {
-    const form = document.getElementById('profileEditForm');
-    const formData = new FormData(form);
+    const currentPassword = document.getElementById('currentPassword')?.value || '';
+    const newPassword = document.getElementById('newPassword')?.value || '';
+    const confirmPassword = document.getElementById('confirmPassword')?.value || '';
 
-    // 폼 검증
-    if (!validateProfileForm()) {
-        return;
+    const currentPwInput = document.getElementById('currentPassword');
+    const newPwInput = document.getElementById('newPassword');
+    const confirmPwInput = document.getElementById('confirmPassword');
+
+    const currentPwError = document.getElementById('currentPasswordError');
+    const newPwError = document.getElementById('newPasswordError');
+    const confirmPwError = document.getElementById('confirmPasswordError');
+
+    // 에러 초기화
+    if (currentPwError) currentPwError.style.display = 'none';
+    if (newPwError) newPwError.style.display = 'none';
+    if (confirmPwError) confirmPwError.style.display = 'none';
+
+    if (currentPwInput) currentPwInput.classList.remove('error');
+    if (newPwInput) newPwInput.classList.remove('error');
+    if (confirmPwInput) confirmPwInput.classList.remove('error');
+
+    // 유효성 검사
+    let isValid = true;
+
+    // 현재 비밀번호 입력 확인
+    if (!currentPassword) {
+        if (currentPwError) {
+            currentPwError.style.display = 'block';
+            currentPwError.textContent = '현재 비밀번호를 입력해주세요.';
+        }
+        if (currentPwInput) currentPwInput.classList.add('error');
+        isValid = false;
     }
 
-    // 저장 버튼 비활성화
-    const saveBtn = event.target;
-    const originalText = saveBtn.textContent;
-    saveBtn.textContent = '저장 중...';
-    saveBtn.disabled = true;
+    // 새 비밀번호 형식 검사
+    const hasLetter = /[a-zA-Z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+    if (!newPassword || newPassword.length < 8 || !hasLetter || !hasNumber || !hasSpecial) {
+        if (newPwError) {
+            newPwError.style.display = 'block';
+            newPwError.textContent = '8자 이상, 영문/숫자/특수문자를 포함해야 합니다.';
+        }
+        if (newPwInput) newPwInput.classList.add('error');
+        isValid = false;
+    }
 
-    // 서버에 데이터 전송 시뮬레이션
-    simulateApiCall(() => {
-        // 성공적으로 저장된 경우
-        showNotification('회원정보가 성공적으로 변경되었습니다.', 'success');
-        closeProfileModal();
+    // 새 비밀번호 일치 확인
+    if (newPassword !== confirmPassword) {
+        if (confirmPwError) {
+            confirmPwError.style.display = 'block';
+            confirmPwError.textContent = '비밀번호가 일치하지 않습니다.';
+        }
+        if (confirmPwInput) confirmPwInput.classList.add('error');
+        isValid = false;
+    }
 
-        // 페이지의 사용자 정보 업데이트
-        updateDisplayedUserInfo();
+    if (!isValid) return;
 
-        // 버튼 복구
-        saveBtn.textContent = originalText;
-        saveBtn.disabled = false;
-
-        console.log('프로필 변경사항이 저장되었습니다.');
-    }, 2000);
+    // 서버에 fetch 요청
+    fetch("/mypage/update", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: new URLSearchParams({
+            currentPassword: currentPassword,
+            password: newPassword
+        })
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, "success");
+                closeProfileModal();
+            } else {
+                if (data.errorCode === "WRONG_PASSWORD") {
+                    if (currentPwError) {
+                        currentPwError.textContent = data.message;
+                        currentPwError.style.display = 'block';
+                    }
+                    if (currentPwInput) currentPwInput.classList.add('error');
+                } else {
+                    showNotification(data.message, "error");
+                }
+            }
+        })
+        .catch(error => {
+            console.error("비밀번호 변경 오류:", error);
+            showNotification("비밀번호 변경 중 오류가 발생했습니다.", "error");
+        });
 }
 
 /**
  * 프로필 폼 검증
  */
 function validateProfileForm() {
-    const nickname = document.getElementById('editNickname').value.trim();
-    const email = document.getElementById('editEmail').value.trim();
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
     let isValid = true;
 
-    // 닉네임 검증
-    if (!nickname || nickname.length < 2 || nickname.length > 20) {
-        showNotification('닉네임은 2-20자 사이여야 합니다.', 'error');
-        isValid = false;
-    }
-
-    // 이메일 검증
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailPattern.test(email)) {
-        showNotification('올바른 이메일을 입력해주세요.', 'error');
-        isValid = false;
-    }
-
     // 비밀번호 변경 시 검증
-    if (newPassword || confirmPassword) {
+    if (newPassword || currentPassword) {
         if (!currentPassword) {
-            showNotification('현재 비밀번호를 입력해주세요.', 'error');
+            showNotification('현재 비밀번호가 일치하지 않습니다.', 'error');
             isValid = false;
         }
 
@@ -314,6 +311,8 @@ function validateProfileForm() {
             showNotification('새 비밀번호는 8자 이상이어야 합니다.', 'error');
             isValid = false;
         }
+
+
     }
 
     return isValid;
@@ -622,7 +621,7 @@ function initializeFormValidation() {
         input.addEventListener('input', clearInputValidation);
     });
 
-    console.log('✅ 폼 검증이 초기화되었습니다.');
+    console.log('폼 검증이 초기화되었습니다.');
 }
 
 /**
@@ -633,23 +632,14 @@ function validateInput(event) {
     const value = input.value.trim();
 
     switch(input.id) {
-        case 'editNickname':
-            if (value.length < 2 || value.length > 20) {
-                showValidationMessage(input, '닉네임은 2-20자 사이여야 합니다.', 'error');
-            }
-            break;
-        case 'editEmail':
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (value && !emailPattern.test(value)) {
-                showValidationMessage(input, '올바른 이메일 형식이 아닙니다.', 'error');
-            }
-            break;
+
         case 'newPassword':
             if (value && value.length < 8) {
                 showValidationMessage(input, '비밀번호는 8자 이상이어야 합니다.', 'error');
             }
             break;
         case 'confirmPassword':
+        case 'confirmPassword':textContent
             const newPassword = document.getElementById('newPassword').value;
             if (value && value !== newPassword) {
                 showValidationMessage(input, '비밀번호가 일치하지 않습니다.', 'error');
@@ -1029,8 +1019,6 @@ function handleError(error, context = '') {
 // ==========================================================================
 window.openProfileModal = openProfileModal;
 window.closeProfileModal = closeProfileModal;
-window.validateNickname = validateNickname;
-window.validateEmail = validateEmail;
 window.saveProfileChanges = saveProfileChanges;
 window.createSharing = createSharing;
 window.quickWasteSorting = quickWasteSorting;

@@ -113,13 +113,13 @@ let uploadedImages = [];
 // =========================
 document.addEventListener('DOMContentLoaded', function() {
     console.log('페이지가 로드되었습니다!');
-    
+
     // 현재 날짜를 등록일에 자동으로 입력
     setCurrentDate();
-    
+
     // 각종 이벤트 리스너 등록
     setupEventListeners();
-    
+
     // 페이드인 애니메이션 적용
     setTimeout(function() {
         const formContainer = document.querySelector('.form-container');
@@ -137,9 +137,9 @@ function setCurrentDate() {
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
-    
+
     const dateString = `${year}.${month}.${day}`;
-    
+
     const regDateInput = document.getElementById('regDate');
     if (regDateInput) {
         regDateInput.value = dateString;
@@ -155,7 +155,7 @@ function setupEventListeners() {
     if (region1Select) {
         region1Select.addEventListener('change', handleRegion1Change);
     }
-    
+
     // 이미지 업로드 관련
     const imageUploadArea = document.getElementById('imageUploadArea');
     const imageInput = document.getElementById('imageInput');
@@ -174,35 +174,35 @@ function setupEventListeners() {
         imageUploadArea.addEventListener('click', function() {
             imageInput.click();
         });
-        
+
         // 파일이 선택되었을 때
         imageInput.addEventListener('change', handleImageSelect);
-        
+
         // 드래그 앤 드롭 관련
         setupDragAndDrop(imageUploadArea);
     }*/
-    
+
     // 폼 제출 이벤트
     const form = document.getElementById('registrationForm');
     if (form) {
         form.addEventListener('submit', handleFormSubmit);
     }
-    
+
     // 실시간 유효성 검사
     setupRealtimeValidation();
-    
+
     // 카테고리 변경시 도움말 표시
     const categorySelect = document.getElementById('category');
     if (categorySelect) {
         categorySelect.addEventListener('change', handleCategoryChange);
     }
-    
+
     // 상품 상태 변경시 미리보기 표시
     const conditionSelect = document.getElementById('condition');
     if (conditionSelect) {
         conditionSelect.addEventListener('change', handleConditionChange);
     }
-    
+
     // 제목 글자수 제한
     const titleInput = document.getElementById('title');
     if (titleInput) {
@@ -210,7 +210,7 @@ function setupEventListeners() {
             limitCharacters(this, 50, '제목');
         });
     }
-    
+
     // 설명 글자수 제한 및 카운터
     const descriptionInput = document.getElementById('description');
     if (descriptionInput) {
@@ -229,14 +229,14 @@ function setupEventListeners() {
 function handleRegion1Change() {
     const region1Select = document.getElementById('region1');
     const region2Select = document.getElementById('region2');
-    
+
     if (!region1Select || !region2Select) return;
-    
+
     const selectedRegion = region1Select.value;
-    
+
     // 구/군 선택박스 초기화
     region2Select.innerHTML = '<option value="">구/군</option>';
-    
+
     // 선택된 시/도에 해당하는 구/군 추가
     if (selectedRegion && regionData[selectedRegion]) {
         regionData[selectedRegion].forEach(function(district) {
@@ -269,21 +269,21 @@ function setupDragAndDrop(uploadArea) {
         uploadArea.style.borderColor = 'var(--primary-green)';
         uploadArea.style.background = 'rgba(45, 90, 61, 0.1)';
     });
-    
+
     // 드래그 나감
     uploadArea.addEventListener('dragleave', function() {
         uploadArea.style.borderColor = 'var(--accent-green)';
         uploadArea.style.background = 'rgba(111, 167, 118, 0.05)';
     });
-    
+
     // 드롭
     uploadArea.addEventListener('drop', function(event) {
         event.preventDefault();
-        
+
         // 스타일 원복
         uploadArea.style.borderColor = 'var(--accent-green)';
         uploadArea.style.background = 'rgba(111, 167, 118, 0.05)';
-        
+
         const files = event.dataTransfer.files;
         handleImageFiles(Array.from(files));
     });
@@ -295,13 +295,13 @@ function handleImageFiles(files) {
     const imageFiles = files.filter(function(file) {
         return file.type.startsWith('image/');
     });
-    
+
     // 최대 5개까지만 허용
     if (uploadedImages.length + imageFiles.length > 5) {
         showNotification('최대 5개의 이미지만 업로드할 수 있습니다.', 'error');
         return;
     }
-    
+
     // 각 이미지 파일 처리
     imageFiles.forEach(function(file) {
         // 파일 크기 체크 (10MB)
@@ -309,7 +309,7 @@ function handleImageFiles(files) {
             showNotification(file.name + '은 10MB를 초과합니다.', 'error');
             return;
         }
-        
+
         // 파일을 읽어서 미리보기 생성
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -318,7 +318,7 @@ function handleImageFiles(files) {
                 src: event.target.result,
                 id: Date.now() + Math.random()
             };
-            
+
             uploadedImages.push(imageData);
             displayImagePreview(imageData);
         };
@@ -330,7 +330,7 @@ function handleImageFiles(files) {
 function displayImagePreview(imageData) {
     const previewContainer = document.getElementById('imagePreview');
     if (!previewContainer) return;
-    
+
     // 미리보기 아이템 생성
     const previewItem = document.createElement('div');
     previewItem.className = 'preview-item';
@@ -338,7 +338,7 @@ function displayImagePreview(imageData) {
         <img src="${imageData.src}" alt="미리보기" class="preview-image">
         <button type="button" class="remove-image" onclick="removeImage('${imageData.id}')">×</button>
     `;
-    
+
     previewContainer.appendChild(previewItem);
 }
 
@@ -348,7 +348,7 @@ function removeImage(imageId) {
     uploadedImages = uploadedImages.filter(function(img) {
         return img.id != imageId;
     });
-    
+
     // 미리보기 다시 그리기
     updateImagePreview();
 }
@@ -357,10 +357,10 @@ function removeImage(imageId) {
 function updateImagePreview() {
     const previewContainer = document.getElementById('imagePreview');
     if (!previewContainer) return;
-    
+
     // 기존 미리보기 모두 제거
     previewContainer.innerHTML = '';
-    
+
     // 현재 업로드된 이미지들로 다시 생성
     uploadedImages.forEach(function(imageData) {
         displayImagePreview(imageData);
@@ -374,13 +374,13 @@ function updateImagePreview() {
 // 실시간 유효성 검사 설정
 function setupRealtimeValidation() {
     const inputs = document.querySelectorAll('.form-input, .form-select');
-    
+
     inputs.forEach(function(input) {
         // 포커스를 잃었을 때
         input.addEventListener('blur', function() {
             validateField(input);
         });
-        
+
         // 내용이 변경될 때
         input.addEventListener('input', function() {
             if (input.classList.contains('error') && input.value.trim()) {
@@ -395,7 +395,7 @@ function setupRealtimeValidation() {
 function validateField(field) {
     const value = field.value.trim();
     const isRequired = field.hasAttribute('required');
-    
+
     if (isRequired && !value) {
         showFieldError(field, '필수 입력 항목입니다.');
         return false;
@@ -404,7 +404,7 @@ function validateField(field) {
         field.classList.add('success');
         return true;
     }
-    
+
     return true;
 }
 
@@ -412,13 +412,13 @@ function validateField(field) {
 function showFieldError(field, message) {
     field.classList.add('error');
     field.classList.remove('success');
-    
+
     // 기존 에러 메시지 제거
     const existingError = field.parentNode.querySelector('.error-message');
     if (existingError) {
         existingError.remove();
     }
-    
+
     // 새 에러 메시지 생성
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
@@ -429,7 +429,7 @@ function showFieldError(field, message) {
 // 필드 에러 제거
 function clearFieldError(field) {
     field.classList.remove('error');
-    
+
     const errorMessage = field.parentNode.querySelector('.error-message');
     if (errorMessage) {
         errorMessage.remove();
@@ -440,14 +440,14 @@ function clearFieldError(field) {
 function validateForm() {
     let isValid = true;
     const requiredFields = ['title', 'condition', 'region1', 'region2', 'category', 'description'];
-    
+
     requiredFields.forEach(function(fieldId) {
         const field = document.getElementById(fieldId);
         if (field && !validateField(field)) {
             isValid = false;
         }
     });
-    
+
     return isValid;
 }
 
@@ -549,19 +549,19 @@ async function handleFormSubmit(event) { // 'async' 키워드 유지
 function handleConditionChange() {
     const conditionSelect = document.getElementById('condition');
     const conditionPreview = document.getElementById('conditionPreview');
-    
+
     if (!conditionSelect || !conditionPreview) return;
-    
+
     const selectedCondition = conditionSelect.value;
-    
+
     // 미리보기 초기화
     conditionPreview.className = 'condition-preview';
     conditionPreview.style.display = 'none';
-    
+
     if (selectedCondition) {
         let previewText = '';
         let previewClass = '';
-        
+
         switch(selectedCondition) {
             case 'HIGH':
                 previewText = '👍 상태가 매우 좋은 상품입니다';
@@ -576,12 +576,12 @@ function handleConditionChange() {
                 previewClass = 'poor';
                 break;
         }
-        
+
         // 미리보기 표시
         conditionPreview.textContent = previewText;
         conditionPreview.classList.add(previewClass);
         conditionPreview.style.display = 'block';
-        
+
         // 애니메이션 효과
         setTimeout(function() {
             conditionPreview.style.opacity = '1';
@@ -594,11 +594,11 @@ function handleConditionChange() {
 function handleCategoryChange() {
     const categorySelect = document.getElementById('category');
     const descriptionInput = document.getElementById('description');
-    
+
     if (!categorySelect || !descriptionInput) return;
-    
+
     const category = categorySelect.value;
-    
+
     // 카테고리별 도움말
     const helpTexts = {
         '가구': '가구는 크기와 무게를 미리 안내해주세요.',
@@ -607,7 +607,7 @@ function handleCategoryChange() {
         '도서': '전집인지 단행본인지, 출간년도를 알려주세요.',
         '육아용품': '사용 기간과 안전성을 중점적으로 설명해주세요.'
     };
-    
+
     // 설명란이 비어있을 때만 도움말 추가
     if (helpTexts[category] && !descriptionInput.value) {
         const helpText = helpTexts[category];
@@ -630,7 +630,7 @@ function limitCharacters(input, maxLength, fieldName) {
 // 글자수 카운터 업데이트
 function updateCharacterCounter(input, maxLength) {
     const currentLength = input.value.length;
-    
+
     // 기존 카운터 찾기 또는 생성
     let counter = input.parentNode.querySelector('.char-counter');
     if (!counter) {
@@ -639,10 +639,10 @@ function updateCharacterCounter(input, maxLength) {
         counter.style.cssText = 'font-size: 12px; color: var(--medium-gray); text-align: right; margin-top: 5px;';
         input.parentNode.appendChild(counter);
     }
-    
+
     // 카운터 텍스트 업데이트
     counter.textContent = `${Math.min(currentLength, maxLength)}/${maxLength}`;
-    
+
     // 글자수가 많아지면 색상 변경
     if (currentLength > maxLength * 0.9) {
         counter.style.color = 'var(--error-red)';
@@ -658,26 +658,26 @@ function updateCharacterCounter(input, maxLength) {
 // 알림 메시지 표시
 function showNotification(message, type) {
     type = type || 'success';
-    
+
     // 기존 알림 제거
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     // 페이지에 추가
     document.body.appendChild(notification);
-    
+
     // 애니메이션으로 표시
     setTimeout(function() {
         notification.classList.add('show');
     }, 100);
-    
+
     // 3초 후 자동 제거
     setTimeout(function() {
         notification.classList.remove('show');
@@ -697,7 +697,7 @@ function showNotification(message, type) {
 function goBack() {
     // 입력된 내용이 있는지 확인
     const hasContent = checkFormHasContent();
-    
+
     if (hasContent) {
         if (confirm('입력한 내용이 사라집니다. 정말로 나가시겠습니까?')) {
             window.history.back();
@@ -711,7 +711,7 @@ function goBack() {
 function checkFormHasContent() {
     const inputs = document.querySelectorAll('.form-input, .form-select');
     let hasContent = false;
-    
+
     inputs.forEach(function(input) {
         // 작성자와 등록일은 제외
         if (input.id !== 'author' && input.id !== 'regDate') {
@@ -720,12 +720,12 @@ function checkFormHasContent() {
             }
         }
     });
-    
+
     // 업로드된 이미지가 있는지도 확인
     if (uploadedImages.length > 0) {
         hasContent = true;
     }
-    
+
     return hasContent;
 }
 
@@ -743,7 +743,7 @@ function checkFormHasContent() {
         category: document.getElementById('category').value,
         description: document.getElementById('description').value
     };
-    
+
     // 서버에 임시 저장
     fetch('/api/free-sharing/draft', {
         method: 'POST',
@@ -764,7 +764,7 @@ function restoreDraft() {
         .then(data => {
             if (data.success && data.draft) {
                 const formData = data.draft;
-                
+
                 // 각 필드에 저장된 값 복원
                 if (formData.title) document.getElementById('title').value = formData.title;
                 if (formData.condition) document.getElementById('condition').value = formData.condition;
@@ -782,7 +782,7 @@ function restoreDraft() {
                     handleCategoryChange();
                 }
                 if (formData.description) document.getElementById('description').value = formData.description;
-                
+
                 console.log('임시 저장된 데이터를 복원했습니다.');
             }
         })
@@ -802,12 +802,12 @@ function clearDraft() {
 // 자동 저장 타이머 설정
 function setupAutoSave() {
     const inputs = document.querySelectorAll('.form-input, .form-select');
-    
+
     inputs.forEach(function(input) {
         input.addEventListener('input', function() {
             // 기존 타이머가 있으면 취소
             clearTimeout(input.autoSaveTimeout);
-            
+
             // 1초 후에 자동 저장 실행
             input.autoSaveTimeout = setTimeout(autoSave, 1000);
         });
@@ -828,7 +828,7 @@ document.addEventListener('keydown', function(event) {
             form.dispatchEvent(new Event('submit'));
         }
     }
-    
+
     // ESC: 취소
     if (event.key === 'Escape') {
         goBack();
@@ -857,10 +857,10 @@ window.addEventListener('beforeunload', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     // 자동 저장 기능 설정
     //setupAutoSave();
-    
+
     // 임시 저장된 데이터 복원
     //restoreDraft();
-    
+
     // 폼 제출 성공시 임시 저장 데이터 삭제는 handleFormSubmit에서 처리
 });
 
@@ -883,7 +883,7 @@ window.validateForm = validateForm;
 // 전역 에러 처리
 window.addEventListener('error', function(event) {
     console.error('페이지 오류:', event.error);
-    
+
     // 서버에 에러 리포트 전송
     /*fetch('/api/errors', {
         method: 'POST',

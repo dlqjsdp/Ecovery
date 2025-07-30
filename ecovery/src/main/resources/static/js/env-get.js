@@ -4,11 +4,13 @@
  * 제목, 작성자, 작성일, 조회수, 내용을 동적으로 렌더링
  *
  * @author : yukyeong
- * @fileName : eco-get.js
+ * @fileName : env-get.js
  * @since : 250722
  * @history
      - 250722 | yukyeong | 게시글 단건 조회 비동기 처리 기능 최초 작성
  */
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const envId = urlParams.get("envId");
@@ -24,11 +26,25 @@ document.addEventListener("DOMContentLoaded", function () {
             return res.json();
         })
         .then(data => {
-            document.getElementById("postTitle").textContent = data.title;
-            document.getElementById("postAuthor").textContent = data.nickname;
-            document.getElementById("postDate").textContent = formatDate(data.createdAt);
-            document.getElementById("postViews").textContent = data.viewCount;
-            document.getElementById("postContent").textContent = data.content;
+            // 날짜 포맷 처리
+            const formattedDate = formatDate(data.createdAt);
+
+            // 조회수 포맷 처리
+            const views = new Intl.NumberFormat().format(data.viewCount) + '회';
+
+            // DOM에 렌더링
+            document.getElementById("post-title").textContent = data.title;
+            document.getElementById("post-author").textContent = data.author?.nickname ?? "알 수 없음";
+            document.getElementById("post-avatar").textContent = data.author?.avatar ?? '👤';
+            document.getElementById("post-date").textContent = formattedDate;
+            document.getElementById("post-views").textContent = views;
+            document.getElementById("post-content").innerHTML = data.content;
+
+            // 카테고리 렌더링
+            if (data.category?.displayName) {
+                document.getElementById("post-category").textContent = data.category.displayName;
+                document.getElementById("post-category-wrapper").style.display = 'block';
+            }
         })
         .catch(err => {
             console.error("조회 실패", err);

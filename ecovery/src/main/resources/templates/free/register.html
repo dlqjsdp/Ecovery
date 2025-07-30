@@ -11,7 +11,7 @@
 <div layout:fragment="content">
 
 
-<!-- 현재 위치 표시 (빵부스러기) -->
+    <!-- 현재 위치 표시 (빵부스러기) -->
     <section class="breadcrumb">
         <div class="container">
             <nav class="breadcrumb-nav">
@@ -274,107 +274,111 @@
     </section>
 </div>
 
+
 <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
 <th:block layout:fragment="script">
     <script src="/js/free-sharing-register.js"></script>
 
 
 
-<!-- 폼 데이터를 JavaScript로 전달 -->
-<script th:inline="javascript">
-    // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
-    var categoriesData = /*[[${sharingForm.category}]]*/ [];
-    var regionsData = /*[[${sharingForm.regionGu}]]*/ [];
-    var currentUser = /*[[${session.memberNickname}]]*/ {};
+    <!-- 폼 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var categoriesData = /*[[${sharingForm.category}]]*/ [];
+        var regionsData = /*[[${sharingForm.regionGu}]]*/ [];
+        var currentUser = /*[[${session.memberNickname}]]*/ {};
 
-    // 전역 변수로 설정
-    window.categoriesData = categoriesData;
-    window.regionsData = regionsData;
-    window.currentUser = currentUser;
+        // 전역 변수로 설정
+        window.categoriesData = categoriesData;
+        window.regionsData = regionsData;
+        window.currentUser = currentUser;
 
-    // 상품 상태 선택시 미리보기 표시
-    document.getElementById('condition').addEventListener('change', function() {
-        const conditionPreview = document.getElementById('conditionPreview');
-        const selectedValue = this.value;
+        // 상품 상태 선택시 미리보기 표시
+        document.getElementById('condition').addEventListener('change', function() {
+            const conditionPreview = document.getElementById('conditionPreview');
+            const selectedValue = this.value;
 
-        if (selectedValue) {
-            let conditionText = '';
-            let stars = '';
+            if (selectedValue) {
+                let conditionText = '';
+                let stars = '';
 
-            switch(selectedValue) {
-                case 'HIGH':
-                    conditionText = '매우 좋음 - 거의 사용하지 않아 새 제품과 같은 상태';
-                    stars = '⭐⭐⭐⭐⭐';
-                    break;
-                case 'MEDIUM':
-                    conditionText = '보통 - 일반적인 사용감이 있지만 기능상 문제없음';
-                    stars = '⭐⭐⭐';
-                    break;
-                case 'LOW':
-                    conditionText = '사용감 있음 - 오래 사용하여 흔적이 있지만 사용 가능';
-                    stars = '⭐⭐';
-                    break;
-            }
+                switch(selectedValue) {
+                    case 'HIGH':
+                        conditionText = '매우 좋음 - 거의 사용하지 않아 새 제품과 같은 상태';
+                        stars = '⭐⭐⭐⭐⭐';
+                        break;
+                    case 'MEDIUM':
+                        conditionText = '보통 - 일반적인 사용감이 있지만 기능상 문제없음';
+                        stars = '⭐⭐⭐';
+                        break;
+                    case 'LOW':
+                        conditionText = '사용감 있음 - 오래 사용하여 흔적이 있지만 사용 가능';
+                        stars = '⭐⭐';
+                        break;
+                }
 
-            conditionPreview.innerHTML = `
+                conditionPreview.innerHTML = `
+
                     <div style="padding: 10px; background: #f5f5f5; border-radius: 5px; margin-top: 10px;">
                         <span style="font-size: 16px;">${stars}</span>
                         <span style="margin-left: 10px; color: #666;">${conditionText}</span>
                     </div>
                 `;
-        } else {
-            conditionPreview.innerHTML = '';
-        }
-    });
 
-    // 이미지 업로드 처리
-    /*document.getElementById('imageInput').addEventListener('change', function(event) {
-        const files = event.target.files;
-        const imagePreview = document.getElementById('imagePreview');
-
-        // 기존 미리보기 초기화
-        imagePreview.innerHTML = '';
-
-        if (files.length > 5) {
-            alert('최대 5개의 이미지만 업로드할 수 있습니다.');
-            this.value = '';
-            return;
-        }
-
-        // 이미지 미리보기 생성
-        Array.from(files).forEach((file, index) => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imageDiv = document.createElement('div');
-                    imageDiv.className = 'preview-image';
-                    imageDiv.innerHTML = `
-                            <img src="${e.target.result}" alt="미리보기 ${index + 1}">
-                            <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
-                        `;
-                    imagePreview.appendChild(imageDiv);
-                };
-                reader.readAsDataURL(file);
+            } else {
+                conditionPreview.innerHTML = '';
             }
         });
-    });*/
 
-    // 이미지 제거 함수
-    function removeImage(index) {
-        const imageInput = document.getElementById('imageInput');
-        const dt = new DataTransfer();
-        const files = Array.from(imageInput.files);
+        // 이미지 업로드 처리
+        /*document.getElementById('imageInput').addEventListener('change', function(event) {
+            const files = event.target.files;
+            const imagePreview = document.getElementById('imagePreview');
 
-        files.splice(index, 1);
-        files.forEach(file => dt.items.add(file));
+            // 기존 미리보기 초기화
+            imagePreview.innerHTML = '';
 
-        imageInput.files = dt.files;
+            if (files.length > 5) {
+                alert('최대 5개의 이미지만 업로드할 수 있습니다.');
+                this.value = '';
+                return;
+            }
 
-        // 미리보기 다시 생성
-        const changeEvent = new Event('change', { bubbles: true });
-        imageInput.dispatchEvent(changeEvent);
-    }
-</script>
+
+            // 이미지 미리보기 생성
+            Array.from(files).forEach((file, index) => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'preview-image';
+                        imageDiv.innerHTML = `
+                                <img src="${e.target.result}" alt="미리보기 ${index + 1}">
+                                <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
+                            `;
+                        imagePreview.appendChild(imageDiv);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });*/
+
+        // 이미지 제거 함수
+        function removeImage(index) {
+            const imageInput = document.getElementById('imageInput');
+            const dt = new DataTransfer();
+            const files = Array.from(imageInput.files);
+
+            files.splice(index, 1);
+            files.forEach(file => dt.items.add(file));
+
+            imageInput.files = dt.files;
+
+            // 미리보기 다시 생성
+            const changeEvent = new Event('change', { bubbles: true });
+            imageInput.dispatchEvent(changeEvent);
+        }
+    </script>
 
 </th:block>
 

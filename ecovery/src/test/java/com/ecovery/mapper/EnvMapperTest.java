@@ -77,7 +77,7 @@ class EnvMapperTest {
 
         // Then: category도 함께 조회되었는지 확인
         assertNotNull(readVo);
-        assertEquals("policy", readVo.getCategory()); // ✅ category 확인
+        assertEquals("policy", readVo.getCategory()); // category 확인
         log.info("단건 조회 결과: {}", readVo);
     }
 

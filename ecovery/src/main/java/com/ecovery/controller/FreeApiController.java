@@ -59,11 +59,11 @@ public class FreeApiController {
     private final Validator validator; // 수동 유효성 검사 - JSON + 이미지 같이 받을땐 @Valid 작동 안해서
 
     /*
-      게시글 등록 요청 처리
-     - 로그인한 사용자(회원 또는 관리자)만 등록 가능
-     - 게시글 정보(freeDto)와 이미지(imgFiles)를 multipart/form-data 형식으로 전달받음
-     - 유효성 검사, 사용자 인증, 서비스 로직 호출 후 결과 반환
-     */
+     게시글 등록 요청 처리
+    - 로그인한 사용자(회원 또는 관리자)만 등록 가능
+    - 게시글 정보(freeDto)와 이미지(imgFiles)를 multipart/form-data 형식으로 전달받음
+    - 유효성 검사, 사용자 인증, 서비스 로직 호출 후 결과 반환
+    */
     @PostMapping("/register")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<String> register(
@@ -97,6 +97,7 @@ public class FreeApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
         }
         Long memberId = member.getMemberId();
+
         freeDto.setMemberId(memberId);
 
         // 게시글 등록 시도 (서비스 호출)
@@ -143,7 +144,7 @@ public class FreeApiController {
      - 이미지 정보(imgList)까지 포함된 FreeDto 반환
      - 누구나 접근 가능 (로그인 불필요)
     */
-    @GetMapping("/{freeId}")
+    @GetMapping("/get/{freeId}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long freeId){
         log.info("게시글 상세 조회 요청 - freeId: {}", freeId);
 

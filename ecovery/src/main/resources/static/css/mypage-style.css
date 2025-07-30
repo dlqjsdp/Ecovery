@@ -343,6 +343,46 @@ body {
     text-align: center;
 }
 
+/* Success state */
+.form-success .auth-card {
+    border-color: var(--success-green);
+}
+
+.form-success .auth-card::before {
+    background: var(--success-green);
+}
+
+/* ==========================================================================
+   Error 메시지 스타일 - 수정 및 덮어쓰기용
+   ========================================================================== */
+:root {
+    --error-red: #e53935;
+}
+
+/* 공통 유효성 메시지 스타일 */
+.validation-message {
+    color: var(--error-red);        /* 빨간색 적용 */
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 400;
+    display: none;                  /* 기본은 숨김 */
+}
+
+/* 각 비밀번호 관련 오류 클래스도 공통 스타일과 동일하게 정리 */
+.currentPasswordError,
+.newPasswordError,
+.confirmPasswordError {
+    color: var(--error-red);        /* 빨간색 */
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 400;
+    display: none;
+}
+
+.error-message {
+    color: var(--error-red);
+}
+
 /* ==========================================================================
    대시보드 메인 섹션
    ========================================================================== */

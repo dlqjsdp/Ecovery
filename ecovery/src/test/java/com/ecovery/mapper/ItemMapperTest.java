@@ -31,6 +31,10 @@ import java.util.List;
  *  - 250717 | sehui | 상품 수정 Test 실행
  *  - 250718 | sehui | 상품 삭제 Test 실행
  *  - 250722 | sehui | 재고 수량 감소 Test 실행
+ *  - 250729 | sehui | 전체 상품 조회 - 상품명 조건 검색 Test 실행
+ *  - 250729 | sehui | 전체 상품 조회 - 카테고리 조건 검색 Test 실행
+ *  - 250729 | sehui | 전체 상품 조회 - 전체 조건 검색 Test 실행
+ *  - 250729 | sehui | 전체 상품의 수 조회 - 전체 검색 조건 Test 실행
  */
 
 @SpringBootTest
@@ -67,7 +71,7 @@ class ItemMapperTest {
     @DisplayName("전체 상품의 수 조회 - 조건 없이")
     public void testGetTotalCount(){
 
-        //given : 페이징 처리 조건 생성
+        //given : 조건 없이
         String itemNm = "";
         String category = "";
 
@@ -218,5 +222,87 @@ class ItemMapperTest {
         log.info("afterItem >> {}", afterItem);
         log.info("afterStock >> {}", afterStock);
 
+    }
+
+    @Test
+    @DisplayName("전체 상품 조회 - 상품명 조건 검색")
+    public void testSearchByItemName() {
+
+        //given : 검색 조건 설정
+        String itemNm = "수정";
+        String category = "";
+        Criteria cri = new Criteria(1, 10);
+
+        //when : 조건 검색을 포함한 전체 상품 조회
+        List<ItemListDto> result = itemMapper.getListWithPage(itemNm, category, cri);
+
+        //then : 결과 검증
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+
+        for(ItemListDto item : result) {
+            assertTrue(item.getItemNm().contains("수정"));
+            log.info("Item >> {}", item);
+        }
+    }
+
+    @Test
+    @DisplayName("전체 상품 조회 - 카테고리 조건 검색")
+    public void testSearchByCategory() {
+
+        //given : 검색 조건 설정
+        String itemNm = "";
+        String category = "가구";
+        Criteria cri = new Criteria(1, 10);
+
+        //when : 조건 검색을 포함한 전체 상품 조회
+        List<ItemListDto> result = itemMapper.getListWithPage(itemNm, category, cri);
+
+        //then : 결과 검증
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+
+        for(ItemListDto item : result) {
+            assertTrue(item.getCategory().contains("가구"));
+            log.info("Item >> {}", item);
+        }
+    }
+
+    @Test
+    @DisplayName("전체 상품 조회 - 전체 조건 검색")
+    public void testSearchByAll() {
+
+        //given : 검색 조건 설정
+        String keyword = "제품";
+        Criteria cri = new Criteria(1, 10);
+
+        //when : 조건 검색을 포함한 전체 상품 조회
+        List<ItemListDto> result = itemMapper.getListWithPage(keyword, keyword, cri);
+
+        //then : 결과 검증
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+
+        for(ItemListDto item : result) {
+            boolean nameMatch = item.getItemNm() != null && item.getItemNm().contains("제품");
+            boolean categoryMatch = item.getCategory() != null && item.getCategory().contains("제품");
+            assertTrue(nameMatch || categoryMatch);
+            log.info("Item >> {}", item);
+        }
+    }
+
+    @Test
+    @DisplayName("전체 상품의 수 조회 - 상품명 조건 검색")
+    public void testGetTotalCountByItemNm() {
+        // given
+        String itemNm = "수정";  // 실제 DB에 존재하는 상품명 일부 또는 전체
+        String category = "";
+
+        // when
+        int totalCount = itemMapper.getTotalCount(itemNm, category);
+
+        // then
+        assertTrue(totalCount > 0, "상품명이 포함된 결과가 있어야 합니다.");
+        log.info("Total Count by ItemNm >> : {}", totalCount);
     }
 }
