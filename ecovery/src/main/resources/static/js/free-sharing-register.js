@@ -225,7 +225,7 @@ function setupEventListeners() {
 // 지역 선택 관련 함수
 // =========================
 
-// 시/도가 변경되었을 때 실행
+// 구가 변경되었을 때 실행
 function handleRegion1Change() {
     const region1Select = document.getElementById('region1');
     const region2Select = document.getElementById('region2');
@@ -234,10 +234,10 @@ function handleRegion1Change() {
 
     const selectedRegion = region1Select.value;
 
-    // 구/군 선택박스 초기화
-    region2Select.innerHTML = '<option value="">구/군</option>';
+    // 동 선택박스 초기화
+    region2Select.innerHTML = '<option value="">동</option>';
 
-    // 선택된 시/도에 해당하는 구/군 추가
+    // 선택된 구에 해당하는 동 추가
     if (selectedRegion && regionData[selectedRegion]) {
         regionData[selectedRegion].forEach(function(district) {
             const option = document.createElement('option');
@@ -320,37 +320,44 @@ function handleImageFiles(files) {
             };
 
             uploadedImages.push(imageData);
-            displayImagePreview(imageData);
+            displayImagePreview(imageData, uploadedImages.length - 1);
         };
         reader.readAsDataURL(file);
     });
 }
 
 // 이미지 미리보기 표시
-function displayImagePreview(imageData) {
+function displayImagePreview(imageData, index) {
     const previewContainer = document.getElementById('imagePreview');
     if (!previewContainer) return;
 
     // 미리보기 아이템 생성
     const previewItem = document.createElement('div');
     previewItem.className = 'preview-item';
-    previewItem.innerHTML = `
-        <img src="${imageData.src}" alt="미리보기" class="preview-image">
-        <button type="button" class="remove-image" onclick="removeImage('${imageData.id}')">×</button>
-    `;
+    previewItem.innerHTML = `<img src="${imageData.src}" alt="미리보기" class="preview-image">
+        <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>`;
 
     previewContainer.appendChild(previewItem);
 }
 
 // 이미지 삭제
-function removeImage(imageId) {
-    // 배열에서 해당 이미지 제거
-    uploadedImages = uploadedImages.filter(function(img) {
-        return img.id != imageId;
-    });
+function removeImage(index) {
+    const imageInput = document.getElementById('imageInput');
+    const dt = new DataTransfer();
+    const files = Array.from(imageInput.files);
 
-    // 미리보기 다시 그리기
+    files.splice(index, 1);
+    files.forEach(file => dt.items.add(file));
+
+    imageInput.files = dt.files;
+
+    uploadedImages.splice(index, 1);
+
     updateImagePreview();
+
+    // 미리보기 다시 생성
+    const changeEvent = new Event('change', { bubbles: true });
+    imageInput.dispatchEvent(changeEvent);
 }
 
 // 이미지 미리보기 업데이트
@@ -362,8 +369,8 @@ function updateImagePreview() {
     previewContainer.innerHTML = '';
 
     // 현재 업로드된 이미지들로 다시 생성
-    uploadedImages.forEach(function(imageData) {
-        displayImagePreview(imageData);
+    uploadedImages.forEach(function(imageData, index) {
+        displayImagePreview(imageData, index);
     });
 }
 
@@ -520,7 +527,7 @@ async function handleFormSubmit(event) { // 'async' 키워드 유지
                 if (confirm('나눔 목록 페이지로 이동하시겠습니까?')) {
                     window.location.href = '/free/list';
                 }
-            }, 2000); // 2초 후 확인 메시지 표시
+            }, 500); // 0.5초 후 확인 메시지 표시
         } else {
             // 에러 메시지 보여주기
             showNotification(text || '등록 중 오류가 발생했습니다.', 'error');
@@ -840,14 +847,14 @@ document.addEventListener('keydown', function(event) {
 // =========================
 
 // 페이지를 벗어나려 할 때 경고 메시지
-window.addEventListener('beforeunload', function(event) {
+/*window.addEventListener('beforeunload', function(event) {
     // 폼에 내용이 있을 때만 경고
     if (checkFormHasContent()) {
         event.preventDefault();
         event.returnValue = '';
         return '';
     }
-});
+});*/
 
 // =========================
 // 페이지 초기화 완료 후 실행

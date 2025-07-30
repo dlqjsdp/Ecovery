@@ -56,21 +56,30 @@ public class FreeController {
     public String list() {
         return "free/list"; // 템플릿으로 이동
     }
+
     //무료나눔 상세 페이지
     @GetMapping("/get/{freeId}")
     public String get(@PathVariable Long freeId, Principal principal, Model model) {
-        // 로그인한 사용자 ID (비로그인 시 null)
+        // 게시글 정보 조회 (board.nickname 등 포함)
+        FreeDto board = freeService.get(freeId);
+        model.addAttribute("board", board); // Thymeleaf에서 board.nickname 등 사용
+
+        // 로그인 사용자 정보
+        String loginMemberNickname = null;
+        Role loginMemberRole = null;
+
         if (principal != null) {
-            String email = principal.getName();
-            MemberVO loginMember = memberService.getMemberByEmail(email);
+            String nickname = principal.getName(); // 이게 진짜 nickname이 나오는 구조인지 확인해야 함
+            MemberVO loginMember = memberService.getMemberByNickname(nickname);
+
             if (loginMember != null) {
-                model.addAttribute("loginMemberId", loginMember.getMemberId());
-                model.addAttribute("loginMemberNickname", loginMember.getNickname()); // 필요시
+                loginMemberNickname = loginMember.getNickname();
+                loginMemberRole = loginMember.getRole();
             }
         }
 
-        // 게시글 ID도 모델에 같이 넘기면 필요 시 Thymeleaf에서 활용 가능
-        model.addAttribute("freeId", freeId);
+        model.addAttribute("loginMemberNickname", loginMemberNickname);
+        model.addAttribute("loginMemberRole", loginMemberRole);
 
         return "free/get";
     }

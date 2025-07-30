@@ -37,7 +37,8 @@
                 <div class="image-section">
                     <!-- 메인 이미지 -->
                     <div class="main-image">
-                        <img id="mainImage" src="/img/default-sharing.svg" alt="대표 이미지">
+                        <!-- src는 JS에서 설정하므로 비워둠 -->
+                        <img id="mainImage" alt="대표 이미지">
                     </div>
                     <!-- 썸네일 이미지 컨테이너 -->
                     <div class="thumbnail-images" id="thumbnailImages">
@@ -57,8 +58,14 @@
                         </div>
 
                         <!-- 관리 버튼 (초기에 숨김 처리) -->
-                        <div class="product-actions" id="productActions" style="display: none;">
-                            <div class="dropdown">
+                        <!-- STEP 1: 로그인한 사용자만 관리 버튼 영역 진입 -->
+                        <div class="product-actions"
+                             th:if="${#authentication.authenticated}"
+                             id="productActions">
+
+                            <!-- STEP 2: 작성자 또는 관리자일 경우에만 버튼 표시 -->
+                            <!-- 수정/삭제 버튼은 로그인한 사용자이면서 작성자 또는 관리자일 때만 표시 -->
+                            <div th:if="${loginMemberNickname != null and (loginMemberNickname == board.nickname or loginMemberRole?.name() == 'ADMIN')}" class="dropdown">
                                 <button class="dropdown-toggle" id="dropdownToggle">
                                     <span class="dots">⋯</span>
                                 </button>
@@ -118,6 +125,7 @@
                             <span class="detail-value">
                                 <span id="regionGu">강남구</span>
                                 <span id="regionDong">역삼동</span>
+                            </span>
                         </div>
                         <div class="detail-row">
                             <span class="detail-label">상세 설명</span>
@@ -126,6 +134,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- 댓글 설명 -->
             <div class="comment">
@@ -145,20 +154,20 @@
 </div>
 
 <th:block layout:fragment="script">
-    <!-- 🔐 로그인 사용자 정보 및 게시글 ID를 JS 전역 변수로 전달 -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var loginUser = [[${loginMemberId != null ? loginMemberId : 'null'}]];  // 숫자 or null
-        var freeId = [[${freeId}]];  // 숫자
+<!--    &lt;!&ndash; 🔐 로그인 사용자 정보 및 게시글 ID를 JS 전역 변수로 전달 &ndash;&gt;-->
+<!--    <script th:inline="javascript">-->
+<!--        /*<![CDATA[*/-->
+<!--        var loginUser = [[${loginMemberId != null ? loginMemberId : 'null'}]];  // 숫자 or null-->
+<!--        var freeId = [[${freeId}]];  // 숫자-->
 
-        // 로그인 사용자 정보 객체
-        var currentUser = {
-            id: [[${loginMemberId != null ? loginMemberId : 'null'}]],  // 숫자 or null (따옴표 ❌)
-            nickname: /*[[${loginMemberNickname != null ? "'" + loginMemberNickname + "'" : "''"}]]*/,  // 문자열이면 따옴표 필요 (따옴표 안에서 또 따옴표!)
-            isLoggedIn: [[${loginMemberId != null}]]  // boolean
-        };
-        /*]]>*/
-    </script>
+<!--        // 로그인 사용자 정보 객체-->
+<!--        var currentUser = {-->
+<!--            id: [[${loginMemberId != null ? loginMemberId : 'null'}]],  // 숫자 or null (따옴표 ❌)-->
+<!--            nickname: /*[[${loginMemberNickname != null ? "'" + loginMemberNickname + "'" : "''"}]]*/,  // 문자열이면 따옴표 필요 (따옴표 안에서 또 따옴표!)-->
+<!--            isLoggedIn: [[${loginMemberId != null}]]  // boolean-->
+<!--        };-->
+<!--        /*]]>*/-->
+<!--    </script>-->
 
     <!-- 메인 JS 파일 -->
     <script th:src="@{/js/free-sharing-detail.js}"></script>

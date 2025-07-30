@@ -127,19 +127,19 @@
     <!-- 게시글 상세 조회 + 작성자 닉네임 포함 -->
     <select id="read" resultMap="freeMap">
         SELECT
-            f.free_id AS free_id,
+            f.free_id AS freeId,
             f.title AS title,
             f.content AS content,
             f.category AS category,
-            f.region_gu AS region_gu,
-            f.region_dong AS region_dong,
-            f.view_count AS view_count,
-            f.item_condition AS item_condition,
-            f.deal_status AS deal_status,
-            f.created_at AS created_at,
-            f.member_id AS member_id,
+            f.region_gu AS regionGu,
+            f.region_dong AS regionDong,
+            f.view_count AS viewCount,
+            f.item_condition AS itemCondition,
+            f.deal_status AS dealStatus,
+            f.created_at AS createdAt,
+            f.member_id AS memberId,
             m.nickname AS nickname,
-            i.img_url AS img_url
+            i.img_url AS imgUrl
         FROM free f
         JOIN member m ON f.member_id = m.member_id
         LEFT JOIN free_img i ON f.free_id = i.free_id AND i.repimg_yn = 'Y'

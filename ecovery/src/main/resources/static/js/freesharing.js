@@ -18,6 +18,7 @@ function getConditionText(condition){
     }
 }
 
+// 등록된 시간이 현재 시간보다 얼마나 지났는지 계산
 function formatTimeAgo(dateTime){
     const now = new Date();
     const created = new Date(dateTime);
@@ -32,13 +33,14 @@ function formatTimeAgo(dateTime){
 
 
 // 전역 변수 선언
-let currentItems = [];
-let filteredItems = [];
-let currentPage = 1;
-const itemsPerPage = 12;
-let sharingItemsData = [];
+let currentItems = [];  // 전체 나눔 게시글 데이터를 담는 배열
+let filteredItems = []; // 현재 필터링된 상태의 게시글들만 담는 배열
+let currentPage = 1;  // 현재 보고 있는 페이지 번호 (페이징용)
+const itemsPerPage = 8; // 한 페이지당 보여줄 게시글 수 (8개로 고정)
+// let totalPages = 1;
+let sharingItemsData = []; // 서버에서 받아온 전체 데이터를 원본 형태로 저장
 
-// DOM elements
+// DOM elements - HTML 요소(id로 찾은 것들)를 미리 변수로 선언해 놓은 코드
 const header = document.getElementById('header');
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
@@ -48,48 +50,61 @@ const loadMoreBtn = document.getElementById('loadMoreBtn');
 const totalItems = document.getElementById('totalItems');
 const pagination = document.getElementById('pagination');
 
+
 /* 페이지가 처음 로딩되었을 때 실행되는 함수*/
 // 1. 페이지 로드 후 실행
-document.addEventListener('DOMContentLoaded', async function(){
+document.addEventListener('DOMContentLoaded', async function() {
     initializePage(); // 필터/모달 초기화
 
-    try{
+    // 첫 페이지 로딩
+    loadPage(currentPage);
+});
+
+// 페이지 번호에 따라 서버에서 데이터 요청하고 렌더링하는 함수
+async function loadPage(pageNum) {
+    try {
         // 2. API로 데이터 요청
-        const res = await fetch('/api/free/list'); // 실제 API URL 로딩
+        const res = await fetch(`/api/free/list?pageNum=${currentPage}&amount=${itemsPerPage}`);
+        // const res = await fetch('/api/free/list'); // 실제 API URL 로딩
         const result = await res.json();
 
         console.log('전체 result:', result);
         console.log('result.list:', result.list);
         console.log('result.content:', result.content);
 
-        // 3. 응답 데이터 파싱
+        // 3. 응답 데이터 파싱 - 받은 데이터가 .list에 있으면 쓰고 아니면 .content 확인
         const list = Array.isArray(result.list)
             ? result.list
             : Array.isArray(result.content)
                 ? result.content
-                : [];
+                : []; // 아무것도 없으면 빈 배열
 
-        sharingItemsData = list;
+        sharingItemsData = list; // 원본 전체
 
-        // 4. 렌더링 대상 배열 복사
+        // 4. 렌더링 대상 배열 복사 - 현재 화면에 보여줄 대상 (필터링에 사용됨)
         currentItems = [...sharingItemsData];
         filteredItems = [...currentItems];
+
+        // pageMaker에서 total 페이지 수 계산
+        const totalCount = result.pageMaker?.total || list.length;
+        totalPages = Math.ceil(totalCount / itemsPerPage);
 
         // 5. 렌더링 함수 실행
         renderItems();  // 아이템 카드 렌더링
         updateItemCount(); // 아이템 수 갱신
-        renderPagination(); // 페이징 처리
+        renderPagination(totalPages); // 페이징 처리
 
         // 6. 버튼, 모달 등의 이벤트 바인딩 - DOM 렌더링 순서가 뒤엉키는 걸 방지
         window.requestAnimationFrame(() => {
             setupEventListeners();
         });
 
-    } catch (err){
+    } catch (err) {
         console.error('데이터 불러오기 실패 : ', err);
     }
-});
+}
 
+// 현재 필터링된 게시글 수를 화면에 표시하는 함수
 function updateItemCount() {
     const totalItems = document.getElementById('totalItems');
     if (totalItems) {
@@ -99,44 +114,15 @@ function updateItemCount() {
     }
 }
 
-function renderPagination() {
-    const pagination = document.getElementById('pagination');
-    if (!pagination) {
-        console.warn('⚠️ pagination 요소가 없습니다.');
-        return;
-    }
 
-    pagination.innerHTML = ''; // 기존 내용 초기화
-
-    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-
-    for (let i = 1; i <= totalPages; i++) {
-        const pageBtn = document.createElement('button');
-        pageBtn.textContent = i;
-        pageBtn.className = 'page-btn';
-        if (i === currentPage) {
-            pageBtn.classList.add('active');
-        }
-
-        // 페이지 클릭 이벤트
-        pageBtn.addEventListener('click', () => {
-            currentPage = i;
-            renderItems();
-        });
-
-        pagination.appendChild(pageBtn);
-    }
-}
-
-
-//  아이템 카드 생성 함수
+// 무료나눔 게시글을 아이템 카드 생성 함수
 function createItemElement(item) {
     const card = document.createElement('div');
     card.className = 'sharing-card';
 
     card.innerHTML = `
         <div class="item-image">
-            <img src="${item.imgUrl || '/img/default-sharing.svg'}" alt="${item.title}">
+            <img src="${item.imgUrl || '/img/logo.png'}" alt="${item.title}">
             <div class="item-status">${getStatusText(item.dealStatus)}</div>
         </div>
         <div class="item-info">
@@ -163,22 +149,6 @@ function createItemElement(item) {
     return card;
 }
 
-// // 결과 없음 표시 함수
-// function showEmptyState() {
-//     const itemsGrid = document.getElementById('itemsGrid');
-//     if (!itemsGrid) return;
-//
-//     const emptyDiv = document.createElement('div');
-//     emptyDiv.className = 'no-items-content';
-//     emptyDiv.innerHTML = `
-//         <h3>😔 검색 조건에 맞는 나눔이 없습니다</h3>
-//         <p>다른 조건으로 검색해보시거나, 직접 나눔을 등록해보세요!</p>
-//         <a href="/free/register" class="btn btn-primary">나눔 등록하기</a>
-//     `;
-//     itemsGrid.appendChild(emptyDiv);
-// }
-
-
 // Page initialization
 function initializePage() {
     // 헤더 스크롤 효과
@@ -204,23 +174,29 @@ function initializePage() {
 
 }
 
+function setupEventListeners() {
 //페이지 이동
-document.getElementById('addItemBtn').addEventListener('click', () => {
+document.getElementById('addItemBtn')?.addEventListener('click', () => {
     window.location.href = '/free/register';
 });
 
 // 필터 & 정렬
-document.getElementById('categoryFilter').addEventListener('change', applyFilters);
-document.getElementById('distanceFilter').addEventListener('change', applyFilters);
-document.getElementById('statusFilter').addEventListener('change', applyFilters);
-document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
-document.getElementById('sortSelect').addEventListener('change', applySorting);
+document.getElementById('categoryFilter')?.addEventListener('change', applyFilters);
+document.getElementById('searchInput')?.addEventListener('input', debounce(applyFilters, 300));
+document.getElementById('searchInput')?.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        applyFilters();
+    }
+});
+document.getElementById('sortSelect')?.addEventListener('change', applySorting);
+document.getElementById('searchBtn')?.addEventListener('click', applyFilters);
+
 
 // 더보기 버튼을 누르면 다음 페이지의 아이템을 더 불러옴
-loadMoreBtn.addEventListener('click', loadMoreItems);
+document.getElementById('loadMoreBtn')?.addEventListener('click', loadMoreItems);
 
-// 파일 업로드 영역(사진 업로드)을 초기화하고 관련 이벤트를 설정하는 함수
-setupFileUpload();
+}
 
 
 // Load items
@@ -247,28 +223,24 @@ function renderItems(append = false) {
         return;
     }
 
-    // 2. 초기 렌더링 시 이전 내용 제거
-    if (!append) {
-        itemsGrid.innerHTML = '';
-        currentPage = currentPage || 1;
-    }
+    // 1. 기존 내용 초기화
+    itemsGrid.innerHTML = '';
 
-    // 3. 현재 보여줄 항목 계산
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const itemsToShow = filteredItems.slice(startIndex, endIndex);
-
-    // 4. 결과가 없을 때
-    if (itemsToShow.length === 0 && currentPage === 1) {
-        showEmptyState?.(); // 함수가 있으면 실행
+    // 2. 결과 없을 때 처리
+    if (!filteredItems || filteredItems.length === 0) {
+        showEmptyState?.();
         loadMoreBtn.style.display = 'none';
         pagination.style.display = 'none';
         return;
     }
 
-    // 5. 아이템 렌더링
+    // 3. 서버에서 이미 페이징된 데이터를 받아왔기 때문에 slice 생략
+    const itemsToShow = filteredItems;
+
+
+    // 4. 아이템 렌더링
     itemsToShow.forEach(item => {
-        if(!item) {
+        if (!item) {
             console.warn("item이 undefined입니다. 필터링된 데이터:", filteredItems);
             return;
         }
@@ -277,21 +249,16 @@ function renderItems(append = false) {
         itemsGrid.appendChild(itemElement);
     });
 
-    // 6. 더보기 버튼 표시 여부
-    if (endIndex >= filteredItems.length) {
-        loadMoreBtn.style.display = 'none';
-    } else {
-        loadMoreBtn.style.display = 'block';
-    }
-
-    // 7. 페이지네이션 표시
+    // 5. 더보기 버튼 숨김, 페이지네이션 표시
+    loadMoreBtn.style.display = 'none';
     pagination.style.display = 'flex';
-    renderPagination?.(); // 함수가 있으면 실행
+    renderPagination?.(); // 페이지네이션 렌더링 함수 실행
 }
 
 // 새로운 페이징 렌더링 함수
 function renderPagination() {
-    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    const pagination = document.getElementById('pagination');
+    if (!pagination) return;
 
     if (totalPages <= 1) {
         pagination.style.display = 'none';
@@ -332,13 +299,18 @@ function createPaginationButton(text, pageNum, disabled = false, active = false)
     button.textContent = text;
 
     if (!disabled) {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
+            // '...' 버튼 클릭 시에는 아무 동작도 하지 않음
+            if (text === '...') {
+                return;
+            }
             currentPage = pageNum;
-            renderItems();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            await loadPage(currentPage); // 서버에서 해당 페이지 데이터
+            renderPagination(totalPages); // 페이지 버튼 active 개신
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 상단으로 스크롤
         });
     }
-
     return button;
 }
 
@@ -415,32 +387,30 @@ function createItemElement(item) {
     return itemDiv;
 }
 
-
-
 const detailContent = document.getElementById('detailContent');
-document.getElementById('detailTitle').textContent = item.title;
+    document.getElementById('detailTitle').textContent = item.title;
 
 // 이미지 배열 안전 처리 - imgList에서 imgUrl만 추출
-const images = Array.isArray(item.imgList)
-    ? item.imgList.map(img => img.imgUrl)
-    : [];
+    const images = Array.isArray(item.imgList)
+        ? item.imgList.map(img => img.imgUrl)
+        : [];
 
 // 대표 이미지 설정 (첫번째 이미지 또는 기본이미지)
-const mainImage = images.length > 0
-    ? `<img src="${images[0]}" alt="대표 이미지">`
-    : `<img src="/img/logo.png" alt="기본 이미지">`;
+    const mainImage = images.length > 0
+        ? `<img src="${images[0]}" alt="대표 이미지">`
+        : `<img src="/img/logo.png" alt="기본 이미지">`;
 
 // 썸네일 리스트 HTML 생성
-const thumbnails = images.length > 0
-    ? images.map((img, index) => `
+    const thumbnails = images.length > 0
+        ? images.map((img, index) => `
             <div class="thumbnail ${index === 0 ? 'active' : ''}">
                 <img src="${img}" alt="썸네일 ${index + 1}">
             </div>
         `).join('')
-    : `<div class="thumbnail active"><img src="/img/logo2.png" alt="기본 썸네일"></div>`;
+        : `<div class="thumbnail active"><img src="/img/logo2.png" alt="기본 썸네일"></div>`;
 
 // 상세 내용 렌더링
-detailContent.innerHTML = `
+    detailContent.innerHTML = `
         <div class="detail-images">
             <div class="main-image">
                 ${mainImage}
@@ -487,24 +457,33 @@ detailContent.innerHTML = `
 
 
 
-// Apply filters
+// 무료나눔 게시판에서 검색 필터링 기능을 수행하는 함수
 function applyFilters() {
-    const category = document.getElementById('categoryFilter').value;
-    const distance = document.getElementById('distanceFilter').value;
-    const status = document.getElementById('statusFilter').value;
+    const searchScope = document.getElementById('categoryFilter').value; // title, region, content 중 선택
     const search = document.getElementById('searchInput').value.toLowerCase();
 
     filteredItems = currentItems.filter(item => {
-        if (category && item.category !== category) return false;
-        if (status && item.status !== status) return false;
-        if (search && !item.title.toLowerCase().includes(search) &&
-            !item.description.toLowerCase().includes(search)) return false;
+        const title = item.title?.toLowerCase() || '';
+        const content = item.content?.toLowerCase() || '';
+        const region = (item.regionGu + ' ' + item.regionDong)?.toLowerCase() || '';
 
-        // Distance filter (simplified)
-        if (distance) {
-            const itemDistance = parseFloat(item.distance);
-            const maxDistance = parseFloat(distance) / 1000; // Convert m to km
-            if (itemDistance > maxDistance) return false;
+        // 검색어가 있을 때, 선택된 필드만 검사
+        if (search) {
+            switch (searchScope) {
+                case 'title':
+                    if (!title.includes(search)) return false;
+                    break;
+                case 'content':
+                    if (!content.includes(search)) return false;
+                    break;
+                case 'region':
+                    if (!region.includes(search)) return false;
+                    break;
+                default: // 전체
+                    if (!title.includes(search) && !content.includes(search) && !region.includes(search)) {
+                        return false;
+                    }
+            }
         }
 
         return true;
@@ -542,27 +521,28 @@ function loadMoreItems() {
     renderItems(true);
 }
 
-// Update item count
 function updateItemCount() {
-    totalItems.textContent = `총 ${filteredItems.length}개`;
+    const totalItems = document.getElementById('totalItems');
+    if (totalItems) {
+        totalItems.textContent = `총 ${filteredItems.length}건`;
+    } else {
+        console.warn('⚠️ totalItems 요소를 찾을 수 없습니다.');
+    }
 }
-
-// Show empty state
+// 결과없음을 보여주는 코드
 function showEmptyState() {
     itemsGrid.innerHTML = `
         <div class="empty-state" style="grid-column: 1 / -1;">
             <div class="empty-icon">🔍</div>
             <h3>검색 결과가 없습니다</h3>
             <p>다른 검색어나 필터를 시도해보세요.<br>또는 새로운 나눔 물건을 등록해보세요!</p>
+            <a href="/free/register" class="btn btn-primary">나눔 등록하기</a>
         </div>
     `;
 }
 
 
-
-
-
-// Get category name
+// 해당하는 한글 카테고리명
 function getCategoryName(category) {
     const categories = {
         'furniture': '가구',
@@ -573,14 +553,7 @@ function getCategoryName(category) {
     return categories[category] || '기타';
 }
 
-
-
-// Remove preview image
-function removePreview(button) {
-    button.parentElement.remove();
-}
-
-// Notification system
+// 알림창 예쁘게 보여주는 코드
 function showNotification(message, type = 'success') {
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
@@ -624,7 +597,7 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// Utility functions
+// 디바운스 유틸리티 함수 - 자주 실행되는 함수의 호출 횟수를 제어해서 성능을 향상시키는 함수
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
