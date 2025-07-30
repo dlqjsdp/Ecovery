@@ -1,5 +1,5 @@
 /*서버에서 받은 데이터를 사용자가 읽기 좋게 바꿔주는 유틸리티 함수*/
-// 거래생태
+// 거래상태
 function getStatusText(status){
     switch (status){
         case 'ONGOING': return '나눔중';
@@ -11,10 +11,10 @@ function getStatusText(status){
 // 상품상태
 function getConditionText(condition){
     switch (condition){
-        case 'HIGH': return "최상";
-        case 'MEDIUM': return '중간';
-        case 'LOW': return '사용감 있음';
-        default: return '최상';
+        case 'HIGH': return "상 (매우 좋음)";
+        case 'MEDIUM': return '중 (보통)';
+        case 'LOW': return '하 (사용감 있음)';
+        default: return '상 (매우 좋음)';
     }
 }
 
@@ -43,11 +43,6 @@ const header = document.getElementById('header');
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 const addItemBtn = document.getElementById('addItemBtn');
-const addItemModal = document.getElementById('addItemModal');
-const itemDetailModal = document.getElementById('itemDetailModal');
-const closeModal = document.getElementById('closeModal');
-const closeDetailModal = document.getElementById('closeDetailModal');
-const addItemForm = document.getElementById('addItemForm');
 const itemsGrid = document.getElementById('itemsGrid');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 const totalItems = document.getElementById('totalItems');
@@ -69,8 +64,8 @@ document.addEventListener('DOMContentLoaded', async function(){
 
         // 3. 응답 데이터 파싱
         const list = Array.isArray(result.list)
-                ? result.list
-                : Array.isArray(result.content)
+            ? result.list
+            : Array.isArray(result.content)
                 ? result.content
                 : [];
 
@@ -85,8 +80,10 @@ document.addEventListener('DOMContentLoaded', async function(){
         updateItemCount(); // 아이템 수 갱신
         renderPagination(); // 페이징 처리
 
-        // 6. 버튼, 모달 등의 이벤트 바인딩
-        setupEventListeners();
+        // 6. 버튼, 모달 등의 이벤트 바인딩 - DOM 렌더링 순서가 뒤엉키는 걸 방지
+        window.requestAnimationFrame(() => {
+            setupEventListeners();
+        });
 
     } catch (err){
         console.error('데이터 불러오기 실패 : ', err);
@@ -158,8 +155,9 @@ function createItemElement(item) {
         </div>
     `;
 
+    //상세페이지로 이동
     card.addEventListener('click', () => {
-        window.location.href = `/free/${item.freeId}`;
+        window.location.href = `/free/get.html?id=${item.freeId}`;
     });
 
     return card;
@@ -206,46 +204,31 @@ function initializePage() {
 
 }
 
-// 페이지가 동작하게 만드는 핵심 JS 함수
-function setupEventListeners() {
-    // 모달 열기 버튼 클릭 시
-    addItemBtn.addEventListener('click', () => openModal(addItemModal));
-    // 나눔 등록 버튼 클릭하면 addItemModal 모달이 열림
-    closeModal.addEventListener('click', () => closeModalHandler(addItemModal));
-    closeDetailModal.addEventListener('click', () => closeModalHandler(itemDetailModal));
-    
-    // 모달 우측 상단의 X 버튼 클릭 시 모달 닫힘
-    window.addEventListener('click', (e) => {
-        if (e.target === addItemModal) closeModalHandler(addItemModal);
-        if (e.target === itemDetailModal) closeModalHandler(itemDetailModal);
-    });
+//페이지 이동
+document.getElementById('addItemBtn').addEventListener('click', () => {
+    window.location.href = '/free/register';
+});
 
-    // 모달 영역 바깥을 클릭하면 해당 모달 닫힘
-    addItemForm.addEventListener('submit', handleFormSubmit);
-    
-    // 나눔 등록 폼 제출 시 handleFormSubmit 함수 실행 (폼 데이터 처리)
-    document.getElementById('cancelBtn').addEventListener('click', () => {
-        closeModalHandler(addItemModal); // 취소 버튼 누르면 등록 모달 닫힘
-    });
+// 필터 & 정렬
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('distanceFilter').addEventListener('change', applyFilters);
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+document.getElementById('sortSelect').addEventListener('change', applySorting);
 
-    // 필터 & 정렬
-    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
-    document.getElementById('distanceFilter').addEventListener('change', applyFilters);
-    document.getElementById('statusFilter').addEventListener('change', applyFilters);
-    document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
-    document.getElementById('sortSelect').addEventListener('change', applySorting);
-    
-    // 더보기 버튼을 누르면 다음 페이지의 아이템을 더 불러옴
-    loadMoreBtn.addEventListener('click', loadMoreItems);
+// 더보기 버튼을 누르면 다음 페이지의 아이템을 더 불러옴
+loadMoreBtn.addEventListener('click', loadMoreItems);
 
-    // 파일 업로드 영역(사진 업로드)을 초기화하고 관련 이벤트를 설정하는 함수
-    setupFileUpload();
-}
+// 파일 업로드 영역(사진 업로드)을 초기화하고 관련 이벤트를 설정하는 함수
+setupFileUpload();
+
 
 // Load items
 function loadItems() {
-     // currentItems = [...sampleItems];
-    filteredItems = [...currentItems];
+    // currentItems = [...sampleItems];
+    // 현재 불러온 전체 데이터를 안전하게 필터링해서 렌더링에 사용할 준비
+    filteredItems = [...currentItems].filter(item => item && typeof item === 'object');
+
     currentPage = 1;     // 페이징 처리를 위해 현재 페이지를 1페이지로 초기화
     renderItems();      // 실제 화면에 카드들을 그려주는 함수
     updateItemCount(); // 상단에 있는 "총 N건의 나눔 물건" 업데이트하는 함수
@@ -309,7 +292,7 @@ function renderItems(append = false) {
 // 새로운 페이징 렌더링 함수
 function renderPagination() {
     const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-    
+
     if (totalPages <= 1) {
         pagination.style.display = 'none';
         return;
@@ -324,7 +307,7 @@ function renderPagination() {
 
     // 페이지 번호 버튼들
     const pageNumbers = generatePageNumbers(currentPage, totalPages);
-    
+
     pageNumbers.forEach(pageNum => {
         if (pageNum === '...') {
             const ellipsis = document.createElement('span');
@@ -347,7 +330,7 @@ function createPaginationButton(text, pageNum, disabled = false, active = false)
     const button = document.createElement('button');
     button.className = `pagination-btn ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
     button.textContent = text;
-    
+
     if (!disabled) {
         button.addEventListener('click', () => {
             currentPage = pageNum;
@@ -355,7 +338,7 @@ function createPaginationButton(text, pageNum, disabled = false, active = false)
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
-    
+
     return button;
 }
 
@@ -363,7 +346,7 @@ function createPaginationButton(text, pageNum, disabled = false, active = false)
 function generatePageNumbers(current, total) {
     const pages = [];
     const maxVisible = 7; // 최대 표시할 페이지 수
-    
+
     if (total <= maxVisible) {
         // 총 페이지가 7개 이하면 모두 표시
         for (let i = 1; i <= total; i++) {
@@ -396,7 +379,7 @@ function generatePageNumbers(current, total) {
             pages.push(total);
         }
     }
-    
+
     return pages;
 }
 
@@ -404,11 +387,13 @@ function generatePageNumbers(current, total) {
 function createItemElement(item) {
     const itemDiv = document.createElement('div');
     itemDiv.className = 'item-card';
-    itemDiv.addEventListener('click', () => openItemDetail(item));
+    itemDiv.addEventListener('click', () => {
+        window.location.href = `/free/get/${item.freeId}`;
+    });
 
     itemDiv.innerHTML = `
         <div class="item-image">
-            <img src="${item.imgUrl || '/img/default-sharing.svg'}" alt="${item.title}">
+            <img src="${item.imgUrl || '/img/logo.png'}" alt="${item.title}">
             <div class="item-status">${getStatusText(item.dealStatus)}</div>
         </div>
         <div class="item-info">
@@ -430,18 +415,42 @@ function createItemElement(item) {
     return itemDiv;
 }
 
-// Open item detail modal
-function openItemDetail(item) {
-    const detailContent = document.getElementById('detailContent');
-    document.getElementById('detailTitle').textContent = item.title;
-    
-    detailContent.innerHTML = `
+
+
+const detailContent = document.getElementById('detailContent');
+document.getElementById('detailTitle').textContent = item.title;
+
+// 이미지 배열 안전 처리 - imgList에서 imgUrl만 추출
+const images = Array.isArray(item.imgList)
+    ? item.imgList.map(img => img.imgUrl)
+    : [];
+
+// 대표 이미지 설정 (첫번째 이미지 또는 기본이미지)
+const mainImage = images.length > 0
+    ? `<img src="${images[0]}" alt="대표 이미지">`
+    : `<img src="/img/logo.png" alt="기본 이미지">`;
+
+// 썸네일 리스트 HTML 생성
+const thumbnails = images.length > 0
+    ? images.map((img, index) => `
+            <div class="thumbnail ${index === 0 ? 'active' : ''}">
+                <img src="${img}" alt="썸네일 ${index + 1}">
+            </div>
+        `).join('')
+    : `<div class="thumbnail active"><img src="/img/logo2.png" alt="기본 썸네일"></div>`;
+
+// 상세 내용 렌더링
+detailContent.innerHTML = `
         <div class="detail-images">
             <div class="main-image">
-                ${item.images[0]}
+                ${mainImage}
             </div>
             <div class="thumbnail-list">
-                ${item.images.map((img, index) => `
+                ${thumbnails}
+            </div>
+            
+            <div class="thumbnail-list">
+                ${images.map((img, index) => `
                     <div class="thumbnail ${index === 0 ? 'active' : ''}">${img}</div>
                 `).join('')}
             </div>
@@ -449,60 +458,34 @@ function openItemDetail(item) {
         <div class="detail-info">
             <div class="detail-header">
                 <h2 class="detail-title">${item.title}</h2>
-                <span class="item-category">${item.categoryName}</span>
-                <div class="detail-status ${item.status}">${item.statusText}</div>
+                <span class="item-category">${item.category || '기타'}</span>
+                <div class="detail-status ${item.dealStatus}">${item.dealStatus === 'DONE' ? '나눔 완료' : '나눔중'}</div>
             </div>
             
             <div class="detail-description">
                 <h4>상세 설명</h4>
-                <p>${item.description}</p>
+                <p>${item.content || '설명이 없습니다.'}</p>
             </div>
             
             <div class="detail-meta">
                 <div class="meta-item">
                     <span class="meta-label">나눔 장소</span>
-                    <span class="meta-value">${item.location}</span>
-                </div>
-                <div class="meta-item">
-                    <span class="meta-label">거리</span>
-                    <span class="meta-value">${item.distance}</span>
+                    <span class="meta-value">${item.regionGu} ${item.regionDong}</span>
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">등록시간</span>
-                    <span class="meta-value">${item.time}</span>
+                    <span class="meta-value">${item.createdAt}</span>
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">조회수</span>
-                    <span class="meta-value">${item.views}회</span>
+                    <span class="meta-value">${item.viewCount}회</span>
                 </div>
-                <div class="meta-item">
-                    <span class="meta-label">관심</span>
-                    <span class="meta-value">❤️ ${item.likes}</span>
-                </div>
-            </div>
-            
-            <div class="detail-actions">
-                ${item.status === 'available' ? `
-                    <button class="btn btn-primary" onclick="requestItem(${item.id})">나눔 요청하기</button>
-                    <button class="btn btn-secondary" onclick="likeItem(${item.id})">관심 표시 ❤️</button>
-                ` : item.status === 'reserved' ? `
-                    <button class="btn btn-secondary" disabled>예약중입니다</button>
-                ` : `
-                    <button class="btn btn-secondary" disabled>완료된 나눔입니다</button>
-                `}
-            </div>
-            
-            <div class="contact-info">
-                <h4>나눔자 정보</h4>
-                <p><strong>닉네임:</strong> ${item.author}</p>
-                <p><strong>연락처:</strong> ${item.contact}</p>
-                <p><strong>나눔 기여도:</strong> ⭐⭐⭐⭐⭐ (4.8/5.0)</p>
             </div>
         </div>
     `;
 
-    openModal(itemDetailModal);
-}
+
+
 
 // Apply filters
 function applyFilters() {
@@ -514,16 +497,16 @@ function applyFilters() {
     filteredItems = currentItems.filter(item => {
         if (category && item.category !== category) return false;
         if (status && item.status !== status) return false;
-        if (search && !item.title.toLowerCase().includes(search) && 
+        if (search && !item.title.toLowerCase().includes(search) &&
             !item.description.toLowerCase().includes(search)) return false;
-        
+
         // Distance filter (simplified)
         if (distance) {
             const itemDistance = parseFloat(item.distance);
             const maxDistance = parseFloat(distance) / 1000; // Convert m to km
             if (itemDistance > maxDistance) return false;
         }
-        
+
         return true;
     });
 
@@ -535,7 +518,7 @@ function applyFilters() {
 // Apply sorting
 function applySorting() {
     const sortBy = document.getElementById('sortSelect').value;
-    
+
     filteredItems.sort((a, b) => {
         switch (sortBy) {
             case 'recent':
@@ -575,60 +558,9 @@ function showEmptyState() {
     `;
 }
 
-// Modal functions
-function openModal(modal) {
-    modal.classList.add('show');
-    document.body.style.overflow = 'hidden';
-}
 
-function closeModalHandler(modal) {
-    modal.classList.remove('show');
-    document.body.style.overflow = 'auto';
-    
-    if (modal === addItemModal) {
-        resetForm();
-    }
-}
 
-// Form handling
-function handleFormSubmit(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(addItemForm);
-    const newItem = {
-        id: Date.now(),
-        title: document.getElementById('itemTitle').value,
-        category: document.getElementById('itemCategory').value,
-        categoryName: getCategoryName(document.getElementById('itemCategory').value),
-        description: document.getElementById('itemDescription').value || '상세 설명이 없습니다.',
-        location: `${document.getElementById('regionGu').value || ''} ${document.getElementById('regionDong').value || ''}`.trim() || '장소 미정',
-        distance: '0m',
-        status: 'available',
-        statusText: '나눔중',
-        time: '방금 전',
-        author: '나',
-        contact: '010-0000-0000',
-        images: ['📦'],
-        views: 0,
-        likes: 0
-    };
 
-    // Add to items
-    currentItems.unshift(newItem);
-    
-    // Show success message
-    showNotification('나눔 물건이 성공적으로 등록되었습니다!', 'success');
-    
-    // Close modal and refresh
-    closeModalHandler(addItemModal);
-    applyFilters();
-}
-
-// Reset form
-function resetForm() {
-    addItemForm.reset();
-    document.getElementById('imagePreview').innerHTML = '';
-}
 
 // Get category name
 function getCategoryName(category) {
@@ -641,86 +573,11 @@ function getCategoryName(category) {
     return categories[category] || '기타';
 }
 
-// File upload handling
-function setupFileUpload() {
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('itemImages');
-    const imagePreview = document.getElementById('imagePreview');
-    
-    uploadArea.addEventListener('click', () => fileInput.click());
-    
-    // Drag and drop
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        
-        const files = e.dataTransfer.files;
-        handleFiles(files);
-    });
-    
-    fileInput.addEventListener('change', (e) => {
-        handleFiles(e.target.files);
-    });
-    
-    function handleFiles(files) {
-        const maxFiles = 5;
-        const currentImages = imagePreview.children.length;
-        
-        if (currentImages + files.length > maxFiles) {
-            showNotification(`최대 ${maxFiles}장까지만 업로드 가능합니다.`, 'error');
-            return;
-        }
-        
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview">
-                        <button type="button" class="preview-remove" onclick="removePreview(this)">&times;</button>
-                    `;
-                    imagePreview.appendChild(previewItem);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
+
 
 // Remove preview image
 function removePreview(button) {
     button.parentElement.remove();
-}
-
-// Item interaction functions
-function requestItem(itemId) {
-    showNotification('나눔 요청이 전송되었습니다! 나눔자가 연락드릴 예정입니다.', 'success');
-    closeModalHandler(itemDetailModal);
-}
-
-function likeItem(itemId) {
-    const item = currentItems.find(item => item.id === itemId);
-    if (item) {
-        item.likes++;
-        showNotification('관심 표시가 등록되었습니다! ❤️', 'success');
-        
-        // Update UI if detail modal is open
-        const likeElement = document.querySelector('.meta-value');
-        if (likeElement && likeElement.textContent.includes('❤️')) {
-            likeElement.textContent = `❤️ ${item.likes}`;
-        }
-    }
 }
 
 // Notification system
@@ -729,11 +586,11 @@ function showNotification(message, type = 'success') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     // Notification styles
     notification.style.cssText = `
         position: fixed;
@@ -750,13 +607,13 @@ function showNotification(message, type = 'success') {
         max-width: 300px;
         font-weight: 500;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     setTimeout(() => {
         notification.style.transform = 'translateX(400px)';
         setTimeout(() => {
@@ -787,14 +644,14 @@ function startRealTimeUpdates() {
         if (Math.random() < 0.1) { // 10% chance every interval
             simulateNewItem();
         }
-        
+
         // Update view counts randomly
         currentItems.forEach(item => {
             if (Math.random() < 0.05) { // 5% chance per item
                 item.views += Math.floor(Math.random() * 3) + 1;
             }
         });
-        
+
         // Update times
         updateItemTimes();
     }, 30000); // Every 30 seconds
@@ -848,20 +705,20 @@ function updateItemTimes() {
     console.log('시간 업데이트됨');
 }
 
-// Geolocation functions (simplified for demo)
-function getCurrentLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                console.log('위치 정보 획득:', position.coords);
-                // In real app, this would update distance calculations
-            },
-            (error) => {
-                console.warn('위치 정보 접근 실패:', error);
-            }
-        );
-    }
-}
+// // Geolocation functions (simplified for demo)
+// function getCurrentLocation() {
+//     if (navigator.geolocation) {
+//         navigator.geolocation.getCurrentPosition(
+//             (position) => {
+//                 console.log('위치 정보 획득:', position.coords);
+//                 // In real app, this would update distance calculations
+//             },
+//             (error) => {
+//                 console.warn('위치 정보 접근 실패:', error);
+//             }
+//         );
+//     }
+// }
 
 // Advanced search functionality
 function setupAdvancedSearch() {
@@ -883,7 +740,7 @@ function showSearchSuggestions() {
             }
         });
     });
-    
+
     // This would show a dropdown with suggestions in a real app
     console.log('검색 제안:', Array.from(terms).slice(0, 5));
 }
@@ -903,7 +760,7 @@ function trackUserInteraction(action, itemId = null) {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent
     };
-    
+
     // In real app, this would send to analytics service
     console.log('사용자 상호작용 추적:', event);
 }
@@ -925,7 +782,7 @@ requestItem = function(itemId) {
 function optimizeImages() {
     // In real app, this would lazy load images and optimize them
     const images = document.querySelectorAll('img[data-src]');
-    
+
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -937,7 +794,7 @@ function optimizeImages() {
                 }
             });
         });
-        
+
         images.forEach(img => imageObserver.observe(img));
     }
 }
