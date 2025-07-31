@@ -5,6 +5,8 @@
     @since : 250730
     @history
      - 250730 | sehui | 에코마켓 상품 상세 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250731 | sehui | 장바구니, 구매하기 버튼에 로그인 여부 data 속성으로 추가
+     - 250731 | sehui | 헤더/푸터 충돌 방지를 위한 클래스명 변경 및 구조 개선
 -->
 
 <!DOCTYPE html>
@@ -24,35 +26,40 @@
 </head>
 <body>
     <!-- 본문 fragment -->
-    <div layout:fragment="content">
+    <div layout:fragment="content" class="product-detail-page">
 
         <!-- 메인 콘텐츠 영역 -->
-        <main class="main-content">
+        <main class="product-main-content">
+
+            <!-- JS에서 사용하기 위해 추가 -->
+            <input type="hidden" id="itemId" th:value="${itemId}" />
+
             <!-- 브레드크럼 네비게이션 (현재 위치 표시) -->
-            <section class="breadcrumb-section">
-                <div class="container">
-                    <nav class="breadcrumb">
+            <section class="product-breadcrumb-section">
+                <div class="product-container">
+                    <nav class="product-breadcrumb">
                         <a th:href="@{/}">홈</a>
-                        <span class="breadcrumb-separator">></span>
+                        <span class="product-breadcrumb-separator">></span>
                         <a th:href="@{/eco/list}">에코마켓</a>
-                        <span class="breadcrumb-separator">></span>
+                        <span class="product-breadcrumb-separator">></span>
                         <span id="breadcrumbCategory">카테고리명</span>
-                        <span class="breadcrumb-separator">></span>
-                        <span class="breadcrumb-current">상품 상세보기</span>
+                        <span class="product-breadcrumb-separator">></span>
+                        <span class="product-breadcrumb-current">상품 상세보기</span>
                     </nav>
                 </div>
             </section>
 
             <!-- 상품 상세 정보 섹션 -->
             <section class="product-detail-section">
-                <div class="container">
+                <div class="product-container">
                     <div class="product-detail-container">
                         <!-- 왼쪽: 상품 이미지 영역 -->
                         <div class="product-images">
                             <!-- 메인 이미지 -->
                             <div class="main-image-container">
                                 <div class="main-image" id="mainImage">
-                                    <img id="mainImageTag" alt="mainImage">
+                                    <img id="mainImageTag" alt="mainImage" style="display: none;">
+                                    <!-- 메인 이미지 JS로 삽입 -->
                                 </div>
                                 <!-- 이미지 확대 버튼 -->
                                 <button class="image-zoom-btn" id="imageZoomBtn">🔍</button>
@@ -71,33 +78,37 @@
                             <!-- 상품 기본 정보 -->
                             <div class="product-header">
                                 <!-- 상품 판매 상태 배지 -->
-                                <div class="product-status-badge" id="productStatus">판매중</div>
+                                <div class="product-status-badge available" id="productStatus">판매 상태</div>
 
                                 <!-- 상품 제목 -->
-                                <h1 class="product-title" id="productTitle" th:text="${product.title}">MacBook Pro 13인치 (2021) M1 칩</h1>
+                                <h1 class="product-title" id="productTitle">상품명</h1>
 
                                 <!-- 상품 메뉴 (관리자일 경우만 표시) -->
-                                <div class="product-menu" id="productMenu"
-                                     th:if="${session.user != null and session.user.id == product.sellerId}">
+                                <div class="product-menu" style="display: none;">
                                     <button class="menu-toggle" id="menuToggle">⋯</button>
                                     <div class="menu-dropdown" id="menuDropdown">
-                                        <button class="menu-item" id="editProduct"
-                                                th:onclick="|location.href='@{/eco-market/edit/{id}(id=${product.id})}'|">수정하기</button>
-                                        <button class="menu-item delete" id="deleteProduct"
-                                                th:onclick="|deleteProduct(${product.id})|">삭제하기</button>
+                                        <button class="menu-item" id="editProduct" 
+                                                sec:authorize="hasAnyAuthority('ROLE_ADMIN')">수정하기</button>
                                     </div>
                                 </div>
 
                                 <!-- 상품 메타 정보 -->
                                 <div class="product-meta">
                                     <span class="product-category" id="productCategory">카테고리</span>
-                                    <span class="product-views">👁️ <span id="productViews">0</span></span>
                                 </div>
                             </div>
 
                             <!-- 가격 정보 -->
                             <div class="price-section">
-                                <div class="current-price" id="currentPrice">0원</div>
+                                <div class="current-price" id="currentPrice">가격</div>
+                            </div>
+
+                            <!-- 재고 수량 정보 -->
+                            <div class="stock-section">
+                                <h3>재고 수량</h3>
+                                <div class="stock-info">
+                                    <div class="stock-number" id="stockNumber">재고수량</div>
+                                </div>
                             </div>
 
                             <!-- 거래 정보 -->
@@ -105,22 +116,19 @@
                                 <div class="transaction-info">
                                     <div class="info-item" id="shippingFeeContainer">
                                         <span class="info-label">배송비</span>
-                                        <span class="info-value" id="shippingFee">3,000원</span>
+                                        <span class="info-value" id="shippingFee">무료 배송</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- 액션 버튼 영역 -->
-                            <div class="action-buttons" id="actionButtons">
+                            <div class="action-buttons" id="actionButtons" th:data-logged-in="${#authentication.principal != null}">
                                 <!-- 장바구니 버튼 -->
                                 <button class="btn btn-cart" id="cartBtn">🛒 장바구니</button>
                                 <!-- 구매하기 버튼 -->
                                 <button class="btn btn-buy" id="buyBtn">💰 구매하기</button>
-                            </div>
-
-                            <!-- JS로 고르인 여부에 따라 동적 표시 -->
-                            <div class="login-required" id="loginPrompt">
-                                <a th:href="@{/login}" class="btn btn-primary">로그인하여 구매하기</a>
+                                <!-- 에코마켓과 구매하기 버튼 -->
+                                <button class="btn btn-eco-buy" id="ecoBuyBtn">🌱 에코마켓과 구매하기</button>
                             </div>
 
                             <!-- 공유 버튼 -->
@@ -140,7 +148,7 @@
 
             <!-- 상품 상세 설명 섹션 -->
             <section class="product-description-section">
-                <div class="container">
+                <div class="product-container">
                     <div class="description-container">
                         <h2>상품 상세 설명</h2>
                         <!-- 상품 설명 내용 - HTML 태그가 포함될 수 있으므로 utext 사용 -->
@@ -152,23 +160,11 @@
             </section>
 
             <!-- 연관 상품 섹션 -->
-            <section class="related-products-section" th:if="${relatedProducts != null and !relatedProducts.isEmpty()}">
-                <div class="container">
+            <section class="related-products-section">
+                <div class="product-container">
                     <h2>이런 상품은 어떠세요?</h2>
                     <div class="related-products-grid" id="relatedProductsGrid">
-                        <!-- 연관 상품들 반복문으로 출력 -->
-                        <div class="related-product-card" th:each="relatedProduct : ${relatedProducts}"
-                             th:onclick="|location.href='@{/eco-market/detail/{id}(id=${relatedProduct.id})}'|">
-                            <div class="product-image">
-                                <img th:src="${relatedProduct.mainImageUrl != null ? relatedProduct.mainImageUrl : '/img/default-product.svg'}"
-                                     th:alt="${relatedProduct.title}">
-                            </div>
-                            <div class="product-info">
-                                <h4 th:text="${relatedProduct.title}">연관 상품명</h4>
-                                <div class="product-price" th:text="${#numbers.formatInteger(relatedProduct.price, 3, 'COMMA')} + '원'">가격</div>
-                                <div class="product-location" th:text="${relatedProduct.location}">위치</div>
-                            </div>
-                        </div>
+                        <!-- JS가 여기 안에 관련 상품 카드 넣음 -->
                     </div>
                 </div>
             </section>
@@ -185,11 +181,11 @@
             <div class="modal-body">
                 <div class="modal-image-container">
                     <div class="modal-main-image" id="modalMainImage">
-                        <img src="" alt="상품 이미지">
+                        <img src="" alt="상품 이미지" style="display: none;">
                     </div>
-                    <div class="modal-image-controls" th:if="${product.images != null and product.images.size() > 1}">
+                    <div class="modal-image-controls" id="modalImageControls">
                         <button class="image-nav-btn" id="prevImageBtn">‹</button>
-                        <span class="image-counter" id="imageCounter">1 / <span th:text="${product.images.size()}">4</span></span>
+                        <span class="image-counter" id="imageCounter">1 / 1</span>
                         <button class="image-nav-btn" id="nextImageBtn">›</button>
                     </div>
                 </div>
@@ -197,90 +193,11 @@
         </div>
     </div>
 
-    <!-- 하단 고정 액션 바 (모바일용) -->
-    <div class="bottom-action-bar" id="bottomActionBar" th:if="${session.user != null and session.user.id != product.sellerId}">
-        <button class="bottom-btn btn-wishlist-mobile" id="wishlistBtnMobile" 
-                th:onclick="|toggleWishlist(${product.id})|">
-            <span class="heart-icon" th:text="${product.isWishlisted ? '❤️' : '🤍'}">🤍</span>
-        </button>
-        <button class="bottom-btn btn-cart-mobile" id="cartBtnMobile" 
-                th:onclick="|addToCart(${product.id})|">🛒 장바구니</button>
-        <button class="bottom-btn btn-buy-mobile" id="buyBtnMobile" 
-                th:onclick="|buyNow(${product.id})|">💰 구매하기</button>
-    </div>
-
-    <!-- 푸터 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <!-- 회사 정보 -->
-                <div class="footer-section">
-                    <div class="logo" style="margin-bottom: 20px;">
-                        <span class="logo-icon">🌱</span>
-                        <span class="logo-text">GreenCycle</span>
-                    </div>
-                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
-                </div>
-                
-                <!-- 서비스 링크 -->
-                <div class="footer-section">
-                    <h4>서비스</h4>
-                    <ul>
-                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
-                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
-                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
-                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
-                    </ul>
-                </div>
-                
-                <!-- 회사정보 링크 -->
-                <div class="footer-section">
-                    <h4>회사정보</h4>
-                    <ul>
-                        <li><a th:href="@{/about}">회사소개</a></li>
-                        <li><a th:href="@{/patents}">기술 특허</a></li>
-                        <li><a th:href="@{/research}">연구개발</a></li>
-                        <li><a th:href="@{/careers}">채용정보</a></li>
-                    </ul>
-                </div>
-                
-                <!-- 고객지원 링크 -->
-                <div class="footer-section">
-                    <h4>고객지원</h4>
-                    <ul>
-                        <li><a th:href="@{/contact}">문의하기</a></li>
-                        <li><a th:href="@{/guide}">이용가이드</a></li>
-                        <li><a th:href="@{/support}">기술지원</a></li>
-                        <li><a th:href="@{/customer-service}">고객센터</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- 푸터 하단 -->
-            <div class="footer-bottom">
-                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
-                <div class="footer-links">
-                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
-                    <a th:href="@{/terms}">이용약관</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
     <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
-    <script th:src="@{/js/eco-market-detail.js}"></script>
-    
-    <!-- 상품 데이터를 JavaScript로 전달 -->
-    <script th:inline="javascript">
-        // 서버에서 전달받은 상품 데이터를 JavaScript 변수로 설정
-        var productData = /*[[${product}]]*/ {};
-        var currentUserId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
-        var isOwner = /*[[${session.user != null and session.user.id == product.sellerId}]]*/ false;
-        
-        // 전역 변수로 설정
-        window.productData = productData;
-        window.currentUserId = currentUserId;
-        window.isOwner = isOwner;
-    </script>
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/eco-market-detail.js}"></script>
+        <script th:src="@{/js/eco-market-detail-request.js}"></script>
+    </th:block>
+
 </body>
 </html>

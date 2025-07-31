@@ -1,15 +1,11 @@
 // =========================
-// 전역 변수 (페이지 전체에서 사용)
+// @history
+//  - 250730 | sehui | 지역 선택, 폼 제출 기능 삭제
 // =========================
 
-// 지역 데이터 (시/도를 선택하면 구/군이 나타남)
-const regionData = {
-    '서울': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구', '노원구', '도봉구'],
-    '부산': ['강서구', '금정구', '남구', '동구', '동래구', '부산진구', '북구', '사상구', '사하구', '서구'],
-    '대구': ['남구', '달서구', '동구', '북구', '서구', '수성구', '중구', '달성군'],
-    '인천': ['계양구', '남동구', '동구', '미추홀구', '부평구', '서구', '연수구', '중구'],
-    '경기': ['고양시', '과천시', '광명시', '광주시', '구리시', '군포시', '김포시', '남양주시', '동두천시', '부천시']
-};
+// =========================
+// 전역 변수 (페이지 전체에서 사용)
+// =========================
 
 // 업로드된 이미지들을 저장할 배열
 let uploadedImages = [];
@@ -56,11 +52,6 @@ function setCurrentDate() {
 // 이벤트 리스너 설정 함수
 // =========================
 function setupEventListeners() {
-    // 시/도 선택이 바뀔 때
-    const region1Select = document.getElementById('region1');
-    if (region1Select) {
-        region1Select.addEventListener('change', handleRegion1Change);
-    }
     
     // 이미지 업로드 관련
     const imageUploadArea = document.getElementById('imageUploadArea');
@@ -78,12 +69,6 @@ function setupEventListeners() {
         
         // 드래그 앤 드롭 관련
         setupDragAndDrop(imageUploadArea);
-    }
-    
-    // 폼 제출 이벤트
-    const form = document.getElementById('registrationForm');
-    if (form) {
-        form.addEventListener('submit', handleFormSubmit);
     }
     
     // 실시간 유효성 검사
@@ -115,33 +100,6 @@ function setupEventListeners() {
         descriptionInput.addEventListener('input', function() {
             limitCharacters(this, 1000, '설명');
             updateCharacterCounter(this, 1000);
-        });
-    }
-}
-
-// =========================
-// 지역 선택 관련 함수
-// =========================
-
-// 시/도가 변경되었을 때 실행
-function handleRegion1Change() {
-    const region1Select = document.getElementById('region1');
-    const region2Select = document.getElementById('region2');
-    
-    if (!region1Select || !region2Select) return;
-    
-    const selectedRegion = region1Select.value;
-    
-    // 구/군 선택박스 초기화
-    region2Select.innerHTML = '<option value="">구/군</option>';
-    
-    // 선택된 시/도에 해당하는 구/군 추가
-    if (selectedRegion && regionData[selectedRegion]) {
-        regionData[selectedRegion].forEach(function(district) {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            region2Select.appendChild(option);
         });
     }
 }
