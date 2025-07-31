@@ -35,7 +35,7 @@
         <p>지속가능한 미래를 위한 첫 걸음을 내디뎌보세요</p>
       </div>
 
-      <form class="auth-form" id="signupForm" action="/member/signup" method="post">
+      <form class="auth-form" id="signupForm" action="/member/signup" method="post" novalidate>
         <div class="form-group">
           <label for="signupEmail">이메일</label>
           <div class="input-wrapper">
@@ -50,7 +50,7 @@
             >
             <button type="button" class="input-action" id="checkEmail">중복확인</button>
           </div>
-          <span class="error-message" id="emailError"></span>
+          <!--<span class="error-message" id="emailError"></span>-->
           <span class="success-message" id="emailCheckResult"></span>
         </div>
 
@@ -69,7 +69,7 @@
             >
             <button type="button" class="input-action" id="checkNickname">중복확인</button>
           </div>
-          <span class="error-message" id="nicknameError"></span>
+          <!--<span class="error-message" id="nicknameError"></span>-->
           <span class="success-message" id="nicknameCheckResult"></span>
         </div>
 
