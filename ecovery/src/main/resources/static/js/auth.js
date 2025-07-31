@@ -558,7 +558,6 @@ function setupNicknameCheck() {
     const nicknameBtn = document.getElementById('checkNickname');
 
     if (!nicknameBtn || !nicknameMsg || !nicknameInput) return;
-    if (!nicknameBtn || !nicknameMsg || !nicknameInput) return;
 
     nicknameBtn.addEventListener('click', () => {
         const nickname = nicknameInput.value.trim();
@@ -568,6 +567,13 @@ function setupNicknameCheck() {
 
         if (!nickname) {
             nicknameMsg.textContent = '닉네임은 필수 입력 항목입니다.';
+            nicknameMsg.className = 'error-message';
+            isNicknameChecked = false;
+            updateSignupButtonState();
+            return;
+        }
+        if (!validateNickname(nickname)) {
+            nicknameMsg.textContent = '닉네임은 2-20자 사이로 입력해주세요.';
             nicknameMsg.className = 'error-message';
             isNicknameChecked = false;
             updateSignupButtonState();

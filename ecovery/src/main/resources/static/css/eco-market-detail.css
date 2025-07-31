@@ -9,14 +9,14 @@
     --light-green: #a8d5b7;       /* 밝은 녹색 */
     --sage-green: #9eb3a0;        /* 세이지 녹색 */
     --dark-green: #1e3d2a;        /* 진한 녹색 */
-    
+
     /* 기본 컬러 */
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --medium-gray: #6c757d;
     --dark-gray: #343a40;
     --black: #212529;
-    
+
     /* 특별 기능 컬러 */
     --price-color: #e74c3c;        /* 가격 표시용 빨간색 */
     --discount-color: #27ae60;     /* 할인 표시용 초록색 */
@@ -24,19 +24,19 @@
     --danger-color: #e74c3c;       /* 위험 색상 */
     --success-color: #27ae60;      /* 성공 색상 */
     --cart-color: #8e44ad;         /* 장바구니 색상 (보라색) */
-    
+
     /* 댓글 시스템 컬러 */
     --comment-bg: #f8f9fa;
     --comment-border: #e9ecef;
     --comment-reply-bg: #f1f3f4;
-    
+
     /* 레이아웃 및 디자인 설정 */
     --font-family: 'Noto Sans KR', sans-serif;
     --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
     --border-radius: 12px;
     --container-max-width: 1400px;
     --container-padding: 20px;
-    
+
     /* 애니메이션 속도 설정 */
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
@@ -1748,15 +1748,15 @@ body {
         grid-template-columns: 1fr;
         gap: 40px;
     }
-    
+
     .product-images {
         position: static;
     }
-    
+
     .main-image {
         height: 400px;
     }
-    
+
     .seller-stats {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -1768,7 +1768,7 @@ body {
     .hamburger {
         display: flex;
     }
-    
+
     /* 모바일 네비게이션 */
     .nav-menu {
         position: fixed;
@@ -1784,159 +1784,159 @@ body {
         visibility: hidden;
         transition: all var(--transition-normal);
     }
-    
+
     .nav-menu.active {
         transform: translateY(0);
         opacity: 1;
         visibility: visible;
     }
-    
+
     /* 브레드크럼 */
     .breadcrumb {
         font-size: 12px;
         flex-wrap: wrap;
     }
-    
+
     /* 상품 상세 */
     .product-detail-section {
         padding: 20px 0;
     }
-    
+
     .product-title {
         font-size: 24px;
         padding-right: 40px;
     }
-    
+
     .current-price {
         font-size: 28px;
     }
-    
+
     .main-image {
         height: 300px;
         font-size: 80px;
     }
-    
+
     .action-buttons {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-    
+
     .btn-wishlist {
         order: 4; /* 마지막에 배치 */
     }
-    
+
     /* 판매자 정보 */
     .seller-profile {
         flex-direction: column;
         text-align: center;
         gap: 15px;
     }
-    
+
     .seller-stats {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
     }
-    
+
     .seller-actions {
         flex-direction: column;
     }
-    
+
     /* 댓글 */
     .comments-header {
         flex-direction: column;
         gap: 10px;
         align-items: flex-start;
     }
-    
+
     .comment-input-group {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .commenter-info {
         flex-direction: row;
         justify-content: flex-start;
         min-width: auto;
     }
-    
+
     .comment-form-actions {
         flex-direction: column;
         align-items: stretch;
         gap: 15px;
     }
-    
+
     .comment-guidelines {
         order: 2;
     }
-    
+
     .btn-comment {
         order: 1;
         align-self: flex-end;
     }
-    
+
     .comment-replies {
         padding-left: 15px;
     }
-    
+
     /* 연관 상품 */
     .related-products-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
-    
+
     .related-product-image {
         height: 120px;
         font-size: 32px;
     }
-    
+
     .related-product-info {
         padding: 15px;
     }
-    
+
     .related-product-title {
         font-size: 14px;
     }
-    
+
     .related-product-price {
         font-size: 16px;
     }
-    
+
     /* 하단 액션바 표시 */
     .bottom-action-bar {
         display: grid;
     }
-    
+
     /* 기본 액션 버튼 숨김 */
     .action-buttons {
         display: none;
     }
-    
+
     /* 모달 */
     .modal-content {
         margin: 5%;
         width: 90%;
     }
-    
+
     .modal-header {
         padding: 15px 20px;
     }
-    
+
     .modal-body {
         padding: 20px;
     }
-    
+
     .modal-main-image {
         height: 50vh;
         font-size: 80px;
     }
-    
+
     /* 푸터 */
     .footer-content {
         grid-template-columns: 1fr;
         text-align: center;
         gap: 30px;
     }
-    
+
     .footer-bottom {
         flex-direction: column;
         gap: 20px;
@@ -1949,73 +1949,73 @@ body {
     .container {
         padding: 0 15px;
     }
-    
+
     .product-title {
         font-size: 20px;
         padding-right: 35px;
     }
-    
+
     .menu-toggle {
         width: 32px;
         height: 32px;
         font-size: 18px;
     }
-    
+
     .current-price {
         font-size: 24px;
     }
-    
+
     .main-image {
         height: 250px;
         font-size: 60px;
     }
-    
+
     .thumbnail {
         width: 60px;
         height: 60px;
         font-size: 18px;
     }
-    
+
     .price-section,
     .condition-section,
     .transaction-section {
         padding: 20px;
     }
-    
+
     .seller-stats {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-    
+
     .stat-value {
         font-size: 20px;
     }
-    
+
     .related-products-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .related-product-image {
         height: 150px;
         font-size: 48px;
     }
-    
+
     .comment-avatar {
         width: 32px;
         height: 32px;
         font-size: 12px;
     }
-    
+
     .commenter-avatar {
         width: 36px;
         height: 36px;
         font-size: 14px;
     }
-    
+
     .bottom-action-bar {
         padding: 10px 15px;
     }
-    
+
     .bottom-btn {
         padding: 10px 15px;
         font-size: 13px;
@@ -2036,24 +2036,24 @@ body {
     .product-menu {
         display: none;
     }
-    
+
     .main-content {
         margin-top: 0;
     }
-    
+
     .product-detail-container {
         grid-template-columns: 1fr;
     }
-    
+
     .main-image {
         height: 300px;
         border: 1px solid #000;
     }
-    
+
     .thumbnail-container {
         display: none;
     }
-    
+
     * {
         background: white !important;
         color: black !important;

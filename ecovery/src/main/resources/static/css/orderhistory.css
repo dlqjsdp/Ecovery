@@ -1,0 +1,1408 @@
+/* ==========================================================================
+   GreenCycle 주문상세 페이지 CSS
+   마이페이지와 동일한 디자인 시스템을 사용하여 일관성 유지
+   ========================================================================== */
+
+/* CSS 변수 정의 (마이페이지와 동일) */
+:root {
+    --primary-green: #2d5a3d;
+    --accent-green: #6fa776;
+    --light-green: #a8d5b7;
+    --dark-green: #1e3d2a;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+    --dark-gray: #343a40;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --font-family: 'Noto Sans KR', sans-serif;
+    --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+    --border-radius: 12px;
+    --container-max-width: 1200px;
+    --container-padding: 20px;
+}
+
+/* ==========================================================================
+   기본 스타일 초기화
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--dark-gray);
+    background: var(--light-gray);
+}
+
+.container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+/* 고정 헤더 스타일 */
+/* HTML에 header 태그가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
+}
+
+/* 스크롤 시 헤더 스타일 변경 */
+.header.scrolled {
+    background: var(--white);
+    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1);
+}
+
+/* 네비게이션 바 */
+/* HTML에 navbar 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.navbar {
+    padding: 15px 0;
+}
+
+/* 네비게이션 컨테이너 */
+/* HTML에 nav-container 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.nav-container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 로고 스타일 */
+/* HTML에 logo 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--primary-green);
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.logo-icon {
+    font-size: 28px;
+}
+
+/* 네비게이션 메뉴 */
+/* HTML에 nav-menu 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 40px;
+    align-items: center;
+}
+
+/* 네비게이션 링크 */
+/* HTML에 nav-menu a 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.nav-menu a {
+    text-decoration: none;
+    color: var(--dark-gray);
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+/* 활성 페이지 링크 */
+.nav-menu a.active {
+    color: var(--primary-green);
+}
+
+/* 링크 호버 효과 - 하단 밑줄 */
+.nav-menu a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-green);
+    transition: width 0.3s ease;
+}
+
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
+    width: 100%;
+}
+
+/* 인증 버튼 컨테이너 */
+/* HTML에 auth-buttons 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* 로그인/회원가입 버튼 공통 스타일 */
+/* HTML에 btn-login, btn-signup 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.btn-login, .btn-signup {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+}
+
+/* 로그인 버튼 - 아웃라인 스타일 */
+.btn-login {
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.btn-login:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* 회원가입 버튼 - 채워진 스타일 */
+.btn-signup {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-signup:hover {
+    background: var(--dark-green);
+}
+
+/* 모바일 햄버거 메뉴 */
+/* HTML에 hamburger 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 4px;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+/* 장바구니 아이콘 (마이페이지와 동일) */
+/* HTML에 cart-icon 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.cart-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: var(--primary-green);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+}
+
+.cart-icon:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 90, 61, 0.4);
+}
+
+.cart-symbol {
+    font-size: 20px;
+    color: white;
+}
+
+.cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger-color);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 50%;
+    min-width: 18px;
+    text-align: center;
+    border: 2px solid white;
+}
+
+/* 마이페이지 버튼 */
+/* HTML에 btn-mypage 클래스가 직접 사용되지 않고 layout1에 포함된 fragment라 주석 처리 */
+.btn-mypage {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-green);
+    font-size: 14px;
+    background: transparent;
+    color: var(--primary-green);
+}
+
+.btn-mypage:hover {
+    background: var(--primary-green);
+    color: var(--white);
+    transform: translateY(-1px);
+}
+
+.btn-login, .btn-logout {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid var(--primary-green);
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-login, .btn-signup {
+    background: transparent;
+    color: var(--primary-green);
+}
+
+.btn-login:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-logout, .btn-signup {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-logout:hover {
+    background: var(--dark-green);
+}
+
+/* ==========================================================================
+   메인 콘텐츠
+   ========================================================================== */
+#mainContent { /* HTML의 id="mainContent" 에 맞춤 */
+    margin-top: 80px; /* 헤더 높이만큼 여백 */
+    min-height: calc(100vh - 80px);
+}
+
+/* ==========================================================================
+   브레드크럼(breadcrumb) 네비게이션
+   ========================================================================== */
+.breadcrumb-section { /* HTML의 class="breadcrumb-section" 에 맞춤 */
+    background: var(--white);
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
+}
+
+.breadcrumb { /* HTML의 class="breadcrumb" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: var(--medium-gray);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: var(--primary-green);
+}
+
+.breadcrumb-separator { /* HTML의 class="breadcrumb-separator" 에 맞춤 */
+    color: var(--medium-gray);
+    font-weight: 300;
+}
+
+.current-page { /* HTML의 class="current-page" 에 맞춤 */
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   구매이력 페이지 헤더 (order-header 대신 page-header 사용)
+   ========================================================================== */
+.page-header { /* HTML의 class="page-header" 에 맞춤 */
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    padding: 40px 0;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 배경 패턴 */
+.page-header::before { /* HTML의 page-header에 맞춤 */
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="rgba(255,255,255,0.1)" cx="20" cy="20" r="2"/><circle fill="rgba(255,255,255,0.05)" cx="80" cy="80" r="3"/></svg>');
+    opacity: 0.3;
+}
+
+.header-content { /* HTML의 class="header-content" 에 맞춤 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.title-section h1 { /* HTML의 class="title-section" 에 맞춤 */
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.page-subtitle { /* HTML의 class="page-subtitle" 에 맞춤 */
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* 뒤로가기 버튼 (구매이력 페이지에는 없음, 주석 처리) */
+/* .btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: var(--white);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.back-icon {
+    font-size: 18px;
+} */
+
+/* 통계 섹션 추가 (HTML의 stats-section에 맞춤) */
+.stats-section {
+    display: flex;
+    gap: 30px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   구매이력 목록 섹션 (order-history-section으로 변경)
+   ========================================================================== */
+.order-history-section { /* HTML의 class="order-history-section" 에 맞춤 */
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* 필터 및 검색 영역 */
+.filter-section { /* HTML의 class="filter-section" 에 맞춤 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: var(--white);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.filter-left { /* HTML의 class="filter-left" 에 맞춤 */
+    display: flex;
+    gap: 15px;
+}
+
+.filter-select { /* HTML의 class="filter-select" 에 맞춤 */
+    padding: 10px 15px;
+    border: 1px solid rgba(45, 90, 61, 0.2);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--dark-gray);
+    appearance: none; /* 기본 화살표 제거 */
+    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%232d5a3d"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>') no-repeat right 12px center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.2);
+}
+
+.filter-right { /* HTML의 class="filter-right" 에 맞춤 */
+    display: flex;
+    gap: 15px;
+}
+
+.search-box { /* HTML의 class="search-box" 에 맞춤 */
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input { /* HTML의 class="search-input" 에 맞춤 */
+    padding: 10px 40px 10px 15px;
+    border: 1px solid rgba(45, 90, 61, 0.2);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--dark-gray);
+    width: 250px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.2);
+}
+
+.search-btn { /* HTML의 class="search-btn" 에 맞춤 */
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--primary-green);
+    padding: 5px;
+}
+
+.search-btn:hover {
+    color: var(--dark-green);
+}
+
+.search-icon { /* HTML의 class="search-icon" 에 맞춤 */
+    display: flex;
+}
+
+/* 주문이 없을 경우 메시지 */
+.no-orders-message { /* HTML의 class="no-orders-message" 에 맞춤 */
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.empty-icon { /* HTML의 class="empty-icon" 에 맞춤 */
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.no-orders-message h3 {
+    font-size: 24px;
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
+
+.no-orders-message p {
+    font-size: 16px;
+    color: var(--medium-gray);
+    margin-bottom: 20px;
+}
+
+.btn-shop-now { /* HTML의 class="btn-shop-now" 에 맞춤 */
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 25px;
+    background: var(--primary-green);
+    color: var(--white);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+}
+
+.btn-shop-now:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 90, 61, 0.4);
+}
+
+.btn-icon { /* HTML의 class="btn-icon" 에 맞춤 */
+    font-size: 18px;
+}
+
+.btn-text { /* HTML의 class="btn-text" 에 맞춤 */
+    margin-top: 2px;
+}
+
+
+/* 주문 목록 테이블 (데스크탑) */
+.order-table-container { /* HTML의 class="order-table-container" 에 맞춤 */
+    overflow-x: auto;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.order-table { /* HTML의 class="order-table" 에 맞춤 */
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* 테이블이 너무 작아지지 않도록 */
+}
+
+.order-table th,
+.order-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.order-table th {
+    background: rgba(45, 90, 61, 0.05);
+    color: var(--primary-green);
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.order-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.order-table tbody tr:hover {
+    background: rgba(45, 90, 61, 0.03);
+}
+
+/* 컬럼별 너비 및 정렬 */
+.col-order-num { width: 15%; } /* HTML의 class="col-order-num" 에 맞춤 */
+.col-order-date { width: 12%; } /* HTML의 class="col-order-date" 에 맞춤 */
+.col-order-items { width: 35%; } /* HTML의 class="col-order-items" 에 맞춤 */
+.col-order-amount { width: 15%; text-align: right; } /* HTML의 class="col-order-amount" 에 맞춤 */
+.col-order-status { width: 13%; text-align: center;} /* HTML의 class="col-order-status" 에 맞춤 */
+.col-order-action { width: 10%; text-align: center; } /* HTML의 class="col-order-action" 에 맞춤 */
+
+
+/* 테이블 내 요소 스타일 */
+.order-number .order-link { /* HTML의 class="order-number", class="order-link" 에 맞춤 */
+    color: var(--primary-green);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.order-number .order-link:hover {
+    color: var(--dark-green);
+    text-decoration: underline;
+}
+
+.order-date { /* HTML의 class="order-date" 에 맞춤 */
+    font-size: 14px;
+    color: var(--dark-gray);
+}
+
+.order-date small {
+    display: block;
+    color: var(--medium-gray);
+    margin-top: 3px;
+}
+
+.order-items { /* HTML의 class="order-items" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.items-info { /* HTML의 class="items-info" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.first-item { /* HTML의 class="first-item" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.item-image { /* HTML의 class="item-image" 에 맞춤 */
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--light-gray);
+}
+
+.item-details { /* HTML의 class="item-details" 에 맞춤 */
+    display: flex;
+    flex-direction: column;
+}
+
+.item-name { /* HTML의 class="item-name" 에 맞춤 */
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* 최대 한 줄 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* 너비 제한 */
+}
+
+.item-count { /* HTML의 class="item-count" 에 맞춤 */
+    font-size: 14px;
+    color: var(--medium-gray);
+}
+
+.order-amount .amount { /* HTML의 class="order-amount", class="amount" 에 맞춤 */
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.order-status { /* HTML의 class="order-status" 에 맞춤 */
+    text-align: center;
+}
+
+.status-badge { /* HTML의 class="status-badge" 에 맞춤 */
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block; /* 텍스트 길이에 따라 유연하게 늘어나도록 */
+}
+
+/* 주문 상태별 색상 (HTML의 class="status-badge"에 추가될 클래스명에 맞춤) */
+.status-processing { /* '결제완료', '상품준비중' */
+    background: rgba(255, 193, 7, 0.15); /* warning color 연하게 */
+    color: var(--warning-color);
+}
+.status-shipping { /* '배송중' */
+    background: rgba(23, 162, 184, 0.15); /* info color 연하게 */
+    color: var(--info-color);
+}
+.status-delivered { /* '배송완료' */
+    background: rgba(40, 167, 69, 0.15); /* success color 연하게 */
+    color: var(--success-color);
+}
+.status-cancelled { /* '주문취소' */
+    background: rgba(220, 53, 69, 0.15); /* danger color 연하게 */
+    color: var(--danger-color);
+}
+
+
+.order-actions { /* HTML의 class="order-actions" 에 맞춤 */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-action { /* HTML의 class="btn-action" 에 맞춤 */
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    background: transparent;
+    width: 90px; /* 버튼 너비 통일 */
+    text-align: center;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-detail { /* HTML의 class="btn-detail" 에 맞춤 */
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+}
+
+.btn-detail:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-review { /* HTML의 class="btn-review" 에 맞춤 */
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.btn-review:hover {
+    background: var(--warning-color);
+    color: var(--white);
+}
+
+.btn-reorder { /* HTML의 class="btn-reorder" 에 맞춤 */
+    border-color: var(--info-color);
+    color: var(--info-color);
+}
+
+.btn-reorder:hover {
+    background: var(--info-color);
+    color: var(--white);
+}
+
+.btn-cancel { /* HTML의 class="btn-cancel" 에 맞춤 */
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.btn-cancel:hover {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+
+/* ==========================================================================
+   주문 목록 카드 (모바일)
+   ========================================================================== */
+.order-cards-container { /* HTML의 class="order-cards-container" 에 맞춤 */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-card { /* HTML의 class="order-card" 에 맞춤 */
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid rgba(45, 90, 61, 0.1);
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 45px rgba(45, 90, 61, 0.12);
+}
+
+.order-card .card-header { /* HTML의 class="order-card" 안의 class="card-header" 에 맞춤 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 15px;
+    margin-bottom: 0; /* 기존 card-header margin 제거 */
+}
+
+.order-card .order-info { /* HTML의 class="order-card" 안의 class="order-info" 에 맞춤 */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-card .order-number { /* HTML의 class="order-card" 안의 class="order-number" 에 맞춤 */
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-green);
+}
+
+.order-card .order-date { /* HTML의 class="order-card" 안의 class="order-date" 에 맞춤 */
+    font-size: 13px;
+    color: var(--medium-gray);
+}
+
+/* 모바일 카드 상태 배지 (desktop과 동일한 클래스 사용) */
+.order-card .status-badge {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+
+.order-card .card-body { /* HTML의 class="order-card" 안의 class="card-body" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.order-card .items-section { /* HTML의 class="order-card" 안의 class="items-section" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1; /* 남은 공간 차지 */
+}
+
+.order-card .item-image { /* HTML의 class="order-card" 안의 class="item-image" 에 맞춤 */
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--light-gray);
+}
+
+.order-card .item-info { /* HTML의 class="order-card" 안의 class="item-info" 에 맞춤 */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-card .item-name { /* HTML의 class="order-card" 안의 class="item-name" 에 맞춤 */
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 최대 두 줄 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px; /* 모바일에서 너비 제한 */
+}
+
+.order-card .item-count { /* HTML의 class="order-card" 안의 class="item-count" 에 맞춤 */
+    font-size: 13px;
+    color: var(--medium-gray);
+}
+
+.order-card .amount-section { /* HTML의 class="order-card" 안의 class="amount-section" 에 맞춤 */
+    text-align: right;
+    min-width: 80px;
+}
+
+.order-card .amount { /* HTML의 class="order-card" 안의 class="amount" 에 맞춤 */
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+
+.order-card .card-footer { /* HTML의 class="order-card" 안의 class="card-footer" 에 맞춤 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.order-card .btn-detail { /* HTML의 class="order-card" 안의 class="btn-detail" 에 맞춤 */
+    padding: 8px 15px;
+    border: 1px solid var(--primary-green);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-green);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.order-card .btn-detail:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.quick-actions { /* HTML의 class="quick-actions" 에 맞춤 */
+    display: flex;
+    gap: 10px;
+}
+
+.btn-quick { /* HTML의 class="btn-quick" 에 맞춤 */
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: transparent; /* 기본적으로 투명 배경 */
+}
+
+.btn-quick:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 각 버튼별 색상 (모바일 카드) */
+.btn-quick.btn-review { /* HTML의 class="btn-quick btn-review" 에 맞춤 */
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.btn-quick.btn-review:hover {
+    background: var(--warning-color);
+    color: var(--white);
+}
+
+.btn-quick.btn-reorder { /* HTML의 class="btn-quick btn-reorder" 에 맞춤 */
+    border-color: var(--info-color);
+    color: var(--info-color);
+}
+
+.btn-quick.btn-reorder:hover {
+    background: var(--info-color);
+    color: var(--white);
+}
+
+.btn-quick.btn-cancel { /* HTML의 class="btn-quick btn-cancel" 에 맞춤 */
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.btn-quick.btn-cancel:hover {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+
+/* 페이지네이션 */
+.pagination-section { /* HTML의 class="pagination-section" 에 맞춤 */
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.pagination { /* HTML의 class="pagination" 에 맞춤 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-btn { /* HTML의 class="page-btn" 에 맞춤 */
+    padding: 10px 15px;
+    border: 1px solid var(--light-green);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--primary-green);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-numbers { /* HTML의 class="page-numbers" 에 맞춤 */
+    display: flex;
+    gap: 5px;
+}
+
+.page-number-item { /* JavaScript에서 추가될 예정인 페이지 번호 아이템 */
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--dark-gray);
+    cursor: pointer;
+    font-weight: 400;
+    transition: all 0.2s ease;
+}
+
+.page-number-item:hover:not(.active) {
+    background: var(--light-gray);
+}
+
+.page-number-item.active {
+    background: var(--primary-green);
+    color: var(--white);
+    font-weight: 600;
+    border-color: var(--primary-green);
+}
+
+
+/* ==========================================================================
+   반응형 디자인
+   ========================================================================== */
+
+/* 데스크탑에서만 보이기 */
+.desktop-only {
+    display: block;
+}
+
+/* 모바일에서만 보이기 */
+.mobile-only {
+    display: none;
+}
+
+/* 태블릿 화면 (768px - 1199px) */
+@media (max-width: 1199px) {
+    .header-content { /* HTML의 class="header-content" 에 맞춤 */
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    /* 배송 정보 및 결제 정보는 HTML에서 직접 사용되지 않으므로 주석 처리 */
+    /* .delivery-details,
+    .payment-details {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    } */
+
+    .order-table {
+        min-width: 600px; /* 태블릿에서는 조금 더 작게 */
+    }
+
+    .info-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* 모바일 화면 (767px 이하) */
+@media (max-width: 767px) {
+    /* HTML에 header fragment는 직접 수정 못하므로 주석 처리 */
+    /* .hamburger {
+        display: flex;
+    }
+
+    .nav-menu {
+        position: fixed;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .nav-menu.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .auth-buttons {
+        gap: 10px;
+    }
+
+    .cart-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .cart-symbol {
+        font-size: 18px;
+    } */
+
+    .desktop-only {
+        display: none; /* 모바일에서는 데스크탑 테이블 숨김 */
+    }
+
+    .mobile-only {
+        display: block; /* 모바일에서는 카드 형식 보이기 */
+    }
+
+    .page-header { /* HTML의 class="page-header" 에 맞춤 */
+        padding: 30px 0;
+    }
+
+    .title-section h1 { /* HTML의 class="title-section" 에 맞춤 */
+        font-size: 24px;
+    }
+
+    .order-history-section { /* HTML의 class="order-history-section" 에 맞춤 */
+        padding: 30px 0;
+        gap: 20px;
+    }
+
+    /* 카드 관련 스타일은 위에서 이미 .order-card 등으로 HTML에 맞게 수정됨 */
+
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .filter-left,
+    .filter-right {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filter-select,
+    .search-input {
+        width: 100%; /* 모바일에서 너비 꽉 채우기 */
+    }
+
+    .search-btn {
+        right: 5px; /* 모바일에서 검색 버튼 위치 조정 */
+    }
+
+    /* 기존에 order-info-card 등으로 되어 있던 것들은 HTML에 존재하지 않으므로 주석 처리하거나 제거함 */
+    /* .order-info-card,
+    .order-product-card,
+    .delivery-info-card,
+    .payment-info-card,
+    .order-actions-card {
+        padding: 20px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .product-item {
+        padding: 15px;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .status-timeline {
+        gap: 15px;
+    }
+
+    .timeline-step {
+        padding: 12px;
+    } */
+} /* <-- 이 닫는 괄호가 빠져 있었어요! */
+
+/* Footer Styles (same as main page) */
+.footer {
+    background: var(--dark-green);
+    color: var(--white);
+    padding: 60px 0 20px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer-section h4 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--light-green);
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 12px;
+}
+
+.footer-section ul li a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+    color: var(--light-green);
+}
+
+.footer-section p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--light-green);
+}
+
+/* 초소형 화면 (480px 이하) */
+@media (max-width: 480px) {
+    :root {
+        --container-padding: 15px;
+    }
+
+    .breadcrumb {
+        font-size: 12px;
+    }
+
+    .title-section h1 { /* HTML의 class="title-section" 에 맞춤 */
+        font-size: 20px;
+    }
+
+    /* 기존 카드 제목 등은 HTML에 없음 */
+    /* .card-title {
+        font-size: 18px;
+    }
+
+    .product-image img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .step-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .delivery-address,
+    .payment-summary,
+    .order-notes {
+        padding: 20px;
+    } */
+}
+
+/* ==========================================================================
+   접근성 및 애니메이션
+   ========================================================================== */
+
+/* 스크롤 애니메이션 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 포커스 상태 개선 */
+button:focus,
+input:focus,
+select:focus,
+a:focus {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+}
+
+/* 애니메이션 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 인쇄 스타일 */
+@media print {
+    /* HTML에 header fragment는 직접 수정 못하므로 주석 처리 */
+    .header,
+    .footer,
+    .btn-back,
+    .btn-track-delivery,
+    .action-buttons {
+        display: none;
+    }
+
+    /* order-info-card 등은 HTML에 없으므로 주석 처리 */
+    /* .order-info-card,
+    .order-product-card,
+    .delivery-info-card,
+    .payment-info-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    } */
+
+    /* 이 페이지에 존재하는 요소들만 남김 */
+    .breadcrumb-section,
+    .page-header,
+    .order-history-section {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+    .filter-section,
+    .pagination-section {
+        display: none; /* 필터와 페이지네이션은 인쇄 시 숨김 */
+    }
+    .order-table-container,
+    .order-cards-container {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    .order-table th,
+    .order-table td {
+        border-color: #eee;
+    }
+}

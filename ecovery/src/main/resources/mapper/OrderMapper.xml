@@ -17,6 +17,7 @@
      - 250728 | sehui | 주문 단건 조회 기능 추가
      - 250728 | sehui | 주문 저장, 주문 단건 조회 기능에 totalPrice 추가
      - 250730 | 방희경 | 주문조회에서 상세설명을 보기 위해 변수 추가
+     - 250731 | 방희경 | 주문조회에서 간략히 정보를 보여주고 상세보기 클릭 시 상세화면으로 넘어가는 로직 구현
 -->
 
 <mapper namespace="com.ecovery.mapper.OrderMapper">
@@ -32,6 +33,7 @@
         <result property="detailAddress" column="detail_address"></result>
         <result property="phoneNumber" column="phone_number"></result>
         <result property="orderUuid" column="order_uuid"></result>
+        <result property="memberId" column="member_id"></result>
 
         <!-- 결제 정보 -->
         <result property="paymentId" column="payment_id"></result>
@@ -41,15 +43,16 @@
         <result property="paidAt" column="paid_at"></result>
 
         <collection property="orderItems" ofType="com.ecovery.dto.OrderItemDto">
-            <result property="orderItemId" column="oi.order_item_id"></result>
-            <result property="itemId" column="i.item_id"></result>
-            <result property="itemName" column="i.item_name"></result>
-            <result property="itemDetail" column="i.item_detail"></result> <result property="price" column="i.price"></result>
-            <result property="count" column="oi.count"></result>
-            <result property="orderPrice" column="oi.order_price"></result>
-            <result property="itemImgId" column="ii.item_img_id"></result>
-            <result property="imgName" column="ii.img_name"></result>
-            <result property="imgUrl" column="ii.img_url"></result>
+            <result property="orderItemId" column="oi_order_item_id"></result>
+            <result property="itemId" column="i_item_id"></result>
+            <result property="itemName" column="i_item_name"></result>
+            <result property="itemDetail" column="i_item_detail"></result>
+            <result property="price" column="i_price"></result>
+            <result property="count" column="oi_count"></result>
+            <result property="orderPrice" column="oi_order_price"></result>
+            <result property="itemImgId" column="ii_item_img_id"></result>
+            <result property="imgName" column="ii_img_name"></result>
+            <result property="imgUrl" column="ii_img_url"></result>
         </collection>
     </resultMap>
     
@@ -69,8 +72,20 @@
         <result property="totalPrice" column="total_price" />
     </resultMap>
 
-    <select id="findOrdersItems" parameterType="long" resultMap="orderHistoryMap">
-        select
+    <!-- 주문정보 간략하게 보는 1차 화면 -->
+    <resultMap id="orderSummaryMap" type="com.ecovery.dto.OrderHistoryDto">
+        <id property="orderId" column="order_id" />
+        <result property="orderUuid" column="order_uuid" />
+        <result property="orderStatus" column="order_status" />
+        <result property="createdAt" column="created_at" />
+        <result property="updatedAt" column="updated_at" />
+        <result property="payAmount" column="pay_amount" />
+        <result property="memberId" column="member_id"></result>
+    </resultMap>
+
+    <!-- 주문정보 간략하게 보는 1차 화면 -->
+    <select id="findOrderSummaries" parameterType="long" resultMap="orderHistoryMap">
+        SELECT
             o.order_id,
             o.order_status,
             o.created_at,
@@ -81,6 +96,7 @@
             o.detail_address,
             o.phone_number,
             o.order_uuid,
+            o.member_id,
 
             p.payment_id,
             p.pay_method,
@@ -88,26 +104,26 @@
             p.pay_status,
             p.paid_at,
 
-            oi.order_item_id AS order_item_id,
-            oi.item_id AS item_id,
-            i.item_name AS item_name,
-            i.item_detail AS item_detail,
-            i.price AS price,
-            oi.count AS count,
-            oi.order_price AS order_price,
-            ii.item_img_id AS item_img_id,
-            ii.img_name AS img_name,
-            ii.img_url AS img_url
-        from orders o
-        join order_item oi ON o.order_id = oi.order_id
-        join item i ON oi.item_id = i.item_id
-        LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
-        LEFT JOIN payment p ON o.order_id = p.order_id
+            oi.order_item_id AS oi_order_item_id,
+            oi.item_id AS oi_item_id,
+            i.item_name AS i_item_name,
+            i.item_detail AS i_item_detail,
+            i.price AS i_price,
+            oi.count AS oi_count,
+            oi.order_price AS oi_order_price,
+            ii.item_img_id AS ii_item_img_id,
+            ii.img_name AS ii_img_name,
+            ii.img_url AS ii_img_url
+        FROM orders o
+            LEFT JOIN order_item oi ON o.order_id = oi.order_id
+            LEFT JOIN item i ON oi.item_id = i.item_id
+            LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
+            LEFT JOIN payment p ON o.order_id = p.order_id
 
-        where o.member_id = #{memberId}
-        order by o.created_at desc, oi.order_item_id asc
+        where o.order_id = #{orderId}
+        order by oi.order_item_id asc
     </select>
-  
+
     <!-- 주문 저장 -->
     <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
         insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number, total_price)
@@ -128,23 +144,4 @@
             updated_at = NOW()
         where order_id = #{orderId}
     </update>
-
-    <!-- 주문 단건 조회 -->
-    <select id="findOrderById" resultMap="orderResultMap">
-        select
-            order_id,
-            order_uuid,
-            member_id,
-            order_status,
-            created_at,
-            updated_at,
-            name,
-            zipcode,
-            road_address,
-            detail_address,
-            phone_number,
-            total_price
-        from orders
-        where order_id = #{orderId}
-    </select>
 </mapper>
