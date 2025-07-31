@@ -269,6 +269,106 @@ body {
     font-weight: 500;
 }
 
+/* 추가 */
+/* =========================================
+   히어로 섹션 스타일
+   ========================================= */
+/* 히어로 콘텐츠 컨테이너 */
+.hero-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    color: var(--white);
+}
+
+
+/* 제목 섹션 */
+.hero-title-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+
+/* 히어로 설명 텍스트 */
+.hero-description {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 30px 0;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* 히어로 브레드크럼 */
+.hero-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+.hero-breadcrumb .separator {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.hero-breadcrumb .current {
+    color: var(--white);
+    font-weight: 600;
+}
+
+/* 장식용 배경 요소들 */
+.hero-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 장식용 원형 요소들 */
+.decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float-decoration 6s ease-in-out infinite;
+}
+
+.decoration-1 {
+    width: 120px;
+    height: 120px;
+    top: 20%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.decoration-2 {
+    width: 80px;
+    height: 80px;
+    top: 60%;
+    right: 15%;
+    animation-delay: 2s;
+}
+
+.decoration-3 {
+    width: 60px;
+    height: 60px;
+    top: 10%;
+    right: 25%;
+    animation-delay: 4s;
+}
+
 /* 공지사항 상세 레이아웃 (중앙배치) */
 .notice-detail-layout {
     max-width: var(--content-max-width);
@@ -619,6 +719,84 @@ body {
 .notice-action-btn.bookmark.active:hover {
     background: #e85d04;
     border-color: #e85d04;
+}
+
+/* 추가 */
+/* =========================================
+   관리자 액션 버튼 스타일
+   ========================================= */
+
+/* 관리자 액션 섹션 */
+.admin-actions {
+    margin-top: 40px;
+    padding: 30px;
+    background: rgba(45, 90, 61, 0.05);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-green);
+}
+
+/* 관리자 액션 버튼 컨테이너 */
+.admin-action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* 관리자 버튼 기본 스타일 */
+.admin-btn {
+    background: var(--white);
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.admin-btn:hover {
+    background: var(--primary-green);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.2);
+}
+
+.admin-btn.edit-btn {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+
+.admin-btn.edit-btn:hover {
+    background: var(--accent-green);
+    color: var(--white);
+}
+
+.admin-btn.delete-btn {
+    border-color: var(--hot-red);
+    color: var(--hot-red);
+}
+
+.admin-btn.delete-btn:hover {
+    background: var(--hot-red);
+    color: var(--white);
+}
+
+.admin-btn.new-btn {
+    border-color: var(--secondary-green);
+    color: var(--secondary-green);
+}
+
+.admin-btn.new-btn:hover {
+    background: var(--secondary-green);
+    color: var(--white);
 }
 
 /* 이전/다음 공지사항 네비게이션 */
@@ -1232,18 +1410,46 @@ body {
     :root {
         --content-max-width: 90%;
     }
-    
+
     .notice-navigation {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .nav-item.next {
         text-align: left;
     }
-    
+
     .related-notices-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    /* 추가 */
+    .post-detail-hero {
+        padding: 60px 0 80px;
+    }
+
+    .hero-title {
+        font-size: 36px;
+    }
+
+    .hero-description {
+        font-size: 16px;
+    }
+
+    .decoration-1 {
+        width: 100px;
+        height: 100px;
+    }
+
+    .decoration-2 {
+        width: 70px;
+        height: 70px;
+    }
+
+    .decoration-3 {
+        width: 50px;
+        height: 50px;
     }
 }
 

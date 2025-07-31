@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @history
  *  - 250716 | sehui | 업로드한 파일을 읽어올 경로 설정 기능 추가
  *  - 250730 | sehui | 에코마켓 상품 이미지가 저장된 폴더 접근 권한 추가
+ *  - 250731 | yukyeong | 환경톡톡 이미지가 저장된 폴더 접근 권한 추가
  */
 
 @Configuration
@@ -34,5 +35,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:///C:/ecovery/free/");
         registry.addResourceHandler("/ecovery/item/**")      //에코마켓 이미지 폴더 접근 권한
                 .addResourceLocations("file:///C:/ecovery/item/");
+        registry.addResourceHandler("/ecovery/env/**")
+                .addResourceLocations("file:///C:/ecovery/env/");
     }
 }

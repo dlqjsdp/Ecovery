@@ -1,15 +1,17 @@
 <!--
-GreenCycle 환경톡톡 목록 페이지
-환경 커뮤니티 게시판의 글 목록을 보여주는 페이지
+GreenCycle 공지사항 목록 페이지
+공지사항 게시판의 글 목록을 보여주는 페이지
 Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
-헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 글쓰기 버튼, 페이징 등을 표시함
+헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 카테고리 필터, 페이징 등을 표시함
 @author : eunji
 @fileName : list.html
 @since : 250717
 @history
-    - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
-    - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
-    - 250722 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용
+    - 250718 | yukyeong | 공지사항 페이지 초기 구조 반영 (환경톡톡 목록 기반)
+    - 250731 | yukyeong | 관리자만 글쓰기 버튼 표시, 새 공지 작성 링크 추가
+    - 250731 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용 (notice-list.js 연동)
+    - 250731 | yukyeong | 카테고리 탭 필터링 및 통계 영역/사이드바 구성 추가
+    - 250731 | yukyeong | HTML 구조 정리 및 클래스명 변경 (post → notice 계열)
 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
@@ -21,134 +23,160 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
     <title>공지사항</title>
     <th:block layout:fragment="css">
         <!-- 추가 CSS (필요시만) -->
-        <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
+        <link rel="stylesheet" th:href="@{/css/notice-style.css}">
     </th:block>
 </head>
 
 <body>
 <!-- 본문 fragment로 감싸기 -->
 <div layout:fragment="content">
-    <!-- Page Header -->
-    <section class="page-header fade-in">
-        <div class="page-header-content">
-            <h1>💬 공지사항</h1>
-            <p>환경을 사랑하는 사람들과 함께 나누는 소중한 이야기와 경험들</p>
-            <div class="page-stats">
-                <div class="stat-item"><span class="stat-number">1,247</span><span class="stat-label">전체 게시글</span></div>
-                <div class="stat-item"><span class="stat-number">892</span><span class="stat-label">활성 회원</span></div>
-                <div class="stat-item"><span class="stat-number">156</span><span class="stat-label">오늘 글</span></div>
-                <div class="stat-item"><span class="stat-number">34</span><span class="stat-label">실시간 접속</span></div>
-            </div>
-        </div>
-    </section>
+    <!-- 메인 콘텐츠 영역 -->
+        <div class="container">
+            <!-- 페이지 헤더 (제목 및 통계) -->
+            <section class="page-header fade-in">
+                <div class="page-header-content">
+                    <h1>📢 공지사항</h1>
+                    <p>GreenCycle의 새로운 소식과 중요한 안내사항을 확인하세요</p>
 
-        <!-- Board Container -->
-        <div class="board-container">
-            <div class="board-main fade-in">
-                <!-- Board Header -->
-                <div class="board-header">
-                    <h2 class="board-title">환경 실천 커뮤니티</h2>
-                    <div class="board-actions">
-                        <a th:href="@{/notice/register}"
-                           class="btn btn-primary"
-                           sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                            ✏️ 글쓰기
-                        </a>
-                        <div class="search-box">
-                            <form id="searchForm" style="display: flex; align-items: center; gap: 10px;">
-                                <input type="text" id="keyword" class="search-input" name="keyword" placeholder="검색어 입력">
-                                <button type="submit" class="search-btn">🔍</button>
+                    <!-- 공지사항 통계 - 서버에서 통계 데이터 제공 -->
+<!--                    <div class="page-stats">-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${noticeStats.totalCount}">128</span>-->
+<!--                            <span class="stat-label">전체 공지</span>-->
+<!--                        </div>-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${noticeStats.importantCount}">5</span>-->
+<!--                            <span class="stat-label">중요 공지</span>-->
+<!--                        </div>-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${noticeStats.monthlyCount}">12</span>-->
+<!--                            <span class="stat-label">이번 달 공지</span>-->
+<!--                        </div>-->
+<!--                        <div class="stat-item">-->
+<!--                            <span class="stat-number" th:text="${#numbers.formatInteger(noticeStats.totalViews, 3)}">2,435</span>-->
+<!--                            <span class="stat-label">총 조회수</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                    <div class="page-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">1,247</span>
+                            <span class="stat-label">전체 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">892</span>
+                            <span class="stat-label">중요 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">156</span>
+                            <span class="stat-label">이번 달 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">56432</span>
+                            <span class="stat-label">총 조회수</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 공지사항 메인 컨테이너 -->
+            <div class="notice-container">
+                <!-- 공지사항 메인 영역 -->
+                <div class="notice-main fade-in">
+                    <!-- 공지사항 헤더 (제목 및 검색) -->
+                    <div class="notice-header">
+                        <h2 class="notice-title">📋 공지사항 목록</h2>
+                        <div class="notice-actions">
+                            <!-- 검색 폼 -->
+                            <form id="searchForm" class="search-form">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" id="searchInput"
+                                           placeholder="검색어를 입력하세요">
+                                    <button type="submit" class="search-btn">🔍</button>
+                                </div>
                             </form>
                         </div>
                     </div>
-                </div>
 
-                <!-- Category Tabs -->
-                <div class="category-tabs">
-                    <button class="tab active" onclick="switchTab(this, 'all')">전체</button>
-                    <button class="tab" onclick="switchTab(this, 'tips')">환경 팁</button>
-                    <button class="tab" onclick="switchTab(this, 'review')">실천 후기</button>
-                    <button class="tab" onclick="switchTab(this, 'challenge')">챌린지</button>
-                    <button class="tab" onclick="switchTab(this, 'question')">질문답변</button>
-                    <button class="tab" onclick="switchTab(this, 'news')">환경 뉴스</button>
-                </div>
+                    <!-- 카테고리 탭 - 현재 선택된 카테고리 표시 -->
+                    <div class="category-tabs">
+                        <button class="tab category-tab active" data-category="">전체</button>
+                        <button class="tab category-tab" data-category="important">중요 공지</button>
+                        <button class="tab category-tab" data-category="service">서비스</button>
+                        <button class="tab category-tab" data-category="maintenance">점검</button>
+                        <button class="tab category-tab" data-category="event">이벤트</button>
+                        <button class="tab category-tab" data-category="general">일반</button>
+                    </div>
 
-                <!-- Post List -->
-                <div class="post-list" id="postList">
-                    <!-- JS에서 비동기로 렌더링 -->
-                </div>
+                    <!-- 공지사항 목록 -->
+                    <div class="notice-list" id="noticeList">
+                        <!-- JS에서 비동기로 렌더링 -->
+                    </div>
 
-                <!-- 페이지네이션 -->
-                <div class="pagination" id="pagination">
-                    <!-- JS에서 동적으로 구성 -->
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="board-sidebar fade-in">
-                <!-- User Info -->
-                <div class="sidebar-card user-stats">
-                    <h3>👤 내 정보</h3>
-                    <div class="user-avatar">🌱</div>
-                    <div class="user-name">환경지킴이</div>
-                    <div class="user-level">🌟 에코마스터</div>
-                    <div class="user-point-stats">
-                        <div class="point-item"><span class="point-number">1,247</span><span class="point-label">에코포인트</span></div>
-                        <div class="point-item"><span class="point-number">89</span><span class="point-label">작성글</span></div>
+                    <!-- Pagination -->
+                    <div class="pagination" id="pagination">
+                        <!-- JS에서 동적으로 구성 -->
                     </div>
                 </div>
 
-                <!-- Popular Posts -->
-                <div class="sidebar-card">
-                    <h3>🔥 인기글</h3>
-                    <div class="popular-list">
-                        <div class="popular-item" onclick="viewPost(1)">
-                            <div class="popular-rank">1</div>
-                            <div class="popular-title">30일 제로웨이스트 챌린지 완주 후기</div>
-                            <div class="popular-stats"><span>👁️ 847</span><span>❤️ 89</span><span>💬 23</span></div>
+                <!-- 사이드바 -->
+                <div class="notice-sidebar fade-in">
+
+                    <!-- 서비스 상태 - 서버에서 서비스 상태 정보 제공 -->
+                    <div class="sidebar-card">
+                        <h3>🚀 서비스 상태</h3>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <!-- 서비스 상태에 따른 조건부 렌더링 -->
+                            <div>
+                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                <h4 style="color: var(--primary-green); margin-bottom: 10px;">모든 서비스 정상</h4>
+                                <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);">
+                                    현재 모든 서비스가 <br>정상적으로 운영되고 있습니다.<br>
+                                    <strong>99.9%</strong> 가동률 유지 중
+                                </p>
+                            </div>
                         </div>
-                        <!-- ...더미 데이터 생략... -->
                     </div>
-                </div>
 
-                <!-- Weekly Challenge -->
-                <div class="challenge-card">
-                    <div class="challenge-icon">🌍</div>
-                    <div class="challenge-title">이번 주 챌린지</div>
-                    <div class="challenge-desc">
-                        일회용품 줄이기<br>7일 동안 일회용품 사용량 50% 줄이기
+
+                    <!-- 바로가기 링크 -->
+                    <div class="sidebar-card">
+                        <h3>🔗 바로가기</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                ❓ 자주 묻는 질문
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📞 고객센터 문의
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📋 이용약관
+                            </a>
+                        </div>
                     </div>
-                    <button class="challenge-btn" onclick="joinChallenge()">참여하기</button>
-                </div>
 
-                <!-- Environmental Tips -->
-                <div class="sidebar-card">
-                    <h3>💡 오늘의 환경 팁</h3>
-                    <div style="text-align: center; padding: 20px 0;">
-                        <div style="font-size: 48px; margin-bottom: 15px;">♻️</div>
-                        <h4 style="color: var(--primary-green); margin-bottom: 10px;">분리배출 핵심</h4>
-                        <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);">
-                            플라스틱 용기는 내용물을 비우고 물로 헹군 후 배출하면 재활용 효율이 <strong>30% 향상</strong>됩니다!
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Quick Links -->
-                <div class="sidebar-card">
-                    <h3>🔗 바로가기</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <button class="btn btn-secondary" onclick="showNotification('분리배출 가이드로 이동합니다')">📋 분리배출 가이드</button>
-                        <button class="btn btn-secondary" onclick="showNotification('에코마켓으로 이동합니다')">🛒 친환경 제품 보기</button>
-                        <button class="btn btn-secondary" onclick="showNotification('무료나눔으로 이동합니다')">🤝 무료나눔 참여</button>
+                    <!-- 관리자 전용 메뉴 - 관리자인 경우에만 표시 -->
+                    <div class="sidebar-card" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <h3>⚙️ 관리자 메뉴</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a th:href="@{/notice/register}" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+                                ➕ 새 공지 작성
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📊 공지 관리
+                            </a>
+                            <a href="#" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📈 통계 보기
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
 
     <th:block layout:fragment="script">
         <!-- 추가 JS (필요시만) -->
-        <script th:src="@{/js/eco-talk-script.js}"></script>
+        <script th:src="@{/js/notice-script.js}"></script>
         <script th:src="@{/js/notice-list.js}"></script> <!-- 목록 전용 -->
     </th:block>
 </body>

@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
      - 250718 | yukyeong | DTO 기반 서비스로 전환
      - 250725 | yukyeong | 게시글 category 필드 DTO/VO 매핑 처리 추가
      - 250728 | yukyeong | 이미지 포함 게시글 등록/수정 기능 추가 (EnvFormDto, MultipartFile 활용), 이미지까지 함께 삭제되도록 추가
+     - 250731 | yukyeong | 이미지 리스트를 별도 파라미터가 아닌 EnvFormDto 내부에서 처리하도록 수정
  */
 
 @Service
@@ -73,7 +74,7 @@ public class EnvServiceImpl implements EnvService {
     // 등록된 게시글의 ID를 다시 DTO에 설정하고, 이미지가 있을 경우 함께 저장
     @Override
     @Transactional
-    public void register(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception{
+    public void register(EnvFormDto envFormDto) throws Exception{
         log.info("register() - 게시글 등록 (이미지 포함)");
 
         // 1. 본문 내용 등록
@@ -83,14 +84,15 @@ public class EnvServiceImpl implements EnvService {
         envDto.setEnvId(env.getEnvId()); // DB에서 생성된 ID를 DTO에 반영
 
         // 2. 이미지가 있는 경우 등록 처리
-        for (MultipartFile envImgFile : envImgFiles) {
-            if (!envImgFile.isEmpty()) { // 비어있는 파일 제외
-                EnvImgDto envImgDto = EnvImgDto.builder()
-                        .envId(env.getEnvId()) // FK로 게시글 ID 설정
-                        .build();
-
-                // EnvImgService를 통해 실제 이미지 파일 저장 및 DB 등록 수행
-                envImgService.register(envImgDto, envImgFile);
+        List<MultipartFile> envImgFiles = envFormDto.getEnvImgFiles();
+        if (envImgFiles != null) {
+            for (MultipartFile envImgFile : envImgFiles) {
+                if (!envImgFile.isEmpty()) {
+                    EnvImgDto envImgDto = EnvImgDto.builder()
+                            .envId(env.getEnvId())
+                            .build();
+                    envImgService.register(envImgDto, envImgFile);
+                }
             }
         }
     }
@@ -109,7 +111,7 @@ public class EnvServiceImpl implements EnvService {
     // 게시글 본문은 VO로 변환 후 업데이트, 삭제할 이미지 ID는 delete 처리, 새 파일은 등록 처리
     @Override
     @Transactional
-    public boolean modify(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception{
+    public boolean modify(EnvFormDto envFormDto) throws Exception{
         log.info("modify() - 게시글 수정 (이미지 포함)");
 
         // 1. 게시글 본문 내용 수정
@@ -121,19 +123,22 @@ public class EnvServiceImpl implements EnvService {
 
         // 2. 삭제할 이미지 ID 목록이 있다면 반복 삭제
         List<Long> deleteImgIds = envFormDto.getDeleteImgIds();
-        if (deleteImgIds != null && !deleteImgIds.isEmpty()) {
+        if (deleteImgIds != null) {
             for (Long imgId : deleteImgIds) {
                 envImgService.deleteById(imgId); // 개별 이미지 삭제
             }
         }
 
         // 3. 새 이미지 파일이 있다면 추가 등록 처리
-        for (MultipartFile envImgFile : envImgFiles) {
-            if (!envImgFile.isEmpty()) { // 비어있지 않은 파일만 처리
-                EnvImgDto envImgDto = EnvImgDto.builder()
-                        .envId(env.getEnvId()) // FK로 게시글 ID 설정
-                        .build();
-                envImgService.register(envImgDto, envImgFile); // 실제 이미지 등록
+        List<MultipartFile> envImgFiles = envFormDto.getEnvImgFiles();
+        if (envImgFiles != null) {
+            for (MultipartFile envImgFile : envImgFiles) {
+                if (!envImgFile.isEmpty()) {
+                    EnvImgDto envImgDto = EnvImgDto.builder()
+                            .envId(env.getEnvId())
+                            .build();
+                    envImgService.register(envImgDto, envImgFile);
+                }
             }
         }
 

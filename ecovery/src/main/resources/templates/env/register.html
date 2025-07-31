@@ -2,8 +2,7 @@
 GreenCycle 환경톡톡 게시글 등록 페이지
 환경 관련 게시글을 작성할 수 있는 입력 폼, 에디터, 이미지 업로드, 이모지, 미리보기 등의 기능 제공
 사용자 정보 및 작성 통계는 사이드바에 표시됨
-
-@author : yukyeong
+@author : eunji
 @fileName : register.html
 @since : 250721
 @history
@@ -14,6 +13,11 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                           - 사이드바에 사용자 통계 표시
                           - env-register.js와 연동하여 유효성 검사 및 등록 처리
                           - 스크립트 설정값(maxFileSize, emoji, validationRules 등) 타임리프로 연동
+    - 250731 | yukyeong | Toast UI Editor 본문 입력 적용:
+                          - 기존 textarea → toastui.Editor로 교체
+                          - addImageBlobHook으로 이미지 본문 자동 삽입 처리
+                          - 작성 내용은 hiddenContent에 저장 후 전송
+                          - 기존 파일 첨부 영역 UI는 주석 처리됨
 -->
 
 <!DOCTYPE html>
@@ -25,6 +29,8 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 <head th:with="pageTitle='환경톡톡 - 새 글 쓰기'">
     <title>환경톡톡</title>
     <th:block layout:fragment="css">
+        <!-- Toast UI Editor 스타일 CDN 추가 -->
+        <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
         <link rel="stylesheet" th:href="@{/css/write-post-style.css}">
     </th:block>
 </head>
@@ -79,44 +85,38 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 
                         <!-- Content Editor -->
                         <div class="form-section">
-                            <label class="form-label" for="postContent">내용</label>
-                            <div class="editor-toolbar">
-                                <button type="button" class="toolbar-btn" onclick="formatText('bold')" title="굵게"><strong>B</strong></button>
-                                <button type="button" class="toolbar-btn" onclick="formatText('italic')" title="기울임"><em>I</em></button>
-                                <button type="button" class="toolbar-btn" onclick="formatText('underline')" title="밑줄"><u>U</u></button>
-                                <div class="toolbar-divider"></div>
-                                <button type="button" class="toolbar-btn" onclick="insertList()" title="목록">≡</button>
-                                <button type="button" class="toolbar-btn" onclick="insertLink()" title="링크">🔗</button>
-                                <button type="button" class="toolbar-btn" onclick="insertEmoji()" title="이모지">😊</button>
-                            </div>
-                            <textarea id="postContent" name="content" class="form-textarea content-editor"
-                                      placeholder="내용을 자유롭게 작성해주세요." maxlength="2000" required></textarea>
+                            <label class="form-label" for="editor">내용</label>
+                            <!-- Toast UI Editor가 들어갈 영역 (기존 클래스 유지) -->
+                            <div id="editor" class="form-textarea content-editor"></div>
+                            <!-- 실제 form 전송용 hidden input -->
+                            <input type="hidden" name="content" id="hiddenContent" />
+                            <!-- 글자 수 카운트 유지 -->
                             <div class="char-count"><span id="contentCount">0</span>/2000</div>
                             <span class="error-message" id="contentError"></span>
                         </div>
 
-                        <!-- File Upload -->
-                        <div class="form-section">
-                            <label class="form-label">첨부파일</label>
-                            <div class="upload-area" id="uploadArea">
-                                <div class="upload-content">
-                                    <div class="upload-icon">📎</div>
-                                    <div class="upload-text">
-                                        <strong>파일을 드래그하거나 클릭하여 업로드</strong>
-                                        <p>이미지 파일 (JPG, PNG, GIF) | 최대 10MB</p>
-                                    </div>
-                                </div>
-                                <input type="file" id="fileInput" name="envImgFiles" multiple accept="image/*" style="display: none;">
-                            </div>
-                            <div class="uploaded-files" id="uploadedFiles"></div>
-                            <span class="error-message" id="fileError"></span>
-                        </div>
+<!--                        &lt;!&ndash; File Upload &ndash;&gt;-->
+<!--                        <div class="form-section">-->
+<!--                            <label class="form-label">첨부파일</label>-->
+<!--                            <div class="upload-area" id="uploadArea">-->
+<!--                                <div class="upload-content">-->
+<!--                                    <div class="upload-icon">📎</div>-->
+<!--                                    <div class="upload-text">-->
+<!--                                        <strong>파일을 드래그하거나 클릭하여 업로드</strong>-->
+<!--                                        <p>이미지 파일 (JPG, PNG, GIF) | 최대 10MB</p>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <input type="file" id="fileInput" name="envImgFiles" multiple accept="image/*" style="display: none;">-->
+<!--                            </div>-->
+<!--                            <div class="uploaded-files" id="uploadedFiles"></div>-->
+<!--                            <span class="error-message" id="fileError"></span>-->
+<!--                        </div>-->
 
 
                         <!-- Action Buttons -->
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="previewPost()">👁️ 미리보기</button>
-                            <button type="button" class="btn btn-danger" onclick="location.href='/eco-talk'">❌ 취소</button>
+                            <button type="button" class="btn btn-danger" onclick="location.href='/env/list'">❌ 취소</button>
                             <button type="submit" class="btn btn-primary">📝 게시하기</button>
                         </div>
 
@@ -195,17 +195,15 @@ GreenCycle 환경톡톡 게시글 등록 페이지
         <script th:src="@{/js/write-post-script.js}"></script>
         <script th:src="@{/js/env-register.js}"></script>
 
+        <!-- Toast UI Editor JS CDN 추가 -->
+        <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
-        <!-- 타임리프 인라인 스크립트 -->
+
+        <!-- 타임리프 변수 및 에디터 설정 -->
         <script th:inline="javascript">
-            // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
-            // 정적 설정값
             var maxFileSize = /*[[${maxFileSize}]]*/ 10485760; // 10MB
             var maxFileCount = /*[[${maxFileCount}]]*/ 5;
-
-
-            // API URL 설정
-            var fileUploadUrl = /*[[@{/api/files/upload}]]*/ '/api/files/upload';
+            var fileUploadUrl = /*[[@{/api/env/upload-temp}]]*/ '/api/env/upload-temp';
 
 
             // 에디터 설정
@@ -237,6 +235,41 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                     message: '카테고리를 선택해주세요'
                 }
             };
+
+            // Toast UI Editor 초기화
+            const editor = new toastui.Editor({
+                el: document.querySelector('#editor'),
+                height: '500px',
+                initialEditType: 'wysiwyg',
+                previewStyle: 'vertical',
+                hooks: {
+                    addImageBlobHook: async (blob, callback) => {
+                        try {
+                            const formData = new FormData();
+                            formData.append('file', blob);
+
+                            const res = await fetch('/api/env/upload-temp', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const result = await res.json();
+                            const imageUrl = `/ecovery/env/${result.fileName}`;
+                            callback(imageUrl, '업로드 이미지');
+
+                        } catch (err) {
+                            console.error("이미지 업로드 실패", err);
+                            alert("이미지 업로드 중 오류가 발생했습니다.");
+                        }
+                    }
+                }
+            });
+
+            // form 제출 전 에디터 값 설정
+            function beforeSubmit() {
+                document.getElementById("hiddenContent").value = editor.getHTML();
+                document.getElementById("writeForm").submit();
+            }
         </script>
     </th:block>
 </body>

@@ -11,6 +11,7 @@ Thymeleaf layout:fragment="header"로 정의되어 layout에서 포함하여 사
     - 250718 | yukyeong | 공통 헤더 프래그먼트 작성
     - 250725 | 방희경 | main.html에 있는 코드로 수정
     - 250718 | yukyeong | 공지사항 이동경로 추가, 모바일 메뉴(햄버거 버튼)를 추가
+    - 250718 | yukyeong | 게시판에 <li> 추가함
 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
@@ -27,11 +28,11 @@ Thymeleaf layout:fragment="header"로 정의되어 layout에서 포함하여 사
                 <ul class="nav-menu" id="navMenu">
                     <li><a href="/main">홈</a></li>
                     <li><a href="#services">서비스</a></li>
-                    <a th:href="@{/disposal/disposalMain}">분리배출</a>
-                    <a th:href="@{/free/list}">무료나눔</a>
-                    <a th:href="@{/eco/list}">에코마켓</a>
-                    <a th:href="@{/env/list}">환경톡톡</a>
-                    <a th:href="@{/notice/list}">공지사항</a>
+                    <li><a th:href="@{/disposal/disposalMain}">분리배출</a></li>
+                    <li><a th:href="@{/free/list}">무료나눔</a></li>
+                    <li><a th:href="@{/eco/list}">에코마켓</a></li>
+                    <li><a th:href="@{/env/list}">환경톡톡</a></li>
+                    <li><a th:href="@{/notice/list}">공지사항</a></li>
                 </ul>
 
                 <div class="auth-buttons">

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * @since : 250726
  * @history
       - 250726 | yukyeong | 이미지 등록/조회/삭제 기능 구현, 파일 저장 및 삭제 로직 추가
+      - 250731 | yukyeong | 브라우저 접근용 URL 경로 수정: /images → /ecovery 로 변경
  */
 
 @Service
@@ -42,7 +43,7 @@ public class EnvImgServiceImpl implements EnvImgService{
     @Value("${envImgLocation}")
     private String envImgLocation;
 
-    private final String envImgFolder = "env"; // /images/env/
+    private final String envImgFolder = "env"; // /ecovery/env/
 
     // DTO를 VO로 변환하는 메서드 (DB 작업용으로 변환)
     private EnvImgVO dtoToVo(EnvImgDto dto) {
@@ -79,7 +80,7 @@ public class EnvImgServiceImpl implements EnvImgService{
             // 실제 저장은 로컬 경로로
             imgName = fileService.uploadFile(envImgLocation, oriImgName, imgFile.getBytes());
             // 브라우저 접근용 URL
-            imgUrl = "/images/" + envImgFolder + "/" + imgName;
+            imgUrl = "/ecovery/" + envImgFolder + "/" + imgName;
         }
 
         dto.setOriImgName(oriImgName);

@@ -8,6 +8,7 @@
  * @since : 250722
  * @history
  *    - 250722 | yukyeong | 게시글 목록 비동기 로딩, 검색, 페이징 기능 구현
+ *    - 250731 | yukyeong | 수정일이 존재할 경우 목록에도 수정일 우선 표시되도록 개선
  */
 
 // HTML 문서의 모든 요소가 완전히 로딩된 후에 실행할 코드
@@ -76,7 +77,7 @@ function renderPostList(posts) { // posts는 게시글 리스트 배열 (예: da
                     <div class="post-title">${post.title}</div> <!-- 게시글의 제목을 보여주는 영역 -->
                     <div class="post-meta">
                         <span class="post-author">${post.nickname}</span> <!-- 작성자 이름 표시 (post.nickname) -->
-                        <span>${formatDate(post.createdAt)}</span>  <!-- 게시글 작성일을 예쁘게 포맷해서 표시 (formatDate() 함수 사용) -->
+                        <span>${formatDate(post.updatedAt || post.createdAt)}</span>  <!-- 게시글 작성일을 예쁘게 포맷해서 표시 (formatDate() 함수 사용) -->
                         <span>조회 ${post.viewCount}</span> <!-- 조회수 출력 (post.viewCount) -->
                     </div>
                 </div>

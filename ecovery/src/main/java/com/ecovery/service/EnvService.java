@@ -20,17 +20,18 @@ import java.util.List;
      - 250716 | yukyeong | 조회수 증가 추가
      - 250718 | yukyeong | VO를 DTO로 변경
      - 250728 | yukyeong | 이미지 포함 게시글 등록 및 수정 메서드로 변경 (EnvFormDto + MultipartFile)
+     - 250731 | yukyeong | 이미지 리스트를 EnvFormDto 내부에서만 전달하는 구조로 수정
  */
 
 public interface EnvService {
 
     // 게시글 등록 (본문 + 이미지 파일)
-    public void register(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception;
+    public void register(EnvFormDto envFormDto) throws Exception;
 
     public EnvDto get(Long envId); // 게시글 단건 조회 (DTO 반환)
 
     // 게시글 수정 (본문 + 이미지 ID 목록 + 새 이미지 파일)
-    public boolean modify(EnvFormDto envFormDto, List<MultipartFile> envImgFiles) throws Exception;
+    public boolean modify(EnvFormDto envFormDto) throws Exception;
 
     public boolean remove(Long envId); // 게시글 삭제 (삭제는 ID만으로)
 

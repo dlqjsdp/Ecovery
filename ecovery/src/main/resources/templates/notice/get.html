@@ -1,61 +1,173 @@
-<!--
-GreenCycle 환경톡톡 게시글 상세보기
-게시글 본문, 작성자, 작성일 등 상세 내용을 보여주는 페이지
-작성자 본인 또는 관리자만 수정 버튼이 노출됨
-@author : yukyeong
-@fileName : get.html
-@since : 250721
-@history
-    - 250721 | yukyeong | 단건 조회, 수정버튼 출력을 확인하기 위한 임시 뷰 최조 작성, 수정 버튼은 작성자 또는 관리자만 볼 수 있도록 설정
-    - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용
--->
+<!--&lt;!&ndash;-->
+<!--GreenCycle 환경톡톡 게시글 상세보기-->
+<!--게시글 본문, 작성자, 작성일 등 상세 내용을 보여주는 페이지-->
+<!--작성자 본인 또는 관리자만 수정 버튼이 노출됨-->
+<!--@author : yukyeong-->
+<!--@fileName : get.html-->
+<!--@since : 250721-->
+<!--@history-->
+<!--    - 250721 | yukyeong | 단건 조회, 수정버튼 출력을 확인하기 위한 임시 뷰 최조 작성, 수정 버튼은 작성자 또는 관리자만 볼 수 있도록 설정-->
+<!--    - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용-->
+<!--&ndash;&gt;-->
 
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout1}">
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org"-->
+<!--      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"-->
+<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
+<!--      layout:decorate="~{layouts/layout1}">-->
 
-<head th:with="pageTitle='환경톡톡 - 게시글 조회'">
-    <title>환경톡톡</title>
-    <th:block layout:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
-    </th:block>
-</head>
+<!--<head th:with="pageTitle='환경톡톡 - 게시글 조회'">-->
+<!--    <title>환경톡톡</title>-->
+<!--    <th:block layout:fragment="css">-->
+<!--        <link rel="stylesheet" th:href="@{/css/notice-detail.css}">-->
+<!--    </th:block>-->
+<!--</head>-->
 
-<body>
-<!-- 본문 콘텐츠 -->
-<div layout:fragment="content" class="fade-in">
-    <section class="post-detail">
-        <h2>📌 게시글 상세보기</h2>
+<!--<body>-->
+<!--&lt;!&ndash; 본문 콘텐츠 &ndash;&gt;-->
+<!--<div layout:fragment="content" class="fade-in">-->
+<!--    <div class="container">-->
+<!--        &lt;!&ndash; 게시글 상세보기 헤더 섹션 (새로 추가) &ndash;&gt;-->
+<!--        <section class="post-detail-hero">-->
+<!--            <div class="container">-->
+<!--                <div class="hero-content">-->
+<!--                    &lt;!&ndash; 아이콘과 메인 제목 &ndash;&gt;-->
+<!--                    <div class="hero-title-section">-->
+<!--                        <div class="hero-icon">📖</div>-->
+<!--                        <h1 class="hero-title">공지사항 상세보기</h1>-->
+<!--                    </div>-->
+<!--                    &lt;!&ndash; 설명 텍스트 &ndash;&gt;-->
+<!--                    <p class="hero-description">-->
+<!--                        공지사항은 꼭 읽어주세요-->
+<!--                    </p>-->
+<!--                    &lt;!&ndash; 브레드크럼 정보 &ndash;&gt;-->
+<!--                    <div class="hero-breadcrumb">-->
+<!--                        <span>홈</span>-->
+<!--                        <span class="separator">›</span>-->
+<!--                        <span>공지사항</span>-->
+<!--                        <span class="separator">›</span>-->
+<!--                        <span class="current">상세보기</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                &lt;!&ndash; 장식용 배경 요소들 &ndash;&gt;-->
+<!--                <div class="hero-decoration">-->
+<!--                    <div class="decoration-circle decoration-1"></div>-->
+<!--                    <div class="decoration-circle decoration-2"></div>-->
+<!--                    <div class="decoration-circle decoration-3"></div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </section>-->
 
-        <!-- 게시글 정보 영역 -->
-        <div class="post-info">
-            <p><strong>제목:</strong> <span id="postTitle">제목</span></p>
-            <p><strong>작성자:</strong> <span id="postAuthor">작성자</span></p>
-            <p><strong>작성일:</strong> <span id="postDate">날짜</span></p>
-            <p><strong>조회수:</strong> <span id="postViews">0</span></p>
-        </div>
 
-        <div class="post-content">
-            <p><strong>내용:</strong></p>
-            <div id="postContent" style="white-space: pre-line;"></div>
-        </div>
+<!--        &lt;!&ndash; 공지사항 상세 컨테이너 (중앙배치) &ndash;&gt;-->
+<!--        <div class="notice-detail-layout">-->
+<!--            &lt;!&ndash; 공지사항 상세 메인 콘텐츠 &ndash;&gt;-->
+<!--            <div class="notice-detail-main fade-in">-->
+<!--                &lt;!&ndash; 뒤로가기 버튼 &ndash;&gt;-->
+<!--                <button class="back-btn" onclick="history.back()">-->
+<!--                    ← 목록으로 돌아가기-->
+<!--                </button>-->
 
-        <div class="post-buttons" style="margin-top: 30px;">
-            <!-- 관리자만 수정 버튼 보이게 -->
-            <th:block sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                <a th:href="@{/env/modify(noticeId=${notice.noticeId})}" class="btn btn-secondary">✏️ 수정</a>
-            </th:block>
+<!--                &lt;!&ndash; 공지사항 아티클 &ndash;&gt;-->
+<!--                <article class="notice-article">-->
+<!--                    &lt;!&ndash; 공지사항 헤더 &ndash;&gt;-->
+<!--                    <header class="notice-article-header">-->
 
-            <a th:href="@{/notice/list}" class="btn btn-primary">📋 목록으로</a>
-        </div>
-    </section>
-</div>
+<!--                        &lt;!&ndash; 공지사항 제목 &ndash;&gt;-->
+<!--                        <h1 class="notice-article-title" id="notice-title">공지사항 제목</h1>-->
 
-<th:block layout:fragment="script">
-    <script th:src="@{/js/eco-talk-script.js}"></script>
-    <script th:src="@{/js/notice-get.js}"></script>
-</th:block>
-</body>
-</html>
+<!--                        &lt;!&ndash; 공지사항 메타 정보 &ndash;&gt;-->
+<!--                        <div class="notice-article-meta">-->
+<!--                            <div class="author-info">-->
+<!--                                    <span class="author-avatar"-->
+<!--                                          th:text="${notice.author.avatar != null ? notice.author.avatar : '👨‍💼'}">👨‍💼</span>-->
+<!--                                <div>-->
+<!--                                    <div class="author-name" th:text="${notice.author.name}">운영팀</div>-->
+<!--                                    <div class="author-role" th:text="${notice.author.role}">관리자</div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="notice-info">-->
+<!--                                <div class="notice-date">-->
+<!--                                    <span style="font-weight: 500;">작성일:</span>-->
+<!--                                    <span th:text="${#temporals.format(notice.createdAt, 'yyyy년 MM월 dd일')}">2025년 07월 15일</span>-->
+<!--                                </div>-->
+<!--                                <div class="notice-views">-->
+<!--                                    <span style="font-weight: 500;">조회:</span>-->
+<!--                                    <span th:text="${#numbers.formatInteger(notice.viewCount, 3)} + '회'">1,245회</span>-->
+<!--                                </div>-->
+<!--                                <div class="notice-category" th:if="${notice.category}">-->
+<!--                                    <span style="font-weight: 500;">분류:</span>-->
+<!--                                    <span th:text="${notice.category.displayName}">업데이트</span>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                        </div>-->
+<!--                    </header>-->
+
+<!--                    &lt;!&ndash; 공지사항 내용 &ndash;&gt;-->
+<!--                    <div class="notice-article-content" th:utext="${notice.content}">-->
+<!--                        &lt;!&ndash; 여기에 공지사항 내용이 표시됩니다 &ndash;&gt;-->
+<!--                        <h3>🌟 ECOVERY 2.0 주요 업데이트 내용</h3>-->
+<!--                        <p>안녕하세요, 에코버리 사용자 여러분! 오랜 기간 준비한 <strong>ECOVERY 2.0 업데이트</strong>를 안내드립니다.</p>-->
+
+<!--                        <div class="notice-info-box">-->
+<!--                            <h4>💡 주요 변경사항</h4>-->
+<!--                            <p>이번 업데이트는 사용자 경험 개선과 새로운 환경 보호 기능에 중점을 두었습니다.</p>-->
+<!--                        </div>-->
+
+<!--                        <h3>🆕 새로운 기능</h3>-->
+<!--                        <ul>-->
+<!--                            <li><strong>AI 기반 분리배출 가이드:</strong> 사진을 찍으면 자동으로 분리배출 방법을 안내합니다</li>-->
+<!--                            <li><strong>에코포인트 시스템 개선:</strong> 더욱 다양한 활동으로 포인트를 적립하세요</li>-->
+<!--                            <li><strong>친환경 제품 추천:</strong> 개인화된 친환경 제품을 추천해드립니다</li>-->
+<!--                            <li><strong>커뮤니티 기능 강화:</strong> 더욱 활발한 소통이 가능합니다</li>-->
+<!--                        </ul>-->
+
+<!--                        <h3>🔧 개선사항</h3>-->
+<!--                        <ul>-->
+<!--                            <li>페이지 로딩 속도 <strong>50% 향상</strong></li>-->
+<!--                            <li>모바일 사용성 개선</li>-->
+<!--                            <li>검색 기능 정확도 향상</li>-->
+<!--                            <li>보안 강화</li>-->
+<!--                        </ul>-->
+
+<!--                        <div class="notice-info-box warning">-->
+<!--                            <h4>⚠️ 업데이트 시 주의사항</h4>-->
+<!--                            <p>업데이트 적용 후 브라우저 캐시를 삭제해주시기 바랍니다.</p>-->
+<!--                        </div>-->
+
+<!--                        <h3>📅 적용 일정</h3>-->
+<!--                        <p><strong>2025년 7월 20일(일) 오전 9시</strong>부터 새로운 기능을 이용하실 수 있습니다.</p>-->
+
+<!--                        <blockquote>-->
+<!--                            궁금한 점이 있으시면 고객센터로 문의해주세요! 더 나은 서비스로 보답하겠습니다.-->
+<!--                        </blockquote>-->
+<!--                    </div>-->
+
+<!--                </article>-->
+
+<!--                &lt;!&ndash; 관리자 전용 액션 버튼들 (관리자만) &ndash;&gt;-->
+<!--                <section class="admin-actions" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">-->
+<!--                    <div class="admin-action-buttons">-->
+<!--                        <a id="editBtn" class="admin-btn edit-btn">-->
+<!--                            ✏️ 글 수정-->
+<!--                        </a>-->
+<!--                        <button type="button" id="deleteBtn" class="admin-btn delete-btn">-->
+<!--                            🗑️ 글 삭제-->
+<!--                        </button>-->
+<!--                        <a th:href="@{/env/register}" class="admin-btn new-btn">-->
+<!--                            ➕ 새 글 작성-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                </section>-->
+
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--<th:block layout:fragment="script">-->
+<!--    <script th:src="@{/js/notice-detail.js}"></script>-->
+<!--    <script th:src="@{/js/notice-get.js}"></script>-->
+<!--</th:block>-->
+<!--</body>-->
+<!--</html>-->
