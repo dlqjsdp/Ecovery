@@ -119,7 +119,8 @@ public class FreeServiceImpl implements FreeService {
     @Override
     public List<FreeDto> getAll(Criteria cri) {
         log.info("전체 게시글 조회: {}", cri);
-        List<FreeDto> voList = freeMapper.getListWithPaging(cri);
+        //List<FreeDto> voList = freeMapper.getListWithPaging(cri);
+        //return freeMapper.getListWithPaging(cri);
         return freeMapper.getListWithPaging(cri);
     }
 

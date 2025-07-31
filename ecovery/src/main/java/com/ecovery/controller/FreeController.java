@@ -95,7 +95,14 @@ public class FreeController {
     //무료나눔 수정 페이지 - 로그인 사용자만 가능
     @GetMapping("/modify/{freeId}")
     @PreAuthorize("isAuthenticated()") // 로그인한 사용자만 접근 가능
-    public String modify(){
+    public String modify(@PathVariable Long freeId, Model model, Principal principal){
+
+        // 게시글 정보 가져오기
+        FreeDto free = freeService.get(freeId);
+
+        // 로그인 사용자가 작성자 또는 관리자 여부 확인해도 좋음
+        model.addAttribute("free", free); // HTML에서 사용할 객체
+
         return "free/modify";
     }
 }

@@ -32,6 +32,13 @@
     <!-- 상세보기 내용 -->
     <section class="detail-section">
         <div class="container">
+            <!-- 🔥 수정: 목록으로 돌아가는 버튼 추가 -->
+            <div class="back-to-list">
+                <a th:href="@{/free/list}" class="back-btn">
+                    <span class="icon">←</span>
+                    목록보기
+                </a>
+            </div>
             <div class="detail-container">
                 <!-- 상품 이미지 섹션 -->
                 <div class="image-section">
@@ -66,22 +73,23 @@
                             <!-- STEP 2: 작성자 또는 관리자일 경우에만 버튼 표시 -->
                             <!-- 수정/삭제 버튼은 로그인한 사용자이면서 작성자 또는 관리자일 때만 표시 -->
                             <div th:if="${loginMemberNickname != null and (loginMemberNickname == board.nickname or loginMemberRole?.name() == 'ADMIN')}" class="dropdown">
-                                <button class="dropdown-toggle" id="dropdownToggle">
-                                    <span class="dots">⋯</span>
-                                </button>
+<!--                                <button class="dropdown-toggle" id="dropdownToggle">-->
+<!--                                    <span class="dots">⋯</span>-->
+<!--                                </button> -->
                                 <div class="dropdown-menu" id="dropdownMenu">
-                                    <a href="#" class="dropdown-item" id="editBtn">
+                                    <!-- 수정하기 버튼 -->
+                                    <a th:href="@{'/free/modify/' + ${board.freeId}}" class="action-btn edit-btn" id="editBtn">
                                         <span class="icon">✏️</span>
-                                        수정하기
+                                        수정
                                     </a>
-                                    <a href="#" class="dropdown-item delete" id="deleteBtn">
+                                    <!-- 삭제하기 버튼 -->
+                                    <button class="action-btn delete-btn" id="deleteBtn">
                                         <span class="icon">🗑️</span>
-                                        삭제하기
-                                    </a>
+                                        삭제
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
                     <!-- 작성자 정보 -->
                     <div class="author-info">
@@ -113,10 +121,6 @@
                             <span class="detail-value" id="detailDate">2025.07.29</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">조회수</span>
-                            <span class="detail-value" id="detailViews">123</span>
-                        </div>
-                        <div class="detail-row">
                             <span class="detail-label">상품 상태</span>
                             <span class="detail-value" id="detailCondition">상 (매우좋음)</span>
                         </div>
@@ -127,26 +131,49 @@
                                 <span id="regionDong">역삼동</span>
                             </span>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label">상세 설명</span>
-                            <span class="detail-value" id="detailContent">필요한 분께 나눔합니다.</span>
-                        </div>
                     </div>
                 </div>
             </div>
 
+                <!-- 🔥 수정: 상세 설명 섹션을 별도로 분리하여 이미지+정보 아래로 이동 -->
+                <div class="description-section">
+                    <h2>📝 상세 설명</h2>
+                    <div class="description-content" id="detailContent">
+                        <!-- JS에서 내용이 설정됩니다 -->
+                    </div>
+                </div>
 
-            <!-- 댓글 설명 -->
+
+            <!-- 💬 댓글 전체 블록은 로그인 여부 관계없이 항상 렌더링 -->
             <div class="comment">
                 <h2>💬 댓글</h2>
-                <!-- 댓글 목록 -->
+
+                <!-- 댓글 정렬 드롭다운 -->
+                <div class="comment-sort">
+                    <label for="sortSelect">정렬:</label>
+                    <select id="sortSelect">
+                        <option value="recent">최신순</option>
+                        <option value="oldest">등록순</option>
+                    </select>
+                </div>
+
+                <!-- 댓글 목록은 로그인 여부 관계없이 항상 보여야 함 -->
                 <div class="comment-list" id="commentList">
                     <!-- 댓글 아이템들이 JavaScript로 렌더링됨 -->
                 </div>
-                <!-- 댓글 작성 폼 -->
-                <div class="comment-form">
+
+                <!-- 댓글 작성 폼 (로그인한 사용자만 보이게) -->
+                <div th:if="${loginMemberNickname != null}" class="comment-form">
                     <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
                     <button id="submitCommentBtn">등록</button>
+                </div>
+
+                <!-- ✅ 여기에 페이징 영역 추가 -->
+                <div class="reply-pagination" id="pagination"></div>
+
+                <!-- 로그인하지 않은 경우 안내 문구 -->
+                <div th:if="${loginMemberNickname == null}" class="comment-form-disabled">
+                    <p>✏️ 댓글을 작성하려면 <a th:href="@{/member/login}">로그인</a> 해주세요.</p>
                 </div>
             </div>
         </div>
@@ -154,21 +181,6 @@
 </div>
 
 <th:block layout:fragment="script">
-<!--    &lt;!&ndash; 🔐 로그인 사용자 정보 및 게시글 ID를 JS 전역 변수로 전달 &ndash;&gt;-->
-<!--    <script th:inline="javascript">-->
-<!--        /*<![CDATA[*/-->
-<!--        var loginUser = [[${loginMemberId != null ? loginMemberId : 'null'}]];  // 숫자 or null-->
-<!--        var freeId = [[${freeId}]];  // 숫자-->
-
-<!--        // 로그인 사용자 정보 객체-->
-<!--        var currentUser = {-->
-<!--            id: [[${loginMemberId != null ? loginMemberId : 'null'}]],  // 숫자 or null (따옴표 ❌)-->
-<!--            nickname: /*[[${loginMemberNickname != null ? "'" + loginMemberNickname + "'" : "''"}]]*/,  // 문자열이면 따옴표 필요 (따옴표 안에서 또 따옴표!)-->
-<!--            isLoggedIn: [[${loginMemberId != null}]]  // boolean-->
-<!--        };-->
-<!--        /*]]>*/-->
-<!--    </script>-->
-
     <!-- 메인 JS 파일 -->
     <script th:src="@{/js/free-sharing-detail.js}"></script>
 </th:block>

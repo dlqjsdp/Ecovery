@@ -1,6 +1,7 @@
 package com.ecovery.controller;
 
 import com.ecovery.domain.FreeReplyVO;
+import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.FreeReplyDto;
 import com.ecovery.service.FreeReplyService;
@@ -8,6 +9,7 @@ import com.ecovery.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -54,15 +56,33 @@ public class FreeReplyApiController {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
 
-        // 현재 로그인 사용자 정보 조회 (이메일 -> memberId, role)
-        String email = principal.getName();
-        Long loginMemberId = memberService.getMemberByEmail(email).getMemberId();
-        String role = memberService.getMemberByEmail(email).getRole().name();
+//        // 현재 로그인 사용자 정보 조회 (이메일 -> memberId, role)
+//        String email = principal.getName();
+//        Long loginMemberId = memberService.getMemberByEmail(email).getMemberId();
+//        String role = memberService.getMemberByEmail(email).getRole().name();
+
+        // 닉네임으로 로그인 사용자 조회
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+        if (member == null) {
+            log.error("로그인된 사용자의 닉네임({})으로 회원 정보를 찾을 수 없습니다.", nickname);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+        }
+
+        Long memberId = member.getMemberId();
+        String role = member.getRole().name();
+
+        // 서버에서 memberId 강제 설정
+        freeReply.setMemberId(memberId);
 
         // 댓글 등록 서비스 호출
-        freeReplyService.register(freeReply, loginMemberId, role);
-
-        return ResponseEntity.ok("댓글이 등록되었습니다.");
+        try {
+            freeReplyService.register(freeReply, memberId, role);
+            return ResponseEntity.ok("댓글이 등록되었습니다.");
+        } catch (Exception e) {
+            log.error("댓글 등록 중 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 등록 중 오류가 발생했습니다.");
+        }
     }
 
     // 댓글 단건 조회 - 댓글 ID를 통해 해당 댓글 정보 조회
@@ -174,15 +194,20 @@ public class FreeReplyApiController {
     public ResponseEntity<String> registerChildReply(@RequestBody @Valid FreeReplyVO freeReply,
                                                      Principal principal) {
 
-        // 로그인 여부 확인
-        if (principal == null) {
-            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+
+        // 현재 로그인 사용자 정보 (nickname 기반)
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+        if (member == null) {
+            log.error("닉네임 '{}'에 해당하는 회원을 찾을 수 없습니다.", nickname);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다.");
         }
 
-        // 현재 로그인 사용자 정보 조회
-        String email = principal.getName();
-        Long loginMemberId = memberService.getMemberByEmail(email).getMemberId();
-        String role = memberService.getMemberByEmail(email).getRole().name();
+        Long loginMemberId = member.getMemberId();
+        String role = member.getRole().name();
+
+        // 서버에서 댓글 작성자 ID 주입 (NPE 방지 - NullPointerException)
+        freeReply.setMemberId(loginMemberId);
 
         // 2단계 대댓글 제한 - parentId가 있는 경우, 해당 댓글이 이미 대댓글인지 확인
         if (freeReply.getParentId() != null) {
