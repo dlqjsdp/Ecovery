@@ -148,6 +148,9 @@ public class FreeApiController {
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long freeId){
         log.info("게시글 상세 조회 요청 - freeId: {}", freeId);
 
+        // 조회수 증가
+        freeService.updateViewCount(freeId);
+
         // 게시글 상세 정보 조회 (이미지 리스트 포함된 DTO)
         FreeDto free = freeService.get(freeId);
 
@@ -179,10 +182,17 @@ public class FreeApiController {
         }
 
         // 현재 로그인한 사용자 정보 조회
-        String email = principal.getName();
-        Long currentUserId = memberService.getMemberByEmail(email).getMemberId();
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+        if (member == null) {
+            log.error("로그인된 사용자의 닉네임({})으로 회원 정보를 찾을 수 없습니다.", nickname);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+        }
+
+        // 현재 로그인한 사용자 정보 조회
+        Long currentUserId = member.getMemberId();
         // 권한 확인 (작성자 또는 관리자)
-        Role role = memberService.getMemberByEmail(email).getRole();
+        Role role = member.getRole();
 
         // 수정 대상 게시글의 작성자 정보 조회
         FreeDto origin = freeService.get(freeId);
@@ -234,10 +244,17 @@ public class FreeApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // 사용자의 이메일로 회원정보 조회후, 권한체크(ADMIN인지, USER인지), 현재 로그인한 사용자 ID 조회
-        String email = principal.getName();
-        Role role = memberService.getMemberByEmail(email).getRole();
-        Long currentUserId = memberService.getMemberByEmail(email).getMemberId();
+        // 현재 로그인한 사용자 정보 조회 (닉네임 기반)
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+
+        if (member == null) {
+            log.error("닉네임({})으로 회원 정보를 찾을 수 없습니다.", nickname);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+        }
+
+        Long currentUserId = member.getMemberId();
+        Role role = member.getRole();
 
         // 삭제 대상 게시글의 정보를 DB에서 조회 후 해당 게시글 작성자 가져오기
         FreeDto dto = freeService.get(freeId);

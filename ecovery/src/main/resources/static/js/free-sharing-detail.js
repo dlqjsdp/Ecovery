@@ -37,48 +37,50 @@ let item = null; // 게시글 데이터를 저장할 전역 변수
 
 
 
-<!-- 상품 데이터를 JavaScript로 전달 -->
+// <!-- 상품 데이터를 JavaScript로 전달 -->
+//
+// // 서버에서 전달받은 상품 데이터를 JavaScript 변수로 설정
+// var sharingItemData = /*[[${sharingItem}]]*/ {};
+// var currentUserId = /*[[${session.memberId != null ? session.memberId.id : null}]]*/ null;
+// var isOwner = /*[[${session.memberId != null and session.memberId.id == sharingItem.authorId}]]*/ false;
+//
+// // 전역 변수로 설정
+// window.sharingItemData = sharingItemData;
+// window.currentUserId = currentUserId;
+// window.isOwner = isOwner;
 
-    // 서버에서 전달받은 상품 데이터를 JavaScript 변수로 설정
-    var sharingItemData = /*[[${sharingItem}]]*/ {};
-    var currentUserId = /*[[${session.memberId != null ? session.memberId.id : null}]]*/ null;
-    var isOwner = /*[[${session.memberId != null and session.memberId.id == sharingItem.authorId}]]*/ false;
-
-    // 전역 변수로 설정
-    window.sharingItemData = sharingItemData;
-    window.currentUserId = currentUserId;
-    window.isOwner = isOwner;
-
-    // 메인 이미지 변경 함수
-    function changeMainImage(thumbnail) {
+// 이미지 렌더링 코드
+function renderImages(images) {
     const mainImage = document.getElementById('mainImage');
-    const thumbnails = document.querySelectorAll('.thumbnail');
+    const thumbnailContainer = document.getElementById('thumbnailImages');
 
-    // 메인 이미지 변경
-    mainImage.src = thumbnail.src;
+    if (!images || images.length === 0) {
+        mainImage.alt = '이미지가 없습니다.';
+        return;
+    }
 
-    // 활성 썸네일 변경
-    thumbnails.forEach(thumb => thumb.classList.remove('active'));
-    thumbnail.classList.add('active');
+    // ✔️ 첫 번째 이미지를 메인 이미지로 설정
+    mainImage.src = images[0].imgUrl;
+    mainImage.alt = images[0].imgName;
+
+    // ✔️ 썸네일 리스트 렌더링
+    thumbnailContainer.innerHTML = '';
+    images.forEach((img, index) => {
+        const thumb = document.createElement('img');
+        thumb.src = img.imgUrl;
+        thumb.alt = img.imgName;
+        thumb.classList.add('thumbnail');
+
+        // 썸네일 클릭 시 메인 이미지 변경
+        thumb.addEventListener('click', () => {
+            mainImage.src = img.imgUrl;
+            mainImage.alt = img.imgName;
+        });
+
+        thumbnailContainer.appendChild(thumb);
+    });
 }
 
-// =========================
-// 전역 변수 선언 (item을 여기에 선언)
-// =========================
-let item = null; // 게시글 데이터를 저장할 전역 변수
-
-// 메인 이미지 변경 함수 (이 함수는 `DOMContentLoaded`와 직접적인 관련 없으니 그대로 둡니다.)
-function changeMainImage(thumbnail) {
-    const mainImage = document.getElementById('mainImage');
-    const thumbnails = document.querySelectorAll('.thumbnail');
-
-    // 메인 이미지 변경
-    mainImage.src = thumbnail.src;
-
-    // 활성 썸네일 변경
-    thumbnails.forEach(thumb => thumb.classList.remove('active'));
-    thumbnail.classList.add('active');
-}
 
 // =========================
 // 페이지가 로드되면 실행되는 함수
@@ -100,21 +102,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         const response = await fetch(`/api/free/get/${freeId}`);
         if (!response.ok) throw new Error('게시글 정보를 불러올 수 없습니다.');
         const data = await response.json();
-        const item = data.free; // 전역 변수 item에 데이터 할당
+
+        item = data.free; // 전역 변수 item에 데이터 할당
 
         console.log('📦 item 객체:', item);
 
-        // 이미 Thymeleaf에서 전달된 currentUser 객체를 그대로 사용
-        const loginUser = currentUser;
-
-        // 로그인 유저 정보 확인용 로그
-        console.log('로그인 유저 정보: ', loginUser);
+        // // 이미 Thymeleaf에서 전달된 currentUser 객체를 그대로 사용
+        // const loginUser = currentUser;
 
         // 상세페이지 렌더링
-        renderDetailPage(item, loginUser);
+        renderDetailPage(item);
+
+        // 이미지 렌더링 코드
+        renderImages(item.imgList);
 
         // 댓글 목록 렌더링
-        renderComments(item.freeId);
+        loadComments(item.freeId);
+
+        // updateAuthorActions();
 
         // 댓글 등록 이벤트 연결
         const submitCommentBtn = document.getElementById('submitCommentBtn');
@@ -124,9 +129,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         }
 
-        // 썸네일 클릭 이벤트 연결
-        setupThumbnailEvents();
-
         // fade-in 애니메이션
         setTimeout(function () {
             const detailContainer = document.querySelector('.detail-container');
@@ -135,25 +137,44 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }, 200);
 
+
         // 관리 버튼 표시 조건(작성자 본인일 경우)
-        if (
-            loginUser &&
-            (item.memberId === loginUser.id || (loginUser.role && loginUser.role === 'ADMIN')) // loginUser.id와 loginUser.role 확인
-        ) {
-            const actions = document.getElementById('productActions');
-            if (actions) actions.style.display = 'block';
+        // if (
+        //     loginUser &&
+        //     (item.memberId === loginUser.id || (loginUser.role && loginUser.role === 'ADMIN')) // loginUser.id와 loginUser.role 확인
+        // ) {
+        //     const actions = document.getElementById('productActions');
+        //     if (actions) actions.style.display = 'block';
+        //
+        //     const editBtn = document.getElementById('editBtn');
+        //     if (editBtn) editBtn.href = `/free/modify/${item.freeId}`;
+        //
+        //     const deleteBtn = document.getElementById('deleteBtn');
+        //     if (deleteBtn) {
+        //         deleteBtn.addEventListener('click', () => deletePost(item.freeId));
+        //     }
+        // }
 
-            const editBtn = document.getElementById('editBtn');
-            if (editBtn) editBtn.href = `/free/modify/${item.freeId}`;
+        // 수정 버튼 클릭 시 editPost() 호출
+        const editBtn = document.getElementById('editBtn');
+        if (editBtn) {
+            editBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // a 태그 기본 동작 방지
+                editPost(); // confirm + 알림 + 1초 후 이동
+            });
+        }
 
-            const deleteBtn = document.getElementById('deleteBtn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', () => deletePost(item.freeId));
-            }
+        // 삭제 버튼 클릭 시 deletePost() 호출
+        const deleteBtn = document.getElementById('deleteBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // 기본 링크 막기
+                deletePost(item.freeId);
+            });
         }
 
         // 조회수 증가 (1초 후)
-        setTimeout(() => increaseViewCount(item.freeId), 1000);
+        setTimeout(() => updateViewCount(item.freeId), 1000);
 
         // 모달 배경 클릭시 닫기
         const modals = document.querySelectorAll('.modal');
@@ -169,6 +190,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error(err);
         alert('상세 정보를 불러오는 중 오류가 발생했습니다.')
     }
+
     setupEventListeners(); // 모든 이벤트 리스너를 설정하는 함수
 
 });
@@ -294,17 +316,17 @@ function loadComments(freeId) {
                             });
                         }
                     })
-            .catch(error => console.error('Error fetching child replies:', error));
+                    .catch(error => console.error('Error fetching child replies:', error));
             });
         })
-    .catch(error => console.error('Error fetching comments:', error));
+        .catch(error => console.error('Error fetching comments:', error));
 
 }
 
 // =========================
 // 상세 페이지 렌더링 함수
 // =========================
-function renderDetailPage(item, loginUser) {
+function renderDetailPage(item) {
     // 제목
     document.getElementById('itemTitle').textContent = item.title;
     document.getElementById('detailTitle').textContent = item.title;
@@ -367,45 +389,45 @@ function renderDetailPage(item, loginUser) {
 //         });
 // }
 
-// 로그인 상태에 따른 UI 업데이트
-function updateAuthUI() {
-    const loginButtons = document.getElementById('loginButtons');
-    const userInfo = document.getElementById('userInfo');
-
-    if (currentUser.isLoggedIn) {
-        // 로그인된 상태
-        if (loginButtons) loginButtons.style.display = 'none';
-        if (userInfo) userInfo.style.display = 'flex';
-
-        // 사용자 이름 업데이트
-        const userName = userInfo?.querySelector('.user-name');
-        if (userName) {
-            userName.textContent = currentUser.nickname;
-        }
-    } else {
-        // 로그인되지 않은 상태
-        if (loginButtons) loginButtons.style.display = 'flex';
-        if (userInfo) userInfo.style.display = 'none';
-    }
-}
-
-// 작성자 권한에 따른 관리 버튼 표시
-function updateAuthorActions() {
-    const productActions = document.getElementById('productActions');
-
-    // 로그인했고, 현재 사용자가 게시글 작성자인 경우에만 관리 버튼 표시
-    if (currentUser.isLoggedIn && item && currentUser.id === item.memberId) {
-        if (productActions) productActions.style.display = 'block';
-        console.log('✅ 작성자 본인입니다. 수정/삭제 버튼을 표시합니다.');
-    } else {
-        if (productActions) productActions.style.display = 'none';
-        if (!currentUser.isLoggedIn) {
-            console.log('❌ 비로그인 상태입니다. 수정/삭제 버튼을 숨깁니다.');
-        } else {
-            console.log('❌ 작성자가 아닙니다. 수정/삭제 버튼을 숨깁니다.');
-        }
-    }
-}
+// // 로그인 상태에 따른 UI 업데이트
+// function updateAuthUI() {
+//     const loginButtons = document.getElementById('loginButtons');
+//     const userInfo = document.getElementById('userInfo');
+//
+//     if (currentUser.isLoggedIn) {
+//         // 로그인된 상태
+//         if (loginButtons) loginButtons.style.display = 'none';
+//         if (userInfo) userInfo.style.display = 'flex';
+//
+//         // 사용자 이름 업데이트
+//         const userName = userInfo?.querySelector('.user-name');
+//         if (userName) {
+//             userName.textContent = currentUser.nickname;
+//         }
+//     } else {
+//         // 로그인되지 않은 상태
+//         if (loginButtons) loginButtons.style.display = 'flex';
+//         if (userInfo) userInfo.style.display = 'none';
+//     }
+// }
+//
+// // 작성자 권한에 따른 관리 버튼 표시
+// function updateAuthorActions() {
+//     const productActions = document.getElementById('productActions');
+//
+//     // 로그인했고, 현재 사용자가 게시글 작성자인 경우에만 관리 버튼 표시
+//     if (currentUser.isLoggedIn && item && currentUser.id === item.memberId) {
+//         if (productActions) productActions.style.display = 'block';
+//         console.log('✅ 작성자 본인입니다. 수정/삭제 버튼을 표시합니다.');
+//     } else {
+//         if (productActions) productActions.style.display = 'none';
+//         if (!currentUser.isLoggedIn) {
+//             console.log('❌ 비로그인 상태입니다. 수정/삭제 버튼을 숨깁니다.');
+//         } else {
+//             console.log('❌ 작성자가 아닙니다. 수정/삭제 버튼을 숨깁니다.');
+//         }
+//     }
+// }
 
 // =========================
 // 이벤트 리스너 설정 함수
@@ -448,9 +470,9 @@ function setupEventListeners() {
         if (!dropdownMenu) return; // 요소 없으면 종료
 
         if (dropdownMenu?.classList.contains('show')) {
-            closeDropdown();
+            closeDropdown();  // 이미 열려 있으면 닫기
         } else {
-            openDropdown();
+            openDropdown(); // 안 열려 있으면 열기
         }
     }
 
@@ -460,17 +482,17 @@ function setupEventListeners() {
         const dropdownToggle = document.getElementById('dropdownToggle');
         if (!dropdownMenu) return; //요소 없으면 종료
 
-        dropdownMenu.classList.add('show');
+        dropdownMenu.classList.add('show'); // 드롭다운 열기
 
-            // 버튼 활성화 상태 표시
-            if (dropdownToggle) {
-                dropdownToggle.style.background = 'var(--primary-green)';
-                dropdownToggle.style.color = 'var(--white)';
-            }
-
-            console.log('드롭다운 메뉴가 열렸습니다.');
+        // 버튼 활성화 상태 표시
+        if (dropdownToggle) {
+            dropdownToggle.style.background = 'var(--primary-green)';
+            dropdownToggle.style.color = 'var(--white)';
         }
+
+        console.log('드롭다운 메뉴가 열렸습니다.');
     }
+
 
 // 드롭다운 메뉴 닫기
     function closeDropdown() {
@@ -478,13 +500,13 @@ function setupEventListeners() {
         const dropdownToggle = document.getElementById('dropdownToggle');
         if (!dropdownMenu) return; // 요서 없으면 종료
 
-        dropdownMenu.classList.remove('show');
+        dropdownMenu.classList.remove('show'); // 드롭다운 닫기
 
-            // 버튼 원래 상태로 복원
-            if (dropdownToggle) {
-                dropdownToggle.style.background = '';
-                dropdownToggle.style.color = '';
-            }
+        // 버튼 원래 상태로 복원
+        if (dropdownToggle) {
+            dropdownToggle.style.background = '';
+            dropdownToggle.style.color = '';
+        }
 
     }
 
@@ -518,27 +540,6 @@ function setupEventListeners() {
             console.log('메인 이미지가 변경되었습니다.');
         }
     }
-
-// // =========================
-// // 모달 관련 함수
-// // =========================
-//
-// // 연락처 모달 열기
-//     function showContactInfo() {
-//         // 로그인 확인
-//         if (!currentUser.isLoggedIn) {
-//             showNotification('로그인 후 연락처를 확인할 수 있습니다.', 'error');
-//             return;
-//         }
-//
-//         const modal = document.getElementById('contactModal');
-//         if (modal) {
-//             modal.classList.add('show');
-//             document.body.style.overflow = 'hidden';
-//             console.log('연락처 모달이 열렸습니다.');
-//         }
-//     }
-
 
 // 특정 모달 닫기
     function closeModal(modalId) {
@@ -693,6 +694,8 @@ function setupEventListeners() {
             });
     }
 
+
+
 // 상품 상태 업데이트
     function updateProductStatus(newStatus) {
         const formData = new FormData();
@@ -786,9 +789,9 @@ function setupEventListeners() {
 
 // HTML의 onclick에서 사용할 수 있도록 전역으로 노출
     window.changeMainImage = changeMainImage;
-    window.showContactInfo = showContactInfo;
+    // window.showContactInfo = showContactInfo;
     window.closeModal = closeModal;
-    // window.sendMessage = sendMessage;
+// window.sendMessage = sendMessage;
     window.editPost = editPost;
     window.deletePost = deletePost;
 
@@ -797,8 +800,8 @@ function setupEventListeners() {
     window.toggleDropdown = toggleDropdown;
     window.closeDropdown = closeDropdown;
     window.updateProductStatus = updateProductStatus;
-    // window.toggleBookmark = toggleBookmark;
-    // window.reportPost = reportPost;
+// window.toggleBookmark = toggleBookmark;
+// window.reportPost = reportPost;
 
 // =========================
 // 에러 핸들링
@@ -840,4 +843,5 @@ function setupEventListeners() {
     console.log('   - 이미지 썸네일 변경');
     console.log('   - 연락처/채팅 모달');
     console.log('   - 키보드 단축키 지원');
-    // console.log('   - 반응형 UI');
+    console.log('   - 반응형 UI');
+}
