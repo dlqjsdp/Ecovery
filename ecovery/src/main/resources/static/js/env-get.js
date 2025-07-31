@@ -13,6 +13,7 @@
                            - 작성자 닉네임 비동기 렌더링
                            - 글 삭제 버튼 이벤트 바인딩 기능 추가
                            - 본문 내용에 포함된 이미지 자동 렌더링 처리
+     - 250731 | yukyeong | 수정일이 있을 경우 '작성일:' → '수정일:'로 표시 및 날짜 변경 처리
  */
 
 
@@ -39,14 +40,22 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(data => {
             // 날짜 포맷 처리
-            const formattedDate = formatDate(data.createdAt);
+            const displayDate = (data.updatedAt && data.updatedAt !== data.createdAt)
+                ? formatDate(data.updatedAt)
+                : formatDate(data.createdAt);
+
+            const dateLabel = document.querySelector(".post-date span:first-child");
+            if (data.updatedAt && data.updatedAt !== data.createdAt) {
+                dateLabel.textContent = "수정일:";
+            }
+
             const views = new Intl.NumberFormat().format(data.viewCount) + '회';
 
             // 게시글 정보 렌더링
             document.getElementById("post-title").textContent = data.title;
             document.getElementById("post-author").textContent = data.nickname ?? "알 수 없음";
             document.getElementById("post-avatar").textContent = data.avatar ?? '👤';
-            document.getElementById("post-date").textContent = formattedDate;
+            document.getElementById("post-date").textContent = displayDate;
             document.getElementById("post-views").textContent = views;
             document.getElementById("post-content").innerHTML = data.content;
 
@@ -75,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("조회 실패", err);
             alert("게시글을 불러오는 중 오류가 발생했습니다.");
         });
+
 });
 
 function formatDate(dateTime) {

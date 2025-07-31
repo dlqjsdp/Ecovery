@@ -36,6 +36,7 @@ import java.util.List;
      - 250718 | yukyeong | 게시글 목록 조회 (페이징 + 검색)
      - 250721 | yukyeong | 게시글 등록 폼 이동, 게시글 등록 처리, 게시글 단건 조회, 수정 버튼 노출 조건 처리, 게시글 수정 처리, 삭제 처리 추가
      - 250722 | yukyeong | REST API 연동을 위한 비동기 전용 View 메서드 분리 (envListPage, envGetPage)
+     - 250731 | yukyeong | 게시글 수정 폼 이동 추가
  */
 
 @Controller
@@ -68,6 +69,14 @@ public class EnvController {
         return "env/get"; // templates/env/get.html 뷰 렌더링만
     }
 
+    // 수정 폼 이동
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/modify/{envId}")
+    public String modifyForm(@PathVariable Long envId, Model model) {
+        EnvDto envDto = envService.get(envId);  // 단건 조회 서비스 호출
+        model.addAttribute("env", envDto); // 모델에 전달
+        return "env/modify"; // templates/env/modify.html 로 이동
+    }
 
 
 }

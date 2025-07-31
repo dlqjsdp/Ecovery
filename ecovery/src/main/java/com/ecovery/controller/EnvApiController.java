@@ -53,6 +53,8 @@ import java.util.Map;
                            - 회원 정보 없을 경우 401 UNAUTHORIZED 반환
                            - 등록 전후 EnvDto 상태 로깅(log.info) 추가
    - 250730 | yukyeong | 이미지 임시 업로드 API (POST /upload-temp) 구현 - Multipart 이미지 리스트 받아 UUID로 저장 후 파일명 반환
+   - 250731 | yukyeong | Toast UI 본문 이미지 업로드용 /upload-temp API 추가
+   - 250731 | yukyeong | 이미지 리스트를 EnvFormDto에 통합하여 단일 객체로 요청 받도록 구조 변경 (등록과 수정 부분에 추가)
  */
 
 @RestController
@@ -98,22 +100,20 @@ public class EnvApiController {
 
     @PostMapping("/upload-temp")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<?> uploadTempImages(@RequestPart List<MultipartFile> imageFiles) {
+    public ResponseEntity<?> uploadTempImage(@RequestPart("file") MultipartFile file) {
         try {
-            List<String> fileNames = new ArrayList<>();
+            String originalName = file.getOriginalFilename();
+            if (originalName != null && !originalName.isBlank()) {
+                // UUID 포함 저장
+                String savedName = fileService.uploadFile(envImgLocation, originalName, file.getBytes());
 
-            for (MultipartFile file : imageFiles) {
-                String originalName = file.getOriginalFilename();
-                if (originalName != null && !originalName.isBlank()) {
-                    // UUID로 파일 저장
-                    String savedName = fileService.uploadFile(envImgLocation, originalName, file.getBytes());
-                    fileNames.add(savedName); // 저장된 파일명(UUID 확장자)
-                }
+                Map<String, String> result = new HashMap<>();
+                result.put("fileName", savedName);  // ex. UUID_cat.png
+
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.badRequest().body("파일 이름이 유효하지 않습니다.");
             }
-
-            // 실제 저장된 파일명을 리스트로 반환
-            return ResponseEntity.ok(fileNames);
-
         } catch (Exception e) {
             log.error("임시 이미지 업로드 실패", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 업로드 실패");
@@ -150,18 +150,20 @@ public class EnvApiController {
 
         envFormDto.getEnvDto().setMemberId(memberId); // 조회한 memberId를 등록할 게시글 DTO에 설정
 
-        if (envImgFiles == null || envImgFiles.isEmpty()) {
-            log.info("이미지 파일이 없습니다. 이미지 없이 등록을 진행합니다.");
-        } else {
+        // 이미지 리스트 주입
+        if (envImgFiles != null && !envImgFiles.isEmpty()) {
+            envFormDto.setEnvImgFiles(envImgFiles);
             log.info("업로드된 이미지 수: {}", envImgFiles.size());
+        } else {
+            envFormDto.setEnvImgFiles(new ArrayList<>()); // null 방지
+            log.info("이미지 파일이 없습니다. 이미지 없이 등록을 진행합니다.");
         }
 
         log.info("게시글 등록 처리 전: {}", envFormDto); // 등록 전 EnvDto 상태 출력 (등록 전에 memberId가 잘 들어갔는지 확인용)
 
         // 3. 게시글 등록 처리
         try {
-            envService.register(envFormDto, envImgFiles); // DB에 INSERT 수행
-
+            envService.register(envFormDto); // DB에 INSERT 수행
             log.info("게시글 등록 처리 후: {}", envFormDto); // 등록 후 EnvDto 상태 출력 (envId 등 자동 생성된 필드 확인 가능)
 
             // 응답 데이터 구성: 등록된 게시글의 ID(envId)를 JSON으로 반환
@@ -208,8 +210,9 @@ public class EnvApiController {
     @PutMapping("/modify/{envId}")
     public ResponseEntity<?> modify(
             @PathVariable Long envId,  // URL 경로에서 수정할 게시글의 ID 추출
-            @Valid @RequestPart("envFormDto") EnvFormDto envFormDto,  // multipart/form-data 요청에서 게시글 정보(JSON 형태) 추출
-            @RequestPart(value = "envImgFiles", required = false) List<MultipartFile> envImgFiles) {  // 첨부 이미지 파일 리스트
+            // multipart/form-data 요청에서 게시글 정보(JSON 형태) 추출
+            @Valid @RequestPart("envFormDto") EnvFormDto envFormDto) {
+
 
         log.info("게시글 수정 요청 (API): envId = {}, formDto = {}", envId, envFormDto);
 
@@ -228,12 +231,12 @@ public class EnvApiController {
             }
 
             // 4. 이미지 파일이 전달되지 않았을 경우 빈 리스트로 초기화 (null 방지)
-            if (envImgFiles == null) {
-                envImgFiles = List.of();
+            if (envFormDto.getEnvImgFiles() == null) {
+                envFormDto.setEnvImgFiles(new ArrayList<>());
             }
 
-            // 5. 서비스 계층에 수정 요청 (게시글 + 이미지 수정 처리)
-            boolean success = envService.modify(envFormDto, envImgFiles);
+            // 5. 서비스 계층에 단일 DTO 전달
+            boolean success = envService.modify(envFormDto);
 
             // 6. 수정 성공 여부에 따라 응답 처리
             if (success) {

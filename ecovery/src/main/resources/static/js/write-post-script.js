@@ -15,10 +15,10 @@ const postTags = document.getElementById('postTags');
 const postCategory = document.getElementById('postCategory');
 const writeForm = document.getElementById('writeForm');
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    initializePage();
-});
+// // Initialize page
+// document.addEventListener('DOMContentLoaded', function() {
+//     initializePage();
+// });
 
 function initializePage() {
     // Mobile menu event listener
@@ -46,8 +46,8 @@ function initializePage() {
     // Header scroll effect
     window.addEventListener('scroll', handleHeaderScroll);
 
-    // Prevent accidental page leave
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    // // Prevent accidental page leave
+    // window.addEventListener('beforeunload', handleBeforeUnload);
 
     // Add fade-in animation
     const elements = document.querySelectorAll('.fade-in');
@@ -904,8 +904,8 @@ window.loadTemplate = loadTemplate;
 window.previewPost = previewPost;
 window.closePreview = closePreview;
 // window.submitPost = submitPost;
-window.goHome = goHome;
-window.goToBoard = goToBoard;
+// window.goHome = goHome;
+// window.goToBoard = goToBoard;
 
 // Performance monitoring
 window.addEventListener('load', () => {

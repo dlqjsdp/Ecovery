@@ -14,18 +14,23 @@
                             - 이미지 첨부 시 <img> 태그 본문 삽입 처리
                             - 임시 이미지 업로드 API 연동(/api/env/upload-temp)
                             - 미리보기 모달 기능(previewPost)
+ *   - 250731 | yukyeong | Toast UI Editor 적용(editor.getHTML, getMarkdown 사용)
+                          - 첨부파일 삽입 기능 제거 및 주석 처리
+                          - 등록 처리 시 FormData에 JSON DTO만 전송
+                          - 수정일 추가하고, 수정을 하면 작성일이 수정일로 변경되게 설정
  */
 
 document.addEventListener("DOMContentLoaded", function () {
     window.onbeforeunload = null; // 제출 성공 시 호출하면 창 닫아도 경고 안뜸
-    localStorage.removeItem("draft");         // 임시글 제거
-    loadCategories();                         // 카테고리 옵션 추가
-    setupCharacterCounters();                 // 글자 수 표시
-    setupFormSubmit();                        // 유효성 검사 후 submit
-    setupImageInsert();                       // 이미지 첨부 시 <img> 삽입
+    localStorage.removeItem("draft"); // 임시글 제거
+
+    loadCategories(); // 카테고리 옵션 추가
+    setupCharacterCounters(); // 글자 수 표시
+    setupFormSubmit(); // 유효성 검사 후 submit
+    // setupImageInsert(); // 첨부파일 이미지 삽입
 });
 
-// ✅ 카테고리 동적 로딩
+// 카테고리 로딩
 function loadCategories() {
     const categories = [
         { id: "policy", name: "정책/제도" },
@@ -43,26 +48,26 @@ function loadCategories() {
     });
 }
 
-// ✅ 제목/내용 글자 수 실시간 카운팅
+// 글자 수 카운터
 function setupCharacterCounters() {
     const titleInput = document.getElementById("postTitle");
-    const contentTextarea = document.getElementById("postContent");
-
     titleInput.addEventListener("input", () => {
         document.getElementById("titleCount").textContent = titleInput.value.length;
     });
 
-    contentTextarea.addEventListener("input", () => {
-        document.getElementById("contentCount").textContent = contentTextarea.value.length;
+    // Toast UI Editor 기반으로 본문 글자 수 계산
+    editor.on("change", () => {
+        const contentLength = editor.getHTML().replace(/<[^>]*>/g, "").length;
+        document.getElementById("contentCount").textContent = contentLength;
     });
 }
 
-// ✅ 유효성 검사
+// 유효성 검사
 function validateForm() {
     let isValid = true;
 
     const title = document.getElementById("postTitle");
-    const content = document.getElementById("postContent");
+    const contentText = editor.getMarkdown().trim();
     const category = document.getElementById("categorySelect");
 
     document.getElementById("titleError").textContent = "";
@@ -73,7 +78,7 @@ function validateForm() {
         document.getElementById("titleError").textContent = "제목을 입력해주세요.";
         isValid = false;
     }
-    if (content.value.trim() === "") {
+    if (contentText === "") {
         document.getElementById("contentError").textContent = "내용을 입력해주세요.";
         isValid = false;
     }
@@ -85,28 +90,32 @@ function validateForm() {
     return isValid;
 }
 
-// ✅ 폼 제출 이벤트 바인딩
+// 폼 제출 이벤트
 function setupFormSubmit() {
     const form = document.getElementById("writeForm");
     form.addEventListener("submit", function (e) {
         e.preventDefault();
+
+        // 에디터 내용 → hidden input에 복사
+        document.getElementById("hiddenContent").value = editor.getHTML();
+
         submitPost();
     });
 }
 
-// ✅ 미리보기
+// 미리보기 모달
 function previewPost() {
     const title = document.getElementById("postTitle").value.trim();
-    const content = document.getElementById("postContent").value.trim();
+    const content = editor.getHTML();
 
-    if (!title || !content) {
+    if (!title || content.replace(/<[^>]*>/g, "").trim() === "") {
         alert("미리보기를 위해 제목과 내용을 입력해주세요.");
         return;
     }
 
     const previewHtml = `
         <h2>${title}</h2>
-        <p>${content.replace(/\n/g, "<br>")}</p>
+        ${content}
     `;
 
     document.getElementById("previewContent").innerHTML = previewHtml;
@@ -117,44 +126,43 @@ function closePreview() {
     document.getElementById("previewModal").style.display = "none";
 }
 
-// ✅ 이미지 첨부 시 <img src="...">
-function setupImageInsert() {
-    const fileInput = document.getElementById("fileInput");
+// // ✅ 이미지 첨부 시 <img src="...">
+// function setupImageInsert() {
+//     const fileInput = document.getElementById("fileInput");
+//
+//     fileInput.addEventListener("change", function () {
+//         const files = fileInput.files;
+//         const formData = new FormData();
+//
+//         for (let i = 0; i < files.length; i++) {
+//             formData.append("imageFiles", files[i]); // ✅ 백엔드에서 받을 필드명에 맞춰야 함
+//         }
+//
+//         // ✅ 업로드용 임시 API 호출 (등록용이 아님!)
+//         fetch("/api/env/upload-temp", {
+//             method: "POST",
+//             body: formData
+//         })
+//             .then(res => res.json())
+//             .then(fileNames => {
+//                 fileNames.forEach(fileName => {
+//                     const imageUrl = `/ecovery/env/${fileName}`;
+//                     editor.insertText(`\n<img src="${imageUrl}" alt="첨부 이미지">\n`);
+//                 });
+//             })
+//             .catch(err => {
+//                 console.error("임시 이미지 업로드 실패:", err);
+//                 alert("이미지 업로드 중 오류 발생");
+//             });
+//     });
+// }
 
-    fileInput.addEventListener("change", function () {
-        const files = fileInput.files;
-        const formData = new FormData();
-
-        for (let i = 0; i < files.length; i++) {
-            formData.append("imageFiles", files[i]); // ✅ 백엔드에서 받을 필드명에 맞춰야 함
-        }
-
-        // ✅ 업로드용 임시 API 호출 (등록용이 아님!)
-        fetch("/api/env/upload-temp", {
-            method: "POST",
-            body: formData
-        })
-            .then(res => res.json())
-            .then(fileNames => {
-                const contentBox = document.getElementById("postContent");
-                fileNames.forEach(fileName => {
-                    const imageUrl = `/images/env/${fileName}`;
-                    contentBox.value += `\n<img src="${imageUrl}" alt="첨부 이미지">\n`;
-                });
-            })
-            .catch(err => {
-                console.error("임시 이미지 업로드 실패:", err);
-                alert("이미지 업로드 중 오류 발생");
-            });
-    });
-}
-
-// ✅ 등록 처리
+// 게시글 등록 처리
 function submitPost() {
     if (!validateForm()) return;
 
     const title = document.getElementById("postTitle").value.trim();
-    const content = document.getElementById("postContent").value.trim();
+    const content = editor.getHTML();
     const categoryId = document.getElementById("categorySelect").value;
 
     window.onbeforeunload = null;
@@ -166,14 +174,14 @@ function submitPost() {
         })
     ], { type: "application/json" }));
 
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput.files.length > 0) {
-        for (let i = 0; i < fileInput.files.length; i++) {
-            formData.append("envImgFiles", fileInput.files[i]);
-        }
-    } else {
-        formData.append("envImgFiles", new Blob()); // 빈 Blob
-    }
+    // const fileInput = document.getElementById("fileInput");
+    // if (fileInput.files.length > 0) {
+    //     for (let i = 0; i < fileInput.files.length; i++) {
+    //         formData.append("envImgFiles", fileInput.files[i]);
+    //     }
+    // } else {
+    //     formData.append("envImgFiles", new Blob());
+    // }
 
     fetch("/api/env/register", {
         method: "POST",

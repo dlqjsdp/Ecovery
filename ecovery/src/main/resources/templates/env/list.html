@@ -10,6 +10,7 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
     - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
     - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
     - 250722 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용
+    - 250731 | yukyeong | 카테고리 탭 버튼에 'tab category-tab' 클래스 동시 적용 (CSS 유지 및 JS 이벤트 바인딩 분리 목적)
 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
@@ -101,11 +102,11 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
 
                 <!-- Category Tabs -->
                 <div class="category-tabs">
-                    <button class="tab active" onclick="switchTab(this, 'all')">전체</button>
-                    <button class="tab" onclick="switchTab(this, 'policy')">정책/제도</button>
-                    <button class="tab" onclick="switchTab(this, 'news')">환경 뉴스</button>
-                    <button class="tab" onclick="switchTab(this, 'issue')">환경 이슈</button>
-                    <button class="tab" onclick="switchTab(this, 'tips')">생활 속 팁</button>
+                    <button class="tab category-tab active" data-category="">전체</button>
+                    <button class="tab category-tab" data-category="policy">정책/제도</button>
+                    <button class="tab category-tab" data-category="news">환경 뉴스</button>
+                    <button class="tab category-tab" data-category="issue">환경 이슈</button>
+                    <button class="tab category-tab" data-category="tips">생활 속 팁</button>
                 </div>
 
                 <!-- Post List -->

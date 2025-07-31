@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
  * @history
      - 250710 | yeonsu | 페이징 처리를 위한 Criteria 작성
      - 250714 | yukyeong | getOffset() 추가
+     - 250731 | yukyeong | 카테고리 필터링을 위해 필드 추가
  */
 
 @Getter
@@ -27,6 +28,9 @@ public class Criteria {
 
     private String type; // 검색조건 (free - 제목, 내용, 지역구, 작성자)
     private String keyword; // 실제 검색 키워드
+
+    // Env 게시판 카테고리 필터링을 위한 필드 추가
+    private String category;
 
     public Criteria(){
         this(1,10);
