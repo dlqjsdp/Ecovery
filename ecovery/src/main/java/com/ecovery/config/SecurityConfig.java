@@ -56,7 +56,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
                         .requestMatchers("/order/**").permitAll()   //주문 Test용으로 모두 허용 (추후에 .authenticated()로 변경)
                         .requestMatchers("/ecovery/**").permitAll()
-                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/feedback/*", "/error", "/disposal/history/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/free/register").hasAnyRole("USER", "ADMIN") // 무료나눔 등록 - USER 또는 ADMIN만 가능
                         .requestMatchers("/free/modify/**", "/free/delete/**").hasAnyRole("USER", "ADMIN") // 무료나눔 수정, 삭제 - USER 또는 ADMIN만 가능
