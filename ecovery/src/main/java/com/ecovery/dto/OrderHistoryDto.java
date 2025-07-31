@@ -2,10 +2,7 @@ package com.ecovery.dto;
 
 import com.ecovery.constant.OrderStatus;
 import com.ecovery.constant.PayStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -17,12 +14,15 @@ import java.util.List;
  * @author : 방희경
  * @fileName : OrderHistoryDto
  * @since : 250723
- * @history : 20250725 | 방희경 | 주문 고유번호 추가
+ * @history
+ *  - 20250725 | 방희경 | 주문 고유번호 추가
+ *  - 20250730 | 방희경 | DTO 역할 명확화 및 필드 정리
  */
 
 @Setter @Getter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrderHistoryDto {
 
     // 주문자 정보(orders)
@@ -37,16 +37,6 @@ public class OrderHistoryDto {
     private String phoneNumber;
     private String orderUuid;
 
-    // 주문 상품(order_item)
-    private int count;
-
-    // 주문 상품 이미지
-    private Long itemImgId;
-    private String imgName;
-
-    // 상품
-    private String itemName;
-    private String itemDetail;
 
     // 결제 정보(payment)
     private Long paymentId;

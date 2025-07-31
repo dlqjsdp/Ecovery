@@ -20,7 +20,8 @@
             i.price,
             LEAST(ci.count, i.stock_number) AS count,
             ii.img_url AS imgUrl,
-            i.stock_number AS stockNumber
+            i.stock_number AS stockNumber,
+            i.item_id AS itemId
         FROM
             cart_item ci
                 JOIN

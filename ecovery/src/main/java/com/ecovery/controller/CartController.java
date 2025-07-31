@@ -13,6 +13,7 @@ import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.CartItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -61,8 +62,16 @@ public class CartController {
 
     // 장바구니 상품 수정
     @PutMapping(value = "/update")
-    public String updateCartItem(@RequestParam Long cartItemId, @RequestParam int count, @RequestParam Long itemId){
-        return cartItemService.updateCartCount(cartItemId, count, itemId);
+    @ResponseBody
+    public ResponseEntity<String> updateCartItem(@RequestParam Long cartItemId, @RequestParam int count, @RequestParam Long itemId){
+        String result = cartItemService.updateCartCount(cartItemId, count, itemId);
+
+        // 서비스에서 반환된 문자열이 "수량 변경 완료"이면 성공, 아니면 실패로 처리하는 로직
+        if ("수량 변경 완료".equals(result)) {
+            return ResponseEntity.ok("수량 변경 완료");
+        } else {
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 
     // 장바구니 상품 삭제

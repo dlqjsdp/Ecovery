@@ -26,7 +26,7 @@ public class OrderViewController {
     @GetMapping("/prepare")
     public String preparePage(){
 
-        return "order/order-detail";
+        return "orderhistory";
     }
 
     //결제 실패 시 다시 주문 페이지
@@ -35,7 +35,7 @@ public class OrderViewController {
 
         model.addAttribute("orderId", orderId);
 
-        return "order/order-detail";
+        return "orderhistory";
     }
 
     //주문 완료 페이지

@@ -53,7 +53,7 @@
 
                     <div class="cart-items-list" id="cartItemsList">
                         <div class="cart-item" th:each="cart : ${cartList}"
-                             th:attr="data-item-id=${cart.cartItemId}, data-unit-price=${cart.price}">
+                             th:attr="data-item-id=${cart.cartItemId}, data-unit-price=${cart.price}, data-real-item-id=${cart.itemId}">
                             <div class="item-select">
                                 <label class="checkbox-container">
                                     <input type="checkbox" class="item-checkbox" checked>
@@ -73,7 +73,7 @@
                                 <div class="item-controls">
                                     <div class="quantity-controls">
                                         <button class="qty-btn minus">-</button>
-                                        <input type="number"
+                                        <input type="text"
                                                th:id="'qty-' + ${cart.cartItemId}"
                                                th:value="${cart.count}"
                                                min="1"

@@ -16,6 +16,7 @@
      - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
      - 250728 | sehui | 주문 단건 조회 기능 추가
      - 250728 | sehui | 주문 저장, 주문 단건 조회 기능에 totalPrice 추가
+     - 250730 | 방희경 | 주문조회에서 상세설명을 보기 위해 변수 추가
 -->
 
 <mapper namespace="com.ecovery.mapper.OrderMapper">
@@ -30,6 +31,7 @@
         <result property="roadAddress" column="road_address"></result>
         <result property="detailAddress" column="detail_address"></result>
         <result property="phoneNumber" column="phone_number"></result>
+        <result property="orderUuid" column="order_uuid"></result>
 
         <!-- 결제 정보 -->
         <result property="paymentId" column="payment_id"></result>
@@ -38,15 +40,16 @@
         <result property="payStatus" column="pay_status"></result>
         <result property="paidAt" column="paid_at"></result>
 
-        <!-- 주문 상세 상품 리스트 -->
         <collection property="orderItems" ofType="com.ecovery.dto.OrderItemDto">
-            <result property="itemId" column="item_id"></result>
-            <result property="itemName" column="item_name"></result>
-            <result property="orderItemId" column="order_item_id"></result>
-            <result property="count" column="count"></result>
-            <result property="orderPrice" column="order_price"></result>
-            <result property="itemImgId" column="item_img_id"></result>
-            <result property="imgName" column="img_name"></result>
+            <result property="orderItemId" column="oi.order_item_id"></result>
+            <result property="itemId" column="i.item_id"></result>
+            <result property="itemName" column="i.item_name"></result>
+            <result property="itemDetail" column="i.item_detail"></result> <result property="price" column="i.price"></result>
+            <result property="count" column="oi.count"></result>
+            <result property="orderPrice" column="oi.order_price"></result>
+            <result property="itemImgId" column="ii.item_img_id"></result>
+            <result property="imgName" column="ii.img_name"></result>
+            <result property="imgUrl" column="ii.img_url"></result>
         </collection>
     </resultMap>
     
@@ -77,6 +80,7 @@
             o.road_address,
             o.detail_address,
             o.phone_number,
+            o.order_uuid,
 
             p.payment_id,
             p.pay_method,
@@ -84,16 +88,16 @@
             p.pay_status,
             p.paid_at,
 
-            i.item_id,
-            i.item_name,
-
-            oi.order_item_id,
-            oi.count,
-            oi.order_price,
-
-            ii.item_img_id,
-            ii.img_name
-
+            oi.order_item_id AS order_item_id,
+            oi.item_id AS item_id,
+            i.item_name AS item_name,
+            i.item_detail AS item_detail,
+            i.price AS price,
+            oi.count AS count,
+            oi.order_price AS order_price,
+            ii.item_img_id AS item_img_id,
+            ii.img_name AS img_name,
+            ii.img_url AS img_url
         from orders o
         join order_item oi ON o.order_id = oi.order_id
         join item i ON oi.item_id = i.item_id
@@ -101,14 +105,13 @@
         LEFT JOIN payment p ON o.order_id = p.order_id
 
         where o.member_id = #{memberId}
-        order by o.created_at desc
-
+        order by o.created_at desc, oi.order_item_id asc
     </select>
   
     <!-- 주문 저장 -->
     <insert id="insertOrder" parameterType="com.ecovery.domain.OrderVO" useGeneratedKeys="true" keyProperty="orderId">
-      insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number, total_price)
-      values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber}, #{totalPrice})
+        insert into orders (order_uuid, member_id, order_status, created_at , updated_at, name, zipcode, road_address, detail_address, phone_number, total_price)
+        values (#{orderUuid}, #{memberId}, #{orderStatus}, NOW(), NOW(), #{name}, #{zipcode}, #{roadAddress}, #{detailAddress}, #{phoneNumber}, #{totalPrice})
     </insert>
 
     <!-- 주문 id 조회 -->
@@ -144,5 +147,4 @@
         from orders
         where order_id = #{orderId}
     </select>
-
 </mapper>

@@ -48,27 +48,31 @@ body {
     padding: 0 var(--container-padding);
 }
 
-/* Header Styles */
+/* 고정 헤더 스타일 */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95); /* 반투명 배경 */
+    backdrop-filter: blur(10px); /* 배경 블러 효과 */
+    z-index: 1000; /* 다른 요소 위에 표시 */
     transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
 }
 
+/* 스크롤 시 헤더 스타일 변경 */
 .header.scrolled {
     background: var(--white);
     box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1);
 }
 
+/* 네비게이션 바 */
 .navbar {
     padding: 15px 0;
 }
 
+/* 네비게이션 컨테이너 */
 .nav-container {
     max-width: var(--container-max-width);
     margin: 0 auto;
@@ -78,6 +82,7 @@ body {
     align-items: center;
 }
 
+/* 로고 스타일 */
 .logo {
     display: flex;
     align-items: center;
@@ -90,9 +95,19 @@ body {
     height: 40px;
     width: auto;
     object-fit: contain;
-    display: block;
 }
 
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+.logo-icon {
+    font-size: 28px;
+}
+
+/* 네비게이션 메뉴 */
 .nav-menu {
     display: flex;
     list-style: none;
@@ -100,6 +115,7 @@ body {
     align-items: center;
 }
 
+/* 네비게이션 링크 */
 .nav-menu a {
     text-decoration: none;
     color: var(--dark-gray);
@@ -108,6 +124,12 @@ body {
     position: relative;
 }
 
+/* 활성 페이지 링크 */
+.nav-menu a.active {
+    color: var(--primary-green);
+}
+
+/* 링크 호버 효과 - 하단 밑줄 */
 .nav-menu a::after {
     content: '';
     position: absolute;
@@ -119,40 +141,26 @@ body {
     transition: width 0.3s ease;
 }
 
-.nav-menu a:hover {
-    color: var(--primary-green);
-}
-
-.nav-menu a:hover::after {
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
     width: 100%;
 }
 
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 4px;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: var(--primary-green);
-    transition: all 0.3s ease;
-}
-
+/* 인증 버튼 컨테이너 */
 .auth-buttons {
     display: flex;
     gap: 15px;
     align-items: center;
 }
 
-.btn-login, .btn-logout {
+/* 로그인/회원가입 버튼 공통 스타일 */
+.btn-login, .btn-signup {
     padding: 8px 20px;
     border-radius: 6px;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
+    border: none;
     border: none;
     cursor: pointer;
     font-size: 14px;
@@ -160,6 +168,7 @@ body {
     text-align: center;
 }
 
+/* 로그인 버튼 - 아웃라인 스타일 */
 .btn-login {
     background: transparent;
     color: var(--primary-green);
@@ -171,13 +180,29 @@ body {
     color: var(--white);
 }
 
-.btn-logout {
+/* 회원가입 버튼 - 채워진 스타일 */
+.btn-signup {
     background: var(--primary-green);
     color: var(--white);
 }
 
-.btn-logout:hover {
+.btn-signup:hover {
     background: var(--dark-green);
+}
+
+/* 모바일 햄버거 메뉴 */
+.hamburger {
+    display: none; /* 기본적으로 숨김 */
+    flex-direction: column;
+    cursor: pointer;
+    gap: 4px;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: var(--primary-green);
+    transition: all 0.3s ease;
 }
 
 /* Footer Styles */
@@ -365,7 +390,11 @@ body {
     font-size: 0.875rem;
     margin-top: 4px;
     font-weight: 400;
-    display: none;                  /* 기본은 숨김 */
+}
+
+/* 에러 메시지를 숨기는 클래스 정의 */
+.error-hidden {
+    display: none;
 }
 
 /* 각 비밀번호 관련 오류 클래스도 공통 스타일과 동일하게 정리 */

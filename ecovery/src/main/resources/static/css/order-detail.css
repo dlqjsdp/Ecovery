@@ -46,25 +46,31 @@ body {
     padding: 0 var(--container-padding);
 }
 
-/* ==========================================================================
-   헤더 스타일 (마이페이지와 동일)
-   ========================================================================== */
+/* 고정 헤더 스타일 */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    z-index: 1000;
-    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1);
+    background: rgba(255, 255, 255, 0.95); /* 반투명 배경 */
+    backdrop-filter: blur(10px); /* 배경 블러 효과 */
+    z-index: 1000; /* 다른 요소 위에 표시 */
     transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
 }
 
+/* 스크롤 시 헤더 스타일 변경 */
+.header.scrolled {
+    background: var(--white);
+    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1);
+}
+
+/* 네비게이션 바 */
 .navbar {
     padding: 15px 0;
 }
 
+/* 네비게이션 컨테이너 */
 .nav-container {
     max-width: var(--container-max-width);
     margin: 0 auto;
@@ -81,13 +87,18 @@ body {
     gap: 10px;
     text-decoration: none;
     color: var(--primary-green);
-    font-size: 24px;
-    font-weight: 700;
-    transition: all 0.3s ease;
 }
 
-.logo:hover {
-    transform: translateY(-1px);
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary-green);
 }
 
 .logo-icon {
@@ -102,19 +113,25 @@ body {
     align-items: center;
 }
 
+/* 네비게이션 링크 */
 .nav-menu a {
     text-decoration: none;
     color: var(--dark-gray);
     font-weight: 500;
     transition: color 0.3s ease;
     position: relative;
-    padding: 8px 0;
 }
 
+/* 활성 페이지 링크 */
+.nav-menu a.active {
+    color: var(--primary-green);
+}
+
+/* 링크 호버 효과 - 하단 밑줄 */
 .nav-menu a::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -5px;
     left: 0;
     width: 0;
     height: 2px;
@@ -122,19 +139,67 @@ body {
     transition: width 0.3s ease;
 }
 
-.nav-menu a:hover {
-    color: var(--primary-green);
-}
-
-.nav-menu a:hover::after {
+.nav-menu a:hover::after,
+.nav-menu a.active::after {
     width: 100%;
 }
 
-/* 헤더 버튼 그룹 */
+/* 인증 버튼 컨테이너 */
 .auth-buttons {
     display: flex;
     gap: 15px;
     align-items: center;
+}
+
+/* 로그인/회원가입 버튼 공통 스타일 */
+.btn-login, .btn-signup {
+    padding: 8px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+}
+
+/* 로그인 버튼 - 아웃라인 스타일 */
+.btn-login {
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.btn-login:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+/* 회원가입 버튼 - 채워진 스타일 */
+.btn-signup {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-signup:hover {
+    background: var(--dark-green);
+}
+
+/* 모바일 햄버거 메뉴 */
+.hamburger {
+    display: none; /* 기본적으로 숨김 */
+    flex-direction: column;
+    cursor: pointer;
+    gap: 4px;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: var(--primary-green);
+    transition: all 0.3s ease;
 }
 
 /* 장바구니 아이콘 (마이페이지와 동일) */
@@ -197,40 +262,36 @@ body {
     transform: translateY(-1px);
 }
 
-/* 로그아웃 버튼 */
-.btn-logout {
+.btn-login, .btn-logout {
     padding: 8px 20px;
     border-radius: 6px;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
     border: 2px solid var(--primary-green);
+    cursor: pointer;
     font-size: 14px;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-login, .btn-signup {
+    background: transparent;
+    color: var(--primary-green);
+}
+
+.btn-login:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-logout, .btn-signup {
     background: var(--primary-green);
     color: var(--white);
 }
 
 .btn-logout:hover {
     background: var(--dark-green);
-    border-color: var(--dark-green);
-    transform: translateY(-1px);
-}
-
-/* 햄버거 메뉴 */
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    gap: 4px;
-    padding: 10px;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: var(--primary-green);
-    transition: all 0.3s ease;
-    border-radius: 2px;
 }
 
 /* ==========================================================================
