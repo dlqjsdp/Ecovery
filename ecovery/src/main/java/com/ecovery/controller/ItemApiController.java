@@ -16,8 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -41,6 +43,9 @@ import java.util.Map;
  *  - 250718 | sehui | 상품 삭제 요청 추가
  *  - 250721 | sehui | 상품 등록, 수정, 삭제 요청에 관리자 권한 확인 기능 추가
  *  - 250724 | sehui | 상품 삭제 요청 제거
+ *  - 250731 | sehui | 상품 상세 페이지 요청의 응답객체에 카테고리 목록 추가
+ *  - 250731 | sehui | 상품 상세 페이지 요청 예외 처리 추가
+ *  - 250731 | sehui | 상품 상세 페이지 관리자 권한 확인 코드 수정
  */
 
 @RestController
@@ -77,21 +82,35 @@ public class ItemApiController {
 
     //상품 상세 페이지 요청
     @GetMapping("/{itemId}")
-    public ResponseEntity<Map<String, Object>> itemDtl(@PathVariable Long itemId, Principal principal) {
+    public ResponseEntity<?> itemDtl(@PathVariable Long itemId, Authentication auth) {
 
-        //관리자 전용 버튼을 위해 권한 확인
-        String email = principal.getName();
-        Role role = memberService.getMemberByEmail(email).getRole();
+        try{
+            Role role = null;
 
-        //상품 단건 조회
-        ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
+            //로그인한 사용자일 경우 권한 확인
+            if(auth != null && auth.isAuthenticated()) {
+                CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+                String email = userDetails.getEmail();
+                role = memberService.getMemberByEmail(email).getRole();
+            }
+            
+            //상품 단건 조회
+            ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
 
-        //응답 객체
-        Map<String, Object> response = new HashMap<>();
-        response.put("item", itemFormDto);
-        response.put("role", role);
+            //응답 객체
+            Map<String, Object> response = new HashMap<>();
+            response.put("item", itemFormDto);
+            response.put("role", role);     //비회원이면 null, 회원이면 권한(USER, ADMIN)
+            response.put("categories", categoryService.findAllCategories());    //카테고리 목록
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (IllegalArgumentException e){
+            log.error("상품 조회 중 오류 : {}",e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("알수 없는 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
     //상품 등록 페이지 요청
@@ -136,7 +155,17 @@ public class ItemApiController {
 
         //유효성 검사 확인
         if(bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            Map<String, Object> errorResponse = new HashMap<>();
+            Map<String, String> fieldErrors = new HashMap<>();
+
+            for(FieldError fieldError : bindingResult.getFieldErrors()) {
+                fieldErrors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            }
+
+            errorResponse.put("errorMessage", "입력값 오류");
+            errorResponse.put("fieldErrors", fieldErrors);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
         //대표 이미지 확인
@@ -162,10 +191,13 @@ public class ItemApiController {
 
     //상품 수정 페이지 요청
     @GetMapping("/modify/{itemId}")
-    public ResponseEntity<Map<String, Object>> itemModify(@PathVariable Long itemId, Principal principal) {
+    public ResponseEntity<Map<String, Object>> itemModify(@PathVariable Long itemId, Authentication auth) {
+
+        //로그인한 사용자의 email 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail();
 
         //관리자 권한 확인
-        String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
         if(role != Role.ADMIN) {
@@ -193,10 +225,13 @@ public class ItemApiController {
                                                           @Valid @RequestPart("itemFormDto") ItemFormDto itemFormDto,
                                                           BindingResult bindingResult,
                                                           @RequestPart("itemImgFile") List<MultipartFile> itemImgFileList,
-                                                          Principal principal) {
+                                             Authentication auth) {
+
+        //로그인한 사용자의 email 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail();
 
         //관리자 권한 확인
-        String email = principal.getName();
         Role role = memberService.getMemberByEmail(email).getRole();
 
         if(role != Role.ADMIN) {

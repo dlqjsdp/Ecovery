@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
  *  - 250722 | sehui | 상품 ID로 상품 정보 조회 기능 추가
  *  - 250724 | sehui | ItemImgMapper -> ItemImgService로 변경
  *  - 250724 | sehui | 상품 삭제 기능 제거
+ *  - 250731 | sehui | 상품 단건 조회엥 ItemVO 예외 처리 추가
  */
 
 @Service
@@ -107,6 +108,11 @@ public class ItemServiceImpl implements ItemService     {
 
         //ItemVO 조회
         ItemVO item = itemMapper.getItemDtl(itemId);
+
+        if (item == null) {
+            log.warn("해당 itemId의 상품이 존재하지 않습니다. itemId={}", itemId);
+            throw new IllegalArgumentException("상품이 존재하지 않습니다.");
+        }
 
         //ItemVO -> ItemFormDto로 변환
         ItemFormDto itemFormDto = convertVoToDto(item);
