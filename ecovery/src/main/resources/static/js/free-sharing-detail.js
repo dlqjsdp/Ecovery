@@ -18,36 +18,28 @@ function getConditionText(condition){
     }
 }
 
-// 날짜
-function formatTimeAgo(dateTimeStr) {
+// 등록된 시간이 현재 시간보다 얼마나 지났는지 계산
+function formatTimeAgo(dateTime){
     const now = new Date();
-    const created = new Date(dateTimeStr);
-    const diffMs = now - created;
-    const diffMin = Math.floor(diffMs / 60000);
+    const created = (typeof dateTime === 'string')
+        ? new Date(dateTime)
+        : dateTime; // DAte 객체면 그대로
 
-    if (diffMin < 1) return '방금 전';
-    if (diffMin < 60) return `${diffMin}분 전`;
-    const diffHr = Math.floor(diffMin / 60);
-    if (diffHr < 24) return `${diffHr}시간 전`;
-    const diffDay = Math.floor(diffHr / 24);
-    return `${diffDay}일 전`;
+    const diff = Math.floor((now - created) / 1000); // 초단위
+
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}일 전`;
+    return created.toLocaleDateString(); // ex: 2025.07.28
 }
+
 // 전역 변수 선언 (item을 여기에 선언)
 let item = null; // 게시글 데이터를 저장할 전역 변수
+let currentPage = 1;
+const amountPerPage = 10; // 한 페이지에 몇 개씩 보여줄지
+let currentSortType = 'recent'; // 정렬 방식
 
-
-
-// <!-- 상품 데이터를 JavaScript로 전달 -->
-//
-// // 서버에서 전달받은 상품 데이터를 JavaScript 변수로 설정
-// var sharingItemData = /*[[${sharingItem}]]*/ {};
-// var currentUserId = /*[[${session.memberId != null ? session.memberId.id : null}]]*/ null;
-// var isOwner = /*[[${session.memberId != null and session.memberId.id == sharingItem.authorId}]]*/ false;
-//
-// // 전역 변수로 설정
-// window.sharingItemData = sharingItemData;
-// window.currentUserId = currentUserId;
-// window.isOwner = isOwner;
 
 // 이미지 렌더링 코드
 function renderImages(images) {
@@ -81,128 +73,19 @@ function renderImages(images) {
     });
 }
 
-
-// =========================
-// 페이지가 로드되면 실행되는 함수
-// =========================
-document.addEventListener('DOMContentLoaded', async function() {
-    console.log('무료나눔 상세페이지가 로드되었습니다!');
-
-    // 경로(path)에서 freeId 추출
-    const pathParts = window.location.pathname.split('/');
-    const freeId = pathParts[pathParts.length - 1]; // 마지막 segment가 freeId
-
-    if (!freeId) {
-        alert('잘못된 접근입니다.');
-        return;
-    }
-
-    try {
-        // 게시글 데이터 비동기 조회
-        const response = await fetch(`/api/free/get/${freeId}`);
-        if (!response.ok) throw new Error('게시글 정보를 불러올 수 없습니다.');
-        const data = await response.json();
-
-        item = data.free; // 전역 변수 item에 데이터 할당
-
-        console.log('📦 item 객체:', item);
-
-        // // 이미 Thymeleaf에서 전달된 currentUser 객체를 그대로 사용
-        // const loginUser = currentUser;
-
-        // 상세페이지 렌더링
-        renderDetailPage(item);
-
-        // 이미지 렌더링 코드
-        renderImages(item.imgList);
-
-        // 댓글 목록 렌더링
-        loadComments(item.freeId);
-
-        // updateAuthorActions();
-
-        // 댓글 등록 이벤트 연결
-        const submitCommentBtn = document.getElementById('submitCommentBtn');
-        if (submitCommentBtn) {
-            submitCommentBtn.addEventListener('click', function (e){
-                submitComment(e, item.freeId); // e와 item.freeId 전달
-            });
-        }
-
-        // fade-in 애니메이션
-        setTimeout(function () {
-            const detailContainer = document.querySelector('.detail-container');
-            if (detailContainer) {
-                detailContainer.classList.add('fade-in');
-            }
-        }, 200);
-
-
-        // 관리 버튼 표시 조건(작성자 본인일 경우)
-        // if (
-        //     loginUser &&
-        //     (item.memberId === loginUser.id || (loginUser.role && loginUser.role === 'ADMIN')) // loginUser.id와 loginUser.role 확인
-        // ) {
-        //     const actions = document.getElementById('productActions');
-        //     if (actions) actions.style.display = 'block';
-        //
-        //     const editBtn = document.getElementById('editBtn');
-        //     if (editBtn) editBtn.href = `/free/modify/${item.freeId}`;
-        //
-        //     const deleteBtn = document.getElementById('deleteBtn');
-        //     if (deleteBtn) {
-        //         deleteBtn.addEventListener('click', () => deletePost(item.freeId));
-        //     }
-        // }
-
-        // 수정 버튼 클릭 시 editPost() 호출
-        const editBtn = document.getElementById('editBtn');
-        if (editBtn) {
-            editBtn.addEventListener('click', (e) => {
-                e.preventDefault(); // a 태그 기본 동작 방지
-                editPost(); // confirm + 알림 + 1초 후 이동
-            });
-        }
-
-        // 삭제 버튼 클릭 시 deletePost() 호출
-        const deleteBtn = document.getElementById('deleteBtn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', (e) => {
-                e.preventDefault(); // 기본 링크 막기
-                deletePost(item.freeId);
-            });
-        }
-
-        // 조회수 증가 (1초 후)
-        setTimeout(() => updateViewCount(item.freeId), 1000);
-
-        // 모달 배경 클릭시 닫기
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(function (modal) {
-            modal.addEventListener('click', function (event) {
-                if (event.target === modal) {
-                    closeModal(modal.id);
-                }
-            });
-        });
-
-    }catch (err) {
-        console.error(err);
-        alert('상세 정보를 불러오는 중 오류가 발생했습니다.')
-    }
-
-    setupEventListeners(); // 모든 이벤트 리스너를 설정하는 함수
-
-});
-
 // 댓글 등록 함수
 function submitComment(e, freeId) {
     if(e) e.preventDefault(); // 폼 제출 방지
 
-    const input = document.getElementById('commentInput');
-    const content = input.value.trim();
+    // textarea 요소 존재 여부 확인
+    const textarea = document.getElementById('commentContent');
+    if (!textarea) {
+        alert('로그인 후 댓글을 작성할 수 있습니다.');
+        return;
+    }
 
-    if (!content) {
+    const content = textarea.value.trim();
+    if (content === '') {
         alert('댓글 내용을 입력해주세요.');
         return;
     }
@@ -224,7 +107,7 @@ function submitComment(e, freeId) {
             return response.text();
         })
         .then(data => {
-            input.value = '';
+            textarea.value = ''; // 입력창 초기화
             loadComments(freeId); // 부모 댓글 다시 불러오기
         })
         .catch(err => {
@@ -232,6 +115,7 @@ function submitComment(e, freeId) {
             alert('댓글 등록 중 오류가 발생했습니다.');
         });
 }
+
 
 // 대댓글 등록 함수
 function submitChildComment(parentId) {
@@ -271,9 +155,52 @@ function submitChildComment(parentId) {
         });
 }
 
+// 대댓글 입력창에서 Enter 키로 등록되도록 이벤트 연결
+function setupChildReplyEnterEvent(parentId) {
+    const input = document.getElementById(`childCommentInput-${parentId}`);
+    if (!input) return;
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // 줄바꿈 방지
+            submitChildComment(parentId); // 대댓글 등록 함수 호출
+        }
+    });
+}
+
+// 페이징 렌더링 함수
+function renderReplyPagination(totalCount, freeId, sortType) {
+    const totalPages = Math.ceil(totalCount / amountPerPage);
+    const paginationContainer = document.getElementById('pagination');
+
+    if (!paginationContainer) return;
+    paginationContainer.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.disabled = i === currentPage;
+        btn.addEventListener('click', () => {
+            currentPage = i;
+            loadComments(freeId, sortType, currentPage, amountPerPage);
+        });
+        paginationContainer.appendChild(btn);
+    }
+}
+
 // 댓글 목록 불러오는 함수
-function loadComments(freeId) {
-    fetch(`/api/replies/parent/${freeId}`)
+function loadComments(freeId, sortType = currentSortType, page = currentPage) {
+
+    if (!freeId){
+        console.log("freeId가 null이거나 유효하지 않아 댓글을 불러올 수 없습니다.");
+        return;
+    }
+
+    // 전역 변수 활용
+    currentSortType = sortType;
+    currentPage = page;
+
+    fetch(`/api/replies/parent/${freeId}?sortType=${sortType}&page=${page}&amount=${amountPerPage}`)
         .then(response => response.json())
         .then(data => {
             const list = document.getElementById('commentList');
@@ -281,7 +208,7 @@ function loadComments(freeId) {
                 console.error("commentList 요소를 찾을 수 없습니다.");
                 return;
             }
-            list.innerHTML = ''; // 초기화
+            list.innerHTML = ''; // 기존 댓글 초기화
 
             data.list.forEach(parent => {
                 const parentDiv = document.createElement('div');
@@ -318,10 +245,149 @@ function loadComments(freeId) {
                     })
                     .catch(error => console.error('Error fetching child replies:', error));
             });
+
+            // 페이징 렌더링
+            renderReplyPagination(data.total, freeId, sortType);
         })
         .catch(error => console.error('Error fetching comments:', error));
 
 }
+
+// 조회수 증가
+function updateViewCount(freeId) {
+    fetch(`/api/free/get/${freeId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            const viewCount = data.free?.viewCount;
+            if (viewCount !== undefined) {
+                const viewCountElement = document.querySelector('.view-count');
+                if (viewCountElement) {
+                    viewCountElement.textContent = `👀 ${viewCount}`;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('조회수 증가 오류:', error);
+        });
+}
+
+
+// =========================
+// 페이지가 로드되면 실행되는 함수
+// =========================
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('무료나눔 상세페이지가 로드되었습니다!');
+
+    // 경로(path)에서 freeId 추출
+    const pathParts = window.location.pathname.split('/');
+    const freeId = pathParts[pathParts.length - 1]; // 마지막 segment가 freeId
+
+    if (!freeId) {
+        alert('잘못된 접근입니다.');
+        return;
+    }
+
+    try {
+        // 게시글 데이터 비동기 조회
+        const response = await fetch(`/api/free/get/${freeId}`);
+        if (!response.ok) throw new Error('게시글 정보를 불러올 수 없습니다.');
+        const data = await response.json(); // 응답을 json으로 파싱
+
+        console.log('서버 응답 전체 data:', data);         // 서버에서 받은 전체 JSON
+        console.log('data.free:', data.free);               // free 객체만 추출
+        console.log('freeId:', data.free?.freeId);          // freeId 값만
+
+        item = data.free; // data.free -> 실제 게시글 정보 // 이 한줄로 전역 item에 저장
+
+        console.log('📦 item 객체:', item);
+
+        // 상세페이지 렌더링
+        renderDetailPage(item);
+
+        // 이미지 렌더링 코드
+        renderImages(item.imgList);
+
+        // 댓글 목록 기본 정렬 (최신순)
+        loadComments(item.freeId, 'recent');
+
+        // 댓글 등록 이벤트 연결
+        const submitCommentBtn = document.getElementById('submitCommentBtn');
+        if (submitCommentBtn) {
+            submitCommentBtn.addEventListener('click', function (e){
+                submitComment(e, item.freeId); // e와 item.freeId 전달
+            });
+        }
+        // 댓글 입력창에서 Enter 키로 등록
+        const commentTextarea = document.getElementById('commentContent');
+        if (commentTextarea) {
+            commentTextarea.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); // 줄바꿈 방지
+                    submitComment(null, item.freeId); // Enter로 등록
+                }
+            });
+        }
+
+        // 댓글 정렬 셀렉트박스 이벤트
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => {
+                currentSortType  = sortSelect.value; // 'recent' 또는 'oldest'
+                loadComments(item.freeId, currentSortType, currentPage, amountPerPage); // 여기서 전달을 해야지 정렬됨!
+            });
+        }
+
+        // fade-in 애니메이션
+        setTimeout(function () {
+            const detailContainer = document.querySelector('.detail-container');
+            if (detailContainer) {
+                detailContainer.classList.add('fade-in');
+            }
+        }, 200);
+
+
+        // 수정 버튼 클릭 시 editPost() 호출
+        const editBtn = document.getElementById('editBtn');
+        if (editBtn) {
+            editBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // a 태그 기본 동작 방지
+                editPost(); // confirm + 알림 + 1초 후 이동
+            });
+        }
+
+        // 삭제 버튼 클릭 시 deletePost() 호출
+        const deleteBtn = document.getElementById('deleteBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // 기본 링크 막기
+                deletePost(item.freeId);
+            });
+        }
+
+        // 모달 배경 클릭시 닫기
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(function (modal) {
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+    }catch (err) {
+        console.error(err);
+        alert('상세 정보를 불러오는 중 오류가 발생했습니다.')
+    }
+
+    setupEventListeners(); // 모든 이벤트 리스너를 설정하는 함수
+
+});
+
 
 // =========================
 // 상세 페이지 렌더링 함수
@@ -336,13 +402,23 @@ function renderDetailPage(item) {
     document.getElementById('detailAuthor').textContent = item.nickname;
 
     // 등록일 (예: 2025-07-29 형식으로 변환)
-    const createdDate = new Date(item.createdAt);
-    document.getElementById('detailDate').textContent = createdDate.toLocaleDateString('ko-KR');
-    document.getElementById('createdAt').textContent = formatTimeAgo(item.createdAt);
+    // LocalDateTime → 문자열로 전달된 createdAt 값 (예: "2025-07-28 15:30:00")
+    const rawCreatedAt = item.createdAt;
 
-    // 조회수
-    document.getElementById('viewCount').textContent = '👀 ' + item.viewCount;
-    document.getElementById('detailViews').textContent = item.viewCount;
+    // 1. "2025-07-28 15:30:00" → "2025-07-28T15:30:00"
+    const isoString = rawCreatedAt.replace(' ', 'T');
+
+    // 2. Date 객체 생성
+    const createdDate = new Date(isoString);
+
+    // 3. 날짜 출력
+    document.getElementById('detailDate').textContent = createdDate.toLocaleDateString('ko-KR');
+
+    // 4. 상대 시간 출력
+    document.getElementById('createdAt').textContent = formatTimeAgo(isoString);
+
+    // // 조회수
+    // document.getElementById('detailViews').textContent = item.viewCount;
 
     // 상품 상태
     document.getElementById('detailCondition').textContent = getConditionText(item.itemCondition);
@@ -366,149 +442,17 @@ function renderDetailPage(item) {
     document.getElementById('createdAt').textContent = formatTimeAgo(item.createdAt);
 }
 
-//
-// // =========================
-// // 로그인 상태 관리 함수
-// // =========================
-//
-// // 서버에서 로그인 상태 확인
-// function checkAuthStatus() {
-//     fetch('/api/auth/status')
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.success && data.user) {
-//                 currentUser.id = data.user.id;
-//                 currentUser.nickname = data.user.nickname;
-//                 currentUser.isLoggedIn = true;
-//             }
-//             updateAuthUI();
-//         })
-//         .catch(error => {
-//             console.error('로그인 상태 확인 오류:', error);
-//             updateAuthUI();
-//         });
-// }
-
-// // 로그인 상태에 따른 UI 업데이트
-// function updateAuthUI() {
-//     const loginButtons = document.getElementById('loginButtons');
-//     const userInfo = document.getElementById('userInfo');
-//
-//     if (currentUser.isLoggedIn) {
-//         // 로그인된 상태
-//         if (loginButtons) loginButtons.style.display = 'none';
-//         if (userInfo) userInfo.style.display = 'flex';
-//
-//         // 사용자 이름 업데이트
-//         const userName = userInfo?.querySelector('.user-name');
-//         if (userName) {
-//             userName.textContent = currentUser.nickname;
-//         }
-//     } else {
-//         // 로그인되지 않은 상태
-//         if (loginButtons) loginButtons.style.display = 'flex';
-//         if (userInfo) userInfo.style.display = 'none';
-//     }
-// }
-//
-// // 작성자 권한에 따른 관리 버튼 표시
-// function updateAuthorActions() {
-//     const productActions = document.getElementById('productActions');
-//
-//     // 로그인했고, 현재 사용자가 게시글 작성자인 경우에만 관리 버튼 표시
-//     if (currentUser.isLoggedIn && item && currentUser.id === item.memberId) {
-//         if (productActions) productActions.style.display = 'block';
-//         console.log('✅ 작성자 본인입니다. 수정/삭제 버튼을 표시합니다.');
-//     } else {
-//         if (productActions) productActions.style.display = 'none';
-//         if (!currentUser.isLoggedIn) {
-//             console.log('❌ 비로그인 상태입니다. 수정/삭제 버튼을 숨깁니다.');
-//         } else {
-//             console.log('❌ 작성자가 아닙니다. 수정/삭제 버튼을 숨깁니다.');
-//         }
-//     }
-// }
-
 // =========================
 // 이벤트 리스너 설정 함수
 // =========================
 function setupEventListeners() {
-    // 드롭다운 토글 버튼
-    const dropdownToggle = document.getElementById('dropdownToggle');
-    const dropdownMenu = document.getElementById('dropdownMenu');
 
-    if (dropdownToggle && dropdownMenu) {
-        dropdownToggle.addEventListener('click', function (event) {
-            event.stopPropagation();
-            toggleDropdown();
-        });
-    }
-
-    // 문서 전체 클릭시 드롭다운 닫기
-    document.addEventListener('click', function (event) {
-        if (dropdownMenu && !dropdownMenu.contains(event.target)) {
-            closeDropdown();
-        }
-    });
-
-    // ESC 키로 모달과 드롭다운 닫기
+    // ESC 키로 모달 닫기 (드롭다운 관련 코드 제거)
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             closeAllModals();
-            closeDropdown();
         }
     });
-
-
-// =========================
-// 드롭다운 메뉴 관련 함수
-// =========================
-
-// 드롭다운 메뉴 토글
-    function toggleDropdown() {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        if (!dropdownMenu) return; // 요소 없으면 종료
-
-        if (dropdownMenu?.classList.contains('show')) {
-            closeDropdown();  // 이미 열려 있으면 닫기
-        } else {
-            openDropdown(); // 안 열려 있으면 열기
-        }
-    }
-
-// 드롭다운 메뉴 열기
-    function openDropdown() {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        const dropdownToggle = document.getElementById('dropdownToggle');
-        if (!dropdownMenu) return; //요소 없으면 종료
-
-        dropdownMenu.classList.add('show'); // 드롭다운 열기
-
-        // 버튼 활성화 상태 표시
-        if (dropdownToggle) {
-            dropdownToggle.style.background = 'var(--primary-green)';
-            dropdownToggle.style.color = 'var(--white)';
-        }
-
-        console.log('드롭다운 메뉴가 열렸습니다.');
-    }
-
-
-// 드롭다운 메뉴 닫기
-    function closeDropdown() {
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        const dropdownToggle = document.getElementById('dropdownToggle');
-        if (!dropdownMenu) return; // 요서 없으면 종료
-
-        dropdownMenu.classList.remove('show'); // 드롭다운 닫기
-
-        // 버튼 원래 상태로 복원
-        if (dropdownToggle) {
-            dropdownToggle.style.background = '';
-            dropdownToggle.style.color = '';
-        }
-
-    }
 
 // =========================
 // 이미지 관련 함수
@@ -577,7 +521,6 @@ function setupEventListeners() {
 
 // 게시글 수정
     function editPost() {
-        closeDropdown();
 
         if (confirm('게시글을 수정하시겠습니까?')) {
             showNotification('수정 페이지로 이동합니다.', 'success');
@@ -595,7 +538,6 @@ function setupEventListeners() {
 
 // 게시글 삭제 함수 (API 컨트롤러 사용)
     function deletePost(freeId) {
-        closeDropdown();
 
         if (confirm('정말로 이 게시글을 삭제하시겠습니까?\n삭제된 게시글은 복구할 수 없습니다.')) {
             // 삭제 중 상태 표시
@@ -672,38 +614,29 @@ function setupEventListeners() {
 // 기타 유틸리티 함수
 // =========================
 
-// 조회수 증가
-    function increaseViewCount(freeId) {
-        fetch(`/api/free/get/${freeId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const viewCountElement = document.querySelector('.view-count');
-                    if (viewCountElement) {
-                        viewCountElement.textContent = `👀 ${data.viewCount}`;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('조회수 증가 오류:', error);
-            });
-    }
-
-
 
 // 상품 상태 업데이트
     function updateProductStatus(newStatus) {
+
+        console.log('🔄 상태 업데이트 실행됨:', newStatus);
+
         const formData = new FormData();
 
-        // 기존 게시글 데이터 포함 (freeDto)
+        // // 기존 게시글 데이터 포함 (freeDto)
+        // const freeDto = {
+        //     ...item,
+        //     dealStatus: newStatus // 상태만 변경
+        // };
+
         const freeDto = {
-            ...item,
-            dealStatus: newStatus // 상태만 변경
+            freeId: item.freeId,
+            title: item.title,
+            content: item.content,
+            category: item.category,
+            regionGu: item.regionGu,
+            regionDong: item.regionDong,
+            itemCondition: item.itemCondition,
+            dealStatus: newStatus
         };
 
         // JSON -> Blob 변환 후 추가
@@ -759,72 +692,19 @@ function setupEventListeners() {
 
 
 // =========================
-// 페이지 초기화 완료 후 실행
-// =========================
-
-// // DOM이 완전히 로드된 후 추가 설정
-//     document.addEventListener('DOMContentLoaded', function () {
-//         // 조회수 증가 (1초 후)
-//         setTimeout(() => increaseViewCount(item.freeId), 1000);
-//
-//         // 모달 배경 클릭시 닫기
-//         const modals = document.querySelectorAll('.modal');
-//         modals.forEach(function (modal) {
-//             modal.addEventListener('click', function (event) {
-//                 if (event.target === modal) {
-//                     closeModal(modal.id);
-//                 }
-//             });
-//         });
-//     });
-
-// =========================
-// 키보드 단축키
-// =========================
-
-
-// =========================
 // 전역 함수로 노출 (HTML에서 onclick 등으로 사용)
 // =========================
 
 // HTML의 onclick에서 사용할 수 있도록 전역으로 노출
     window.changeMainImage = changeMainImage;
-    // window.showContactInfo = showContactInfo;
     window.closeModal = closeModal;
-// window.sendMessage = sendMessage;
     window.editPost = editPost;
     window.deletePost = deletePost;
+    window.updateViewCount = updateViewCount;
 
 // 기타 유용한 전역 함수들
     window.showNotification = showNotification;
-    window.toggleDropdown = toggleDropdown;
-    window.closeDropdown = closeDropdown;
     window.updateProductStatus = updateProductStatus;
-// window.toggleBookmark = toggleBookmark;
-// window.reportPost = reportPost;
-
-// =========================
-// 에러 핸들링
-// =========================
-
-// 전역 에러 처리
-    window.addEventListener('error', function (event) {
-        console.error('페이지 오류:', event.error);
-
-        // 서버에 에러 리포트 전송
-        fetch('/api/errors', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                error: event.error?.message || 'Unknown error',
-                stack: event.error?.stack,
-                url: window.location.href,
-                timestamp: new Date().toISOString()
-            })
-        }).catch(console.error);
-    });
 
 // Promise 거부 처리
     window.addEventListener('unhandledrejection', function (event) {
