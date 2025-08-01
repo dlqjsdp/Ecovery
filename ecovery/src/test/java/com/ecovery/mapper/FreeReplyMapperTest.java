@@ -252,6 +252,7 @@ class FreeReplyMapperTest {
         }
     }
 
+
 //    @Test
 //    @DisplayName("댓글/대댓글 닉네임 포함 여부 테스트")
 //    public void testReplyContainsNickname() {
@@ -267,6 +268,7 @@ class FreeReplyMapperTest {
 //        assertNotNull(dto.getNickName(), "닉네임이 null이면 안 됩니다."); // 닉네임 필드 확인
 //        log.info("조회된 댓글 닉네임: {}", dto.getNickName());
 //    }
+
 
     @Test
     @DisplayName("댓글 정렬 방식 검증 테스트")

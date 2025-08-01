@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
                         .requestMatchers("/order/**").hasAnyRole("USER", "ADMIN")   //주문 페이지는 로그인한 회원만 접근 가능
                         .requestMatchers("/ecovery/**").permitAll()
-                        .requestMatchers("/feedback/*", "/error", "/disposal/history/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/feedback/*", "/disposal/history/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/free/register").hasAnyRole("USER", "ADMIN") // 무료나눔 등록 - USER 또는 ADMIN만 가능
                         .requestMatchers("/free/modify/**", "/free/delete/**").hasAnyRole("USER", "ADMIN") // 무료나눔 수정, 삭제 - USER 또는 ADMIN만 가능
                         .requestMatchers("/free/**", "/free/get/**").permitAll() // 무료나눔 목록, 상세 누구나 접근 가능

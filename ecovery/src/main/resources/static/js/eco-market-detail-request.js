@@ -423,6 +423,7 @@ function setDefaultProductInfo() {
 /**
  * 알림 표시 함수 (다른 JS 파일의 함수와 연동)
  */
+
 // function showNotification(message, type = 'info') {
 //     // 다른 JS 파일의 showNotification 함수가 있으면 사용
 //     if (window.showNotification && typeof window.showNotification === 'function') {

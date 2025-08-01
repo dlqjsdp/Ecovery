@@ -413,6 +413,17 @@ function showNotification(message, type) {
     }, 3000);
 }
 
+function getNotificationColor(type) {
+    const colors = {
+        'success': '#27ae60',   // 초록
+        'error': '#e74c3c',     // 빨강
+        'warning': '#f39c12',   // 주황
+        'cart': '#8e44ad',      // 보라 (장바구니 전용 색상)
+        'info': '#3498db'       // 파랑
+    };
+    return colors[type] || colors.info; // 정의되지 않은 타입은 info 색상 사용
+}
+
 // =========================
 // 기타 유틸리티 함수
 // =========================

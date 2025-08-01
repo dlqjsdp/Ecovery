@@ -58,13 +58,13 @@
                     <div class="card-header">
                         <h2 class="card-title">📋 주문 정보</h2>
                         <div class="order-status-badge" id="orderStatusBadge">
-                            <span class="status-text" th:text="${order.orderStatus.name() == 'PAID' ? '결제완료' :
+                            <!--<span class="status-text" th:text="${order.orderStatus.name() == 'PAID' ? '결제완료' :
                                                                 (order.orderStatus.name() == 'PREPARING' ? '상품준비중' :
                                                                 (order.orderStatus.name() == 'SHIPPED' ? '배송중' :
                                                                 (order.orderStatus.name() == 'DELIVERED' ? '배송완료' :
                                                                 (order.orderStatus.name() == 'CANCELLED' ? '주문취소' : '상태미확인'))))}">
                                 배송완료
-                            </span>
+                            </span>-->
                         </div>
                     </div>
                     <div class="order-basic-info">
@@ -75,12 +75,12 @@
                             </div>
                             <div class="info-item">
                                 <span class="info-label">주문일자</span>
-                                <span class="info-value" id="orderDate" 
+                                <span class="info-value" id="orderDate"
                                       th:text="${#dates.format(order.createdAt, 'yyyy년 M월 d일')}">2025년 1월 15일</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">주문자</span>
-                                <span class="info-value" id="orderName" th:text="${order.name}">김환경</span>
+                                <span class="info-value키" id="orderName" th:text="${order.name}">김환경</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">연락처</span>
@@ -132,7 +132,7 @@
                     <div class="card-header">
                         <h2 class="card-title">🚚 배송 정보</h2>
                         <button class="btn-track-delivery" onclick="trackDelivery()"
-                                th:if="${order.orderStatus.name() == 'SHIPPED' or order.orderStatus.name() == 'DELIVERED'}">
+                                <!--th:if="${order.orderStatus.name() == 'SHIPPED' or order.orderStatus.name() == 'DELIVERED'}">-->
                             <span class="track-icon">🔍</span>
                             <span class="track-text">배송조회</span>
                         </button>
@@ -230,28 +230,28 @@
                     <div class="action-buttons">
                         <!-- 상품후기 작성 (배송완료시에만) -->
                         <button class="btn-action btn-review" onclick="writeReview()"
-                                th:if="${order.orderStatus.name() == 'DELIVERED'}">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
                             <span class="btn-icon">⭐</span>
                             <span class="btn-text">상품후기 작성</span>
                         </button>
 
                         <!-- 재주문 버튼 (배송완료시에만) -->
                         <button class="btn-action btn-reorder" onclick="reorder()"
-                                th:if="${order.orderStatus.name() == 'DELIVERED'}">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
                             <span class="btn-icon">🔄</span>
                             <span class="btn-text">재주문</span>
                         </button>
 
                         <!-- 주문취소 (결제완료, 상품준비중일 때만) -->
                         <button class="btn-action btn-cancel" onclick="cancelOrder()"
-                                th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}">
+                                <!--th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}">-->
                             <span class="btn-icon">❌</span>
                             <span class="btn-text">주문취소</span>
                         </button>
 
                         <!-- 교환/반품 (배송완료시에만) -->
                         <button class="btn-action btn-exchange" onclick="requestExchange()"
-                                th:if="${order.orderStatus.name() == 'DELIVERED'}">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
                             <span class="btn-icon">🔄</span>
                             <span class="btn-text">교환/반품</span>
                         </button>

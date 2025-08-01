@@ -31,7 +31,7 @@ public class CartController {
     private final CartItemService cartItemService;
 
     // 로그인한 사용자 닉네임 가져오는 공통 메서드
-    public String getLoginNickname(){
+    public String getLoginNickname() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         return userDetails.getUsername();
@@ -54,13 +54,9 @@ public class CartController {
 
     // 장바구니 상품 담기
     @PostMapping("/add")
-    public String addCartItem(@RequestParam Long itemId, @RequestParam int count){
-
-        System.out.println("🚀 서버로 전달된 상품 ID: " + itemId);
-        System.out.println("🚀 서버로 전달된 상품 주문 수량: " + count);
+    public String addCartItem(@RequestParam Long itemId, @RequestParam int count) {
 
         String nickname = getLoginNickname();
-        System.out.println("nickname" + nickname);
 
         return cartItemService.addCart(nickname, itemId, count);
     }
@@ -68,7 +64,7 @@ public class CartController {
     // 장바구니 상품 수정
     @PutMapping(value = "/update")
     @ResponseBody
-    public ResponseEntity<String> updateCartItem(@RequestParam Long cartItemId, @RequestParam int count, @RequestParam Long itemId){
+    public ResponseEntity<String> updateCartItem(@RequestParam Long cartItemId, @RequestParam int count, @RequestParam Long itemId) {
         String result = cartItemService.updateCartCount(cartItemId, count, itemId);
 
         // 서비스에서 반환된 문자열이 "수량 변경 완료"이면 성공, 아니면 실패로 처리하는 로직
@@ -81,8 +77,13 @@ public class CartController {
 
     // 장바구니 상품 삭제
     @DeleteMapping(value = "/delete/{cartItemId}")
-    public String deleteCartItem(@PathVariable Long cartItemId){
-        return cartItemService.deleteCartItem(cartItemId);
+    @ResponseBody
+    public ResponseEntity<?> deleteCartItem(@PathVariable Long cartItemId) {
+        try {
+            cartItemService.deleteCartItem(cartItemId);
+            return ResponseEntity.ok("삭제 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("삭제 실패: " + e.getMessage());
+        }
     }
-
 }

@@ -175,10 +175,7 @@
                         <td class="order-actions">
                             <div class="action-buttons">
                                 <!-- 주문상세 보기 버튼 -->
-                                <a th:href="@{/orders/{orderId}}"
-                                   class="btn-action btn-detail">
-                                    상세보기
-                                </a>
+                                <a th:href="@{/orders/{orderId}(orderId=${order.orderId})}" class="btn-action btn-detail">상세보기</a>
 
                                 <!-- 상품후기 작성 (배송완료시에만) -->
                                 <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
