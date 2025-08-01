@@ -7,6 +7,7 @@
      - 250731 | sehui | 에코마켓 상품 상세 페이지 요청 기능 추가
      - 250731 | sehui | 헤더/푸터 충돌 방지 및 이미지 처리 개선
      - 250801 | sehui | 구매하기 버튼 클릭 시 폼 전송 기능 추가 - 주석 처리
+     - 250801 | sehui | 상품 설명 이미지 정렬 CSS 개선 및 중앙 정렬 기능 추가
 
  */
 
@@ -281,7 +282,7 @@ function setDefaultImage(container) {
 }
 
 /**
- * 상품 설명 업데이트
+ * 상품 설명 업데이트 - 이미지 정렬 CSS 개선
  */
 function updateProductDescription(item) {
     try {
@@ -312,32 +313,75 @@ function updateProductDescription(item) {
             }
         });
 
-        // 추가 이미지가 있는 경우 설명에 추가
+        // 추가 이미지가 있는 경우 설명에 추가 - 이미지 정렬 및 스타일 개선
         if (item.itemImgDtoList && item.itemImgDtoList.length > 1) {
             const additionalImages = item.itemImgDtoList.slice(1); // 첫 번째 제외
             
-            additionalImages.forEach(imgDto => {
+            additionalImages.forEach((imgDto, index) => {
                 if (imgDto.imgUrl) {
+                    // 이미지 컨테이너 div 생성 - 중앙 정렬을 위해
+                    const imageContainer = document.createElement('div');
+                    imageContainer.style.cssText = `
+                        text-align: center;
+                        margin: 30px 0;
+                        padding: 10px;
+                    `;
+                    
+                    // 이미지 요소 생성
                     const img = document.createElement('img');
                     img.src = imgDto.imgUrl;
-                    img.alt = imgDto.oriImgName || '상품 이미지';
-                    img.classList.add('product-image');
-                    img.style.maxWidth = '100%';
-                    img.style.height = 'auto';
-                    img.style.margin = '20px 0';
-                    img.style.borderRadius = '8px';
-                    img.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+                    img.alt = imgDto.oriImgName || `상품 이미지 ${index + 2}`;
+                    img.classList.add('product-description-image');
                     
+                    // 이미지 스타일 설정 - 반응형 및 중앙 정렬
+                    img.style.cssText = `
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                        display: block;
+                        margin: 0 auto;
+                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                        cursor: pointer;
+                    `;
+                    
+                    // 이미지 호버 효과 추가
+                    img.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.02)';
+                        this.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.2)';
+                    });
+                    
+                    img.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+                    });
+                    
+                    // 이미지 클릭 시 확대 기능 (기존 모달 재사용)
+                    img.addEventListener('click', function() {
+                        if (window.openImageModal) {
+                            // 클릭한 이미지의 인덱스 설정
+                            window.currentImageIndex = index + 1; // 첫 번째 이미지 다음부터
+                            window.openImageModal();
+                        }
+                    });
+                    
+                    // 이미지 로드 실패 시 처리
                     img.onerror = function() {
-                        this.style.display = 'none';
+                        // 로드 실패 시 컨테이너 자체를 숨김
+                        imageContainer.style.display = 'none';
+                        console.warn('⚠️ 상품 설명 이미지 로드 실패:', imgDto.imgUrl);
                     };
                     
-                    container.appendChild(img);
+                    // 이미지를 컨테이너에 추가
+                    imageContainer.appendChild(img);
+                    
+                    // 컨테이너를 설명 영역에 추가
+                    container.appendChild(imageContainer);
                 }
             });
         }
 
-        console.log('✅ 상품 설명 업데이트 완료');
+        console.log('✅ 상품 설명 업데이트 완료 - 이미지 정렬 개선됨');
     } catch (error) {
         console.error('❌ 상품 설명 업데이트 실패:', error);
     }

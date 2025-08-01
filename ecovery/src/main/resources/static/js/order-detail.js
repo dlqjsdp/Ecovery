@@ -2,6 +2,10 @@
  * GreenCycle 주문상세 페이지 JavaScript
  * URL 파라미터에서 주문번호를 가져와 주문 정보를 표시하고
  * 각종 주문 관리 기능을 제공합니다
+ * @history
+ *  - 250801 | sehui | 장바구니 기능 삭제
+ *  - 250801 | sehui | 주문 상태, 배송 상태, 결제 정보 기능 삭제
+ *  - 250801 | sehui | 배송조회, 상품 후기 작성, 재주문, 주문 문의, URL 파라미터 처리 함수 기능 삭제
  */
 
 // ==========================================================================
@@ -21,62 +25,45 @@ const cartCount = document.getElementById('cartCount');
 // ==========================================================================
 // 페이지 초기화 - DOMContentLoaded 이벤트 리스너
 // ==========================================================================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     try {
         console.log('🛍️ GreenCycle 주문상세 페이지 초기화를 시작합니다...');
-
-        // URL 파라미터에서 주문번호 추출
-        currentOrderId = getOrderIdFromUrl();
-
-        if (!currentOrderId) {
-            // 주문번호가 없으면 마이페이지로 리다이렉트
-            showNotification('잘못된 접근입니다. 마이페이지로 이동합니다.', 'warning');
-            setTimeout(() => {
-                window.location.href = 'mypage.html';
-            }, 2000);
-            return;
-        }
 
         // 핵심 기능 초기화
         initializeHeader();              // 헤더 기능 초기화
         initializeCart();                // 장바구니 기능 초기화
-        loadOrderData();                 // 주문 데이터 로드
         initializeInteractions();        // 인터랙션 초기화
         initializeKeyboardShortcuts();   // 키보드 단축키 초기화
         adjustLayoutForScreenSize();     // 반응형 레이아웃 조정
 
-        isInitialized = true;
+        //주문 데이터 로드
+        const orderData = await loadOrderData();
+
+        if(!orderData || !orderData.orderId) {
+            showNotification('잘못된 접근입니다. 마이페이지로 이동합니다.', 'warning');
+            setTimeout(() => {
+                window.location.href = '/member/mypage';
+            }, 2000);
+            return;
+        }
+
+        //주문 ID를 저장하고 안내 메시지
+        const currentOrderId = orderData.orderId;
         console.log('🛍️ 주문상세 페이지가 성공적으로 초기화되었습니다.');
+        console.log("orderId : ", currentOrderId);
 
         // 환영 메시지 표시 (1초 후)
         setTimeout(() => {
             showNotification(`주문번호 ${currentOrderId} 상세 정보를 불러왔습니다! 📋`, 'success');
         }, 1000);
 
+        isInitialized = true;
+
     } catch (error) {
         handleError(error, 'Order detail page initialization');
+        window.location.href = '/member/mypage';
     }
 });
-
-// ==========================================================================
-// URL 파라미터 처리 함수
-// ==========================================================================
-/**
- * URL 파라미터에서 주문번호를 추출합니다
- * @returns {string|null} 주문번호 또는 null
- */
-function getOrderIdFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('orderId');
-
-    if (orderId) {
-        console.log(`URL에서 주문번호 추출: ${orderId}`);
-        return orderId;
-    }
-
-    console.warn('URL에서 주문번호를 찾을 수 없습니다.');
-    return null;
-}
 
 // ==========================================================================
 // 헤더 기능 초기화 (마이페이지와 동일)
@@ -247,29 +234,46 @@ function getCartItemCount() {
 // ==========================================================================
 /**
  * 주문 데이터를 로드하고 화면에 표시합니다
- * 실제 구현에서는 서버 API를 호출하여 데이터를 가져옵니다
  */
-function loadOrderData() {
+async function loadOrderData() {
     try {
         // 실제 구현에서는 API 호출: fetch(`/api/orders/${currentOrderId}`)
-        // 지금은 모의 데이터를 사용합니다
-        orderData = getMockOrderData(currentOrderId);
+        console.log('🚀 주문 데이터 로드 시작...');
 
-        if (!orderData) {
-            throw new Error('주문 정보를 찾을 수 없습니다.');
+        const orderItemRequestsText = document.getElementById('orderItemRequests').textContent;
+        console.log('주문 정보 >> ', orderItemRequestsText);
+
+        if (!orderItemRequestsText || orderItemRequestsText.length === 0) {
+            throw new Error('❌ 주문 상품 정보를 찾을 수 없습니다.');
         }
 
-        // 주문 정보를 화면에 표시
-        displayOrderData(orderData);
+        const orderItemRequests = JSON.parse(orderItemRequestsText);
+        console.log('주문 정보 JSON >> ', orderItemRequests);
 
+        const response = await fetch('/api/order/prepare', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(orderItemRequests)
+        });
+
+        if (!response.ok) {
+            throw new Error('❌ 주문 데이터를 불러오는 데 실패했습니다.');
+        }
+
+        const orderData = await response.json();
+        displayOrderData(orderData);    // 주문 정보를 화면에 표시
         console.log(`✅ 주문 데이터 로드 완료: ${currentOrderId}`);
 
+        return orderData;
+
     } catch (error) {
-        handleError(error, 'Order data loading');
+        handleError(error, 'Order data loading fail');
 
         // 에러 발생 시 마이페이지로 리다이렉트
         setTimeout(() => {
-            window.location.href = 'mypage.html';
+            window.location.href = '/member/mypage';
         }, 3000);
     }
 }
@@ -399,16 +403,7 @@ function displayOrderData(data) {
         displayBasicOrderInfo(data);
 
         // 주문 상품 정보 표시
-        displayOrderProducts(data.products);
-
-        // 배송 정보 표시
-        displayDeliveryInfo(data.delivery);
-
-        // 결제 정보 표시
-        displayPaymentInfo(data.payment);
-
-        // 주문 상태에 따른 버튼 조정
-        adjustActionButtons(data.status);
+        displayOrderProducts(data.orderItems);
 
         console.log('✅ 주문 정보 표시 완료');
 
@@ -424,25 +419,14 @@ function displayOrderData(data) {
 function displayBasicOrderInfo(data) {
     // 주문번호
     const orderNumberEl = document.getElementById('orderNumber');
-    if (orderNumberEl) orderNumberEl.textContent = data.orderNumber;
+    if (orderNumberEl) orderNumberEl.textContent = data.orderUuid;
 
     // 주문일자
     const orderDateEl = document.getElementById('orderDate');
-    if (orderDateEl) orderDateEl.textContent = data.orderDate;
-
-    // 주문자
-    const orderNameEl = document.getElementById('orderName');
-    if (orderNameEl) orderNameEl.textContent = data.orderName;
-
-    // 연락처
-    const orderPhoneEl = document.getElementById('orderPhone');
-    if (orderPhoneEl) orderPhoneEl.textContent = data.orderPhone;
-
-    // 주문 상태 배지
-    const statusBadge = document.getElementById('orderStatusBadge');
-    if (statusBadge) {
-        statusBadge.querySelector('.status-text').textContent = data.statusText;
-        statusBadge.className = `order-status-badge ${data.status}`;
+    if (orderDateEl) {
+        const now = new Date();
+        const formattedDate = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`;
+        orderDateEl.textContent = formattedDate;
     }
 }
 
@@ -465,186 +449,22 @@ function displayOrderProducts(products) {
     productListEl.innerHTML = products.map(product => `
         <div class="product-item">
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}">
+                <img src="${product.imgUrl}" alt="${product.imgName}">
             </div>
             <div class="product-details">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-description">${product.description}</p>
-                <div class="product-options">
-                    ${product.options.map(option => `
-                        <span class="option-item">${option}</span>
-                    `).join('')}
-                </div>
+                <h3 class="product-name">${product.itemName}</h3>
+                <p class="product-description">${product.itemDetail}</p>
             </div>
             <div class="product-quantity">
                 <span class="quantity-label">수량</span>
-                <span class="quantity-value">${product.quantity}${product.name.includes('세트') ? '세트' : '개'}</span>
+                <span class="quantity-value">${product.count}${product.name.includes('세트') ? '세트' : '개'}</span>
             </div>
             <div class="product-price">
-                <span class="unit-price">${product.unitPrice.toLocaleString()}원</span>
-                <span class="total-price">${product.totalPrice.toLocaleString()}원</span>
+                <span class="unit-price">${product.price.toLocaleString()}원</span>
+                <span class="total-price">${product.orderPrice.toLocaleString()}원</span>
             </div>
         </div>
     `).join('');
-}
-
-/**
- * 배송 정보를 표시합니다
- * @param {Object} delivery - 배송 정보
- */
-function displayDeliveryInfo(delivery) {
-    // 배송 타임라인 표시
-    displayDeliveryTimeline(delivery.timeline);
-
-    // 배송지 정보 표시
-    displayDeliveryAddress(delivery);
-}
-
-/**
- * 배송 타임라인을 표시합니다
- * @param {Array} timeline - 배송 단계 배열
- */
-function displayDeliveryTimeline(timeline) {
-    const timelineContainer = document.querySelector('.status-timeline');
-    if (!timelineContainer) return;
-
-    timelineContainer.innerHTML = timeline.map(step => `
-        <div class="timeline-step ${step.completed ? 'completed' : ''} ${step.current ? 'current' : ''}">
-            <div class="step-icon">${step.icon}</div>
-            <div class="step-info">
-                <span class="step-title">${step.step}</span>
-                <span class="step-date">${step.date}</span>
-            </div>
-        </div>
-    `).join('');
-}
-
-/**
- * 배송지 정보를 표시합니다
- * @param {Object} delivery - 배송 정보
- */
-function displayDeliveryAddress(delivery) {
-    const addressContainer = document.querySelector('.address-details');
-    if (!addressContainer) return;
-
-    addressContainer.innerHTML = `
-        <div class="address-item">
-            <span class="address-label">받는분</span>
-            <span class="address-value">${delivery.recipientName}</span>
-        </div>
-        <div class="address-item">
-            <span class="address-label">연락처</span>
-            <span class="address-value">${delivery.recipientPhone}</span>
-        </div>
-        <div class="address-item">
-            <span class="address-label">주소</span>
-            <span class="address-value">${delivery.address.replace(/\n/g, '<br>')}</span>
-        </div>
-        <div class="address-item">
-            <span class="address-label">배송요청사항</span>
-            <span class="address-value">${delivery.request}</span>
-        </div>
-    `;
-}
-
-/**
- * 결제 정보를 표시합니다
- * @param {Object} payment - 결제 정보
- */
-function displayPaymentInfo(payment) {
-    // 결제 요약 정보 표시
-    displayPaymentSummary(payment);
-
-    // 결제 방법 정보 표시
-    displayPaymentMethod(payment.method);
-}
-
-/**
- * 결제 요약 정보를 표시합니다
- * @param {Object} payment - 결제 정보
- */
-function displayPaymentSummary(payment) {
-    const summaryContainer = document.querySelector('.payment-summary');
-    if (!summaryContainer) return;
-
-    summaryContainer.innerHTML = `
-        <div class="summary-row">
-            <span class="summary-label">상품금액</span>
-            <span class="summary-value">${payment.productAmount.toLocaleString()}원</span>
-        </div>
-        <div class="summary-row">
-            <span class="summary-label">배송비</span>
-            <span class="summary-value">${payment.shippingFee.toLocaleString()}원</span>
-            ${payment.shippingFee === 0 ? '<span class="summary-note">(50,000원 이상 무료배송)</span>' : ''}
-        </div>
-        ${payment.discount > 0 ? `
-            <div class="summary-row discount">
-                <span class="summary-label">할인금액</span>
-                <span class="summary-value">-${payment.discount.toLocaleString()}원</span>
-                <span class="summary-note">(신규회원 할인)</span>
-            </div>
-        ` : ''}
-        ${payment.usedPoints > 0 ? `
-            <div class="summary-row used-points">
-                <span class="summary-label">사용 포인트</span>
-                <span class="summary-value">-${payment.usedPoints.toLocaleString()}원</span>
-            </div>
-        ` : ''}
-        <div class="summary-row total">
-            <span class="summary-label">최종결제금액</span>
-            <span class="summary-value">${payment.finalAmount.toLocaleString()}원</span>
-        </div>
-    `;
-}
-
-/**
- * 결제 방법 정보를 표시합니다
- * @param {Object} method - 결제 방법 정보
- */
-function displayPaymentMethod(method) {
-    const methodContainer = document.querySelector('.method-details');
-    if (!methodContainer) return;
-
-    const methodIcon = method.type === 'credit_card' ? '💳' : '💰';
-
-    methodContainer.innerHTML = `
-        <div class="method-item">
-            <span class="method-icon">${methodIcon}</span>
-            <div class="method-info">
-                <span class="method-name">${method.name}</span>
-                <span class="method-detail">${method.detail}</span>
-                <span class="method-date">결제일시: ${method.date}</span>
-            </div>
-            <span class="method-amount">${method.amount.toLocaleString()}원</span>
-        </div>
-    `;
-}
-
-/**
- * 주문 상태에 따라 액션 버튼을 조정합니다
- * @param {string} status - 주문 상태
- */
-function adjustActionButtons(status) {
-    const reviewBtn = document.querySelector('.btn-review');
-    const cancelBtn = document.querySelector('.btn-cancel');
-
-    // 배송완료 상태일 때만 후기 작성 버튼 활성화
-    if (reviewBtn) {
-        if (status === 'delivered') {
-            reviewBtn.style.display = 'flex';
-        } else {
-            reviewBtn.style.display = 'none';
-        }
-    }
-
-    // 주문완료/상품준비중 상태일 때만 취소 버튼 표시
-    if (cancelBtn) {
-        if (status === 'ordered' || status === 'preparing') {
-            cancelBtn.style.display = 'flex';
-        } else {
-            cancelBtn.style.display = 'none';
-        }
-    }
 }
 
 // ==========================================================================
@@ -664,83 +484,6 @@ function goBack() {
     }
 
     console.log('뒤로가기 버튼 클릭');
-}
-
-/**
- * 배송 조회 기능
- */
-function trackDelivery() {
-    showNotification('배송 조회 페이지로 이동합니다. 🚚', 'info');
-
-    // 실제 구현에서는 택배사 배송조회 페이지로 이동
-    setTimeout(() => {
-        // 예: window.open('https://tracking.example.com/track?order=' + currentOrderId);
-        console.log(`배송조회: ${currentOrderId}`);
-    }, 800);
-
-    console.log('배송조회 버튼 클릭');
-}
-
-/**
- * 상품후기 작성 기능
- */
-function writeReview() {
-    showNotification('상품후기 작성 페이지로 이동합니다. ⭐', 'info');
-
-    // 실제 구현에서는 후기 작성 페이지로 이동
-    setTimeout(() => {
-        window.location.href = `review-write.html?orderId=${currentOrderId}`;
-    }, 800);
-
-    console.log('상품후기 작성 버튼 클릭');
-}
-
-/**
- * 재주문 기능
- */
-function reorder() {
-    if (!orderData || !orderData.products) {
-        showNotification('주문 정보를 불러올 수 없습니다.', 'error');
-        return;
-    }
-
-    showNotification('장바구니에 상품을 담고 있습니다... 🛒', 'info');
-
-    // 주문 상품들을 장바구니에 추가
-    orderData.products.forEach((product, index) => {
-        setTimeout(() => {
-            addToCart({
-                id: product.id,
-                name: product.name,
-                price: product.unitPrice,
-                quantity: product.quantity
-            });
-        }, index * 500); // 순차적으로 추가
-    });
-
-    // 모든 상품 추가 후 장바구니로 이동
-    setTimeout(() => {
-        showNotification('장바구니에 모든 상품이 담겼습니다! 장바구니 페이지로 이동합니다.', 'success');
-        setTimeout(() => {
-            window.location.href = 'cart.html';
-        }, 1500);
-    }, orderData.products.length * 500 + 1000);
-
-    console.log('재주문 버튼 클릭');
-}
-
-/**
- * 주문 문의 기능
- */
-function orderInquiry() {
-    showNotification('주문 문의 페이지로 이동합니다. ❓', 'info');
-
-    // 실제 구현에서는 문의 페이지로 이동
-    setTimeout(() => {
-        window.location.href = `inquiry.html?type=order&orderId=${currentOrderId}`;
-    }, 800);
-
-    console.log('주문문의 버튼 클릭');
 }
 
 /**
@@ -764,18 +507,6 @@ function downloadReceipt() {
     }, 2000);
 
     console.log('영수증 다운로드 버튼 클릭');
-}
-
-/**
- * 장바구니에 아이템 추가 (재주문 시 사용)
- * @param {Object} item - 추가할 아이템 정보
- */
-function addToCart(item) {
-    const currentCount = getCartItemCount();
-    updateCartCount(currentCount + item.quantity);
-
-    showNotification(`"${item.name}" ${item.quantity}개가 장바구니에 추가되었습니다!`, 'success');
-    console.log('장바구니에 아이템 추가:', item);
 }
 
 // ==========================================================================
@@ -834,22 +565,6 @@ function initializeKeyboardShortcuts() {
                 if (e.shiftKey) {
                     e.preventDefault();
                     goBack();
-                }
-                break;
-            case 'r':
-            case 'R':
-                // 재주문 (shift+r)
-                if (e.shiftKey) {
-                    e.preventDefault();
-                    reorder();
-                }
-                break;
-            case 't':
-            case 'T':
-                // 배송조회 (shift+t)
-                if (e.shiftKey) {
-                    e.preventDefault();
-                    trackDelivery();
                 }
                 break;
             case '?':
@@ -1117,10 +832,6 @@ function handleError(error, context = '') {
 
 // 전역 함수 노출 (HTML에서 호출되는 함수들)
 window.goBack = goBack;
-window.trackDelivery = trackDelivery;
-window.writeReview = writeReview;
-window.reorder = reorder;
-window.orderInquiry = orderInquiry;
 window.downloadReceipt = downloadReceipt;
 window.showNotification = showNotification;
 
