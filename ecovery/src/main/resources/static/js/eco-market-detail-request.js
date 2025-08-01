@@ -6,6 +6,8 @@
     @history
      - 250731 | sehui | 에코마켓 상품 상세 페이지 요청 기능 추가
      - 250731 | sehui | 헤더/푸터 충돌 방지 및 이미지 처리 개선
+     - 250801 | sehui | 구매하기 버튼 클릭 시 폼 전송 기능 추가 - 주석 처리
+
  */
 
 document.addEventListener("DOMContentLoaded", function (){
@@ -66,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function (){
             // 에러 시 기본 정보라도 표시
             setDefaultProductInfo();
         });
+
 });
 
 /**
@@ -420,16 +423,60 @@ function setDefaultProductInfo() {
 /**
  * 알림 표시 함수 (다른 JS 파일의 함수와 연동)
  */
-function showNotification(message, type = 'info') {
 
-    //    알람을 띄워 달라고 요청하기
-    if (window.showNotification && typeof window.showNotification === 'function') {
-        window.showNotification(message, type);
-    } else {
-        console.log(`🚨 경고: window.showNotification 함수를 찾을 수 없습니다. 알림: [${type.toUpperCase()}] ${message}`);
-    }
-    return;
-}
+// function showNotification(message, type = 'info') {
+//     // 다른 JS 파일의 showNotification 함수가 있으면 사용
+//     if (window.showNotification && typeof window.showNotification === 'function') {
+//         window.showNotification(message, type);
+//         return;
+//     }
+//
+//     // 간단한 알림 표시
+//     console.log(`${type.toUpperCase()}: ${message}`);
+//
+//     // 브라우저 알림 API 사용
+//     if ('Notification' in window) {
+//         if (Notification.permission === 'granted') {
+//             new Notification('에코마켓', { body: message });
+//         }
+//     } else {
+//         // 기본 alert 사용
+//         alert(message);
+//     }
+// }
+
+/*
+ * 버튼 클릭 이벤트 핸들러
+ */
+// function handleBuyButtonClick(e) {
+//     e.preventDefault();
+//
+//     // 입력값 확인용
+//     const orderNumber = document.getElementById("orderNumber").value;
+//     const itemId = document.getElementById("itemId").value;
+//
+//     console.log("💡 주문 수량:", orderNumber);
+//     console.log("💡 상품 ID:", itemId);
+//
+//     const orderForm = document.getElementById('form-body');
+//
+//     // 폼 유효성 검사 (eco-market-detail.js의 함수 사용)
+//     if(!validateForm()){
+//         alert("입력값을 다시 확인해주세요.");
+//         return;
+//     }
+//
+//     //서버 전송 전 숨겨진 상품 id 확인
+//     if(!itemId) {
+//         alert("상품 정보가 올바르지 않습니다.");
+//         return;
+//     }
+//
+//     //폼 서버 전송
+//     orderForm.method = "POST";
+//     orderForm.action = "/eco/order/prepare";
+//     orderForm.submit();
+// }
 
 // 전역 함수로 등록 (다른 스크립트에서 사용 가능)
 window.updateProductBasicInfo = updateProductBasicInfo;

@@ -3,6 +3,10 @@
  * 상품 상세 페이지 JavaScript (메인 기능)
  * 이미지 갤러리, 장바구니 기능, 모달 관리 등
  * 외부 레이아웃과의 충돌 방지를 위해 선택자 수정
+ * @history
+ *  - 250801 | sehui | 주문 수량 유효성 검사 JS 코드 추가
+ *  - 250801 | sehui | 구매하기 purchaseProduct() 함수 수정
+ *  - 250801 | sehui | 에코마켓과 구매하기 버튼 제거
  * ==========================================================================
  */
 
@@ -36,13 +40,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 장바구니 데이터 로드
     loadCartFromStorage();
-    
-    // 이벤트 리스너 설정
-    setupEventListeners();
-    
+
     // 로그인 상태 확인
     checkLoginStatus();
-    
+
+    // 이벤트 리스너 설정
+    setupEventListeners();
+
     console.log('✅ 상품 상세 페이지 메인 기능 로딩 완료!');
 });
 
@@ -238,6 +242,117 @@ function handleKeyboardNavigation(e) {
     }
 }
 
+// =========================
+// 폼 유효성 검사 함수
+// =========================
+
+// 실시간 유효성 검사 설정
+function setupRealtimeValidation() {
+    const inputs = document.querySelectorAll('.form-input, .form-select');
+
+    inputs.forEach(function(input) {
+        // 포커스를 잃었을 때
+        input.addEventListener('blur', function() {
+            validateField(input);
+        });
+
+        // 내용이 변경될 때
+        input.addEventListener('input', function() {
+            if (input.classList.contains('error') && input.value.trim()) {
+                clearFieldError(input);
+                input.classList.add('success');
+            }
+        });
+    });
+}
+
+// 개별 필드 유효성 검사
+function validateField(field) {
+    const value = field.value.trim();
+    const isRequired = field.hasAttribute('required');
+
+    if (isRequired && !value) {
+        showFieldError(field, '필수 입력 항목입니다.');
+        return false;
+    } else if (value) {
+        clearFieldError(field);
+        field.classList.add('success');
+        return true;
+    }
+
+    return true;
+}
+
+// 필드 에러 표시
+function showFieldError(field, message) {
+    field.classList.add('error');
+    field.classList.remove('success');
+
+    // 기존 에러 메시지 제거
+    const existingError = field.parentNode.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+
+    // 새 에러 메시지 생성
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    field.parentNode.appendChild(errorDiv);
+}
+
+// 필드 에러 제거
+function clearFieldError(field) {
+    field.classList.remove('error');
+
+    const errorMessage = field.parentNode.querySelector('.error-message');
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+}
+
+//주문 수량 검증 (재고 수량 초과 여부)
+function validateOrderQuantity() {
+    const orderInput = document.getElementById('orderNumber');
+    const stockText = document.getElementById('stockNumber').textContent;
+    const stock = parseInt(stockText);
+    const value = parseInt(orderInput.value);
+
+    if(isNaN(value) || value < 1) {
+        showFieldError(orderInput, "1개 이상 입력해주세요.");
+        return false;
+    }
+
+    if(value > stock) {
+        showFieldError(orderInput, "재고 수량을 초과할 수 없습니다.");
+        return false;
+    }
+
+    clearFieldError(orderInput);
+    orderInput.classList.add('success');
+    return true;
+}
+
+// 전체 폼 유효성 검사
+function validateForm() {
+    let isValid = true;
+    const requiredFields = ['orderNumber'];
+
+    requiredFields.forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field && !validateField(field)) {
+            isValid = false;
+        }
+    });
+
+    //주문 수량 유효성 체크
+    if(!validateOrderQuantity()){
+        isValid = false;
+    }
+
+    return isValid;
+}
+
 /* ==========================================================================
    장바구니 기능
    ========================================================================== */
@@ -275,10 +390,10 @@ async function addToCart() {
         }
         
         // 상품 정보 확인
-        const itemId = document.getElementById('itemId')?.value;
-        const productTitle = document.getElementById('productTitle')?.textContent;
-        const productPrice = document.getElementById('currentPrice')?.textContent;
-        const stockNumber = document.getElementById('stockNumber')?.textContent;
+        const itemId = document.getElementById('itemId').value;
+        const productTitle = document.getElementById('productTitle').textContent;
+        const stockNumber = document.getElementById('stockNumber').textContent;
+        const count = document.getElementById('orderNumber').value;
         
         if (!itemId || !productTitle) {
             showNotification('상품 정보를 불러오는 중입니다...', 'warning');
@@ -289,6 +404,11 @@ async function addToCart() {
         const stock = parseInt(stockNumber?.replace(/[^0-9]/g, '') || '0');
         if (stock <= 0) {
             showNotification('재고가 부족합니다.', 'error');
+            return;
+        }
+
+        if(!validateForm()){
+            showNotification("주문 수량을 다시 확인해주세요.");
             return;
         }
         
@@ -300,14 +420,26 @@ async function addToCart() {
         }
         
         // 장바구니에 추가
-        const cartItem = {
-            id: itemId,
-            title: productTitle,
-            price: productPrice,
-            addedAt: new Date().toISOString()
-        };
+        const response = await fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                itemId: itemId,
+                count: count
+            })
+        });
+
+        if(response.ok) {
+            const result = await response.text();
+            showNotification(`🛒 장바구니에 담았습니다!\n"${productTitle}"`, 'cart');
+            console.log('🛒 장바구니 추가 : ', result);
+        } else {
+            const errText = await response.text();
+            throw new Error(errText || '서버 오류');
+        }
         
-        cartItems.push(cartItem);
         saveCartToStorage();
         
         // 버튼 애니메이션
@@ -317,27 +449,34 @@ async function addToCart() {
             setTimeout(() => cartBtn.classList.remove('animate'), 600);
         }
         
-        showNotification(`🛒 장바구니에 담았습니다!\n"${productTitle}"`, 'cart');
-        console.log('🛒 장바구니 추가:', cartItem);
-        
     } catch (error) {
         console.error('❌ 장바구니 추가 실패:', error);
         showNotification('장바구니 추가 중 오류가 발생했습니다.', 'error');
     }
 }
 
-async function purchaseProduct() {
+/* ==========================================================================
+   구매하기 기능
+   ========================================================================== */
+
+async function purchaseProduct(e) {
+
+    e.preventDefault();
+
+    console.log("구매하기 버튼 클릭 이벤트 동작...");
+
     try {
         // 로그인 확인
         if (!isLoggedIn) {
             showNotification('로그인 후 이용해주세요.', 'warning');
             return;
         }
-        
-        const itemId = document.getElementById('itemId')?.value;
-        const productTitle = document.getElementById('productTitle')?.textContent;
-        const productPrice = document.getElementById('currentPrice')?.textContent;
-        const stockNumber = document.getElementById('stockNumber')?.textContent;
+
+        const orderForm = document.getElementById('form-body');
+        const itemId = document.getElementById('itemId').value;
+        const productTitle = document.getElementById('productTitle').textContent;
+        const productPrice = document.getElementById('currentPrice').textContent;
+        const stockNumber = document.getElementById('stockNumber').textContent;
         
         if (!itemId || !productTitle) {
             showNotification('상품 정보를 불러오는 중입니다...', 'warning');
@@ -350,17 +489,28 @@ async function purchaseProduct() {
             showNotification('재고가 부족합니다.', 'error');
             return;
         }
+
+        if(!validateForm()){
+            showNotification("주문 수량을 다시 확인해주세요.");
+            return;
+        }
         
         const confirmPurchase = confirm(`${productTitle}\n가격: ${productPrice}\n\n구매하시겠습니까?`);
-        
+
         if (confirmPurchase) {
             showNotification('구매 절차를 진행합니다...', 'info');
             console.log('💰 구매 진행:', productTitle);
             
-            // TODO: 실제 결제 페이지로 이동 또는 API 호출
+            //실제 결제 페이지로 이동 또는 API 호출
             setTimeout(() => {
+                orderForm.method = "POST";
+                orderForm.action = "/order/prepare";
+                orderForm.submit();
+
                 showNotification('구매가 완료되었습니다!', 'success');
             }, 2000);
+        }else{
+            return;
         }
         
     } catch (error) {
@@ -376,7 +526,7 @@ async function purchaseProduct() {
 function checkLoginStatus() {
     // 서버사이드에서 전달된 로그인 정보 확인
     const actionButtons = document.getElementById('actionButtons');
-    const isLoggedInFromServer = actionButtons?.getAttribute('data-logged-in') === 'true';
+    const isLoggedInFromServer = actionButtons.getAttribute('data-logged-in') === 'true';
     
     if (isLoggedInFromServer) {
         isLoggedIn = true;
@@ -392,11 +542,10 @@ function checkLoginStatus() {
 function updateActionButtons() {
     const cartBtn = document.getElementById('cartBtn');
     const buyBtn = document.getElementById('buyBtn');
-    const ecoBuyBtn = document.getElementById('ecoBuyBtn');
     
     if (!isLoggedIn) {
         // 비로그인 시 버튼 클릭 시 로그인 페이지로 이동
-        [cartBtn, buyBtn, ecoBuyBtn].forEach(btn => {
+        [cartBtn, buyBtn].forEach(btn => {
             if (btn) {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -419,20 +568,14 @@ function setupEventListeners() {
     
     // 장바구니 버튼
     const cartBtn = document.getElementById('cartBtn');
-    if (cartBtn) {
+    if (cartBtn && isLoggedIn) {
         cartBtn.addEventListener('click', addToCart);
     }
     
     // 구매하기 버튼
     const buyBtn = document.getElementById('buyBtn');
-    if (buyBtn) {
+    if (buyBtn && isLoggedIn) {
         buyBtn.addEventListener('click', purchaseProduct);
-    }
-    
-    // 에코마켓과 구매하기 버튼
-    const ecoBuyBtn = document.getElementById('ecoBuyBtn');
-    if (ecoBuyBtn) {
-        ecoBuyBtn.addEventListener('click', purchaseProduct);
     }
     
     // 공유 버튼들

@@ -50,6 +50,6 @@ public class ItemViewController {
 
         model.addAttribute("itemId", itemId);
 
-        return "eco/eco-market-detail";
+        return "eco/eco-market-edit";
     }
 }

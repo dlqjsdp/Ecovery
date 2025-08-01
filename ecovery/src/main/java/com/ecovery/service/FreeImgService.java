@@ -21,7 +21,7 @@ import java.util.List;
 public interface FreeImgService {
 
     //상품 이미지 등록
-    public void saveFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
+   public void saveFreeImg( FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
 
     //상품 이미지 수정
     public boolean updateFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
@@ -37,6 +37,9 @@ public interface FreeImgService {
 
     // 이미지 전체 조회
     List<FreeImgVO> getAll(Long freeId);
-}
+
+    // 추가된 메서드: 특정 게시글(freeId)에 속한 모든 이미지 삭제
+    public void deleteAllByFreeId(Long freeId) throws Exception;
+ }
 
 

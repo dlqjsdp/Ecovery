@@ -173,12 +173,12 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
             </div>
         </div>
 
-
     <th:block layout:fragment="script">
         <!-- 추가 JS (필요시만) -->
         <script th:src="@{/js/notice-script.js}"></script>
         <script th:src="@{/js/notice-list.js}"></script> <!-- 목록 전용 -->
     </th:block>
+
 </body>
 </html>
 

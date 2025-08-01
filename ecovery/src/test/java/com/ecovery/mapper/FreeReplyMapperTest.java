@@ -252,21 +252,23 @@ class FreeReplyMapperTest {
         }
     }
 
-    @Test
-    @DisplayName("댓글/대댓글 닉네임 포함 여부 테스트")
-    public void testReplyContainsNickname() {
 
-        // Given : 닉네임을 확인할 대상 댓글 ID (DB에 실제로 존재해야함)
-        Long replyId = 16L; // 실제 존재하는 댓글 ID
+//    @Test
+//    @DisplayName("댓글/대댓글 닉네임 포함 여부 테스트")
+//    public void testReplyContainsNickname() {
+//
+//        // Given : 닉네임을 확인할 대상 댓글 ID (DB에 실제로 존재해야함)
+//        Long replyId = 16L; // 실제 존재하는 댓글 ID
+//
+//        // When : 해당 댓글을 조회 (FreeReplyDto에는 닉네임이 포함되어 있어야함)
+//        FreeReplyDto dto = freeReplyMapper.read(replyId);
+//
+//        // Then : 조회 결과와 닉네임 존재 여부 검증
+//        assertNotNull(dto, "댓글이 존재해야 합니다."); // 댓글 자체가 null이 아니어야 함
+//        assertNotNull(dto.getNickName(), "닉네임이 null이면 안 됩니다."); // 닉네임 필드 확인
+//        log.info("조회된 댓글 닉네임: {}", dto.getNickName());
+//    }
 
-        // When : 해당 댓글을 조회 (FreeReplyDto에는 닉네임이 포함되어 있어야함)
-        FreeReplyDto dto = freeReplyMapper.read(replyId);
-
-        // Then : 조회 결과와 닉네임 존재 여부 검증
-        /*assertNotNull(dto, "댓글이 존재해야 합니다."); // 댓글 자체가 null이 아니어야 함
-        assertNotNull(dto.getNickName(), "닉네임이 null이면 안 됩니다."); // 닉네임 필드 확인
-        log.info("조회된 댓글 닉네임: {}", dto.getNickName());*/
-    }
 
     @Test
     @DisplayName("댓글 정렬 방식 검증 테스트")

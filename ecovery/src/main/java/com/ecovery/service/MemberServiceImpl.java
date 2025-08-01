@@ -71,7 +71,7 @@ public class MemberServiceImpl implements MemberService {
     public boolean updateMemberByAdmin(MemberVO memberVO) {
         log.info("updateMemberByAdmin.......");
 
-        boolean result = memberMapper.updateMember(memberVO) == 1;
+        boolean result = memberMapper.updateMemberByAdmin(memberVO) == 1;
         log.info("updateMember result: {}", result);
 
         return result;

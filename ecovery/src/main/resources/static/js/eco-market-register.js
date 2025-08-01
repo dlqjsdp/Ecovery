@@ -486,7 +486,7 @@ document.addEventListener('keydown', function(event) {
 });
 
 // =========================
-// 페이지 이탈 경고
+// 페이지 이탈 경고 -> 중복되어 주석 처리
 // =========================
 
 // 페이지를 벗어나려 할 때 경고 메시지
@@ -500,18 +500,13 @@ document.addEventListener('keydown', function(event) {
 // });
 
 // =========================
-// 페이지 초기화 완료 후 실행
+// 페이지 초기화 완료 후 실행 - 임시 저장 기능 삭제
 // =========================
 
 // DOM이 완전히 로드된 후 추가 설정
 document.addEventListener('DOMContentLoaded', function() {
     // 자동 저장 기능 설정
     setupAutoSave();
-
-    // 임시 저장된 데이터 복원
-    // restoreDraft();
-    
-    // 폼 제출 성공시 임시 저장 데이터 삭제는 handleFormSubmit에서 처리
 });
 
 // =========================

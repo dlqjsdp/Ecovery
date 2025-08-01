@@ -55,6 +55,7 @@ public class CartController {
     // 장바구니 상품 담기
     @PostMapping("/add")
     public String addCartItem(@RequestParam Long itemId, @RequestParam int count) {
+
         String nickname = getLoginNickname();
 
         return cartItemService.addCart(nickname, itemId, count);
