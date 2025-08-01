@@ -1,10 +1,7 @@
 package com.ecovery.controller;
 
 import com.ecovery.constant.Role;
-import com.ecovery.dto.Criteria;
-import com.ecovery.dto.ItemFormDto;
-import com.ecovery.dto.ItemListDto;
-import com.ecovery.dto.PageDto;
+import com.ecovery.dto.*;
 import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.CategoryService;
 import com.ecovery.service.ItemService;
@@ -210,6 +207,8 @@ public class ItemApiController {
             //상품 단건 조회
             ItemFormDto itemFormDto = itemService.getItemDtl(itemId);
             response.put("item", itemFormDto);
+            List<CategoryDto> categories = categoryService.findAllCategories();  // 전체 카테고리 목록 불러오기
+            response.put("categories", categories);
 
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }catch (Exception e){
