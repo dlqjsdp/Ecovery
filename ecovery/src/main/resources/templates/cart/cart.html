@@ -168,9 +168,15 @@
 <!--                        </div>-->
 
                         <div class="order-actions">
-                            <button class="btn-order" th:onclick="|location.href='@{/order/prepare}'|">
-                                🛒 주문하기 (0원)
-                            </button>
+                            <form id="orderForm" action="/order/prepare" method="post">
+                                <input type="hidden" name="itemId" value="상품ID1">
+                                <input type="hidden" name="count" value="수량1">
+                                <input type="hidden" name="itemId" value="상품ID2">
+                                <input type="hidden" name="count" value="수량2">
+                                <button type="submit" class="btn-order">
+                                    🛒 주문하기 (<span id="pricetotal">0원</span>)
+                                </button>
+                            </form>
                             <button class="btn-wishlist" onclick="moveAllToWishlist()">
                                 💖 전체 찜하기
                             </button>
@@ -259,5 +265,24 @@
 <div th:replace="fragments/footer :: footer"></div>
 
 <script th:src="@{/js/cart-script.js}"></script>
+<script>
+    document.getElementById('orderForm').addEventListener('submit', function(event) {
+        const selectedItems = [];
+
+        selectedItems.forEach(item => {
+            const itemIdInput = document.createElement('input');
+            itemIdInput.type = 'hidden';
+            itemIdInput.name = 'orderItems[].itemId';
+            itemIdInput.value = item.itemId;
+            this.appendChild(itemIdInput);
+
+            const countInput = document.createElement('input');
+            countInput.type = 'hidden';
+            countInput.name = 'orderItems[].count';
+            countInput.value = item.count;
+            this.appendChild(countInput);
+        });
+    });
+</script>
 </body>
 </html>

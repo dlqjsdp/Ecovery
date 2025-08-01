@@ -26,7 +26,7 @@
             cart_item ci
                 JOIN
             item i ON ci.item_id = i.item_id
-            left join item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 1
+            left join item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
         WHERE
             ci.cart_id = #{cartId}
         order by ci.created_at desc

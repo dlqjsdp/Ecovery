@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @history
  *  - 250728 | sehui | View 반환을 위해 컨트롤러 생성
  *  - 250801 | sehui | 주문 페이지 첫 화면 요청 GET -> POST로 변경
+ *  - 250801 | sehui | 반환하는 View 변경
+ *  - 250801 | sehui | 주문 페이지 첫 화면에서 model로 전달하는 값 추가
  */
 
 
@@ -27,9 +29,11 @@ public class OrderViewController {
 
     //주문 페이지 첫 화면
     @PostMapping("/prepare")
-    public String preparePage(OrderItemRequestDto orderItemRequest){
+    public String preparePage(OrderItemRequestDto orderItemRequest, Model model) {
 
-        return "orderhistory";
+        model.addAttribute("orderItemRequests", orderItemRequest);
+
+        return "order/order-payment";
     }
 
     //결제 실패 시 다시 주문 페이지
@@ -38,7 +42,7 @@ public class OrderViewController {
 
         model.addAttribute("orderId", orderId);
 
-        return "orderhistory";
+        return "order/order-payment";
     }
 
     //주문 완료 페이지

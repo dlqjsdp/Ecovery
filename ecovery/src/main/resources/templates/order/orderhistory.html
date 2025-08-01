@@ -117,10 +117,7 @@
 
                         <!-- 주문번호 -->
                         <td class="order-number">
-                            <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderUuid})}"
-                               class="order-link">
-                                <span th:text="${order.orderUuid}">ORD-2025010001</span>
-                            </a>
+                            <span th:text="${order.orderUuid}">ORD-2025010001</span>
                         </td>
 
                         <!-- 주문일자 -->
@@ -132,7 +129,6 @@
                         <!-- 주문상품 -->
                         <td class="order-items">
                             <div class="items-info">
-                                <!-- 첫 번째 상품 이미지와 이름 -->
                                 <div class="first-item" th:if="${order.orderItems != null and !order.orderItems.isEmpty()}">
                                     <img th:src="@{'/api/images/' + ${order.orderItems[0].itemImgId}}"
                                          th:alt="${order.orderItems[0].itemName}"
@@ -158,24 +154,24 @@
 
                         <!-- 주문상태 -->
                         <td class="order-status">
-                                    <span class="status-badge"
-                                          th:classappend="${order.orderStatus.name() == 'CANCELLED' ? 'status-cancelled' :
-                                                         (order.orderStatus.name() == 'DELIVERED' ? 'status-delivered' :
-                                                         (order.orderStatus.name() == 'SHIPPED' ? 'status-shipping' : 'status-processing'))}"
-                                          th:text="${order.orderStatus.name() == 'PAID' ? '결제완료' :
-                                                   (order.orderStatus.name() == 'PREPARING' ? '상품준비중' :
-                                                   (order.orderStatus.name() == 'SHIPPED' ? '배송중' :
-                                                   (order.orderStatus.name() == 'DELIVERED' ? '배송완료' :
-                                                   (order.orderStatus.name() == 'CANCELLED' ? '주문취소' : '상태미확인'))))}">
-                                        배송완료
-                                    </span>
+                <span class="status-badge"
+                      th:classappend="${order.orderStatus.name() == 'CANCELLED' ? 'status-cancelled' :
+                                     (order.orderStatus.name() == 'DELIVERED' ? 'status-delivered' :
+                                     (order.orderStatus.name() == 'SHIPPED' ? 'status-shipping' : 'status-processing'))}"
+                      th:text="${order.orderStatus.name() == 'PAID' ? '결제완료' :
+                               (order.orderStatus.name() == 'PREPARING' ? '상품준비중' :
+                               (order.orderStatus.name() == 'SHIPPED' ? '배송중' :
+                               (order.orderStatus.name() == 'DELIVERED' ? '배송완료' :
+                               (order.orderStatus.name() == 'CANCELLED' ? '주문취소' : '상태미확인'))))}">
+                    배송완료
+                </span>
                         </td>
 
                         <!-- 주문관리 -->
                         <td class="order-actions">
                             <div class="action-buttons">
                                 <!-- 주문상세 보기 버튼 -->
-                                <a th:href="@{/orders/{orderId}(orderId=${order.orderId})}" class="btn-action btn-detail">상세보기</a>
+                                <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderId})}" class="btn-action btn-detail">상세보기</a>
 
                                 <!-- 상품후기 작성 (배송완료시에만) -->
                                 <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
@@ -252,8 +248,7 @@
 
                     <!-- 카드 푸터 -->
                     <div class="card-footer">
-                        <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderUuid})}"
-                           class="btn-detail">상세보기</a>
+                        <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderId})}" class="btn-detail">상세보기</a>
 
                         <div class="quick-actions">
                             <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
