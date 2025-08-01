@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
  * @history
       - 250726 | yukyeong | 이미지 등록/조회/삭제 기능 구현, 파일 저장 및 삭제 로직 추가
       - 250731 | yukyeong | 브라우저 접근용 URL 경로 수정: /images → /ecovery 로 변경
+      - 250801 | yukyeong | 이미지 파일 없이 URL만 등록하는 register(EnvImgDto) 구현
+                            이미지 URL 기반 삭제 기능 deleteByImgUrl(String imgUrl) 구현
  */
 
 @Service
@@ -92,6 +94,19 @@ public class EnvImgServiceImpl implements EnvImgService{
         log.info("이미지 등록 완료: {}", vo);
     }
 
+    // 파일 없이 이미지 URL만 등록
+    @Override
+    public void register(EnvImgDto dto) {
+        if (dto.getImgUrl() == null || dto.getImgUrl().isBlank()) {
+            log.warn("등록하려는 이미지 URL이 비어있음: {}", dto);
+            return;
+        }
+
+        EnvImgVO vo = dtoToVo(dto);
+        envImgMapper.insert(vo);
+        log.info("본문 이미지 등록 완료: {}", vo);
+    }
+
     // 게시글 ID로 이미지 전체 조회 (VO 목록을 DTO로 변환하여 반환)
     @Override
     public List<EnvImgDto> getListByEnvId(Long envId) {
@@ -129,6 +144,7 @@ public class EnvImgServiceImpl implements EnvImgService{
         return result == 1; // 성공 여부 true/false 반환
     }
 
+
     // 게시글 ID로 이미지 전체 삭제
     @Override
     @Transactional
@@ -151,6 +167,47 @@ public class EnvImgServiceImpl implements EnvImgService{
         int deleted = envImgMapper.deleteByEnvId(envId); // 일괄 삭제 수행
         log.info("게시글 전체 이미지 삭제 완료. 삭제 수: {}", deleted);
         return deleted; // 삭제된 행 수 반환
+    }
+
+    // 이미지 URL 삭제
+    @Override
+    @Transactional
+    public int deleteByImgUrl(String imgUrl) {
+        if (imgUrl == null || imgUrl.isBlank()) {
+            log.warn("imgUrl이 비어 있음: '{}'", imgUrl);
+            return 0;
+        }
+
+        // ✅ 여기 추가하세요!!
+        imgUrl = imgUrl.trim(); // 앞뒤 공백 제거
+
+        log.info("deleteByImgUrl() 호출됨 - imgUrl: '{}'", imgUrl);
+
+        // 파일 삭제
+        try {
+            String fileName = extractFileName(imgUrl);
+            String fullPath = (uploadPath.endsWith("/") ? uploadPath : uploadPath + "/") + envImgFolder + "/" + fileName;
+            fileService.deleteFile(fullPath);
+            log.info("파일 삭제 완료: {}", fullPath);
+        } catch (Exception e) {
+            log.error("파일 삭제 중 오류 발생", e);
+        }
+
+        // DB 삭제
+        int deleted = envImgMapper.deleteByImgUrl(imgUrl);
+        if (deleted == 0) {
+            log.warn("DB 삭제 실패 - 해당 imgUrl 없음: {}", imgUrl);
+        } else {
+            log.info("DB 삭제 성공: {}", imgUrl);
+        }
+
+        return deleted;
+    }
+
+
+    private String extractFileName(String imgUrl) {
+        if (imgUrl == null || !imgUrl.contains("/")) return null;
+        return imgUrl.substring(imgUrl.lastIndexOf("/") + 1);
     }
 
 }

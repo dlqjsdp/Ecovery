@@ -715,59 +715,73 @@
 /* =========================================
    미리보기 모달
    ========================================= */
-
-/* 미리보기 모달 */
-.preview-modal {
-    max-width: 900px;
-    max-height: 90vh;
-    overflow: hidden;
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
 }
 
-.preview-modal .modal-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 30px;
-}
-
-/* 미리보기 컨테이너 */
-.preview-container {
+.modal-content {
     background: var(--white);
-    border-radius: 8px;
-    padding: 30px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    border-radius: var(--border-radius);
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-.preview-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary-green);
-    margin-bottom: 15px;
+.preview-modal {
+    width: 90vw;
+    max-width: 900px;
 }
 
-.preview-meta {
+.modal-header {
     display: flex;
-    gap: 20px;
-    font-size: 14px;
-    color: var(--medium-gray);
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
     border-bottom: 2px solid var(--light-gray);
 }
 
-.preview-content {
-    line-height: 1.8;
+.modal-header h3 {
+    color: var(--primary-green);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--medium-gray);
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
     color: var(--dark-gray);
 }
 
-.preview-tags {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid var(--light-gray);
+.modal-body {
+    padding: 30px;
+    line-height: 1.8;
+}
+
+.modal-footer {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: flex-end;
+    padding: 20px 30px;
+    border-top: 2px solid var(--light-gray);
 }
 
 /* =========================================

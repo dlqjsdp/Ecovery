@@ -40,4 +40,7 @@ public interface EnvService {
     public int getTotal(Criteria cri); // 게시글 총 개수 조회 (페이징 처리에 사용)
 
     public void increaseViewCount(Long envId); // 게시글 조회수 증가
+
+    // 이미지 URL 삭제
+    public int deleteContentImg(String imgUrl);
 }

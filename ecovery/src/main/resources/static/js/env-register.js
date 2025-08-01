@@ -8,16 +8,19 @@
  * @since : 250730
  * @history
  *   - 250730 | yukyeong | 게시글 작성 페이지 전용 스크립트 최초 작성
-                            - 카테고리 동적 로딩(loadCategories)
-                            - 제목/내용 글자 수 카운팅(setupCharacterCounters)
-                            - 유효성 검사 및 등록 처리(submitPost)
-                            - 이미지 첨부 시 <img> 태그 본문 삽입 처리
-                            - 임시 이미지 업로드 API 연동(/api/env/upload-temp)
-                            - 미리보기 모달 기능(previewPost)
- *   - 250731 | yukyeong | Toast UI Editor 적용(editor.getHTML, getMarkdown 사용)
+                          - 카테고리 동적 로딩(loadCategories)
+                          - 제목/내용 글자 수 카운팅(setupCharacterCounters)
+                          - 유효성 검사 및 등록 처리(submitPost)
+                          - 이미지 첨부 시 <img> 태그 본문 삽입 처리
+                          - 임시 이미지 업로드 API 연동(/api/env/upload-temp)
+                          - 미리보기 모달 기능(previewPost)
+*   - 250731 | yukyeong | Toast UI Editor 적용(editor.getHTML, getMarkdown 사용)
                           - 첨부파일 삽입 기능 제거 및 주석 처리
                           - 등록 처리 시 FormData에 JSON DTO만 전송
                           - 수정일 추가하고, 수정을 하면 작성일이 수정일로 변경되게 설정
+ *   - 250801 | yukyeong | 본문 이미지 src 추출 기능 추가(getImageSrcListFromEditor)
+ *                        - submitPost() 수정: contentImgUrls 필드로 본문 이미지 리스트 포함 전송
+ *                        - 이미지 등록 시 DB 저장 누락되는 오류 수정 반영
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -157,6 +160,15 @@ function closePreview() {
 //     });
 // }
 
+// HTML에서 <img> 태그의 src 속성만 뽑아 리스트로 반환
+function getImageSrcListFromEditor() {
+    const editorContent = editor.getHTML(); // 에디터 HTML 가져오기
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(editorContent, "text/html");
+    const imgTags = doc.querySelectorAll("img"); // 모든 <img> 태그 선택
+    return Array.from(imgTags).map(img => img.getAttribute("src")); // src만 뽑기
+}
+
 // 게시글 등록 처리
 function submitPost() {
     if (!validateForm()) return;
@@ -164,13 +176,16 @@ function submitPost() {
     const title = document.getElementById("postTitle").value.trim();
     const content = editor.getHTML();
     const categoryId = document.getElementById("categorySelect").value;
+    const contentImgUrls = getImageSrcListFromEditor(); // ✅ 본문 이미지 추출
 
     window.onbeforeunload = null;
 
     const formData = new FormData();
+
     formData.append("envFormDto", new Blob([
         JSON.stringify({
-            envDto: { title, content, category: categoryId }
+            envDto: { title, content, category: categoryId },
+            contentImgUrls: contentImgUrls // ✅ 본문 이미지 리스트 함께 보냄
         })
     ], { type: "application/json" }));
 

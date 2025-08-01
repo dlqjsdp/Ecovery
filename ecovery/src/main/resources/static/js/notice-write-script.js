@@ -46,12 +46,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 각 컴포넌트 초기화
     // initializeEditor();
-    initializeFormValidation();
-    initializeFileUpload();
-    initializeTagSystem();
-    initializeEventListeners();
-    initializeAutoSave();
-    initializeMobileMenu();
+    // initializeFormValidation();
+    // initializeFileUpload();
+    // initializeTagSystem();
+    // initializeEventListeners();
+    // initializeAutoSave();
+    // initializeMobileMenu();
 
     // 기존 데이터가 있으면 복원
     if (window.notice) {

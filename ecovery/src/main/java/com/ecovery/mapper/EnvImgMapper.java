@@ -15,6 +15,7 @@ import java.util.List;
  * @since : 250726
  * @history
  *     - 250726 | yukyeong | 이미지 등록, 조회, 삭제 메서드 정의
+       - 250801 | yukyeong | 이미지 URL 기반 삭제 메서드 deleteByImgUrl(String imgUrl) 추가
  */
 
 @Mapper
@@ -34,5 +35,8 @@ public interface EnvImgMapper {
 
     // 게시글의 모든 이미지 삭제 (수정 시 사용)
     public int deleteByEnvId(Long envId);
+
+    // 이미지 URL 삭제
+    public int deleteByImgUrl(String imgUrl);
 
 }

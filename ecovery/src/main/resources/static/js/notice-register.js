@@ -7,7 +7,14 @@
  * @fileName : notice-register.js
  * @since : 250801
  * @history
- *   - 250801 | yukyeong | 게시글 작성 페이지 전용 스크립트 최초 작성
+ *   - 250801 | yukyeong | 게시글 작성 페이지 전용 스크립트 최초 작성:
+ *                         - Toast UI Editor 설정 (이미지 업로드 제거, 툴바 제한)
+ *                         - 카테고리 목록 동적 렌더링(loadCategories)
+ *                         - 제목/내용 실시간 글자 수 카운터 기능 추가
+ *                         - 필수 항목 유효성 검사(validateForm)
+ *                         - 미리보기 모달 기능 구현(previewPost)
+ *                         - 발행 버튼 클릭 시 JSON 전송 처리(submitPost)
+ *                         - 초기화 버튼 클릭 시 폼/에디터 초기화 처리 포함
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -18,6 +25,25 @@ document.addEventListener("DOMContentLoaded", function () {
     loadCategories(); // 카테고리 옵션 추가
     setupCharacterCounters(); // 글자 수 표시
     setupFormSubmit(); // 유효성 검사 후 submit
+
+    // ✅ 미리보기 버튼 이벤트 바인딩
+    const previewBtn = document.getElementById("previewBtn");
+    if (previewBtn) {
+        previewBtn.addEventListener("click", previewPost);
+    }
+
+    // ✅ 초기화 버튼 이벤트 바인딩
+    const resetBtn = document.getElementById("resetBtn");
+    if (resetBtn) {
+        resetBtn.addEventListener("click", function () {
+            if (confirm("작성 중인 내용을 모두 초기화하시겠습니까?")) {
+                document.getElementById("writeForm").reset();        // 입력 필드 초기화
+                editor.setHTML('');                                  // 에디터 내용 초기화
+                document.getElementById("titleCounter").textContent = "0";
+                document.getElementById("contentCount").textContent = "0";
+            }
+        });
+    }
 });
 
 // 이미지 업로드 제거된 에디터 설정
@@ -74,7 +100,8 @@ function validateForm() {
     let isValid = true;
 
     const title = document.getElementById("title");
-    const contentText = editor.getMarkdown().trim();
+    const contentHtml = editor.getHTML();
+    const contentText = contentHtml.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
     const category = document.getElementById("category");
 
     document.getElementById("titleError").textContent = "";
@@ -147,7 +174,7 @@ function submitPost() {
     const noticeDto = {
         title,
         content,
-        category
+        category: categoryId
     };
 
     fetch("/api/notice/register", {

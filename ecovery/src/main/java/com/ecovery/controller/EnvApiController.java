@@ -55,6 +55,8 @@ import java.util.Map;
    - 250730 | yukyeong | 이미지 임시 업로드 API (POST /upload-temp) 구현 - Multipart 이미지 리스트 받아 UUID로 저장 후 파일명 반환
    - 250731 | yukyeong | Toast UI 본문 이미지 업로드용 /upload-temp API 추가
    - 250731 | yukyeong | 이미지 리스트를 EnvFormDto에 통합하여 단일 객체로 요청 받도록 구조 변경 (등록과 수정 부분에 추가)
+   - 250801 | yukyeong | 수정 API에서 본문 이미지 리스트(contentImgUrls) null 방지 처리 추가
+ *                        - 수정 시 에러 방지 위해 빈 리스트로 초기화
  */
 
 @RestController
@@ -235,6 +237,11 @@ public class EnvApiController {
                 envFormDto.setEnvImgFiles(new ArrayList<>());
             }
 
+            // 추가 : 본문 이미지 URL 목록도 null 방지
+            if (envFormDto.getContentImgUrls() == null) {
+                envFormDto.setContentImgUrls(new ArrayList<>());
+            }
+
             // 5. 서비스 계층에 단일 DTO 전달
             boolean success = envService.modify(envFormDto);
 
@@ -255,6 +262,25 @@ public class EnvApiController {
             log.error("게시글 수정 중 예외 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("서버 오류가 발생했습니다.");
+        }
+    }
+
+    // 본문 이미지 삭제 처리 API
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping("/delete-content-img")
+    public ResponseEntity<?> deleteContentImg(@RequestParam("imgUrl") String imgUrl) {
+        log.info("본문 이미지 삭제 요청: '{}'", imgUrl);
+
+        if (imgUrl == null || imgUrl.isBlank()) {
+            return ResponseEntity.badRequest().body("이미지 URL이 비어 있습니다.");
+        }
+
+        int deleted = envService.deleteContentImg(imgUrl); // 서비스에서 trim 및 삭제 수행
+
+        if (deleted > 0) {
+            return ResponseEntity.ok("삭제 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이미지가 존재하지 않습니다.");
         }
     }
 

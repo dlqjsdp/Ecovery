@@ -30,6 +30,9 @@ import java.util.stream.Collectors;
      - 250725 | yukyeong | 게시글 category 필드 DTO/VO 매핑 처리 추가
      - 250728 | yukyeong | 이미지 포함 게시글 등록/수정 기능 추가 (EnvFormDto, MultipartFile 활용), 이미지까지 함께 삭제되도록 추가
      - 250731 | yukyeong | 이미지 리스트를 별도 파라미터가 아닌 EnvFormDto 내부에서 처리하도록 수정
+     - 250801 | yukyeong | register()에 본문 이미지 URL 등록 처리 추가
+                           modify()에 본문 이미지 URL 등록 및 삭제 처리 추가
+                           deleteContentImg(String imgUrl) 메서드 추가 (본문 이미지 개별 삭제용)
  */
 
 @Service
@@ -95,6 +98,18 @@ public class EnvServiceImpl implements EnvService {
                 }
             }
         }
+
+        // 3. 본문 이미지 URL 등록 처리
+        List<String> contentImgUrls = envFormDto.getContentImgUrls(); // ★ FormDto에서 가져옴
+        if (contentImgUrls != null && !contentImgUrls.isEmpty()) {
+            for (String url : contentImgUrls) {
+                EnvImgDto contentImgDto = EnvImgDto.builder()
+                        .envId(env.getEnvId()) // 게시글 ID 설정
+                        .imgUrl(url)
+                        .build();
+                envImgService.register(contentImgDto); // 본문 이미지 등록 (파일 없이 URL만)
+            }
+        }
     }
 
     // 게시글 단건 조회
@@ -142,8 +157,35 @@ public class EnvServiceImpl implements EnvService {
             }
         }
 
+        // 4. 삭제할 본문 이미지 URL이 있다면 반복 삭제
+        List<String> deleteContentImgUrls = envFormDto.getDeleteContentImgUrls();
+        if (deleteContentImgUrls != null && !deleteContentImgUrls.isEmpty()) {
+            for (String url : deleteContentImgUrls) {
+                envImgService.deleteByImgUrl(url); // URL 기반 삭제
+            }
+        }
+
+        // 5. 본문에 새로 추가된 이미지 URL 등록 처리
+        List<String> contentImgUrls = envFormDto.getContentImgUrls();
+        if (contentImgUrls != null && !contentImgUrls.isEmpty()) {
+            for (String imgUrl : contentImgUrls) {
+                if (imgUrl != null && !imgUrl.isBlank()) {
+                    imgUrl = imgUrl.trim(); // 공백 제거
+
+                    EnvImgDto imgDto = EnvImgDto.builder()
+                            .envId(env.getEnvId())
+                            .imgUrl(imgUrl)
+                            .build();
+
+                    envImgService.register(imgDto); // DB 등록
+                }
+            }
+        }
+
         return true;
     }
+
+
 
     // 게시글 삭제
     // 전달받은 ID로 delete 쿼리 실행, 결과가 1이면 true 반환
@@ -188,5 +230,11 @@ public class EnvServiceImpl implements EnvService {
     public void increaseViewCount(Long envId){
 
         envMapper.updateViewCount(envId);
+    }
+
+    // 이미지 URL 삭제
+    @Override
+    public int deleteContentImg(String imgUrl) {
+        return envImgService.deleteByImgUrl(imgUrl); // 내부적으로 trim 및 삭제 수행됨
     }
 }
