@@ -26,6 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 - 250725 | yukyeong | OAuth2 소셜 로그인 설정 추가 (카카오 로그인 연동)
 - 250730 | sehui | 에코마켓 상품 등록 관리자 권한 추가
 - 250730 | sehui | 정적 리소스에 "/images/**" 누구나 접근 가능하게 변경
+- 250801 | sehui | 주문 페이지 로그인한 회원만 접근 가능으로 변경
  */
 @Configuration
 @EnableWebSecurity
@@ -57,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/eco/**").permitAll()    //에코마켓 게시판 누구나 접근 가능 (수정 필요)
                         .requestMatchers("/api/eco/new").hasRole("ADMIN")       //에코마켓 상품 등록 게시판 관리자만 접근 가능
                         .requestMatchers("/api/**").permitAll()     //AJAX 요청 모두 허용
-                        .requestMatchers("/order/**").permitAll()   //주문 Test용으로 모두 허용 (추후에 .authenticated()로 변경)
+                        .requestMatchers("/order/**").hasAnyRole("USER", "ADMIN")   //주문 페이지는 로그인한 회원만 접근 가능
                         .requestMatchers("/ecovery/**").permitAll()
                         .requestMatchers("/feedback/*", "/error", "/disposal/history/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/free/register").hasAnyRole("USER", "ADMIN") // 무료나눔 등록 - USER 또는 ADMIN만 가능
