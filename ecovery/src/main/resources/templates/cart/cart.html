@@ -168,7 +168,7 @@
 <!--                        </div>-->
 
                         <div class="order-actions">
-                            <button class="btn-order" onclick="proceedToOrder()">
+                            <button class="btn-order" th:onclick="|location.href='@{/order/prepare}'|">
                                 🛒 주문하기 (0원)
                             </button>
                             <button class="btn-wishlist" onclick="moveAllToWishlist()">

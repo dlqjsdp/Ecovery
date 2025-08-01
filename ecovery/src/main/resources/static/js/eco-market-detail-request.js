@@ -421,24 +421,14 @@ function setDefaultProductInfo() {
  * 알림 표시 함수 (다른 JS 파일의 함수와 연동)
  */
 function showNotification(message, type = 'info') {
-    // 다른 JS 파일의 showNotification 함수가 있으면 사용
+
+    //    알람을 띄워 달라고 요청하기
     if (window.showNotification && typeof window.showNotification === 'function') {
         window.showNotification(message, type);
-        return;
-    }
-    
-    // 간단한 알림 표시
-    console.log(`${type.toUpperCase()}: ${message}`);
-    
-    // 브라우저 알림 API 사용
-    if ('Notification' in window) {
-        if (Notification.permission === 'granted') {
-            new Notification('에코마켓', { body: message });
-        }
     } else {
-        // 기본 alert 사용
-        alert(message);
+        console.log(`🚨 경고: window.showNotification 함수를 찾을 수 없습니다. 알림: [${type.toUpperCase()}] ${message}`);
     }
+    return;
 }
 
 // 전역 함수로 등록 (다른 스크립트에서 사용 가능)

@@ -187,11 +187,14 @@ function removeItem(itemId) {
     fetch(`/cart/delete/${itemId}`, { method: 'DELETE' })
         .then(res => {
             if (!res.ok) throw new Error('삭제 실패');
+            return res.text(); // <- JSON이 아닐 수 있으니 text로 받음
+        })
+        .then(() => {
             const index = cartItems.findIndex(item => item.cartItemId === itemId);
             if (index !== -1) {
                 cartItems.splice(index, 1);
                 document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
-                updateSuielectedCount();
+                updateSelectedCount();
                 updateCartSummary();
                 showNotification('상품이 삭제되었습니다.', 'success');
             }

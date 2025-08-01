@@ -144,4 +144,51 @@
             updated_at = NOW()
         where order_id = #{orderId}
     </update>
+
+    <!-- 주문 단건 조회 -->
+    <select id="findOrderById" resultType="com.ecovery.domain.OrderVO">
+        SELECT * FROM orders
+        WHERE order_id = #{orderId}
+    </select>
+
+    <!-- 특정 주문의 상세 내역 조회 -->
+    <select id="findOrdersItems" parameterType="long" resultMap="orderHistoryMap">
+        SELECT
+            o.order_id,
+            o.order_status,
+            o.created_at,
+            o.updated_at,
+            o.name,
+            o.zipcode,
+            o.road_address,
+            o.detail_address,
+            o.phone_number,
+            o.order_uuid,
+            o.member_id,
+
+            p.payment_id,
+            p.pay_method,
+            p.pay_amount,
+            p.pay_status,
+            p.paid_at,
+
+            oi.order_item_id AS oi_order_item_id,
+            oi.item_id AS oi_item_id,
+            i.item_name AS i_item_name,
+            i.item_detail AS i_item_detail,
+            i.price AS i_price,
+            oi.count AS oi_count,
+            oi.order_price AS oi_order_price,
+            ii.item_img_id AS ii_item_img_id,
+            ii.img_name AS ii_img_name,
+            ii.img_url AS ii_img_url
+        FROM orders o
+                 LEFT JOIN order_item oi ON o.order_id = oi.order_id
+                 LEFT JOIN item i ON oi.item_id = i.item_id
+                 LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
+                 LEFT JOIN payment p ON o.order_id = p.order_id
+
+        where o.order_id = #{orderId}
+        order by oi.order_item_id asc
+    </select>
 </mapper>

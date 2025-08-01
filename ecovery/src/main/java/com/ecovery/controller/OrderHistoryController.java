@@ -58,7 +58,7 @@ public class OrderHistoryController {
         // 해당 주문이 현재 로그인한 회원의 주문이 맞는지 확인하는 로직
         if (!orderDetail.getMemberId().equals(memberId)) {
             // 다른 회원 주문의 경우 에러 페이지로 리다이렉트
-            return "redirect:/error/accessDenied";
+            return "redirect:/error";
         }
         model.addAttribute("orderDetail", orderDetail);
         return "order/order-detail";
