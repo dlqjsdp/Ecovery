@@ -252,3 +252,8 @@ function getNotificationColor(type) {
         default: return '#2d5a3d';
     }
 }
+
+// 쇼핑 페이지 이동
+function goToMarket() {
+    window.location.href = "/eco/list";
+}

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -45,8 +46,9 @@ public class OrderHistoryController {
     }
 
     // 주문 상세 보기
-    @GetMapping(value = "/{orderId}")
+    @GetMapping(value = "/{orderId}/detail")
     public String orderDetail(@PathVariable("orderId") Long orderId, Model model, HttpSession session) {
+        log.info("📌 주문 상세 조회 요청 들어옴: orderId = {}", orderId);
         Long memberId = (Long) session.getAttribute("memberId");
 
         if (memberId == null) {
@@ -56,11 +58,20 @@ public class OrderHistoryController {
         OrderHistoryDto orderDetail = orderHistoryService.getOrderDetail(orderId);
 
         // 해당 주문이 현재 로그인한 회원의 주문이 맞는지 확인하는 로직
-        if (!orderDetail.getMemberId().equals(memberId)) {
-            // 다른 회원 주문의 경우 에러 페이지로 리다이렉트
+        if (orderDetail == null) {
+            log.warn("❗ orderId={}에 대한 주문 정보를 찾을 수 없습니다.", orderId);
             return "redirect:/error";
         }
+
+        // 로그인한 회원의 주문이 맞는지 확인
+        if (!Objects.equals(orderDetail.getMemberId(), memberId)) {
+            log.warn("❗ 현재 로그인한 회원의 주문이 아닙니다. 요청 회원: {}, 주문 소유자: {}", memberId, orderDetail.getMemberId());
+            return "redirect:/error";
+        }
+
+        log.info("✅ 주문 상세 정보 조회 성공: {}", orderDetail);
         model.addAttribute("orderDetail", orderDetail);
+        model.addAttribute("order", orderDetail);
         return "order/order-detail";
     }
 }
