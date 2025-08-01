@@ -1,6 +1,7 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.CartItemVO;
+import com.ecovery.domain.CartVO;
 import com.ecovery.domain.ItemVO;
 import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.CartDetailDto;
@@ -28,7 +29,7 @@ import java.util.List;
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class CartItemItemServiceImpl implements CartItemService {
+public class CartItemServiceImpl implements CartItemService {
 
     private final CartMapper cartMapper;
     private final ItemMapper itemMapper;
@@ -43,8 +44,20 @@ public class CartItemItemServiceImpl implements CartItemService {
             return "회원 정보를 찾을 수 없습니다.";
 
         Long cartId = cartMapper.findCartIdByMemberId(memberVO.getMemberId());
-        if(cartId == null)
-            return "장바구니 정보가 없습니다.";
+
+        if(cartId == null){
+            log.info("회원 ID {}의 장바구니가 없어 새로 생성합니다.", memberVO.getMemberId());
+        CartVO newCart = new CartVO();
+
+        newCart.setMemberid(memberVO.getMemberId());
+        newCart.setCreatedAt((new Date()));
+
+        cartMapper.insertCart(newCart); // 장바구니 생성
+        cartId = newCart.getCartId(); // 새로 생성된 cartId를 가져와 사용
+        if (cartId == null){
+            return "장바구니 생성에 실패 했습니다..";
+            }
+        }
 
         ItemVO item = itemMapper.findByItemId(itemId);
         if(item == null)

@@ -127,20 +127,15 @@
                 </div>
             </div>
 
-            <!-- 배송 정보 카드 -->
-            <div class="delivery-info-card">
-                <div class="card-header">
-                    <h2 class="card-title">🚚 배송 정보</h2>
-                    <button class="btn-track-delivery" onclick="trackDelivery()"
-                    <!--th:if="${order.orderStatus.name() == 'SHIPPED' or order.orderStatus.name() == 'DELIVERED'}">-->
-                    <span class="track-icon">🔍</span>
-                    <span class="track-text">배송조회</span>
-                    </button>
-                </div>
-                <div class="delivery-details">
-                    <!-- 배송 상태 타임라인 -->
-                    <div class="status-timeline">
-                        <!-- JavaScript로 동적 생성됩니다 -->
+                <!-- 배송 정보 카드 -->
+                <div class="delivery-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">🚚 배송 정보</h2>
+                        <button class="btn-track-delivery" onclick="trackDelivery()">
+                                <!--th:if="${order.orderStatus.name() == 'SHIPPED' or order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="track-icon">🔍</span>
+                            <span class="track-text">배송조회</span>
+                        </button>
                     </div>
 
                     <!-- 배송지 정보 -->
@@ -220,34 +215,41 @@
                 </div>
             </div>
 
-            <!-- 주문 관리 카드 -->
-            <div class="order-actions-card">
-                <div class="card-header">
-                    <h2 class="card-title">⚙️ 주문 관리</h2>
-                </div>
+                <!-- 주문 관리 카드 -->
+                <div class="order-actions-card">
+                    <div class="card-header">
+                        <h2 class="card-title">⚙️ 주문 관리</h2>
+                    </div>
+                    
+                    <!-- 액션 버튼들 -->
+                    <div class="action-buttons">
+                        <!-- 상품후기 작성 (배송완료시에만) -->
+                        <button class="btn-action btn-review" onclick="writeReview()">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="btn-icon">⭐</span>
+                            <span class="btn-text">상품후기 작성</span>
+                        </button>
 
-                <!-- 액션 버튼들 -->
-                <div class="action-buttons">
-                    <!-- 상품후기 작성 (배송완료시에만) -->
-                    <button class="btn-action btn-review" onclick="writeReview()"
-                    <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
-                    <span class="btn-icon">⭐</span>
-                    <span class="btn-text">상품후기 작성</span>
-                    </button>
+                        <!-- 재주문 버튼 (배송완료시에만) -->
+                        <button class="btn-action btn-reorder" onclick="reorder()">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">재주문</span>
+                        </button>
 
-                    <!-- 재주문 버튼 (배송완료시에만) -->
-                    <button class="btn-action btn-reorder" onclick="reorder()"
-                    <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
-                    <span class="btn-icon">🔄</span>
-                    <span class="btn-text">재주문</span>
-                    </button>
+                        <!-- 주문취소 (결제완료, 상품준비중일 때만) -->
+                        <button class="btn-action btn-cancel" onclick="cancelOrder()">
+                                <!--th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}">-->
+                            <span class="btn-icon">❌</span>
+                            <span class="btn-text">주문취소</span>
+                        </button>
 
-                    <!-- 주문취소 (결제완료, 상품준비중일 때만) -->
-                    <button class="btn-action btn-cancel" onclick="cancelOrder()"
-                    <!--th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}">-->
-                    <span class="btn-icon">❌</span>
-                    <span class="btn-text">주문취소</span>
-                    </button>
+                        <!-- 교환/반품 (배송완료시에만) -->
+                        <button class="btn-action btn-exchange" onclick="requestExchange()">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">교환/반품</span>
+                        </button>
 
                     <!-- 교환/반품 (배송완료시에만) -->
                     <button class="btn-action btn-exchange" onclick="requestExchange()"
@@ -372,8 +374,13 @@
 <!-- 푸터 영역 -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<!-- JavaScript 파일 연결 (기존 order-detail.js 재사용) -->
-<script th:src="@{/js/order-detail.js}"></script>
+    <!-- Thymeleaf 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 주문 상세 데이터
+        var orderData = /*[[${order}]]*/ null;
+        var user = /*[[${session.user}]]*/ null;
+        <!-- var csrfToken = /*[[${_csrf.token}]]*/ ''; -->
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
 
 <!-- Thymeleaf 데이터를 JavaScript로 전달 -->
 <script th:inline="javascript">

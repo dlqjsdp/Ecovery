@@ -120,8 +120,8 @@
             LEFT JOIN item_img ii ON i.item_id = ii.item_id AND ii.rep_img_yn = 'Y'
             LEFT JOIN payment p ON o.order_id = p.order_id
 
-        where o.order_id = #{orderId}
-        order by oi.order_item_id asc
+        where o.member_id = #{memberId}
+        order by o.created_at DESC, oi.order_item_id asc
     </select>
 
     <!-- 주문 저장 -->

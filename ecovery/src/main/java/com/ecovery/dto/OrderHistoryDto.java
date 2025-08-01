@@ -36,7 +36,7 @@ public class OrderHistoryDto {
     private String detailAddress;
     private String phoneNumber;
     private String orderUuid;
-    private String memberId;
+    private Long memberId;
 
 
     // 결제 정보(payment)
