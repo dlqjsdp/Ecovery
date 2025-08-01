@@ -461,6 +461,198 @@ function printNotice() {
 }
 
 /* =========================================
+   관리자 전용 기능들
+   ========================================= */
+
+// 공지사항 고정/해제 토글
+function togglePin(noticeId) {
+    const pinBtn = document.querySelector('.admin-btn.pin');
+    if (!pinBtn) return;
+    
+    const isPinned = pinBtn.classList.contains('active');
+    const newStatus = !isPinned;
+    
+    // UI 먼저 업데이트
+    pinBtn.disabled = true;
+    
+    // 서버에 요청 (실제 구현시)
+    fetch(`/api/admin/notices/${noticeId}/pin`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ pinned: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (newStatus) {
+                pinBtn.innerHTML = '📌 고정 해제';
+                pinBtn.classList.add('active');
+                showNotification('공지사항이 상단에 고정되었습니다!', 'success');
+            } else {
+                pinBtn.innerHTML = '📌 상단 고정';
+                pinBtn.classList.remove('active');
+                showNotification('공지사항 고정이 해제되었습니다.', 'info');
+            }
+        } else {
+            showNotification('고정 설정 중 오류가 발생했습니다.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('고정 설정 중 오류가 발생했습니다.', 'error');
+    })
+    .finally(() => {
+        pinBtn.disabled = false;
+    });
+}
+
+// 중요 공지 토글
+function toggleImportant(noticeId) {
+    const importantBtn = document.querySelector('.admin-btn.important');
+    if (!importantBtn) return;
+    
+    const isImportant = importantBtn.classList.contains('active');
+    const newStatus = !isImportant;
+    
+    importantBtn.disabled = true;
+    
+    fetch(`/api/admin/notices/${noticeId}/important`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ important: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (newStatus) {
+                importantBtn.innerHTML = '🔥 중요 해제';
+                importantBtn.classList.add('active');
+                showNotification('중요 공지로 설정되었습니다!', 'success');
+                
+                // 중요 뱃지 추가
+                const header = document.querySelector('.notice-article-header');
+                if (header && !header.querySelector('.important-badge-large')) {
+                    const badge = document.createElement('div');
+                    badge.className = 'important-badge-large';
+                    badge.innerHTML = '📌 중요';
+                    header.insertBefore(badge, header.firstChild);
+                }
+            } else {
+                importantBtn.innerHTML = '🔥 중요 표시';
+                importantBtn.classList.remove('active');
+                showNotification('중요 공지 설정이 해제되었습니다.', 'info');
+                
+                // 중요 뱃지 제거
+                const badge = document.querySelector('.important-badge-large');
+                if (badge) {
+                    badge.remove();
+                }
+            }
+        } else {
+            showNotification('중요 공지 설정 중 오류가 발생했습니다.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('중요 공지 설정 중 오류가 발생했습니다.', 'error');
+    })
+    .finally(() => {
+        importantBtn.disabled = false;
+    });
+}
+
+// 알림 발송
+function sendNotification(noticeId) {
+    if (!confirm('모든 사용자에게 이 공지사항에 대한 알림을 발송하시겠습니까?')) {
+        return;
+    }
+    
+    const notificationBtn = document.querySelector('.admin-btn.notification');
+    if (notificationBtn) {
+        notificationBtn.disabled = true;
+        notificationBtn.innerHTML = '📢 발송 중...';
+    }
+    
+    fetch(`/api/admin/notices/${noticeId}/notify`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`총 ${data.sentCount || 0}명에게 알림이 발송되었습니다!`, 'success');
+        } else {
+            showNotification('알림 발송 중 오류가 발생했습니다.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('알림 발송 중 오류가 발생했습니다.', 'error');
+    })
+    .finally(() => {
+        if (notificationBtn) {
+            notificationBtn.disabled = false;
+            notificationBtn.innerHTML = '📢 알림 발송';
+        }
+    });
+}
+
+// 공지사항 삭제 (관리자용)
+function deleteNotice(noticeId) {
+    if (!confirm('⚠️ 정말로 이 공지사항을 삭제하시겠습니까?\n\n삭제된 공지사항은 복구할 수 없습니다.')) {
+        return;
+    }
+    
+    // 한번 더 확인
+    if (!confirm('🚨 최종 확인\n\n이 작업은 되돌릴 수 없습니다.\n정말로 삭제하시겠습니까?')) {
+        return;
+    }
+    
+    const deleteBtn = document.querySelector('.admin-btn.delete');
+    if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '🗑️ 삭제 중...';
+    }
+    
+    fetch(`/api/admin/notices/${noticeId}`, {
+        method: 'DELETE',
+        headers: {
+            [csrfHeader]: csrfToken
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showNotification('공지사항이 성공적으로 삭제되었습니다.', 'success');
+            
+            // 2초 후 목록 페이지로 이동
+            setTimeout(() => {
+                window.location.href = '/notices';
+            }, 2000);
+        } else {
+            throw new Error('삭제 실패');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('삭제 중 오류가 발생했습니다.', 'error');
+        
+        if (deleteBtn) {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '🗑️ 글 삭제';
+        }
+    });
+}
+
+/* =========================================
    댓글 관련 함수들
    ========================================= */
 
@@ -658,5 +850,9 @@ window.shareToTwitter = shareToTwitter;
 window.shareToLine = shareToLine;
 window.submitComment = submitComment;
 window.showNotification = showNotification;
+window.togglePin = togglePin;
+window.toggleImportant = toggleImportant;
+window.sendNotification = sendNotification;
+window.deleteNotice = deleteNotice;
 
 console.log('📄 공지사항 상세페이지 JavaScript가 완전히 로드되었습니다.');
