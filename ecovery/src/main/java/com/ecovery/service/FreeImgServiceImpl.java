@@ -188,5 +188,24 @@ public class FreeImgServiceImpl implements FreeImgService {
         return freeImgMapper.getFreeImgList(freeId);
     }
 
+    @Override
+    public void deleteAllByFreeId(Long freeId) throws Exception {
+        // 1. freeId에 해당하는 모든 이미지 목록을 가져옴
+        List<FreeImgVO> imgList = freeImgMapper.getFreeImgList(freeId);
+
+        if (imgList != null && !imgList.isEmpty()) {
+            // 2. 이미지 파일을 물리적으로 삭제
+            for (FreeImgVO img : imgList) {
+                // 이미지 파일 삭제 로직 호출 (예: FileSystem.delete(img.getImgUrl()))
+                // 여기에 파일 삭제 코드를 직접 구현하거나 별도의 파일 삭제 유틸리티를 사용해야 합니다.
+                // 이 예시에서는 생략합니다.
+            }
+
+            // 3. DB에서 모든 이미지 레코드 삭제
+            freeImgMapper.deleteAllByFreeId(freeId); // 이 메서드는 Mapper에 직접 구현해야 합니다.
+        }
+    }
 }
+
+
 
