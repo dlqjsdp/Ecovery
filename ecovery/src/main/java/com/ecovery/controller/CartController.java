@@ -54,11 +54,18 @@ public class CartController {
 
     // 장바구니 상품 담기
     @PostMapping("/add")
-    public String addCartItem(@RequestParam Long itemId, @RequestParam int count) {
+    @ResponseBody
+    public ResponseEntity<String> addCartItem(@RequestParam Long itemId, @RequestParam int count) {
 
         String nickname = getLoginNickname();
+        String resultMessage = cartItemService.addCart(nickname, itemId, count);
 
-        return cartItemService.addCart(nickname, itemId, count);
+        // 장바구니에 상품이 정상적으로 담겼는지 나타내는 로직
+        if ("장바구니에 담았습니다.".equals(resultMessage)){
+            return ResponseEntity.ok(resultMessage);
+        } else {
+            return ResponseEntity.badRequest().body(resultMessage);
+        }
     }
 
     // 장바구니 상품 수정

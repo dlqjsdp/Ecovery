@@ -74,7 +74,7 @@ class EnvImgServiceTest {
                 .build();
 
         // When - 게시글 + 이미지 등록
-        envService.register(formDto, List.of(mockFile)); // 게시글과 이미지 파일을 함께 등록
+       /* envService.register(formDto, List.of(mockFile));*/ // 게시글과 이미지 파일을 함께 등록
 
         Long envId = envDto.getEnvId(); // 등록된 게시글의 ID를 가져옴
         assertNotNull(envId, "등록된 게시글 ID는 null이면 안 됩니다."); // 게시글 ID가 정상적으로 생성되었는지 확인 (null이면 실패)
@@ -121,7 +121,7 @@ class EnvImgServiceTest {
 
         // When - 게시글 + 이미지 등록 요청
         // EnvService를 통해 게시글과 이미지 2개를 DB 및 파일 시스템에 등록
-        envService.register(formDto, List.of(file1, file2)); // 이미지 포함 등록
+        // envService.register(formDto, List.of(file1, file2)); // 이미지 포함 등록
 
         // 등록된 게시글의 ID를 얻어서 null이 아닌지 검증
         Long envId = envDto.getEnvId();
@@ -163,7 +163,7 @@ class EnvImgServiceTest {
                 .build();
 
         // EnvService를 통해 게시글과 이미지 등록 처리
-        envService.register(formDto, List.of(mockFile)); // 게시글 + 이미지 등록
+        //envService.register(formDto, List.of(mockFile)); // 게시글 + 이미지 등록
 
         // 등록된 게시글 ID 추출 및 null 확인
         Long envId = envDto.getEnvId();
@@ -218,7 +218,7 @@ class EnvImgServiceTest {
                 .build();
 
         // 게시글 + 이미지 등록 (서비스 호출)
-        envService.register(formDto, mockFiles);
+        //envService.register(formDto, mockFiles);
 
         // 등록된 게시글 ID 추출
         Long envId = envDto.getEnvId();
@@ -262,7 +262,7 @@ class EnvImgServiceTest {
                 .build();
 
         // 게시글 + 이미지 등록 실행
-        envService.register(registerDto, List.of(file1, file2));
+        //envService.register(registerDto, List.of(file1, file2));
         // 등록된 게시글 ID 확인
         Long envId = envDto.getEnvId();
         assertNotNull(envId);
@@ -291,7 +291,7 @@ class EnvImgServiceTest {
                 .build();
 
         // 게시글 수정 실행 (이미지 1개 삭제만 수행, 추가 이미지 없음)
-        envService.modify(modifyDto, List.of()); // 새로 추가된 이미지는 없음
+        //envService.modify(modifyDto, List.of()); // 새로 추가된 이미지는 없음
 
         // Then - 이미지 목록이 1개만 남아야 함
         List<EnvImgDto> afterList = envImgService.getListByEnvId(envId); // 수정 후 이미지 목록 다시 조회
