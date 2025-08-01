@@ -7,6 +7,7 @@
      - 250730 | sehui | 에코마켓 상품 상세 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
      - 250731 | sehui | 장바구니, 구매하기 버튼에 로그인 여부 data 속성으로 추가
      - 250731 | sehui | 헤더/푸터 충돌 방지를 위한 클래스명 변경 및 구조 개선
+     - 250801 | sehui | 주문 수량 HTML 추가
 -->
 
 <!DOCTYPE html>
@@ -30,9 +31,6 @@
 
         <!-- 메인 콘텐츠 영역 -->
         <main class="product-main-content">
-
-            <!-- JS에서 사용하기 위해 추가 -->
-            <input type="hidden" id="itemId" th:value="${itemId}" />
 
             <!-- 브레드크럼 네비게이션 (현재 위치 표시) -->
             <section class="product-breadcrumb-section">
@@ -111,6 +109,35 @@
                                 </div>
                             </div>
 
+                            <!-- 주문 수량 입력 -->
+                            <form id="form-body">
+                                <input type="hidden" name="itemId" id="itemId" th:value="${itemId}" />
+
+                                <div class="form-row">
+                                    <div class="form-label-section">
+                                        <label class="form-label">주문 수량</label>
+                                    </div>
+                                    <div class="form-input-section">
+                                        <div class="order-group">
+                                            <div class="order-input-wrapper">
+                                                <input type="number"
+                                                       class="form-input order-input"
+                                                       name="count"
+                                                       id="orderNumber"
+                                                       placeholder="0"
+                                                       min="1"
+                                                       required>
+                                                <span class="currency">개</span>
+                                            </div>
+                                        </div>
+                                        <div class="error-message" id="stockError"></div>
+                                        <div class="help-text">최소 1개 이상부터 등록 가능합니다.</div>
+                                        <!-- 재고 수량 분석 (JavaScript로 제어) -->
+                                        <div class="order-analysis" id="orderAnalysis"></div>
+                                    </div>
+                                </div>
+                            </form>
+
                             <!-- 거래 정보 -->
                             <div class="transaction-section">
                                 <div class="transaction-info">
@@ -122,13 +149,11 @@
                             </div>
 
                             <!-- 액션 버튼 영역 -->
-                            <div class="action-buttons" id="actionButtons" th:data-logged-in="${#authentication.principal != null}">
+                            <div class="action-buttons" id="actionButtons" th:data-logged-in="${#authentication.principal != 'anonymousUser'}">
                                 <!-- 장바구니 버튼 -->
                                 <button class="btn btn-cart" id="cartBtn">🛒 장바구니</button>
                                 <!-- 구매하기 버튼 -->
                                 <button class="btn btn-buy" id="buyBtn">💰 구매하기</button>
-                                <!-- 에코마켓과 구매하기 버튼 -->
-                                <button class="btn btn-eco-buy" id="ecoBuyBtn">🌱 에코마켓과 구매하기</button>
                             </div>
 
                             <!-- 공유 버튼 -->
