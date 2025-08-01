@@ -76,7 +76,7 @@ freeImgLocation: C:/ecovery/free
 envImgLocation: C:/ecovery/env
 
 # 리소스 이미지 업로드 경로
-uploadPath: file:///C:/ecovery/
+uploadPath: C:/ecovery
 
 
 mybatis:

@@ -18,6 +18,8 @@ import java.util.List;
  * @history
      - 250728 | yukyeong | 게시글 등록 및 수정용 EnvFormDto 생성 (EnvDto + 이미지 리스트)
      - 250730 | yukyeong | EnvDto만으로 초기화 가능한 생성자 추가, envImgFiles 초기화(null 방지) 포함
+ *   - 250801 | yukyeong | contentImgUrls 필드 추가 - 본문 이미지 src 정보 저장용
+ *                        deleteContentImgUrls 필드 추가 - 본문 이미지 삭제 요청용
  */
 
 @Getter
@@ -39,4 +41,10 @@ public class EnvFormDto {
         this.envDto = envDto;
         this.envImgFiles = new ArrayList<>(); // null 방지 초기화
     }
+
+    // 프론트에서 본문에 삽입된 이미지의 src만 따서 배열로 전송하는 용도
+    private List<String> contentImgUrls = new ArrayList<>();
+
+    // 삭제용
+    private List<String> deleteContentImgUrls = new ArrayList<>();
 }

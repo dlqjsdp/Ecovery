@@ -1,8 +1,10 @@
 package com.ecovery.controller;
 
+import com.ecovery.domain.MemberVO;
 import com.ecovery.dto.Criteria;
 import com.ecovery.dto.NoticeDto;
 import com.ecovery.dto.PageDto;
+import com.ecovery.security.CustomUserDetails;
 import com.ecovery.service.MemberService;
 import com.ecovery.service.NoticeService;
 import jakarta.validation.Valid;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +35,9 @@ import java.util.Map;
      - 250723 | yukyeong | 게시글 수정 API (PUT /modify/{noticeId}) 구현 - 수정 성공/실패 처리 포함
      - 250723 | yukyeong | 게시글 삭제 API (DELETE /remove/{noticeId}) 구현
      - 250724 | yukyeong | 게시글 삭제 실패 시 400 Bad Request 응답 처리
+     - 250801 | yukyeong | 게시글 등록 API 수정:
+ *                        - Principal → Authentication으로 변경하여 사용자 정보 추출
+ *                        - memberId 조회 로직을 auth 기반으로 수정
  */
 
 @RestController
@@ -75,7 +81,7 @@ public class NoticeApiController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody NoticeDto noticeDto,
                            BindingResult bindingResult,
-                           Principal principal) {
+                                      Authentication auth) {
 
         // 1. @Valid 유효성 검사 + BindingResult로 검증
         // NoticeDto에 설정한 유효성 검증에 실패하면 400 Bad Request 응답 반환
@@ -84,9 +90,17 @@ public class NoticeApiController {
         }
 
         // 2. 유효성 검사 통과한 경우에만 로그인 사용자 이메일 → memberId 조회
-        String email = principal.getName(); // Principal에서 로그인한 사용자의 이메일을 가져옴 (username 역할)
-        Long memberId = memberService.getMemberByEmail(email).getMemberId(); // 이메일을 기준으로 DB에서 memberId 조회
-        noticeDto.setMemberId(memberId); // 조회한 memberId를 등록할 게시글 DTO에 설정
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail();
+
+        MemberVO member = memberService.getMemberByEmail(email);
+        if (member == null) {
+            log.warn("등록 요청자의 회원 정보를 찾을 수 없습니다. email: {}", email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("회원 정보가 존재하지 않습니다.");
+        }
+
+        Long memberId = member.getMemberId();
+        noticeDto.setMemberId(memberId);
 
         log.info("게시글 등록 처리 전: {}", noticeDto); // 등록 전 NoticeDto 상태 출력 (등록 전에 memberId가 잘 들어갔는지 확인용)
 

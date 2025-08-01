@@ -13,7 +13,14 @@
  *                        - 글자 수 실시간 카운트 기능 적용
  *                        - 수정 유효성 검사 및 PUT API 연동
  *                        - 미리보기 모달 기능 추가
+ *  - 250801 | yukyeong | 본문 이미지 수정 시 삭제된 이미지 URL 추출 및 서버 전송(deleteContentImgUrls)
+ *                       - 기존 vs 수정 후 이미지 목록 비교하여 삭제 대상 식별
+ *                       - contentImgUrls와 함께 envFormDto로 전송하여 DB 반영 처리
  */
+
+
+// ✅ 전역 변수 선언
+let deleteContentImgUrls = [];
 
 document.addEventListener("DOMContentLoaded", function () {
     loadCategoriesForModify(window.envCategory);
@@ -91,6 +98,14 @@ function validateForm() {
     return isValid;
 }
 
+// 기존 본문 이미지 URL 목록 추출
+function extractImageUrlsFromHtml(html) {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    const imgTags = tempDiv.querySelectorAll("img");
+    return Array.from(imgTags).map(img => img.getAttribute("src"));
+}
+
 // ✅ 게시글 수정 처리
 async function submitModifiedPost() {
     if (!validateForm()) return;
@@ -106,10 +121,29 @@ async function submitModifiedPost() {
         category: category
     };
 
-    const formData = new FormData();
-    formData.append("envFormDto", new Blob([JSON.stringify({ envDto })], { type: "application/json" }));
+    // ✅ (1) 수정 전/후 이미지 URL 목록 추출
+    const prevImgUrls = extractImageUrlsFromHtml(window.initialContent || "");
+    const newImgUrls = extractImageUrlsFromHtml(content);
 
-    // 이미지 파일 (선택 사항)
+    // ✅ (2) 삭제된 이미지 URL 식별
+    deleteContentImgUrls = prevImgUrls.filter(url => !newImgUrls.includes(url));
+
+    console.log("삭제될 본문 이미지 목록:", deleteContentImgUrls);
+
+    // ✅ (3) 본문에 남아 있는 이미지 리스트도 서버로 전송
+    const contentImgUrls = newImgUrls;
+
+    // ✅ (4) JSON 형태로 envFormDto 구성
+    const envFormDtoJson = {
+        envDto,
+        contentImgUrls,
+        deleteContentImgUrls
+    };
+
+    const formData = new FormData();
+    formData.append("envFormDto", new Blob([JSON.stringify(envFormDtoJson)], { type: "application/json" }));
+
+    // ✅ 3. 이미지 파일 추가 (기존 로직 유지)
     const fileInput = document.getElementById("fileInput");
     if (fileInput && fileInput.files.length > 0) {
         for (let i = 0; i < fileInput.files.length; i++) {
