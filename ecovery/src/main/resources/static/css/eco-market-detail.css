@@ -2,6 +2,8 @@
  * @history
  *  - 250801 | sehui | 주문 수량 css 추가 (eco-market-register.css 참고)
  *  - 250801 | sehui | 에코 마켓과 구매하기 버튼 btn-eco-buy 제거
+ *  - 250801 | sehui | 주문 수량 오류 메시지 위치 및 스타일 개선
+ *  - 250801 | sehui | 상품 설명 이미지 정렬 및 스타일 개선
  */
 
 /* ==========================================================================
@@ -24,7 +26,7 @@
     --black: #212529;
     
     /* 특별 기능 컬러 */
-    --price-color: #e74c3c;        /* 가격 표시용 빨간색 */
+    --price-color: #2d5a3d;;        /* 가격 표시용 초록색 */
     --discount-color: #27ae60;     /* 할인 표시용 초록색 */
     --warning-color: #f39c12;      /* 경고 색상 */
     --danger-color: #e74c3c;       /* 위험 색상 */
@@ -619,33 +621,73 @@
 }
 
 /* ==========================================================================
-   가격 섹션
+   CSS 변수 정의 - 가격 색상 변경
+   ========================================================================== */
+:root {
+    /* 브랜드 컬러 팔레트 */
+    --primary-green: #2d5a3d;      /* 주요 녹색 */
+    --secondary-green: #4a7c59;    /* 보조 녹색 */
+    --accent-green: #6fa776;       /* 포인트 녹색 */
+    --light-green: #a8d5b7;       /* 밝은 녹색 */
+    --sage-green: #9eb3a0;        /* 세이지 녹색 */
+    --dark-green: #1e3d2a;        /* 진한 녹색 */
+    
+    /* 기본 컬러 */
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+    --dark-gray: #343a40;
+    --black: #212529;
+    
+    /* 특별 기능 컬러 - 가격 색상 변경 */
+    --price-color: #2d5a3d;        /* 가격 표시용 녹색 (변경됨) */
+    --discount-color: #27ae60;     /* 할인 표시용 초록색 */
+    --warning-color: #f39c12;      /* 경고 색상 */
+    --danger-color: #e74c3c;       /* 위험 색상 */
+    --success-color: #27ae60;      /* 성공 색상 */
+    --cart-color: #8e44ad;         /* 장바구ni 색상 (보라색) */
+    
+    /* 나머지 변수들은 동일... */
+}
+
+/* ==========================================================================
+   가격 섹션 - 테두리 색상도 함께 변경
    ========================================================================== */
 .price-section {
     background: var(--light-gray);
     padding: 25px;
     border-radius: var(--border-radius);
-    border-left: 4px solid var(--price-color);
+    border-left: 4px solid var(--price-color); /* 녹색 테두리로 변경 */
 }
 
 .current-price {
     font-size: 32px;
     font-weight: 700;
-    color: var(--price-color);
+    color: var(--price-color); /* 녹색 가격으로 변경 */
     margin-bottom: 8px;
 }
 
-.original-price {
+/* ==========================================================================
+   연관 상품 가격도 함께 변경
+   ========================================================================== */
+.related-product-price {
     font-size: 18px;
-    color: var(--medium-gray);
-    text-decoration: line-through;
-    margin-bottom: 5px;
+    font-weight: 700;
+    color: var(--price-color); /* 연관 상품 가격도 녹색으로 */
+    margin-bottom: 8px;
 }
 
-.discount-rate {
-    font-size: 16px;
-    color: var(--discount-color);
-    font-weight: 600;
+/* ==========================================================================
+   구매하기 버튼 색상도 통일 (선택사항)
+   ========================================================================== */
+.btn-buy {
+    background: var(--primary-green); /* 녹색으로 변경 */
+    color: var(--white);
+}
+
+.btn-buy:hover {
+    background: var(--dark-green); /* 호버 시 진한 녹색 */
+    transform: translateY(-2px);
 }
 
 /* ==========================================================================
@@ -671,7 +713,7 @@
 }
 
 /* ==========================================================================
-   주문 수량 정보 섹션
+   주문 수량 정보 섹션 - 개선된 스타일
    ========================================================================== */
 /* 각 입력 항목의 행 */
 .form-row {
@@ -701,6 +743,7 @@
     font-size: 14px;
     font-family: 'Noto Sans KR', sans-serif;
     transition: all 0.3s ease;       /* 변화 애니메이션 */
+    background: var(--white);        /* 배경색 명시 */
 }
 
 /* 입력창 포커스 (클릭했을 때) */
@@ -708,6 +751,7 @@
     outline: none;                    /* 기본 테두리 제거 */
     border-color: var(--primary-green);
     box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.1); /* 그림자 효과 */
+    background: var(--white);
 }
 
 /* 주문 수량 입력 창 */
@@ -753,11 +797,35 @@
     display: block;
 }
 
-/* 에러 상태 (빨간 테두리) */
+/* ==========================================================================
+   에러 메시지 스타일 개선 - 주문 수량 오류 메시지 위치 조정
+   ========================================================================== */
+
+/* 에러 상태 (빨간 테두리) - 강화된 스타일 */
 .form-input.error,
 .form-select.error {
-    border-color: var(--error-red);
-    background: rgba(220, 53, 69, 0.05);
+    border-color: var(--danger-color);
+    background: rgba(231, 76, 60, 0.05);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1); /* 에러 시 그림자 효과 */
+}
+
+/* 성공 상태 (녹색 테두리) */
+.form-input.success {
+    border-color: var(--success-color);
+    background: rgba(39, 174, 96, 0.03);
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+/* 일반 에러 메시지 기본 스타일 */
+.error-message {
+    color: var(--danger-color);
+    font-size: 12px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+    line-height: 1.4;
 }
 
 .error-message::before {
@@ -765,14 +833,41 @@
     font-size: 10px;
 }
 
-/* 에러 메시지 */
-.error-message {
-    color: var(--error-red);
-    font-size: 12px;
-    margin-top: 5px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+/* stockError 전용 스타일 - 주문 수량 에러 메시지 (수정된 부분) */
+#stockError {
+    color: var(--danger-color);
+    font-size: 13px;
+    margin-top: 10px;
+    display: none; /* 기본적으로 숨김, JS로 제어 */
+    font-weight: 500;
+    line-height: 1.4;
+    padding: 10px 15px;
+    background: rgba(231, 76, 60, 0.08); /* 약간 더 진한 배경 */
+    border-left: 4px solid var(--danger-color); /* 강조 라인 */
+    border-radius: 6px;
+    animation: slideInError 0.3s ease; /* 애니메이션 효과 */
+    position: relative;
+}
+
+/* 에러 아이콘 추가 */
+#stockError::before {
+    content: "⚠️";
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+/* 에러 메시지 나타나는 애니메이션 */
+@keyframes slideInError {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 50px;
+    }
 }
 
 /* 도움말 텍스트 */
@@ -782,7 +877,6 @@
     margin-top: 5px;
     line-height: 1.4;
 }
-
 
 /* ==========================================================================
    거래 정보 섹션
@@ -908,7 +1002,7 @@
 }
 
 /* ==========================================================================
-   상품 상세 설명 섹션
+   상품 상세 설명 섹션 - 이미지 정렬 개선
    ========================================================================== */
 .product-description-section {
     background: var(--white);
@@ -922,23 +1016,69 @@
     font-size: 24px;
 }
 
+/* 상품 설명 콘텐츠 기본 스타일 */
 .description-content {
     line-height: 1.8;
     color: var(--dark-gray);
+    overflow-wrap: break-word;
 }
 
 .description-content p {
     margin-bottom: 15px;
 }
 
+/* 상품 설명 내 이미지 기본 스타일 (수정된 부분) */
 .description-content img {
     max-width: 100%;
     height: auto;
     margin: 20px 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: block;
+    margin-left: auto;
+    margin-right: auto; /* 중앙 정렬 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 
+/* 상품 설명 이미지 호버 효과 (수정된 부분) */
+.description-content img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* 상품 설명 이미지 컨테이너 스타일 (JS에서 동적으로 추가되는 컨테이너용) */
+.product-description-image-container {
+    text-align: center;
+    margin: 30px 0;
+    padding: 15px;
+    background: rgba(45, 90, 61, 0.02);
+    border-radius: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.product-description-image-container:hover {
+    background: rgba(45, 90, 61, 0.05);
+}
+
+/* 상품 설명 이미지 전용 클래스 (JS에서 추가하는 이미지용) */
+.product-description-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.product-description-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* 설명 텍스트 스타일링 */
 .description-content ul {
     margin: 15px 0;
     padding-left: 20px;
@@ -1341,6 +1481,18 @@
         height: 50vh;
         font-size: 80px;
     }
+    
+    /* 모바일에서 폼 레이아웃 조정 */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* 모바일에서 에러 메시지 폰트 크기 조정 */
+    #stockError {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
 }
 
 /* 작은 모바일 크기 (480px 이하) */
@@ -1388,6 +1540,12 @@
     .related-product-image {
         height: 150px;
         font-size: 48px;
+    }
+    
+    /* 작은 모바일에서 에러 메시지 더 작게 */
+    #stockError {
+        font-size: 11px;
+        padding: 6px 10px;
     }
 }
 

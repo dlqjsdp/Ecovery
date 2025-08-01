@@ -5,7 +5,6 @@ import com.ecovery.dto.OrderItemRequestDto;
 import com.ecovery.service.MemberService;
 import com.ecovery.service.OrderService;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
