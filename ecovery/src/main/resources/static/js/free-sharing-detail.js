@@ -1,5 +1,5 @@
 /*서버에서 받은 데이터를 사용자가 읽기 좋게 바꿔주는 유틸리티 함수*/
-// 거래생태
+// 거래상태
 function getStatusText(status){
     switch (status){
         case 'ONGOING': return '나눔중';
@@ -39,6 +39,9 @@ let item = null; // 게시글 데이터를 저장할 전역 변수
 let currentPage = 1;
 const amountPerPage = 10; // 한 페이지에 몇 개씩 보여줄지
 let currentSortType = 'recent'; // 정렬 방식
+
+const loginUserId = window.loginUserId ?? null;
+const loginUserRole = window.loginUserRole ?? null;
 
 
 // 이미지 렌더링 코드
@@ -174,18 +177,52 @@ function renderReplyPagination(totalCount, freeId, sortType) {
     const paginationContainer = document.getElementById('pagination');
 
     if (!paginationContainer) return;
-    paginationContainer.innerHTML = '';
+    paginationContainer.innerHTML = ''; // 기존 페이징 버튼 초기화
 
+    // 이전 버튼
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '이전';
+    prevBtn.classList.add('page-btn', 'prev-btn'); // 클래스 추가
+    prevBtn.disabled = currentPage === 1; // 첫 페이지일 때 비활성화
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadComments(freeId, sortType, currentPage, amountPerPage);
+        }
+    });
+    paginationContainer.appendChild(prevBtn);
+
+
+    // 페이지 번호 버튼들
     for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
-        btn.disabled = i === currentPage;
+        btn.classList.add('page-btn'); // 모든 페이지 버튼에 기본 스타일 적용
+        btn.disabled = i === currentPage; // 현재 페이지는 비활성화
+
+        if (i === currentPage) {
+            btn.classList.add('active'); // 현재 페이지에 'active' 클래스 추가
+        }
+
         btn.addEventListener('click', () => {
             currentPage = i;
             loadComments(freeId, sortType, currentPage, amountPerPage);
         });
         paginationContainer.appendChild(btn);
     }
+
+    // 다음 버튼
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '다음';
+    nextBtn.classList.add('page-btn', 'next-btn'); // 클래스 추가
+    nextBtn.disabled = currentPage === totalPages; // 마지막 페이지일 때 비활성화
+    nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            loadComments(freeId, sortType, currentPage, amountPerPage);
+        }
+    });
+    paginationContainer.appendChild(nextBtn);
 }
 
 // 댓글 목록 불러오는 함수
@@ -203,6 +240,10 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
     fetch(`/api/replies/parent/${freeId}?sortType=${sortType}&page=${page}&amount=${amountPerPage}`)
         .then(response => response.json())
         .then(data => {
+
+            console.log('loginUserId:', loginUserId);
+            console.log('loginUserRole:', loginUserRole);
+
             const list = document.getElementById('commentList');
             if (!list) { // commentList 요소가 없을 경우 에러 방지
                 console.error("commentList 요소를 찾을 수 없습니다.");
@@ -215,15 +256,32 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
                 parentDiv.className = 'comment-item';
                 parentDiv.innerHTML = `
                     <p class="comment-author">${parent.nickname}</p>
-                    <p class="comment-content">${parent.content}</p>
+                    <p class="comment-content" id="content-${parent.replyId}">${parent.content}</p>
+                    <textarea class="edit-textarea" id="edit-${parent.replyId}" style="display: none;">${parent.content}</textarea>
                     <p class="comment-date">${formatTimeAgo(parent.createdAt)}</p>
+
+                    ${loginUserId === parent.memberId || loginUserRole === 'ADMIN' ? `
+                        <div class="comment-actions">
+                            <button class="comment-action-btn reply-btn" onclick="toggleEdit(${parent.replyId})">수정</button>
+                            <button class="comment-action-btn" onclick="deleteComment(${parent.replyId}, false)">삭제</button>
+                        </div>
+                    ` : ''}
+
                     <div class="child-comments" id="child-${parent.replyId}"></div>
-                    <div class="reply-form">
-                        <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
-                        <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
-                    </div>
+                    
+                    ${loginUserId ? `
+                        <div class="reply-form">
+                            <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
+                            <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
+                        </div>
+                    ` : ''}
                 `;
                 list.appendChild(parentDiv);
+
+                // Enter 키로 대댓글 등록 이벤트 연결
+                if (loginUserId) {
+                    setupChildReplyEnterEvent(parent.replyId);
+                }
 
                 // 대댓글 불러오기
                 fetch(`/api/replies/child/${parent.replyId}`)
@@ -235,22 +293,28 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
                                 const childDiv = document.createElement('div');
                                 childDiv.className = 'child-comment-item';
                                 childDiv.innerHTML = `
-                                <p class="child-author">↳ ${child.nickname}</p>
-                                <p class="child-content">${child.content}</p>
-                                <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
-                            `;
+                                    <p class="child-author">↳ ${child.nickname}</p>
+                                    <p class="child-content" id="content-${child.replyId}">${child.content}</p>
+                                    <textarea class="edit-textarea" id="edit-${child.replyId}" style="display: none;">${child.content}</textarea>
+                                    <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
+
+                                    ${loginUserId === child.memberId || loginUserRole === 'ADMIN' ? `
+                                        <div class="comment-actions">
+                                            <button class="comment-action-btn reply-btn" onclick="toggleEdit(${child.replyId})">수정</button>
+                                            <button class="comment-action-btn" onclick="deleteComment(${child.replyId}, true)">삭제</button>
+                                        </div>
+                                    ` : ''}
+                                `;
                                 childContainer.appendChild(childDiv);
                             });
                         }
                     })
                     .catch(error => console.error('Error fetching child replies:', error));
             });
-
             // 페이징 렌더링
             renderReplyPagination(data.total, freeId, sortType);
         })
         .catch(error => console.error('Error fetching comments:', error));
-
 }
 
 // 조회수 증가
@@ -387,6 +451,102 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupEventListeners(); // 모든 이벤트 리스너를 설정하는 함수
 
 });
+
+// =========================
+// 댓글 수정창 열기
+// =========================
+function toggleEdit(replyId) {
+    const contentEl = document.getElementById(`content-${replyId}`);
+    const textareaEl = document.getElementById(`edit-${replyId}`);
+
+    if (!contentEl || !textareaEl) return;
+
+    const isEditing = textareaEl.style.display === 'block';
+
+    if (isEditing) {
+        // 편집모드 종료
+        textareaEl.style.display = 'none';
+        contentEl.style.display = 'block';
+
+        // 등록 버튼 제거
+        const registerBtn = document.getElementById(`register-${replyId}`);
+        if (registerBtn) {
+            registerBtn.remove();
+        }
+    } else {
+        // 편집모드 시작
+        textareaEl.style.display = 'block';
+        contentEl.style.display = 'none';
+
+        // 등록 버튼 동적으로 생성
+        if (!document.getElementById(`register-${replyId}`)) {
+            const registerBtn = document.createElement('button');
+            registerBtn.id = `register-${replyId}`;
+            registerBtn.textContent = '등록';
+            registerBtn.classList.add('edit-confirm-btn');
+
+            // isChild 여부는 replyId 기준 판단 어렵다면 false로만 써도 됨
+            registerBtn.onclick = () => submitEdit(replyId, false);
+
+            textareaEl.parentNode.insertBefore(registerBtn, textareaEl.nextSibling);
+        }
+    }
+}
+
+// =========================
+// 댓글 수정 제출
+// =========================
+function submitEdit(replyId, isChild) {
+    const textarea = document.getElementById(`edit-${replyId}`);
+    if (!textarea) return;
+
+    const updatedContent = textarea.value.trim();
+
+    if (updatedContent === '') {
+        alert('수정할 내용을 입력해주세요.');
+        return;
+    }
+
+    fetch(`/api/replies/modify/${replyId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: updatedContent })
+    })
+        .then(res => {
+            if (res.ok) {
+                alert('댓글이 수정되었습니다.');
+                location.reload(); // 새로고침으로 변경된 댓글 반영
+            } else if (res.status === 403) {
+                alert('수정 권한이 없습니다.');
+            } else {
+                alert('댓글 수정 실패');
+            }
+        })
+        .catch(err => console.error('댓글 수정 오류:', err));
+}
+
+// =========================
+// 댓글 삭제
+// =========================
+function deleteComment(replyId, isChild) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    fetch(`/api/replies/remove/${replyId}`, {
+        method: 'DELETE'
+    })
+        .then(res => {
+            if (res.ok) {
+                alert('댓글이 삭제되었습니다.');
+                location.reload();
+            } else {
+                alert('삭제 실패');
+            }
+        })
+        .catch(err => console.error('댓글 삭제 오류:', err));
+}
+
 
 
 // =========================

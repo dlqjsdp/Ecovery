@@ -35,6 +35,7 @@ public class FreeApiController {
     private final FreeService freeService;
     private final MemberService memberService;
     private final Validator validator;
+    private final FreeImgService freeImgService;
 
     @PostMapping("/register")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
@@ -177,5 +178,16 @@ public class FreeApiController {
         return result
                 ? ResponseEntity.ok("게시글이 삭제되었습니다.")
                 : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
+    }
+
+    @DeleteMapping("/image/{imgId}")
+    public ResponseEntity<String> deleteImage(@PathVariable Long freeImgId) {
+        try {
+            freeImgService.deleteFreeImg(freeImgId);
+            return ResponseEntity.ok("이미지 삭제 성공");
+        } catch (Exception e) {
+            log.error("이미지 삭제 실패 - imgId: {}", freeImgId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이미지 삭제 중 오류 발생");
+        }
     }
 }

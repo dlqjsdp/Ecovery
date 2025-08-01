@@ -102,25 +102,30 @@ public class FreeReplyApiController {
                                          Principal principal) {
 
         // 로그인을 하지 않은 경우 
+
         if (principal == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
 
-        // 로그인한 사용자의 이메일로 회원 ID 조회
-        String email = principal.getName();
-        Long loginMemberId = memberService.getMemberByEmail(email).getMemberId();
+        // ✅ 로그인한 사용자의 nickname으로 Member 조회
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+        if (member == null) {
+            return ResponseEntity.status(401).body("회원 정보를 찾을 수 없습니다.");
+        }
+
+        Long loginMemberId = member.getMemberId();
 
         // 댓글 ID 설정 (경로에서 받은 ID를 VO에 반영)
         reply.setReplyId(replyId);
 
-        // 댓글 수정 시도 (작성자 본인인지 서비스에서 확인)
         boolean result = freeReplyService.modify(reply, loginMemberId);
 
-        // 결과에 따라 응답 반환
         return result
                 ? ResponseEntity.ok("댓글이 수정되었습니다.")
                 : ResponseEntity.status(403).body("수정 권한이 없습니다.");
     }
+
 
     // 댓글 삭제 - 작성자 본인 또는 관리자만 가능
     @DeleteMapping("/remove/{replyId}")
@@ -133,17 +138,18 @@ public class FreeReplyApiController {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
 
-        // 로그인한 사용자의 이메일로 사용자 ID 조회
-        String email = principal.getName();
-        Long loginMemberId = memberService.getMemberByEmail(email).getMemberId();
+        // nickname으로 Member 정보 조회
+        String nickname = principal.getName();
+        MemberVO member = memberService.getMemberByNickname(nickname);
+        if (member == null) {
+            return ResponseEntity.status(401).body("회원 정보를 찾을 수 없습니다.");
+        }
 
-        // 로그인한 사용자의 권한 조회
-        String role = memberService.getMemberByEmail(email).getRole().name();
+        Long loginMemberId = member.getMemberId();
+        String role = member.getRole().name();
 
-        // 댓글 삭제 시도 (작성자 본인 또는 관리자만 삭제 가능)
         boolean result = freeReplyService.remove(replyId, loginMemberId, role);
 
-        // 삭제 결과에 따라 응답 반환
         return result
                 ? ResponseEntity.ok("댓글이 삭제되었습니다.")
                 : ResponseEntity.status(403).body("삭제 권한이 없습니다.");

@@ -202,7 +202,7 @@
                             <div class="image-preview" id="imagePreview">
                                 <div th:each="image, stat : ${free.imgList}"
                                      class="preview-image existing"
-                                     th:id="${'preview-image-' + image.freeImgId}"> <img th:src="@{${image.imgUrl}}" th:alt="${'기존 이미지 ' + (stat.index + 1)}">
+                                     th:id="${'preview-image-' + stat.index}"> <img th:src="@{${image.imgUrl}}" th:alt="${'기존 이미지 ' + (stat.index + 1)}">
                                     <button type="button" class="remove-image" th:data-img-id="${image.freeImgId}" th:data-img-index="${stat.index}">×</button>
                                     <input type="hidden" th:name="${'imgList[' + stat.index + '].freeImgId'}" th:value="${image.freeImgId}">
                                     <input type="hidden" th:name="${'imgList[' + stat.index + '].imgUrl'}" th:value="${image.imgUrl}">
@@ -269,6 +269,7 @@
             const imagePreviewDiv = document.getElementById('imagePreview');
             const imageInput = document.getElementById('imageInput');
             const imageUploadArea = document.getElementById('imageUploadArea');
+            const modifyForm = document.getElementById('modifyForm');
 
             // 기존 이미지 제거 버튼에 이벤트 리스너 추가
             imagePreviewDiv.querySelectorAll('.remove-image').forEach(button => {
@@ -278,7 +279,14 @@
                     const previewImageDiv = document.getElementById(`preview-image-${imgIndex}`);
 
                     if (previewImageDiv) {
-                        previewImageDiv.remove(); // 미리보기 이미지 제거
+                        // ✅ DB에도 이미지 삭제 요청 (비동기)
+                        fetch(`/api/free/image/${imgId}`, {
+                            method: 'DELETE'
+                        })
+                            .then(response => {
+                                if (!response.ok) throw new Error("이미지 삭제 실패");
+                                // 성공 시 DOM에서 제거
+                                previewImageDiv.remove();
 
                         // 서버로 전송할 때 해당 이미지를 삭제할 것임을 표시
                         // 숨겨진 input 필드를 추가하여 서버에 삭제 요청을 알림
@@ -290,9 +298,16 @@
 
                         // 기존 이미지 배열에서도 제거 (JS 로직에서 사용될 경우)
                         existingImages = existingImages.filter(img => img.id != imgId);
+                    })
+                            .catch(err => {
+                                console.error(err);
+                                alert("이미지 삭제 중 오류가 발생했습니다.");
+                            });
                     }
-                });
             });
+            });
+       });
+
 
             // 새로운 이미지 업로드 시 미리보기 기능 (기존 주석 처리된 부분 활성화)
             imageInput.addEventListener('change', function(event) {
@@ -328,7 +343,6 @@
                         };
                         reader.readAsDataURL(file);
                     }
-                });
 
                 // 파일 input에 변경된 파일 목록 반영 (제거 시 사용)
                 function updateImageInputFiles() {
@@ -340,10 +354,10 @@
                 }
             });
 
-            // 이미지 업로드 영역 클릭 시 input 파일 선택 트리거
-            imageUploadArea.addEventListener('click', function() {
-                imageInput.click();
-            });
+            // // 이미지 업로드 영역 클릭 시 input 파일 선택 트리거
+            // imageUploadArea.addEventListener('click', function() {
+            //     imageInput.click();
+            // });
 
         });
         /*]]>*/

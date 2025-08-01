@@ -243,15 +243,19 @@ body {
 
 
 /* 상세 정보 래퍼 (좌우 2열 레이아웃) */
-.detail-container { /* 변경: .detail-wrapper 대신 .detail-container 사용 */
+.detail-container {
     display: grid;
     grid-template-columns: 1fr 400px; /* 이미지:정보 = 유동적:고정 */
-    gap: 40px;            /* 좌우 간격 */
+    gap: 40px;                        /* 좌우 간격 */
     background: var(--white);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     padding: 40px;
     margin-bottom: 40px;
+    max-width: 1200px;                /* 최대 너비 설정 (예시) */
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
 }
 
 /* =========================
@@ -611,14 +615,22 @@ body {
    댓글 섹션
    ========================= */
 
+
 /* 댓글 섹션 스타일 */
-.comment { /* 변경: .comment-section 대신 .comment 사용 */
-    padding: 20px 0 40px 0; /* 상하 여백 */
-    background: var(--white); /* 기존 .comment-card 스타일 통합 */
-    border-radius: var(--border-radius); /* 기존 .comment-card 스타일 통합 */
-    padding: 40px; /* 기존 .comment-card 스타일 통합 */
-    box-shadow: var(--box-shadow); /* 기존 .comment-card 스타일 통합 */
-    margin-top: 40px; /* 상세 정보 아래에 위치하도록 마진 추가 */
+.comments {
+    width: 100%;                       /* 부모 기준 전체 너비 강제 */
+    grid-column: 1 / -1;               /* 그리드 열 전체 차지 (grid 내부라면) */
+    max-width: 1200px;                 /* detail-container와 동일한 최대 너비 */
+    margin: 40px auto 0 auto;          /* 위쪽 마진 + 가운데 정렬 */
+    padding: 40px;                     /* 내부 여백 */
+    background: var(--white);          /* 흰 배경 */
+    border-radius: var(--border-radius); /* 둥근 테두리 */
+    box-shadow: var(--box-shadow);    /* 그림자 */
+    box-sizing: border-box;
+
+    /* ✅ 줄바꿈 안전 처리 */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* 댓글 카드 (기존 스타일을 .comment 에 통합) */
@@ -743,6 +755,22 @@ body {
     align-items: center;
     gap: 15px;
     margin-bottom: 15px;
+}
+
+.edit-confirm-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--accent-green);  /* 또는 원하는 색상 */
+    color: white;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background 0.2s ease;
+}
+
+.edit-confirm-btn:hover {
+    background-color: var(--primary-green); /* 호버 시 색상 */
 }
 
 /* 댓글 액션 버튼 공통 스타일 */
@@ -873,14 +901,16 @@ body {
 
 /* 대댓글 입력창 */
 .reply-form textarea {
-    flex: 1;              /* 남은 공간 모두 차지 */
+    flex: 1;
     padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    resize: vertical;     /* 세로로만 크기 조절 가능 */
+    resize: none;              /* 크기 조절 비활성화 */
     min-height: 60px;
+    max-height: 80px;          /* 최대 높이 제한 */
+    overflow-y: auto;          /* 스크롤 허용 */
     font-size: 14px;
-    font-family: inherit; /* 부모 폰트 상속 */
+    font-family: inherit;
 }
 
 /* 대댓글 등록 버튼 */
@@ -907,17 +937,24 @@ body {
     gap: 15px;             /* 입력창과 버튼 사이 간격 */
 }
 
+
 /* 댓글 입력창 */
 .comment-form textarea {
+    /*width: 100%;                      !* 부모 요소에 맞게 가로 채우기 *!*/
+    grid-column: 1 / -1; /* 전체 너비 차지 */
     padding: 15px;
     border: 2px solid var(--border-color);
     border-radius: 8px;
-    resize: vertical;      /* 세로로만 크기 조절 가능 */
+    resize: none;                     /* 크기 조절 비활성화 */
     min-height: 120px;
+    max-height: 140px;                /* 최대 높이 제한 */
+    overflow-y: auto;
     font-size: 14px;
-    font-family: inherit;  /* 부모 폰트 상속 */
+    font-family: inherit;
     transition: border-color 0.3s ease;
+    box-sizing: border-box;
 }
+
 
 /* 댓글 입력창 포커스 효과 */
 .comment-form textarea:focus {
