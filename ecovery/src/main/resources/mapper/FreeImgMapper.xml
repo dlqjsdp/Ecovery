@@ -73,4 +73,10 @@
         SET repimg_yn = 'Y'
         WHERE free_img_id = #{freeImgId}
     </update>
+
+    <!-- 특정 게시글에 속한 모든 이미지 삭제 -->
+    <delete id="deleteAllByFreeId" parameterType="Long">
+        DELETE FROM free_img
+        WHERE free_id = #{freeId}
+    </delete>
 </mapper>

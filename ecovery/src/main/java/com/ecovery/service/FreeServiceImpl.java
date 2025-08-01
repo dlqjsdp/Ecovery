@@ -160,63 +160,94 @@ public class FreeServiceImpl implements FreeService {
         return dto;
     }
 
-    // 게시글 수정
     @Override
-    public boolean modify(FreeDto dto, List<MultipartFile> imgFileList) throws Exception {
+    public boolean modify(FreeDto dto, List<MultipartFile> imgFileList, List<Long> deletedImageIds) throws Exception {
+        log.info("게시글 수정 서비스 시작 - freeId: {}, deletedImageIds: {}", dto.getFreeId(), deletedImageIds);
 
-        // 이미지가 없으면 예외 발생
-        if (imgFileList == null || imgFileList.isEmpty()) {
-            throw new IllegalArgumentException("이미지는 최소 1장 이상 등록해야 합니다.");
+        // 1. 게시글 정보 수정
+        FreeVO freeVo = dtoToVo(dto);
+        int updatedFreeCount = freeMapper.update(freeVo);
+
+        // 게시글 업데이트 실패 시
+        if (updatedFreeCount != 1) {
+            log.error("게시글 수정 실패 - freeId: {}", dto.getFreeId());
+            return false;
         }
 
-        // FreeDto -> FreeVO 변환
-        FreeVO free = dtoToVo(dto);
-
-        // 게시글 정보 수정
-        int updatedFreeCount = freeMapper.update(free);
-
-        // 수정된 이미지 수
-        int updatedImgCount = 0;
-
-        // 이미지 ID 목록 (FreeDto의 imgList에서 꺼냄)
-        List<FreeImgDto> imgDtoList = dto.getImgList();
-
-        for (int i = 0; i < imgFileList.size(); i++) {
-            MultipartFile multipartFile = imgFileList.get(i);
-            FreeImgDto imgDto = imgDtoList.get(i);
-
-            // FreeImgVO 생성
-            FreeImgVO imgVo = FreeImgVO.builder()
-                    .freeImgId(imgDto.getFreeImgId())  // 기존 이미지 ID
-                    .freeId(dto.getFreeId())
-                    .build();
-
-            // 대표 이미지 설정
-            if (i == 0) {
-                imgVo.setRepImgYn("Y");
-            } else {
-                imgVo.setRepImgYn("N");
-            }
-
-            // 이미지 수정
-            boolean isUpdated = freeImgService.updateFreeImg(imgVo, multipartFile);
-
-            if (isUpdated) {
-                updatedImgCount++;
+        // 2. 삭제 요청된 이미지 처리
+        if (deletedImageIds != null && !deletedImageIds.isEmpty()) {
+            log.info("삭제할 이미지 ID 목록: {}", deletedImageIds);
+            // FreeImgService의 deleteFreeImg를 반복 호출하여 다중 이미지 삭제
+            for (Long imgId : deletedImageIds) {
+                freeImgService.deleteFreeImg(imgId);
             }
         }
 
-        return (updatedFreeCount == 1) && (updatedImgCount == imgFileList.size());
+        // 3. 새로운 이미지 등록 처리
+        if (imgFileList != null && !imgFileList.isEmpty()) {
+            log.info("새로 등록할 이미지 파일 수: {}", imgFileList.size());
+            freeImgService.saveAllFreeImages(dto.getFreeId(), imgFileList); // 다중 이미지 업로드 메서드 사용
+        }
+
+        // 4. 최종 이미지 개수 유효성 검사 및 대표 이미지 재설정
+        // 업데이트된 후의 모든 이미지 목록을 다시 조회
+        List<FreeImgVO> currentImages = freeImgMapper.getFreeImgList(dto.getFreeId());
+
+        if (currentImages == null || currentImages.isEmpty()) {
+            log.error("게시글에 이미지가 하나도 남아있지 않습니다. 수정 실패.");
+            // 모든 이미지가 삭제되고 새로운 이미지가 추가되지 않았다면, 여기서 롤백 필요 (TransactionManager가 처리)
+            throw new IllegalArgumentException("이미지는 최소 1장 이상 등록해야 합니다."); // 예외 발생시켜 롤백 유도
+        }
+
+        // 대표 이미지 재설정 로직 (FreeImgService 인터페이스에 setRepresentativeImage가 없으므로 여기서 직접 처리)
+        // 먼저 해당 게시글의 모든 이미지를 비대표 이미지로 설정
+        // 이 부분은 FreeImgMapper에 updateRepImgYnByFreeId(Long freeId, String repYn) 같은 메서드가 필요합니다.
+        // 또는 모든 이미지를 조회하여 N으로 변경 후 업데이트
+        for (FreeImgVO img : currentImages) {
+            if ("Y".equals(img.getRepImgYn())) {
+                img.setRepImgYn("N");
+                freeImgMapper.update(img); // Mapper에 단일 이미지 업데이트 메서드 필요 (혹은 updateRepImgYnByFreeImgId)
+            }
+        }
+
+        // 그리고 첫 번째 이미지를 대표 이미지로 설정
+        FreeImgVO firstImage = currentImages.get(0);
+        firstImage.setRepImgYn("Y");
+        freeImgMapper.update(firstImage); // Mapper에 단일 이미지 업데이트 메서드 필요
+
+        log.info("게시글 수정 성공 - freeId: {}", dto.getFreeId());
+        return true;
     }
 
 
-    // 게시글 삭제
+    // 게시글 삭제 (수정된 코드)
     @Override
     public boolean remove(FreeDto dto) {
         log.info("게시글 삭제 요청: {}", dto);
+
+        // 1. 게시글과 관련된 이미지들을 먼저 삭제합니다.
+        // freeId를 사용하여 해당 게시글의 모든 이미지들을 삭제하도록 freeImgService에 위임합니다.
+        try {
+            freeImgService.deleteFreeImg(dto.getFreeId()); // FreeImgService에 위임
+            log.info("게시글(freeId: {})에 연결된 모든 이미지 삭제 완료.", dto.getFreeId());
+        } catch (Exception e) {
+            log.error("게시글(freeId: {}) 이미지 삭제 중 오류 발생", dto.getFreeId(), e);
+            // 이미지 삭제 실패 시 게시글 삭제를 진행하지 않거나, 예외를 다시 던지는 로직 고려
+            throw new RuntimeException("게시글 이미지 삭제 실패", e); // 예외를 던져 트랜잭션 롤백 유도
+        }
+
+        // 2. 게시글 본문을 삭제합니다.
         FreeVO vo = dtoToVo(dto);
-        return freeMapper.delete(vo) == 1;
+        boolean deletedFree = freeMapper.delete(vo) == 1;
+
+        if (!deletedFree) {
+            log.error("게시글(freeId: {}) 삭제 실패.", dto.getFreeId());
+        }
+
+        return deletedFree;
     }
+
+
 
     // 전체 게시글 수 조회 (페이징)
     @Override
