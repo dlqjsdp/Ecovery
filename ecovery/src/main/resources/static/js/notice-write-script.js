@@ -43,21 +43,21 @@ let isSaving = false;
  */
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🌱 공지사항 작성 페이지가 로드되었습니다.');
-    
+
     // 각 컴포넌트 초기화
-    initializeEditor();
+    // initializeEditor();
     initializeFormValidation();
     initializeFileUpload();
     initializeTagSystem();
     initializeEventListeners();
     initializeAutoSave();
     initializeMobileMenu();
-    
+
     // 기존 데이터가 있으면 복원
     if (window.notice) {
         restoreNoticeData(window.notice);
     }
-    
+
     console.log('📝 모든 컴포넌트가 초기화되었습니다.');
 });
 
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeMobileMenu() {
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('navMenu');
-    
+
     if (hamburger && navMenu) {
         hamburger.addEventListener('click', function() {
             hamburger.classList.toggle('active');
@@ -83,156 +83,156 @@ function initializeMobileMenu() {
 /**
  * Quill 리치 에디터 초기화
  */
-function initializeEditor() {
-    const editorElement = document.getElementById('editor');
-    if (!editorElement) return;
-    
-    // Quill 에디터 설정
-    const quillOptions = {
-        theme: 'snow',
-        placeholder: '공지사항 내용을 작성하세요...',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'indent': '-1'}, { 'indent': '+1' }],
-                ['blockquote', 'code-block'],
-                ['link', 'image'],
-                [{ 'align': [] }],
-                ['clean']
-            ]
-        }
-    };
-    
-    // 에디터 초기화
-    quillEditor = new Quill('#editor', quillOptions);
-    
-    // 에디터 내용 변경 이벤트 리스너
-    quillEditor.on('text-change', function(delta, oldDelta, source) {
-        if (source === 'user') {
-            // 숨겨진 textarea에 내용 동기화
-            document.getElementById('content').value = quillEditor.root.innerHTML;
-            
-            // 폼 수정 상태 업데이트
-            markFormAsModified();
-            
-            console.log('📝 에디터 내용이 변경되었습니다.');
-        }
-    });
-    
-    console.log('✅ 리치 에디터가 초기화되었습니다.');
-}
-
-/* =========================================
-   폼 유효성 검사
-   ========================================= */
-
-/**
- * 폼 유효성 검사 초기화
- */
-function initializeFormValidation() {
-    const form = document.getElementById('noticeWriteForm');
-    if (!form) return;
-    
-    // 제목 입력 시 글자 수 카운터 업데이트
-    const titleInput = document.getElementById('title');
-    const titleCounter = document.getElementById('titleCounter');
-    
-    if (titleInput && titleCounter) {
-        titleInput.addEventListener('input', function() {
-            const length = this.value.length;
-            titleCounter.textContent = length;
-            
-            // 글자 수에 따른 색상 변경
-            if (length > 90) {
-                titleCounter.parentElement.className = 'char-counter danger';
-            } else if (length > 70) {
-                titleCounter.parentElement.className = 'char-counter warning';
-            } else {
-                titleCounter.parentElement.className = 'char-counter';
-            }
-            
-            markFormAsModified();
-        });
-    }
-    
-    // 폼 제출 이벤트 처리
-    form.addEventListener('submit', handleFormSubmit);
-    
-    // 입력 필드 변경 감지
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('change', markFormAsModified);
-    });
-    
-    console.log('✅ 폼 유효성 검사가 초기화되었습니다.');
-}
-
-/**
- * 폼 제출 처리
- * @param {Event} event - 폼 제출 이벤트
- */
-function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    if (isSaving) {
-        showNotification('현재 저장 중입니다. 잠시 후 다시 시도해주세요.', 'warning');
-        return;
-    }
-    
-    // 유효성 검사
-    if (!validateForm()) {
-        return;
-    }
-    
-    // 제출 버튼 확인
-    const submitButton = event.submitter;
-    const action = submitButton ? submitButton.value : 'draft';
-    
-    // 폼 제출
-    submitForm(action);
-}
-
-/**
- * 폼 유효성 검사
- * @returns {boolean} 유효성 검사 통과 여부
- */
-function validateForm() {
-    const title = document.getElementById('title').value.trim();
-    const category = document.getElementById('category').value;
-    const content = quillEditor.getText().trim();
-    
-    // 제목 검사
-    if (!title) {
-        showNotification('제목을 입력해주세요.', 'error');
-        document.getElementById('title').focus();
-        return false;
-    }
-    
-    if (title.length > 100) {
-        showNotification('제목은 100자 이하로 입력해주세요.', 'error');
-        document.getElementById('title').focus();
-        return false;
-    }
-    
-    // 카테고리 검사
-    if (!category) {
-        showNotification('카테고리를 선택해주세요.', 'error');
-        document.getElementById('category').focus();
-        return false;
-    }
-    
-    // 내용 검사
-    if (!content || content.length < 10) {
-        showNotification('내용을 10자 이상 입력해주세요.', 'error');
-        quillEditor.focus();
-        return false;
-    }
-    
-    return true;
-}
+// function initializeEditor() {
+//     const editorElement = document.getElementById('editor');
+//     if (!editorElement) return;
+//
+//     // Quill 에디터 설정
+//     const quillOptions = {
+//         theme: 'snow',
+//         placeholder: '공지사항 내용을 작성하세요...',
+//         modules: {
+//             toolbar: [
+//                 [{ 'header': [1, 2, 3, false] }],
+//                 ['bold', 'italic', 'underline', 'strike'],
+//                 [{ 'color': [] }, { 'background': [] }],
+//                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+//                 [{ 'indent': '-1'}, { 'indent': '+1' }],
+//                 ['blockquote', 'code-block'],
+//                 ['link', 'image'],
+//                 [{ 'align': [] }],
+//                 ['clean']
+//             ]
+//         }
+//     };
+//
+//     // 에디터 초기화
+//     quillEditor = new Quill('#editor', quillOptions);
+//
+//     // 에디터 내용 변경 이벤트 리스너
+//     quillEditor.on('text-change', function(delta, oldDelta, source) {
+//         if (source === 'user') {
+//             // 숨겨진 textarea에 내용 동기화
+//             document.getElementById('content').value = quillEditor.root.innerHTML;
+//
+//             // 폼 수정 상태 업데이트
+//             markFormAsModified();
+//
+//             console.log('📝 에디터 내용이 변경되었습니다.');
+//         }
+//     });
+//
+//     console.log('✅ 리치 에디터가 초기화되었습니다.');
+// }
+//
+// /* =========================================
+//    폼 유효성 검사
+//    ========================================= */
+//
+// /**
+//  * 폼 유효성 검사 초기화
+//  */
+// function initializeFormValidation() {
+//     const form = document.getElementById('noticeWriteForm');
+//     if (!form) return;
+//
+//     // 제목 입력 시 글자 수 카운터 업데이트
+//     const titleInput = document.getElementById('title');
+//     const titleCounter = document.getElementById('titleCounter');
+//
+//     if (titleInput && titleCounter) {
+//         titleInput.addEventListener('input', function() {
+//             const length = this.value.length;
+//             titleCounter.textContent = length;
+//
+//             // 글자 수에 따른 색상 변경
+//             if (length > 90) {
+//                 titleCounter.parentElement.className = 'char-counter danger';
+//             } else if (length > 70) {
+//                 titleCounter.parentElement.className = 'char-counter warning';
+//             } else {
+//                 titleCounter.parentElement.className = 'char-counter';
+//             }
+//
+//             markFormAsModified();
+//         });
+//     }
+//
+//     // 폼 제출 이벤트 처리
+//     form.addEventListener('submit', handleFormSubmit);
+//
+//     // 입력 필드 변경 감지
+//     const inputs = form.querySelectorAll('input, select, textarea');
+//     inputs.forEach(input => {
+//         input.addEventListener('change', markFormAsModified);
+//     });
+//
+//     console.log('✅ 폼 유효성 검사가 초기화되었습니다.');
+// }
+//
+// /**
+//  * 폼 제출 처리
+//  * @param {Event} event - 폼 제출 이벤트
+//  */
+// function handleFormSubmit(event) {
+//     event.preventDefault();
+//
+//     if (isSaving) {
+//         showNotification('현재 저장 중입니다. 잠시 후 다시 시도해주세요.', 'warning');
+//         return;
+//     }
+//
+//     // 유효성 검사
+//     if (!validateForm()) {
+//         return;
+//     }
+//
+//     // 제출 버튼 확인
+//     const submitButton = event.submitter;
+//     const action = submitButton ? submitButton.value : 'draft';
+//
+//     // 폼 제출
+//     submitForm(action);
+// }
+//
+// /**
+//  * 폼 유효성 검사
+//  * @returns {boolean} 유효성 검사 통과 여부
+//  */
+// function validateForm() {
+//     const title = document.getElementById('title').value.trim();
+//     const category = document.getElementById('category').value;
+//     const content = quillEditor.getText().trim();
+//
+//     // 제목 검사
+//     if (!title) {
+//         showNotification('제목을 입력해주세요.', 'error');
+//         document.getElementById('title').focus();
+//         return false;
+//     }
+//
+//     if (title.length > 100) {
+//         showNotification('제목은 100자 이하로 입력해주세요.', 'error');
+//         document.getElementById('title').focus();
+//         return false;
+//     }
+//
+//     // 카테고리 검사
+//     if (!category) {
+//         showNotification('카테고리를 선택해주세요.', 'error');
+//         document.getElementById('category').focus();
+//         return false;
+//     }
+//
+//     // 내용 검사
+//     if (!content || content.length < 10) {
+//         showNotification('내용을 10자 이상 입력해주세요.', 'error');
+//         quillEditor.focus();
+//         return false;
+//     }
+//
+//     return true;
+// }
 
 /* =========================================
    파일 업로드 시스템
@@ -244,24 +244,24 @@ function validateForm() {
 function initializeFileUpload() {
     const uploadArea = document.getElementById('fileUploadArea');
     const fileInput = document.getElementById('attachments');
-    
+
     if (!uploadArea || !fileInput) return;
-    
+
     // 클릭으로 파일 선택
     uploadArea.addEventListener('click', function() {
         fileInput.click();
     });
-    
+
     // 파일 선택 이벤트
     fileInput.addEventListener('change', function(event) {
         handleFileSelect(event.target.files);
     });
-    
+
     // 드래그 앤 드롭 이벤트
     uploadArea.addEventListener('dragover', handleDragOver);
     uploadArea.addEventListener('dragleave', handleDragLeave);
     uploadArea.addEventListener('drop', handleFileDrop);
-    
+
     console.log('✅ 파일 업로드 시스템이 초기화되었습니다.');
 }
 
@@ -290,7 +290,7 @@ function handleDragLeave(event) {
 function handleFileDrop(event) {
     event.preventDefault();
     event.currentTarget.classList.remove('dragover');
-    
+
     const files = event.dataTransfer.files;
     handleFileSelect(files);
 }
@@ -301,20 +301,20 @@ function handleFileDrop(event) {
  */
 function handleFileSelect(files) {
     if (!files || files.length === 0) return;
-    
+
     // 파일 개수 제한 검사
     if (uploadedFiles.length + files.length > MAX_FILES) {
         showNotification(`최대 ${MAX_FILES}개의 파일만 업로드할 수 있습니다.`, 'error');
         return;
     }
-    
+
     // 각 파일 처리
     Array.from(files).forEach(file => {
         if (validateFile(file)) {
             addFileToList(file);
         }
     });
-    
+
     updateAttachmentList();
 }
 
@@ -329,19 +329,19 @@ function validateFile(file) {
         showNotification(`${file.name}의 크기가 10MB를 초과합니다.`, 'error');
         return false;
     }
-    
+
     // 파일 타입 검사
     if (!ALLOWED_TYPES.includes(file.type)) {
         showNotification(`${file.name}은 지원하지 않는 파일 형식입니다.`, 'error');
         return false;
     }
-    
+
     // 중복 파일 검사
     if (uploadedFiles.some(f => f.name === file.name && f.size === file.size)) {
         showNotification(`${file.name}은 이미 업로드된 파일입니다.`, 'warning');
         return false;
     }
-    
+
     return true;
 }
 
@@ -357,10 +357,10 @@ function addFileToList(file) {
         size: formatFileSize(file.size),
         type: file.type
     };
-    
+
     uploadedFiles.push(fileObj);
     markFormAsModified();
-    
+
     console.log(`📎 파일이 추가되었습니다: ${file.name}`);
 }
 
@@ -370,12 +370,12 @@ function addFileToList(file) {
 function updateAttachmentList() {
     const listContainer = document.getElementById('attachmentList');
     if (!listContainer) return;
-    
+
     if (uploadedFiles.length === 0) {
         listContainer.innerHTML = '';
         return;
     }
-    
+
     const html = uploadedFiles.map(fileObj => `
         <div class="attachment-item" data-file-id="${fileObj.id}">
             <span class="file-icon">${getFileIcon(fileObj.type)}</span>
@@ -390,7 +390,7 @@ function updateAttachmentList() {
             </div>
         </div>
     `).join('');
-    
+
     listContainer.innerHTML = html;
 }
 
@@ -414,11 +414,11 @@ function getFileIcon(fileType) {
  */
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
-    
+
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
@@ -430,7 +430,7 @@ function removeFile(fileId) {
     uploadedFiles = uploadedFiles.filter(f => f.id !== fileId);
     updateAttachmentList();
     markFormAsModified();
-    
+
     showNotification('파일이 제거되었습니다.', 'info');
 }
 
@@ -444,11 +444,11 @@ function removeFile(fileId) {
 function initializeTagSystem() {
     const tagInput = document.getElementById('tags');
     if (!tagInput) return;
-    
+
     // 태그 입력 이벤트
     tagInput.addEventListener('input', handleTagInput);
     tagInput.addEventListener('keydown', handleTagKeydown);
-    
+
     console.log('✅ 태그 시스템이 초기화되었습니다.');
 }
 
@@ -459,7 +459,7 @@ function initializeTagSystem() {
 function handleTagInput(event) {
     const value = event.target.value;
     const tags = value.split(',').map(tag => tag.trim()).filter(tag => tag);
-    
+
     currentTags = tags;
     updateTagPreview();
     markFormAsModified();
@@ -474,7 +474,7 @@ function handleTagKeydown(event) {
         event.preventDefault();
         const input = event.target;
         const value = input.value.trim();
-        
+
         if (value && !value.endsWith(',')) {
             input.value = value + ', ';
             handleTagInput(event);
@@ -488,19 +488,19 @@ function handleTagKeydown(event) {
 function updateTagPreview() {
     const previewContainer = document.getElementById('tagPreview');
     if (!previewContainer) return;
-    
+
     if (currentTags.length === 0) {
         previewContainer.innerHTML = '';
         return;
     }
-    
+
     const html = currentTags.map((tag, index) => `
         <span class="tag">
             ${tag}
             <span class="remove-tag" onclick="removeTag(${index})">×</span>
         </span>
     `).join('');
-    
+
     previewContainer.innerHTML = html;
 }
 
@@ -510,13 +510,13 @@ function updateTagPreview() {
  */
 function removeTag(index) {
     currentTags.splice(index, 1);
-    
+
     // 입력 필드 업데이트
     const tagInput = document.getElementById('tags');
     if (tagInput) {
         tagInput.value = currentTags.join(', ');
     }
-    
+
     updateTagPreview();
     markFormAsModified();
 }
@@ -534,25 +534,25 @@ function initializeEventListeners() {
     if (saveDraftBtn) {
         saveDraftBtn.addEventListener('click', () => saveDraft());
     }
-    
+
     // 미리보기 버튼
     const previewBtn = document.getElementById('previewBtn');
     if (previewBtn) {
         previewBtn.addEventListener('click', showPreview);
     }
-    
+
     // 초기화 버튼
     const resetBtn = document.getElementById('resetBtn');
     if (resetBtn) {
         resetBtn.addEventListener('click', resetForm);
     }
-    
+
     // 발행 상태 변경 시 예약 날짜 필드 표시/숨김
     const statusInputs = document.querySelectorAll('input[name="status"]');
     statusInputs.forEach(input => {
         input.addEventListener('change', handleStatusChange);
     });
-    
+
     // 페이지 나가기 전 확인
     window.addEventListener('beforeunload', function(event) {
         if (isFormModified && !isSaving) {
@@ -561,7 +561,7 @@ function initializeEventListeners() {
             return event.returnValue;
         }
     });
-    
+
     console.log('✅ 이벤트 리스너가 초기화되었습니다.');
 }
 
@@ -571,7 +571,7 @@ function initializeEventListeners() {
  */
 function handleStatusChange(event) {
     const publishDateField = document.getElementById('publishDate').parentElement;
-    
+
     if (event.target.value === 'scheduled') {
         publishDateField.style.display = 'block';
         document.getElementById('publishDate').required = true;
@@ -595,7 +595,7 @@ function initializeAutoSave() {
             saveDraft(true); // true = 자동저장
         }
     }, AUTO_SAVE_INTERVAL);
-    
+
     console.log('✅ 자동저장 시스템이 초기화되었습니다.');
 }
 
@@ -623,17 +623,17 @@ function markFormAsSaved() {
  */
 async function saveDraft(isAuto = false) {
     if (isSaving) return;
-    
+
     isSaving = true;
-    
+
     try {
         const formData = collectFormData();
         formData.status = 'draft';
-        
+
         if (!isAuto) {
             showSavingIndicator();
         }
-        
+
         const response = await fetch(window.saveDraftUrl, {
             method: 'POST',
             headers: {
@@ -642,7 +642,7 @@ async function saveDraft(isAuto = false) {
             },
             body: JSON.stringify(formData)
         });
-        
+
         if (response.ok) {
             markFormAsSaved();
             if (!isAuto) {
@@ -653,7 +653,7 @@ async function saveDraft(isAuto = false) {
         } else {
             throw new Error('저장 실패');
         }
-        
+
     } catch (error) {
         console.error('저장 오류:', error);
         if (!isAuto) {
@@ -671,14 +671,14 @@ async function saveDraft(isAuto = false) {
  */
 async function submitForm(action) {
     if (isSaving) return;
-    
+
     isSaving = true;
     showSavingIndicator();
-    
+
     try {
         const formData = collectFormData();
         formData.action = action;
-        
+
         // 발행 시 추가 확인
         if (action === 'publish') {
             const confirmed = confirm('공지사항을 발행하시겠습니까?\n발행 후에는 모든 사용자에게 표시됩니다.');
@@ -688,7 +688,7 @@ async function submitForm(action) {
                 return;
             }
         }
-        
+
         const response = await fetch(window.noticeWriteForm.action, {
             method: 'POST',
             headers: {
@@ -697,10 +697,10 @@ async function submitForm(action) {
             },
             body: JSON.stringify(formData)
         });
-        
+
         if (response.ok) {
             markFormAsSaved();
-            
+
             if (action === 'publish') {
                 showNotification('공지사항이 발행되었습니다! 📢', 'success');
                 setTimeout(() => {
@@ -712,7 +712,7 @@ async function submitForm(action) {
         } else {
             throw new Error('저장 실패');
         }
-        
+
     } catch (error) {
         console.error('제출 오류:', error);
         showNotification('저장 중 오류가 발생했습니다.', 'error');
@@ -729,7 +729,7 @@ async function submitForm(action) {
 function collectFormData() {
     const form = document.getElementById('noticeWriteForm');
     const formData = new FormData(form);
-    
+
     // 기본 데이터
     const data = {
         title: formData.get('title'),
@@ -742,12 +742,12 @@ function collectFormData() {
         sendPush: formData.has('sendPush'),
         pinTop: formData.has('pinTop')
     };
-    
+
     // 예약 발행 날짜
     if (data.status === 'scheduled') {
         data.publishDate = formData.get('publishDate');
     }
-    
+
     // 첨부파일
     if (uploadedFiles.length > 0) {
         data.attachments = uploadedFiles.map(f => ({
@@ -756,7 +756,7 @@ function collectFormData() {
             type: f.type
         }));
     }
-    
+
     return data;
 }
 
@@ -769,16 +769,16 @@ function collectFormData() {
  */
 function showPreview() {
     if (!validateForm()) return;
-    
+
     const data = collectFormData();
-    
+
     // 미리보기 HTML 생성
     const previewHtml = generatePreviewHtml(data);
-    
+
     // 모달에 표시
     const previewContainer = document.getElementById('previewContainer');
     const previewModal = document.getElementById('previewModal');
-    
+
     if (previewContainer && previewModal) {
         previewContainer.innerHTML = previewHtml;
         previewModal.style.display = 'flex';
@@ -794,7 +794,7 @@ function generatePreviewHtml(data) {
     const now = new Date().toLocaleDateString('ko-KR');
     const priorityBadge = data.priority === 'urgent' ? '<div class="important-badge-large">긴급</div>' :
                          data.priority === 'important' ? '<div class="important-badge-large">중요</div>' : '';
-    
+
     return `
         <article class="notice-article">
             <header class="notice-article-header">
@@ -861,24 +861,24 @@ function publishFromPreview() {
 function resetForm() {
     const confirmed = confirm('작성 중인 내용이 모두 삭제됩니다. 계속하시겠습니까?');
     if (!confirmed) return;
-    
+
     // 폼 리셋
     document.getElementById('noticeWriteForm').reset();
-    
+
     // 에디터 초기화
     quillEditor.setContents([]);
-    
+
     // 파일 목록 초기화
     uploadedFiles = [];
     updateAttachmentList();
-    
+
     // 태그 초기화
     currentTags = [];
     updateTagPreview();
-    
+
     // 상태 초기화
     markFormAsSaved();
-    
+
     showNotification('폼이 초기화되었습니다.', 'info');
 }
 
@@ -891,20 +891,20 @@ function restoreNoticeData(noticeData) {
     if (noticeData.title) document.getElementById('title').value = noticeData.title;
     if (noticeData.category) document.getElementById('category').value = noticeData.category;
     if (noticeData.content && quillEditor) quillEditor.root.innerHTML = noticeData.content;
-    
+
     // 우선순위 복원
     if (noticeData.priority) {
         const priorityInput = document.querySelector(`input[name="priority"][value="${noticeData.priority}"]`);
         if (priorityInput) priorityInput.checked = true;
     }
-    
+
     // 태그 복원
     if (noticeData.tags) {
         currentTags = noticeData.tags;
         document.getElementById('tags').value = currentTags.join(', ');
         updateTagPreview();
     }
-    
+
     console.log('📄 기존 데이터가 복원되었습니다.');
 }
 
@@ -937,17 +937,17 @@ function showNotification(message, type = 'info') {
     // 기존 알림 제거
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
-    
+
     // 새 알림 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     // 표시 애니메이션
     setTimeout(() => notification.classList.add('show'), 100);
-    
+
     // 자동 숨김
     setTimeout(() => {
         notification.classList.remove('show');

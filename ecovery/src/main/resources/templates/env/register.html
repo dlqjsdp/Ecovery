@@ -79,7 +79,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                             <label class="form-label" for="postTitle">제목</label>
                             <input type="text" id="postTitle" name="title" class="form-input title-input"
                                    placeholder="제목을 입력하세요 (최대 255자)" maxlength="255" required>
-                            <div class="char-count"><span id="titleCount">0</span>/100</div>
+                            <div class="char-count"><span id="titleCount">0</span>/255</div>
                             <span class="error-message" id="titleError"></span>
                         </div>
 
@@ -222,7 +222,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
             var validationRules = {
                 title: {
                     required: true,
-                    maxLength: 100,
+                    maxLength: 255,
                     message: '제목을 입력해주세요 (최대 255자)'
                 },
                 content: {
