@@ -82,7 +82,7 @@
 /* 폼 섹션 컨테이너 */
 .form-section {
     margin-bottom: var(--form-section-gap);
-    padding: 30px 0;
+    padding: 10px 0;  /* 추가 : 기존 30px → 10px 으로 줄이기 */
     border-bottom: 1px solid var(--light-gray);
 }
 
@@ -108,7 +108,7 @@
 
 /* 폼 그룹 (기본 래퍼) */
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 12px; /* 추가 : 기존 25px → 12px 등으로 줄이기 */
 }
 
 /* 폼 행 (여러 요소를 가로로 배치) */
@@ -116,6 +116,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 25px;
+    margin-bottom: 25px;  /* 추가 */
 }
 
 .form-group.half-width {

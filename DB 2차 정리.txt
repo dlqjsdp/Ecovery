@@ -213,18 +213,20 @@ create table payment (
     foreign key(member_id) references member(member_id)
 );
 
+
 -- 환경톡톡 테이블 (env)
 CREATE TABLE env (
     env_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     title VARCHAR(255) NOT NULL,
-    content VARCHAR(1000) NOT NULL,
-    category VARCHAR(20) NOT NULL,
+    content VARCHAR(5000) NOT NULL,
     view_count INT NOT NULL DEFAULT 0,
+    category VARCHAR(20), 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );
+
 
 -- 환경톡톡 테이블 (env_img)
 CREATE TABLE env_img (
@@ -245,7 +247,8 @@ CREATE TABLE notice (
     title VARCHAR(255) NOT NULL,
     content VARCHAR(2000) NOT NULL,
     view_count INT NOT NULL DEFAULT 0,
+    category VARCHAR(20), 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );

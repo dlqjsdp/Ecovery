@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * @history
      - 250723 | yukyeong | 공지사항 서비스 구현 클래스 전체 작성 (CRUD, 페이징, DTO 적용, 조회수 증가 포함)
      - 250729 | yukyeong | 게시글 category 필드 DTO/VO 매핑 처리 추가
+     - 250802 | yukyeong | VO → DTO 매핑 시 작성자 권한(role) 포함되도록 setRole 추가
  */
 
 @Service
@@ -55,6 +56,7 @@ public class NoticeServiceImpl implements NoticeService {
         noticeDto.setViewCount(notice.getViewCount());
         noticeDto.setCreatedAt(notice.getCreatedAt());
         noticeDto.setUpdatedAt(notice.getUpdatedAt());
+        noticeDto.setRole(notice.getRole()); // 작성자 권한 추가
         return noticeDto;
     }
 

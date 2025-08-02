@@ -14,6 +14,10 @@
  *                         - 수정일/작성일 구분 표시 기능 추가
  *                         - 관리자용 글 수정/삭제 버튼 처리 기능 추가
  *                         - 삭제 후 목록 이동 처리 추가
+     - 250802 | yukyeong | 작성자 정보 렌더링 개선:
+                            - roleMap 추가로 관리자/사용자 역할 표시
+                            - avatar 기본 이모지 설정
+                            - notice-role, notice-avatar 요소에 값 바인딩 추가
 
  */
 
@@ -53,11 +57,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const views = new Intl.NumberFormat().format(data.viewCount) + '회';
 
+            const roleMap = {
+                "ADMIN": "관리자",
+                "USER": "사용자"
+            };
+
             // 게시글 정보 렌더링
             document.getElementById("notice-title").textContent = data.title;
             document.getElementById("notice-author").textContent = data.nickname ?? "알 수 없음";
             document.getElementById("notice-avatar").textContent = data.avatar ?? '👨‍💼';
-            document.getElementById("notice-role").textContent = data.role ?? "";
+            document.getElementById("notice-role").textContent = roleMap[data.role] ?? data.role ?? "";
             document.getElementById("notice-date").textContent = displayDate;
             document.getElementById("notice-views").textContent = views;
             document.getElementById("notice-content").innerHTML = data.content;

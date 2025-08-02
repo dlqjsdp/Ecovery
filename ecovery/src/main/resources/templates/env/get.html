@@ -10,6 +10,7 @@ GreenCycle 환경톡톡 게시글 상세보기
     - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용
     - 250730 | yukyeong | 상세페이지 전체 구조 전면 수정 (레이아웃 개선, 관리자 버튼 정비 등)
     - 250731 | yukyeong | Toast UI Editor 기반 본문 표시로 전환, 첨부파일 관련 마크업 및 액션 버튼 주석 처리
+    - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
 
 -->
 
@@ -30,7 +31,6 @@ GreenCycle 환경톡톡 게시글 상세보기
 <!-- 본문 콘텐츠 -->
 <div layout:fragment="content" class="fade-in">
     <!-- 메인 콘텐츠 영역 -->
-    <main class="main-content">
         <div class="container">
             <!-- 게시글 상세보기 헤더 섹션 (새로 추가) -->
             <section class="post-detail-hero">
@@ -160,7 +160,6 @@ GreenCycle 환경톡톡 게시글 상세보기
                 </div>
             </div>
         </div>
-    </main>
 </div>
 
 <th:block layout:fragment="script">
