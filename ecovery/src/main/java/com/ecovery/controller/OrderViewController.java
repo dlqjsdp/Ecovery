@@ -1,6 +1,8 @@
 package com.ecovery.controller;
 
 import com.ecovery.dto.OrderItemRequestDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 /*
  * 에코마켓 주문 View Controller
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *  - 250801 | sehui | 주문 페이지 첫 화면 요청 GET -> POST로 변경
  *  - 250801 | sehui | 반환하는 View 변경
  *  - 250801 | sehui | 주문 페이지 첫 화면에서 model로 전달하는 값 추가
+ *  - 250802 | sehui | 주문 페이지 첫 화면에 orderItemRequestDto를 JSON 문자열로 반환 로직 추가
  */
 
 
@@ -31,7 +36,15 @@ public class OrderViewController {
     @PostMapping("/prepare")
     public String preparePage(OrderItemRequestDto orderItemRequest, Model model) {
 
-        model.addAttribute("orderItemRequests", orderItemRequest);
+        try{
+            //OrderItemRequestDto를 JSON 문자열로 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(List.of(orderItemRequest));
+
+            model.addAttribute("orderItemRequests", json);
+        }catch (JsonProcessingException e){
+            throw new RuntimeException("JSON 변환 실패", e);
+        }
 
         return "order/order-payment";
     }

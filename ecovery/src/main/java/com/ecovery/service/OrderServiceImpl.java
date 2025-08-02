@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +32,7 @@ import java.util.UUID;
  *  - 250725 | sehui | 주문 취소/결제 실패 시 관련 주문의 주문 상태 변경 기능 추가
  *  - 250728 | sehui | 주문 페이지 재출력용 주문 단건 조회 기능 추가
  *  - 250728 | sehui | 주문 저장 기능에 totalPrice 추가
+ *  - 250802 | sehui | orderUuid 가독성을 위해 날짜 + 랜덤 조합으로 변경
  */
 
 @Service
@@ -60,8 +63,10 @@ public class OrderServiceImpl implements OrderService {
             totalPrice += orderItem.getOrderPrice();
         }
 
-        //주문 UUID 생성
-        String orderUuid = UUID.randomUUID().toString();
+        //주문 UUID 생성 (날짜 + 랜덤 조합)
+        String datePart = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);     //"20250802"
+        String randomPart = UUID.randomUUID().toString().substring(0,6).toUpperCase();  //대문자, 6자리
+        String orderUuid = datePart + "-" + randomPart;
 
         //주문 OrderDto 객체 생성, 주문 상품 List, 총 금액 값 설정
         OrderDto orderDto = new OrderDto();
