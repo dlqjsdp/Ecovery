@@ -40,16 +40,11 @@
         select * from item_img where item_img_id = #{itemImgId}
     </select>
 
-    <!-- 상품 이미지 수정 -->
-    <update id="updateItemImg">
-        update item_img
-        set img_name = #{imgName},
-            ori_img_name = #{oriImgName},
-            img_url = #{imgUrl},
-            rep_img_yn = #{repImgYn},
-            created_at = now()
-        where item_img_id = #{itemImgId}
-    </update>
+    <!-- 상품 이미지 수정을 위한 delete -->
+    <delete id="deleteImagesByItemId" parameterType="long">
+        DELETE FROM item_img
+        WHERE item_id = #{itemId}
+    </delete>
 
     <!-- 대표 이미지 조회 -->
     <select id="findRepImgByItemId" resultType="com.ecovery.domain.ItemImgVO">
@@ -58,4 +53,10 @@
         AND rep_img_yn = 'Y'
     </select>
 
+    <!-- 수정된 이미지를 대표 이미지로 update-->
+    <update id="updateRepImgYn">
+        UPDATE item_img
+        SET rep_img_yn = #{repImgYn}
+        WHERE item_Img_Id = #{itemImgId}
+    </update>
 </mapper>

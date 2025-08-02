@@ -25,4 +25,6 @@ public class ItemImgDto {
     private String oriImgName;      //원본 이미지명
     private String imgUrl;          //이미지 조회 경로
     private String repImgYn;        //대표 이미지 여부
+
+    private boolean toBeDeleted; // 사용자에 의해 삭제 요청된 이미지 여부
 }

@@ -51,7 +51,7 @@ public class ItemServiceImpl implements ItemService     {
     //ItemImgVo -> ItemImgDto 변환 메소드
     private List<ItemImgDto> convertImgVoToDto(List<ItemImgVO> itemImgList) {
         return itemImgList.stream()
-                .map(vo -> new ItemImgDto(vo.getItemImgId(), vo.getItemId(), vo.getImgName(), vo.getOriImgName(), vo.getImgUrl(), vo.getRepImgYn()))
+                .map(vo -> new ItemImgDto(vo.getItemImgId(), vo.getItemId(), vo.getImgName(), vo.getOriImgName(), vo.getImgUrl(), vo.getRepImgYn(), false))
                 .collect(Collectors.toList());
     }
 
@@ -179,7 +179,23 @@ public class ItemServiceImpl implements ItemService     {
 
     //상품 수정
     @Override
-    public boolean updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
+    @Transactional
+    public void updateItem(ItemFormDto formDto, List<MultipartFile> newImgFiles) throws Exception {
+        // 1. item 정보 수정
+        ItemVO item = itemMapper.findByItemId(formDto.getItemId());
+        item.setItemName(formDto.getItemNm());
+        item.setPrice(formDto.getPrice());
+        item.setStockNumber(formDto.getStockNumber());
+        item.setItemDetail(formDto.getItemDetail());
+        item.setItemSellStatus(formDto.getItemSellStatus());
+        item.setCategoryId(formDto.getCategoryId());
+        itemMapper.updateItem(item);
+
+        // 2. 이미지 업데이트 처리
+        itemImgService.updateItemImg(formDto.getItemId(), formDto.getItemImgDtoList(), newImgFiles);
+    }
+
+    /*public boolean updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
 
         //ItemFormDto -> ItemVO 변환
         ItemVO item = convertDtoToVo(itemFormDto);
@@ -224,7 +240,7 @@ public class ItemServiceImpl implements ItemService     {
         }
 
         return (updatedItemCount == 1) & (updatedImgCount == itemImgFileList.size());
-    }
+    }*/
 
     // 상품 ID로 상품 정보 조회
     @Override
