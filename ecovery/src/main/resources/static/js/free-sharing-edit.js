@@ -187,7 +187,7 @@ function setupEventListeners() {
 
     if (imageUploadArea && imageInput) {
         // 업로드 영역 클릭시
-        imageUploadArea.addEventListener('click', function() {
+        imageUploadArea.addEventListener('click', function () {
             // 현재 이미지 개수 확인 (기존 + 새로 추가될 이미지)
             const currentTotalImages = imagePreview.querySelectorAll('.preview-image').length + newUploadedFiles.length;
             if (currentTotalImages >= 5) {
@@ -228,7 +228,7 @@ function setupEventListeners() {
     // 제목 글자수 제한
     const titleInput = document.getElementById('title');
     if (titleInput) {
-        titleInput.addEventListener('input', function() {
+        titleInput.addEventListener('input', function () {
             limitCharacters(this, 50, '제목');
         });
     }
@@ -236,13 +236,28 @@ function setupEventListeners() {
     // 설명 글자수 제한 및 카운터
     const descriptionInput = document.getElementById('description');
     if (descriptionInput) {
-        descriptionInput.addEventListener('input', function() {
+        descriptionInput.addEventListener('input', function () {
             limitCharacters(this, 1000, '설명');
             updateCharacterCounter(this, 1000);
         });
     }
-}
 
+
+    // ✅ 기존 이미지 삭제 처리
+    const existingRemoveButtons = document.querySelectorAll('.preview-image.existing .remove-image');
+    existingRemoveButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const imageBox = this.closest('.preview-image');
+            if (imageBox) {
+                const statusInput = imageBox.querySelector('input[name$=".imgStatus"]');
+                if (statusInput) {
+                    statusInput.value = 'DELETED';
+                }
+                imageBox.style.display = 'none';
+            }
+        });
+    });
+}
 // =========================
 // 지역 선택 관련 함수
 // =========================
@@ -364,13 +379,13 @@ function displayNewImagePreview(imageData) {
     previewItem.className = 'preview-image new'; // 'new' 클래스 추가
     previewItem.id = imageData.id; // 제거를 위한 ID 부여
     previewItem.innerHTML = `<img src="${imageData.src}" alt="새 이미지 미리보기">
-        <button type="button" class="remove-new-image" data-image-id="${imageData.id}">×</button>`; // 데이터 속성으로 ID 저장
+        <button type="button" class="remove-image" data-image-id="${imageData.id}">×</button>`; // 데이터 속성으로 ID 저장
 
     previewContainer.appendChild(previewItem);
 
     // 새 이미지의 제거 버튼에 이벤트 리스너 추가
-    previewItem.querySelector('.remove-new-image').addEventListener('click', function() {
-        removeNewImage(this.dataset.freeImgId);
+    previewItem.querySelector('.remove-image').addEventListener('click', function() {
+        removeNewImage(this.dataset.imageId);
     });
 }
 
@@ -545,8 +560,24 @@ async function handleFormSubmit(event) {
         formData.append("imgFile", imageData.file);
     });
 
-    // 기존 이미지들의 상태 (삭제 여부)를 나타내는 hidden input들도 FormData에 자동으로 포함됩니다.
-    // HTML에서 `name="freeImgDtoList[${stat.index}].imgStatus"` 등으로 이미 처리했습니다.
+    // ✅ 기존 이미지 중 삭제되지 않은 것만 FormData에 수동으로 추가
+    const existingImages = document.querySelectorAll('.preview-image.existing');
+
+    existingImages.forEach((imgBox, index) => {
+        const statusInput = imgBox.querySelector('input[name$=".imgStatus"]');
+        if (statusInput && statusInput.value === 'DELETED') {
+            return; // 삭제된 이미지면 건너뜀
+        }
+
+        const idInput = imgBox.querySelector('input[name$=".freeImgId"]');
+        const urlInput = imgBox.querySelector('input[name$=".freeImgUrl"]');
+        const repInput = imgBox.querySelector('input[name$=".repImgYn"]');
+
+        if (idInput) formData.append(`imgList[${index}].freeImgId`, idInput.value);
+        if (urlInput) formData.append(`imgList[${index}].freeImgUrl`, urlInput.value);
+        if (statusInput) formData.append(`imgList[${index}].imgStatus`, statusInput.value);
+        if (repInput) formData.append(`imgList[${index}].repImgYn`, repInput.value);
+    });
 
     // 서버에 전송
     try {
@@ -572,7 +603,7 @@ async function handleFormSubmit(event) {
                     // 서버 응답에 freeId가 포함되어 있다면 활용
                     // 현재는 수정 페이지에서 freeId를 hidden 필드로 가지고 있으므로 그것을 사용
                     const freeId = document.querySelector('input[name="freeId"]').value;
-                    window.location.href = `/free/detail/${freeId}`;
+                    window.location.href = `/free/modify/${freeId}`;
                 } else {
                     window.location.href = '/free/list'; // 아니면 목록 페이지로
                 }

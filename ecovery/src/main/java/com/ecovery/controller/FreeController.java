@@ -75,6 +75,9 @@ public class FreeController {
             if (loginMember != null) {
                 loginMemberNickname = loginMember.getNickname();
                 loginMemberRole = loginMember.getRole();
+
+                // ✅ JS에서 사용할 loginMember 객체 추가 (memberId, role 등 접근 가능)
+                model.addAttribute("loginMember", loginMember);
             }
         }
 

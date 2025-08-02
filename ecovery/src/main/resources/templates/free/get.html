@@ -146,7 +146,7 @@
 
 
                 <!-- 💬 댓글 전체 블록은 로그인 여부 관계없이 항상 렌더링 -->
-                <div class="comment">
+                <div class="comments">
                     <h2>💬 댓글</h2>
 
                     <!-- 댓글 정렬 드롭다운 -->
@@ -158,15 +158,15 @@
                         </select>
                     </div>
 
-                    <!-- 댓글 목록은 로그인 여부 관계없이 항상 보여야 함 -->
-                    <div class="comment-list" id="commentList">
-                        <!-- 댓글 아이템들이 JavaScript로 렌더링됨 -->
-                    </div>
-
                     <!-- 댓글 작성 폼 (로그인한 사용자만 보이게) -->
                     <div th:if="${loginMemberNickname != null}" class="comment-form">
                         <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
                         <button id="submitCommentBtn">등록</button>
+                    </div>
+
+                    <!-- 댓글 목록은 로그인 여부 관계없이 항상 보여야 함 -->
+                    <div class="comment-list" id="commentList">
+                        <!-- 댓글 아이템들이 JavaScript로 렌더링됨 -->
                     </div>
 
                     <!-- ✅ 여기에 페이징 영역 추가 -->
@@ -178,10 +178,19 @@
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 </div>
 
 <th:block layout:fragment="script">
+    <!-- 로그인 정보 전달 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.loginUserId = [[${loginMember?.memberId}]];
+        window.loginUserRole = [[${loginMember?.role?.name()}]];
+        /*]]>*/
+    </script>
+
     <!-- 메인 JS 파일 -->
     <script th:src="@{/js/free-sharing-detail.js}"></script>
 </th:block>
