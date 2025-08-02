@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -53,7 +54,7 @@ public class ItemImgServiceImpl implements ItemImgService {
         //파일 업로드
         if(!StringUtils.isEmpty(oriImgName)){
             imgName = fileService.uploadFile(ecoImgLocation, oriImgName, itemImgFile.getBytes());
-            imgUrl = "/images/item/" + imgName;
+            imgUrl = "/ecovery/item/" + imgName;
         }
 
         //ItemImgVo에 값 저장
@@ -70,35 +71,55 @@ public class ItemImgServiceImpl implements ItemImgService {
     }
 
     //상품 이미지 수정
+    //상품 이미지 수정
     @Override
-    public boolean updateItemImg(ItemImgVO itemImgVO, MultipartFile itemImgFile) throws Exception {
-
-        int updateRows = 0;
-
-        //기존 상품 이미지 조회
-        if(!itemImgFile.isEmpty()) {
-            ItemImgVO savedItemImg = itemImgMapper.getItemImgById(itemImgVO.getItemImgId());
-
-            //기존 이미지 파일 삭제
-            if(!StringUtils.isEmpty(savedItemImg.getImgName())){
-                fileService.deleteFile(ecoImgLocation + "/" + savedItemImg.getImgName());
-            }
-
-            //새로운 이미지 업로드
-            String oriImgName = itemImgFile.getOriginalFilename();
-            String imgName = fileService.uploadFile(ecoImgLocation, oriImgName, itemImgFile.getBytes());
-            String imgUrl = "/images/item/" + imgName;
-
-            //이미지 정보 수정한 VO 객체
-            itemImgVO.setOriImgName(oriImgName);
-            itemImgVO.setImgName(imgName);
-            itemImgVO.setImgUrl(imgUrl);
-
-            //DB에 이미지 정보 수정 요청
-            updateRows = itemImgMapper.updateItemImg(itemImgVO);
+    public void updateItemImg(Long itemId, List<ItemImgDto> itemImgDtoList, List<MultipartFile> newImgFiles) throws Exception {
+        if (newImgFiles == null) {
+            newImgFiles = new ArrayList<>();
         }
 
-        return updateRows == 1;
+        // 1. 기존 이미지 전부 삭제
+        itemImgMapper.deleteImagesByItemId(itemId); // <--- 이 코드를 그대로 유지합니다.
+
+        // 2. 프론트에서 유지하기로 한 기존 이미지를 재등록
+        for (ItemImgDto dto : itemImgDtoList) {
+            ItemImgVO vo = new ItemImgVO();
+            vo.setItemId(itemId);
+            vo.setImgName(dto.getImgName());
+            vo.setOriImgName(dto.getOriImgName());
+            vo.setImgUrl(dto.getImgUrl());
+            vo.setRepImgYn(dto.getRepImgYn());
+
+            itemImgMapper.insertItemImg(vo);
+        }
+
+        // 3. 새로 추가된 이미지들 업로드 및 insert
+        for (MultipartFile file : newImgFiles) {
+            if (!file.isEmpty()) {
+                String oriImgName = file.getOriginalFilename();
+                String imgName = fileService.uploadFile(ecoImgLocation, oriImgName, file.getBytes());
+                String imgUrl = "/ecovery/item/" + imgName;
+
+                ItemImgVO vo = new ItemImgVO();
+                vo.setItemId(itemId);
+                vo.setImgName(imgName);
+                vo.setOriImgName(oriImgName);
+                vo.setImgUrl(imgUrl);
+                vo.setRepImgYn("N");
+
+                itemImgMapper.insertItemImg(vo);
+            }
+        }
+        // 4. 최종 대표 이미지 확인 및 없으면 첫 번째 이미지 자동 지정
+        List<ItemImgVO> allImages = itemImgMapper.getItemImgList(itemId);
+
+        boolean hasRep = allImages.stream()
+                .anyMatch(img -> "Y".equalsIgnoreCase(img.getRepImgYn()));
+
+        if (!hasRep && !allImages.isEmpty()) {
+            ItemImgVO first = allImages.get(0);
+            itemImgMapper.updateRepImgYn(first.getItemImgId(), "Y");
+        }
     }
 
     //상품 전체 이미지 조회

@@ -217,9 +217,57 @@ public class ItemApiController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
-    
+
     //상품 수정 요청
     @PutMapping("/modify/{itemId}")
+    public ResponseEntity<String> itemModify(@PathVariable Long itemId,
+                                             @Valid @RequestPart("itemFormDto") ItemFormDto itemFormDto,
+                                             BindingResult bindingResult,
+                                             @RequestPart(value = "itemImgFile", required = false) List<MultipartFile> itemImgFileList,
+                                             Authentication auth) {
+
+        // 1. 로그인 사용자 정보 확인
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        String email = userDetails.getEmail();
+
+        // 2. 관리자 권한 확인
+        Role role = memberService.getMemberByEmail(email).getRole();
+        if (role != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("관리자 권한이 필요합니다.");
+        }
+
+        // 3. 유효성 검사
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("입력값이 유효하지 않습니다.");
+        }
+
+        // 4. itemId를 DTO에 설정 (강제 일치)
+        itemFormDto.setItemId(itemId);
+
+        // 5. 대표 이미지 누락 체크 (기존 이미지 모두 삭제 후 새 이미지가 없으면 에러)
+        boolean hasImagesToKeep = itemFormDto.getItemImgDtoList().stream()
+                .anyMatch(dto -> !dto.isToBeDeleted());
+
+        boolean hasNewImages = itemImgFileList != null && !itemImgFileList.isEmpty()
+                && itemImgFileList.stream().anyMatch(file -> !file.isEmpty());
+
+        if (!hasImagesToKeep && !hasNewImages) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("최소 한 개 이상의 상품 이미지를 유지 또는 추가해야 합니다.");
+        }
+
+        // 6. 상품 수정 처리
+        try {
+            itemService.updateItem(itemFormDto, itemImgFileList);
+            return ResponseEntity.ok("상품이 성공적으로 수정되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace(); // 또는 log.error(e)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품 수정 중 오류가 발생했습니다.");
+        }
+    }
+
+
+
+    /*@PutMapping("/modify/{itemId}")
     public ResponseEntity<String> itemModify(@PathVariable Long itemId,
                                                           @Valid @RequestPart("itemFormDto") ItemFormDto itemFormDto,
                                                           BindingResult bindingResult,
@@ -263,5 +311,5 @@ public class ItemApiController {
 
         return ResponseEntity.status(HttpStatus.OK).body(null);
 
-    }
+    }*/
 }

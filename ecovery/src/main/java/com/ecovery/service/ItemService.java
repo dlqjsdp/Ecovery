@@ -41,7 +41,7 @@ public interface ItemService {
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception;
 
     //상품 수정
-    public boolean updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception;
+    public void updateItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception;
 
     // 상품 ID로 상품 정보 조회
     public ItemVO findByItemId(Long itemId);

@@ -32,9 +32,12 @@ public interface ItemImgMapper {
     //상품 이미지 단건 조회
     public ItemImgVO getItemImgById(Long itemImgId);
 
-    //상품 이미지 수정
-    public int updateItemImg(ItemImgVO itemImgVO);
+    //상품 이미지 수정을 위한 삭제
+    public int deleteImagesByItemId(Long ItemId);
 
     //대표 이미지 조회
     public ItemImgVO findRepImgByItemId (Long itemId);
+
+    //수정된 이미지 대표 이미지로 업데이트
+    public void updateRepImgYn(Long itemImgId, String repImgYn);
 }

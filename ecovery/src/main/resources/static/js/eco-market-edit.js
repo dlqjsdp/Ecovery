@@ -1,14 +1,15 @@
 // =========================
 // @history
 //  - 250801 | sehui | DTO 필드명과 컨트롤러에 맞게 key, 타입 수정 적용
+//  - 250802 | gemini | 이미지 삭제 기능 및 유효성 검사 로직 재정비
 // =========================
 
 // =========================
 // 전역 변수 (페이지 전체에서 사용)
 // =========================
-
-let uploadedImages = [];     // 새로 업로드한 이미지들
-let deletedImageIds = [];    // 삭제 표시한 기존 이미지 id들
+let uploadedImages = [];         // 새로 업로드한 이미지 파일 데이터
+let deletedImageIds = [];        // 삭제 표시한 기존 이미지 ID들
+let existingImages = [];         // 페이지 로드 시 불러온 기존 이미지 정보 (ID, URL 등)
 const productId = window.location.pathname.split('/').pop(); // URL에서 itemId 추출
 
 // =========================
@@ -41,12 +42,10 @@ function fetchEditPageData() {
             return response.json();
         })
         .then(data => {
-            // categories가 없으면 빈 배열 처리
-            const categories = data.categories || [];
-            fillEditForm(data.item, categories);
+            fillEditForm(data.item, data.categories || []);
         })
         .catch(error => {
-            console.error("상품 수정 데이터 로드 실패 : ", error);
+            console.error("상품 정보 불러오기 오류:", error);
             alert("상품 정보를 불러오지 못했습니다.");
             window.location.href = "/eco/list";
         });
@@ -56,69 +55,101 @@ function fetchEditPageData() {
 // 폼에 데이터 채우기 (DTO 필드명 기준)
 // =========================
 function fillEditForm(item, categories) {
-    document.getElementById('productName').value     = item.itemNm || '';
-    //document.getElementById('regDate').value         = item.createdAt || '';  // 등록일과 비슷한 데이터 이름 확인
-    document.getElementById('description').value     = item.itemDetail || '';
-    document.getElementById('price').value           = item.price !== undefined ? item.price : '';
-    document.getElementById('stockNumber').value     = item.stockNumber !== undefined ? item.stockNumber : '';
-    document.getElementById('condition').value       = item.itemSellStatus || '';
+    document.getElementById('itemNm').value = item.itemNm || '';
+    document.getElementById('itemDetail').value = item.itemDetail || '';
+    document.getElementById('price').value = item.price ?? '';
+    document.getElementById('stockNumber').value = item.stockNumber ?? '';
+    document.getElementById('itemSellStatus').value = item.itemSellStatus || '';
 
-    // 카테고리 셀렉트박스 옵션 생성 및 선택
-    const categorySelect = document.getElementById('category');
+    const categorySelect = document.getElementById('categoryId');
     categorySelect.innerHTML = '<option value="">카테고리를 선택해주세요</option>';
-    categories.forEach(category => {
+    categories.forEach(c => {
         const option = document.createElement('option');
-        option.value = category.categoryId;        // 정확하게 categoryId
-        option.textContent = category.categoryName; // 정확하게 categoryName
-        if (category.categoryId === item.categoryId) {
-            option.selected = true;
-        }
+        option.value = c.categoryId;
+        option.textContent = c.categoryName;
+        if (c.categoryId === item.categoryId) option.selected = true;
         categorySelect.appendChild(option);
     });
 
+    // 기존 이미지 정보 저장 및 렌더링
+    existingImages = item.itemImgDtoList || [];
+    renderAllImages();
 
-    renderExistingImages(item.itemImgDtoList || []);
+    console.log('existingImages (after load):', existingImages); // 여기!
 }
 
 // =========================
-// 기존 이미지 미리보기 및 삭제 체크박스 처리
+// 이미지 미리보기 및 삭제 처리
 // =========================
-function renderExistingImages(imageList) {
+function renderAllImages() {
     const previewContainer = document.getElementById('imagePreview');
     if (!previewContainer) return;
+
+    // 기존 내용 모두 초기화 후 다시 그리기
     previewContainer.innerHTML = '';
 
-    imageList.forEach(imgDto => {
-        // imgDto가 ItemImgDto라 가정 (id, imgUrl 필드)
+    // 기존 이미지 렌더링
+    existingImages.forEach(imgDto => {
+        const isDeleted = deletedImageIds.includes(String(imgDto.itemImgId));
         const div = document.createElement('div');
-        div.className = 'preview-item';
+        div.className = 'preview-item existing-image-item';
+        div.style.opacity = isDeleted ? '0.5' : '1';
+        div.dataset.id = imgDto.itemImgId;
+
+        const buttonText = isDeleted ? '삭제됨' : '×';
+        const buttonDisabled = isDeleted ? 'disabled' : '';
+
         div.innerHTML = `
-            <img src="${imgDto.imgUrl}" alt="등록된 이미지" class="preview-image">
-            <label class="delete-checkbox-label" style="display:block;margin-top:5px;">
-                <input type="checkbox" class="delete-image-checkbox" value="${imgDto.id}">
-                <span style="font-size:12px;color:var(--medium-gray);">삭제</span>
-            </label>
+            <img src="${imgDto.imgUrl}" alt="등록된 이미지" class="preview-image" style="width:100px; height:auto;">
+            <button type="button" class="btn-delete-existing" data-id="${imgDto.itemImgId}" style="margin-left:5px; cursor:pointer;" ${buttonDisabled}>
+                ${buttonText}
+            </button>
+        `;
+        previewContainer.appendChild(div);
+
+        console.log(
+            '이미지ID:', imgDto.itemImgId,
+            'isDeleted?', deletedImageIds.includes(String(imgDto.itemImgId)),
+            'deletedImageIds:', deletedImageIds
+        );
+    });
+
+    // 새로 업로드된 이미지 렌더링
+    uploadedImages.forEach(imageData => {
+        const div = document.createElement('div');
+        div.className = 'preview-item new-image-item';
+        div.dataset.id = imageData.id;
+
+        div.innerHTML = `
+            <img src="${imageData.src}" alt="미리보기" class="preview-image" />
+            <button type="button" class="remove-image" onclick="removeImage('${imageData.id}')">×</button>
         `;
         previewContainer.appendChild(div);
     });
 
-    // 삭제 체크박스 이벤트 등록
-    previewContainer.querySelectorAll('.delete-image-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const id = checkbox.value;
-            if (checkbox.checked) {
-                if (!deletedImageIds.includes(id)) {
-                    deletedImageIds.push(id);
-                }
-            } else {
-                deletedImageIds = deletedImageIds.filter(val => val !== id);
+    // 삭제 버튼 클릭 이벤트 재등록 (기존 이미지 삭제)
+    previewContainer.querySelectorAll('.btn-delete-existing').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            if (!deletedImageIds.includes(String(id))) {
+                deletedImageIds.push(String(id));
+                console.log('deletedImageIds (delete):', deletedImageIds);
             }
+            renderAllImages();
         });
     });
 }
 
 // =========================
-// 이미지 업로드 및 드래그 앤 드롭
+// 이미지 삭제 (새로 업로드된 이미지 제거)
+// =========================
+function removeImage(imageId) {
+    uploadedImages = uploadedImages.filter(img => String(img.id) !== String(imageId));
+    renderAllImages();
+}
+
+// =========================
+// 이미지 업로드 및 드래그앤드롭 처리
 // =========================
 function handleImageSelect(event) {
     handleImageFiles(Array.from(event.target.files));
@@ -144,8 +175,9 @@ function setupDragAndDrop(uploadArea) {
 
 function handleImageFiles(files) {
     const images = files.filter(file => file.type.startsWith('image/'));
-    const existingCount = document.querySelectorAll('#imagePreview .preview-item input[type="checkbox"]:not(:checked)').length;
-    if (existingCount + uploadedImages.length + images.length > 5) {
+    const imagesToKeepCount = existingImages.filter(img => !deletedImageIds.includes(String(img.itemImgId))).length;
+
+    if (imagesToKeepCount + uploadedImages.length + images.length > 5) {
         showNotification('최대 5개의 이미지만 업로드할 수 있습니다.', 'error');
         return;
     }
@@ -163,42 +195,14 @@ function handleImageFiles(files) {
                 id: Date.now() + Math.random()
             };
             uploadedImages.push(imageData);
-            displayImagePreview(imageData);
+            renderAllImages();
         };
         reader.readAsDataURL(file);
     });
 }
 
-function displayImagePreview(imageData) {
-    const previewContainer = document.getElementById('imagePreview');
-    if (!previewContainer) return;
-
-    const div = document.createElement('div');
-    div.className = 'preview-item';
-    div.innerHTML = `
-        <img src="${imageData.src}" alt="미리보기" class="preview-image" />
-        <button type="button" class="remove-image" onclick="removeImage('${imageData.id}')">×</button>
-    `;
-    previewContainer.appendChild(div);
-}
-
-function removeImage(imageId) {
-    uploadedImages = uploadedImages.filter(img => img.id !== imageId);
-    updateImagePreview();
-}
-
-function updateImagePreview() {
-    const previewContainer = document.getElementById('imagePreview');
-    if (!previewContainer) return;
-    // 기존 이미지 체크박스 UI 유지, 새 이미지만 다시 그림
-    previewContainer.querySelectorAll('.preview-item').forEach(el => {
-        if (el.querySelector('button.remove-image')) el.remove();
-    });
-    uploadedImages.forEach(displayImagePreview);
-}
-
 // =========================
-// 이벤트리스너 등록
+// 이벤트 리스너 등록
 // =========================
 function setupEventListeners() {
     const imageUploadArea = document.getElementById('imageUploadArea');
@@ -214,21 +218,21 @@ function setupEventListeners() {
 
     setupRealtimeValidation();
 
-    const categorySelect = document.getElementById('category');
+    const categorySelect = document.getElementById('categoryId');
     if (categorySelect) categorySelect.addEventListener('change', handleCategoryChange);
 
-    const conditionSelect = document.getElementById('condition');
+    const conditionSelect = document.getElementById('itemSellStatus');
     if (conditionSelect) conditionSelect.addEventListener('change', handleConditionChange);
 
-    const titleInput = document.getElementById('productName');
+    const titleInput = document.getElementById('itemNm');
     if (titleInput) {
-        titleInput.addEventListener('input', () => limitCharacters(titleInput, 50, '제목'));
+        titleInput.addEventListener('input', () => limitCharacters(titleInput, 50, '상품명'));
     }
 
-    const descriptionInput = document.getElementById('description');
+    const descriptionInput = document.getElementById('itemDetail');
     if (descriptionInput) {
         descriptionInput.addEventListener('input', () => {
-            limitCharacters(descriptionInput, 1000, '설명');
+            limitCharacters(descriptionInput, 1000, '상품설명');
             updateCharacterCounter(descriptionInput, 1000);
         });
     }
@@ -252,9 +256,11 @@ function setupEventListeners() {
     }
 }
 
-// 판매 상태 변경시 미리보기 업데이트
+// =========================
+// 판매 상태 변경 시 미리보기 업데이트
+// =========================
 function handleConditionChange() {
-    const conditionSelect = document.getElementById('condition');
+    const conditionSelect = document.getElementById('itemSellStatus');
     const preview = document.getElementById('conditionPreview');
     if (!conditionSelect || !preview) return;
 
@@ -280,7 +286,7 @@ function handleConditionChange() {
 }
 
 // =========================
-// 실시간 유효성 검사 등
+// 실시간 유효성 검사 등록
 // =========================
 function setupRealtimeValidation() {
     const inputs = document.querySelectorAll('.form-input, .form-select');
@@ -324,9 +330,12 @@ function clearFieldError(field) {
     if (msg) msg.remove();
 }
 
+// =========================
+// validateForm 함수 (전역)
+// =========================
 function validateForm() {
     let valid = true;
-    ['productName','condition','category','description','price','stockNumber'].forEach(id => {
+    ['itemNm', 'itemSellStatus', 'categoryId', 'itemDetail', 'price', 'stockNumber'].forEach(id => {
         const f = document.getElementById(id);
         if (f && !validateField(f)) valid = false;
     });
@@ -334,7 +343,7 @@ function validateForm() {
 }
 
 // =========================
-// 폼 제출 (수정 요청 PUT)
+// 폼 제출 처리 (상품 수정 요청)
 // =========================
 async function handleFormSubmit(e) {
     e.preventDefault();
@@ -344,21 +353,40 @@ async function handleFormSubmit(e) {
         return;
     }
 
+    const imagesToKeep = existingImages.filter(img => !deletedImageIds.includes(String(img.itemImgId))).length;
+    const imagesToAdd = uploadedImages.length;
+
+    if (imagesToKeep + imagesToAdd === 0) {
+        showNotification('최소 1개 이상의 상품 이미지가 필요합니다.', 'error');
+        return;
+    }
+    const remainingImages = existingImages
+        .filter(img => !deletedImageIds.includes(String(img.itemImgId)));
+
+    remainingImages.forEach((img, idx) => {
+        img.repImgYn = (idx === 0) ? 'Y' : 'N';
+    });
+
     const itemFormDto = {
         itemId: productId,
-        itemNm: document.getElementById('productName').value,
+        itemNm: document.getElementById('itemNm').value,
         price: parseInt(document.getElementById('price').value),
         stockNumber: parseInt(document.getElementById('stockNumber').value),
-        categoryId: document.getElementById('category').value,
-        itemDetail: document.getElementById('description').value,
-        itemSellStatus: document.getElementById('condition').value
+        categoryId: document.getElementById('categoryId').value,
+        itemDetail: document.getElementById('itemDetail').value,
+        itemSellStatus: document.getElementById('itemSellStatus').value,
+        itemImgDtoList: remainingImages.map(img => ({
+            id: img.itemImgId,
+            imgUrl: img.imgUrl,
+            imgName: img.imgName,
+            oriImgName: img.oriImgName,
+            repImgYn: img.repImgYn
+        }))
     };
 
     const formData = new FormData();
-    formData.append('itemFormDto', new Blob([JSON.stringify(itemFormDto)], {type: 'application/json'}));
-
-    deletedImageIds.forEach(imgId => formData.append('deleteImageIds', imgId));
-    uploadedImages.forEach(image => formData.append('itemImgFile', image.file));
+    formData.append('itemFormDto', new Blob([JSON.stringify(itemFormDto)], { type: "application/json" }));
+    uploadedImages.forEach(img => formData.append('itemImgFile', img.file));
 
     try {
         const response = await fetch(`/api/eco/modify/${productId}`, {
@@ -369,8 +397,8 @@ async function handleFormSubmit(e) {
             alert('상품이 성공적으로 수정되었습니다.');
             window.location.href = '/eco/list';
         } else {
-            const err = await response.json();
-            alert(err.errorMessage || '상품 수정 중 오류가 발생했습니다.');
+            const errText = await response.text();
+            alert(errText || '상품 수정 중 오류가 발생했습니다.');
         }
     } catch (err) {
         alert('서버와 통신 중 문제가 발생했습니다.');
@@ -378,11 +406,11 @@ async function handleFormSubmit(e) {
 }
 
 // =========================
-// 카테고리 변경 시 도움말
+// 카테고리 변경 시 도움말 표시
 // =========================
 function handleCategoryChange() {
-    const categorySelect = document.getElementById('category');
-    const descriptionInput = document.getElementById('description');
+    const categorySelect = document.getElementById('categoryId');
+    const descriptionInput = document.getElementById('itemDetail');
     if (!categorySelect || !descriptionInput) return;
 
     const category = categorySelect.options[categorySelect.selectedIndex]?.text || '';
@@ -425,13 +453,15 @@ function updateCharacterCounter(input, maxLength) {
 // =========================
 // 알림 표시
 // =========================
-function showNotification(message, type='success') {
+function showNotification(message, type = 'success') {
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
+
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
     document.body.appendChild(notification);
+
     setTimeout(() => notification.classList.add('show'), 100);
     setTimeout(() => {
         notification.classList.remove('show');
@@ -480,7 +510,7 @@ window.validateForm = validateForm;
 window.addEventListener('error', event => {
     fetch('/api/errors', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             error: event.error?.message || 'Unknown error',
             stack: event.error?.stack,
@@ -498,3 +528,6 @@ window.addEventListener('unhandledrejection', event => {
 // 최종 로그
 // =========================
 console.log('✏️ 에코마켓 상품 수정 페이지 JavaScript가 로드되었습니다.');
+console.log('existingImages:', existingImages);
+console.log('deletedImageIds:', deletedImageIds);
+console.log('uploadedImages:', uploadedImages);

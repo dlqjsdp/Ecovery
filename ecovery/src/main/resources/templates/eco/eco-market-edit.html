@@ -53,12 +53,8 @@
                                 <label class="form-label">상품명 <span class="required">*</span></label>
                             </div>
                             <div class="form-input-section">
-                                <input type="text"
-                                       class="form-input"
-                                       name="title"
-                                       id="productName"
-                                       placeholder="상품명을 입력해주세요"
-                                       required>
+                                <input type="text" class="form-input" name="itemNm" id="itemNm" placeholder="상품명을 입력해주세요" required />
+
                                 <div class="error-message" id="productNameError"></div>
                             </div>
                         </div>
@@ -83,7 +79,7 @@
                                 <label class="form-label">카테고리 <span class="required">*</span></label>
                             </div>
                             <div class="form-input-section">
-                                <select class="form-select" name="categoryId" id="category" required>
+                                <select class="form-select" name="categoryId" id="categoryId" required>
                                     <!-- JS로 옵션/선택값 반영 -->
                                 </select>
                                 <div class="error-message" id="categoryError"></div>
@@ -97,7 +93,7 @@
                                 <label class="form-label">판매 상태 <span class="required">*</span></label>
                             </div>
                             <div class="form-input-section">
-                                <select class="form-select" name="condition" id="condition" required>
+                                <select class="form-select" name="itemSellStatus" id="itemSellStatus" required>
                                     <option value="">판매 상태를 선택해주세요</option>
                                     <option value="SELL">판매중</option>
                                     <option value="SOLD_OUT">품절</option>
@@ -116,13 +112,7 @@
                             <div class="form-input-section">
                                 <div class="price-group">
                                     <div class="price-input-wrapper">
-                                        <input type="number"
-                                               class="form-input price-input"
-                                               name="price"
-                                               id="price"
-                                               placeholder="0"
-                                               min="1000"
-                                               required>
+                                        <input type="number" class="form-input price-input" name="price" id="price" min="1000" required />
                                         <span class="currency">원</span>
                                     </div>
                                 </div>
@@ -140,13 +130,7 @@
                             <div class="form-input-section">
                                 <div class="stock-group">
                                     <div class="stock-input-wrapper">
-                                        <input type="number"
-                                               class="form-input stock-input"
-                                               name="stockNumber"
-                                               id="stockNumber"
-                                               placeholder="0"
-                                               min="1"
-                                               required>
+                                        <input type="number" class="form-input stock-input" name="stockNumber" id="stockNumber" min="1" required />
                                         <span class="currency">개</span>
                                     </div>
                                 </div>
@@ -162,11 +146,7 @@
                                 <label class="form-label">상품설명 <span class="required">*</span></label>
                             </div>
                             <div class="form-input-section">
-                                    <textarea class="form-input form-textarea"
-                                              name="description"
-                                              id="description"
-                                              placeholder="상품에 대한 자세한 설명을 적어주세요"
-                                              required></textarea>
+                                <textarea class="form-input form-textarea" name="itemDetail" id="itemDetail" required></textarea>
                                 <div class="error-message" id="descriptionError"></div>
                                 <div class="help-text">고객이 쉽게 이해할 수 있도록 상품 정보를 구체적으로 적어 주세요.</div>
                             </div>
@@ -175,17 +155,16 @@
                         <!-- 사진 업로드/미리보기 -->
                         <div class="form-row">
                             <div class="form-label-section">
-                                <label class="form-label">상품사진 <span class="required">*</span></label>
+                                <label class="form-label" for="imageInput">상품사진 <span class="required">*</span></label>
                             </div>
                             <div class="form-input-section">
-                                <!-- 기존 이미지 + 신규 업로드 미리보기 JS로 표출 -->
                                 <div class="image-preview" id="imagePreview"></div>
                                 <div class="image-upload-area" id="imageUploadArea">
                                     <div class="upload-icon">📷</div>
                                     <div class="upload-text">상품 사진을 업로드하거나 여기를 클릭하세요</div>
                                     <div class="upload-hint">최대 5개까지 업로드 가능 (JPG, PNG) - 첫 번째 사진이 대표 이미지가 됩니다</div>
                                 </div>
-                                <input type="file" name="itemImgFile[]" id="imageInput" multiple accept="image/*" style="display: none;">
+                                <input type="file" name="itemImgFile" id="imageInput" multiple accept="image/*" style="display: none;">
                                 <div class="error-message" id="imagesError"></div>
                                 <div class="help-text">
                                     💡 <strong>이미지 등록 안내:</strong> 고객이 상품을 정확히 이해할 수 있도록, 선명하고 다양한 각도의 이미지를 등록해 주세요.<br>

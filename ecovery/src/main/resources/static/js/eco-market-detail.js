@@ -52,6 +52,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // 실시간 유효성 검사 설정
     setupRealtimeValidation();
 
+    const editBtn = document.getElementById('editProduct');
+
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            const itemId = editBtn.getAttribute('data-item-id');
+            if (itemId) {
+                // 예: /items/modify/3 로 이동
+                window.location.href = `/eco/modify/${itemId}`;
+            } else {
+                alert("상품 ID를 찾을 수 없습니다.");
+            }
+        });
+    }
+
     console.log('✅ 상품 상세 페이지 메인 기능 로딩 완료!');
 });
 

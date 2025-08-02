@@ -73,7 +73,7 @@ public class FreeImgServiceImpl implements FreeImgService {
         // 파일 저장
         if (!StringUtils.isEmpty(oriImgName)) {
             imgName = fileService.uploadFile(freeImgLocation, oriImgName, freeImgFile.getBytes());
-            imgUrl = "/images/free/" + imgName;
+            imgUrl = "/ecovery/free/" + imgName;
         }
 
         // VO 세팅
