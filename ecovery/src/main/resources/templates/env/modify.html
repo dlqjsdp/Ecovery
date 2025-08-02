@@ -13,7 +13,8 @@ GreenCycle 환경톡톡 게시글 수정 페이지
                           - 기존 파일첨부 UI 주석 처리 및 이미지 삽입은 addImageBlobHook 사용
                           - 카테고리, 제목, 본문 유효성 검사 설정 및 카운트 기능 연결
                           - env-modify.js 및 전역 설정 변수 연동 처리
-
+    - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
+    - 250802 | yukyeong | 본문 글자 수 제한 2000자 → 5000자로 확장
 -->
 
 <!DOCTYPE html>
@@ -35,7 +36,6 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 <!-- 본문 콘텐츠 -->
 <div layout:fragment="content" class="fade-in">
     <!-- Main Content -->
-    <main class="main-content">
         <div class="container">
             <!-- Page Header -->
             <section class="page-header fade-in">
@@ -75,7 +75,7 @@ GreenCycle 환경톡톡 게시글 수정 페이지
                             <input type="text" id="postTitle" name="title" class="form-input title-input"
                                    th:value="${env.title}"
                                    placeholder="제목을 입력하세요 (최대 255자)" maxlength="255" required>
-                            <div class="char-count"><span id="titleCount">0</span>/100</div>
+                            <div class="char-count"><span id="titleCount">0</span>/255</div>
                             <span class="error-message" id="titleError"></span>
                         </div>
 
@@ -87,7 +87,7 @@ GreenCycle 환경톡톡 게시글 수정 페이지
                             <!-- 실제 form 전송용 hidden input -->
                             <input type="hidden" name="content" id="hiddenContent" />
                             <!-- 글자 수 카운트 유지 -->
-                            <div class="char-count"><span id="contentCount">0</span>/2000</div>
+                            <div class="char-count"><span id="contentCount">0</span>/5000</div>
                             <span class="error-message" id="contentError"></span>
                         </div>
 
@@ -111,7 +111,7 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 
                         <!-- Action Buttons -->
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline" onclick="previewPost()">👁️ 미리보기</button>
+                            <button type="button" class="btn btn-outline" onclick="previewPost()">📄 미리보기</button>
                             <button type="button" class="btn btn-danger" onclick="location.href='/env/list'">❌ 취소</button>
                             <button type="button" class="btn btn-primary" onclick="submitModifiedPost()">📝 수정하기</button>
                         </div>
@@ -145,7 +145,6 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 
             </div>
         </div>
-    </main>
 
     <!-- Preview Modal -->
     <div class="modal-overlay" id="previewModal" style="display: none;">
@@ -212,7 +211,7 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 
         // 에디터 설정
         var editorConfig = {
-            maxLength: 2000,
+            maxLength: 5000,
             allowedTags: ['b', 'i', 'u', 'ul', 'ol', 'li', 'a'],
             emojiCategories: {
                 nature: ['🌱', '🌳', '🌍', '🌿', '🌱', '🍃', '🌾', '🌸'],
@@ -231,8 +230,8 @@ GreenCycle 환경톡톡 게시글 수정 페이지
             },
             content: {
                 required: true,
-                maxLength: 2000,
-                message: '내용을 입력해주세요 (최대 2000자)'
+                maxLength: 5000,
+                message: '내용을 입력해주세요 (최대 5000자)'
             },
             category: {
                 required: true,

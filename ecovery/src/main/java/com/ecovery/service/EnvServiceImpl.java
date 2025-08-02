@@ -8,6 +8,7 @@ import com.ecovery.dto.EnvImgDto;
 import com.ecovery.mapper.EnvMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,10 @@ import java.util.stream.Collectors;
      - 250801 | yukyeong | register()에 본문 이미지 URL 등록 처리 추가
                            modify()에 본문 이미지 URL 등록 및 삭제 처리 추가
                            deleteContentImg(String imgUrl) 메서드 추가 (본문 이미지 개별 삭제용)
+     - 250802 | yukyeong | remove() 삭제 로직 개선:
+                           - DB 삭제 전에 첨부/본문 이미지 파일을 파일 시스템에서도 삭제하도록 추가
+                           - imgName → 첨부 이미지, imgUrl → 본문 이미지로 분기하여 경로 생성
+                           - FileService.deleteFile(fullPath) 통해 로컬 폴더에서도 삭제되도록 처리
  */
 
 @Service
@@ -45,6 +50,13 @@ public class EnvServiceImpl implements EnvService {
 
     // EnvImgService를 통해 이미지 등록/삭제를 위임 처리
     private final EnvImgService envImgService;
+
+    private final FileService fileService;
+
+    @Value("${uploadPath}")
+    private String uploadPath;
+
+    private final String envImgFolder = "env";
 
     // DTO를 VO로 변환하는 메서드 (DB 작업용으로 변환)
     private EnvVO dtoToVo(EnvDto envDto) {
@@ -194,10 +206,38 @@ public class EnvServiceImpl implements EnvService {
     public boolean remove(Long envId) {
         log.info("remove() - 게시글 및 이미지 삭제 시작, envId = {}", envId);
 
-        // 1. 이미지 먼저 삭제 (파일 시스템 + DB)
-        envImgService.deleteByEnvId(envId);
+        // 1. DB에서 해당 게시글의 모든 이미지 URL 조회 (본문 이미지 포함)
+        List<EnvImgDto> imgList = envImgService.getListByEnvId(envId);
 
-        // 2. 게시글 삭제
+        // 2. 파일 시스템에서 모든 이미지 삭제 먼저 수행
+        for (EnvImgDto img : imgList) {
+            try {
+                String imgUrl = img.getImgUrl();
+                String imgName = img.getImgName();
+                String basePath = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+                String fullPath = basePath + envImgFolder + "/" + null;
+
+                // 첨부 이미지
+                if (imgName != null && !imgName.isBlank()) {
+                    fullPath = basePath + envImgFolder + "/" + imgName;
+                }
+                // 본문 이미지
+                else if (imgUrl != null && !imgUrl.isBlank()) {
+                    String fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1);
+                    fullPath = basePath + envImgFolder + "/" + fileName;
+                }
+
+                fileService.deleteFile(fullPath);
+                log.info("파일 삭제 완료: {}", fullPath);
+            } catch (Exception e) {
+                log.warn("이미지 파일 삭제 실패: {}", imgList, e);
+            }
+        }
+
+        // 3. 이미지 DB 일괄 삭제
+        envImgService.deleteByEnvId(envId); // 모든 레코드 삭제
+
+        // 4. 게시글 삭제
         int deleted = envMapper.delete(envId);
         log.info("게시글 삭제 결과: {}", deleted);
 

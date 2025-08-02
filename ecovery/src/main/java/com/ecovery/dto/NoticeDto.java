@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
  * @history
      - 250723 | yukyeong | 공지사항 게시글 DTO 클래스 최초 작성
      - 250729 | yukyeong | 카테고리 필드 추가
+     - 250802 | yukyeong | 작성자 권한(role) 필드 추가 (화면 표시용)
  */
 
 @Getter
@@ -42,4 +43,6 @@ public class NoticeDto {
     private int viewCount; // 조회수
     private LocalDateTime createdAt; // 등록일
     private LocalDateTime updatedAt; // 수정일
+
+    private String role; // 작성자 권한 (화면 표시용)
 }

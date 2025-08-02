@@ -18,6 +18,8 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                           - addImageBlobHook으로 이미지 본문 자동 삽입 처리
                           - 작성 내용은 hiddenContent에 저장 후 전송
                           - 기존 파일 첨부 영역 UI는 주석 처리됨
+    - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
+    - 250802 | yukyeong | 본문 글자 수 제한 2000자 → 5000자로 확장
 -->
 
 <!DOCTYPE html>
@@ -39,7 +41,6 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 <!-- 본문 콘텐츠 -->
 <div layout:fragment="content" class="fade-in">
     <!-- Main Content -->
-    <main class="main-content">
         <div class="container">
             <!-- Page Header -->
             <section class="page-header fade-in">
@@ -91,7 +92,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                             <!-- 실제 form 전송용 hidden input -->
                             <input type="hidden" name="content" id="hiddenContent" />
                             <!-- 글자 수 카운트 유지 -->
-                            <div class="char-count"><span id="contentCount">0</span>/2000</div>
+                            <div class="char-count"><span id="contentCount">0</span>/5000</div>
                             <span class="error-message" id="contentError"></span>
                         </div>
 
@@ -115,9 +116,9 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 
                         <!-- Action Buttons -->
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline" onclick="previewPost()">👁️ 미리보기</button>
+                            <button type="button" class="btn btn-outline" onclick="previewPost()">📄 미리보기</button>
                             <button type="button" class="btn btn-danger" onclick="location.href='/env/list'">❌ 취소</button>
-                            <button type="submit" class="btn btn-primary">📝 게시하기</button>
+                            <button type="submit" class="btn btn-primary">📝 등록하기</button>
                         </div>
 
 
@@ -149,7 +150,6 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 
             </div>
         </div>
-    </main>
 
     <!-- Preview Modal -->
     <div class="modal-overlay" id="previewModal" style="display: none;">
@@ -163,7 +163,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closePreview()">닫기</button>
-                <button class="btn btn-primary" onclick="submitPost()">게시하기</button>
+                <button class="btn btn-primary" onclick="submitPost()">등록하기</button>
             </div>
         </div>
     </div>
@@ -208,7 +208,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 
             // 에디터 설정
             var editorConfig = {
-                maxLength: 2000,
+                maxLength: 5000,
                 allowedTags: ['b', 'i', 'u', 'ul', 'ol', 'li', 'a'],
                 emojiCategories: {
                     nature: ['🌱', '🌳', '🌍', '🌿', '🌱', '🍃', '🌾', '🌸'],
@@ -227,8 +227,8 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                 },
                 content: {
                     required: true,
-                    maxLength: 2000,
-                    message: '내용을 입력해주세요 (최대 2000자)'
+                    maxLength: 5000,
+                    message: '내용을 입력해주세요 (최대 5000자)'
                 },
                 categoryId: {
                     required: true,

@@ -1,7 +1,7 @@
 <!--
-GreenCycle 환경톡톡 게시글 등록 페이지
-환경 관련 게시글을 작성할 수 있는 입력 폼, 에디터, 이미지 업로드, 이모지, 미리보기 등의 기능 제공
-사용자 정보 및 작성 통계는 사이드바에 표시됨
+공지사항 등록 페이지
+사이트 운영팀이 사용자에게 전달할 중요 공지를 작성할 수 있는 입력 폼 제공
+Toast UI Editor 기반 본문 작성, 카테고리 선택, 미리보기, 통계 및 가이드 사이드바 포함
 @author : eunji
 @fileName : register.html
 @since : 250721
@@ -13,6 +13,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                           - 미리보기 모달 및 발행 버튼 동작 추가
                           - 작성 가이드, 통계 정보, 빠른 액션 포함 사이드바 구성
                           - notice-write-script.js, notice-register.js 연동
+    - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
 -->
 
 <!DOCTYPE html>
@@ -35,7 +36,6 @@ GreenCycle 환경톡톡 게시글 등록 페이지
 <!-- 본문 콘텐츠 -->
 <div layout:fragment="content" class="fade-in">
     <!-- 메인 콘텐츠 영역 -->
-    <main class="main-content">
         <div class="container">
             <!-- 페이지 헤더 -->
             <section class="page-header fade-in">
@@ -59,41 +59,39 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                             <div class="form-actions-top">
                                 <!-- 미리보기 버튼 -->
                                 <button type="button" class="btn btn-secondary" id="previewBtn">
-                                    👁️ 미리보기
+                                    📄 미리보기
                                 </button>
                             </div>
                         </div>
 
                         <!-- 기본 정보 섹션 -->
-                        <div class="form-section">
-                            <h3>📋 기본 정보</h3>
 
-                            <!-- 제목 입력 -->
-                            <div class="form-group">
-                                <label for="title" class="form-label required">📌 제목</label>
-                                <input type="text" id="title" name="title" class="form-input"
-                                       placeholder="공지사항 제목을 입력하세요" required maxlength="100">
-                                <div class="char-counter">
-                                    <span id="titleCounter">0</span>/255
-                                </div>
-                                <span class="error-message" id="titleError"></span>
-                            </div>
-
-                            <!-- 카테고리 및 중요도 설정 -->
-                            <div class="form-row">
-                                <!-- 카테고리 선택 -->
-                                <div class="form-group half-width">
-                                    <label for="category" class="form-label required">
-                                        🏷️ 카테고리
-                                    </label>
-                                    <select id="category" name="category" class="form-select" required>
-                                        <option value="">카테고리를 선택하세요</option>
-                                        <!-- JS로 동적 렌더링 -->
-                                    </select>
-                                    <span class="error-message" id="categoryError"></span>
-                                </div>
+                        <!-- 카테고리 및 중요도 설정 -->
+                        <div class="form-row">
+                            <!-- 카테고리 선택 -->
+                            <div class="form-group half-width">
+                                <label for="category" class="form-label required">
+                                    🏷️ 카테고리
+                                </label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="">카테고리를 선택하세요</option>
+                                    <!-- JS로 동적 렌더링 -->
+                                </select>
+                                <span class="error-message" id="categoryError"></span>
                             </div>
                         </div>
+
+                        <!-- 제목 입력 -->
+                        <div class="form-group">
+                            <label for="title" class="form-label required">📌 제목</label>
+                            <input type="text" id="title" name="title" class="form-input"
+                                   placeholder="공지사항 제목을 입력하세요" required maxlength="255">
+                            <div class="char-counter">
+                                <span id="titleCounter">0</span>/255
+                            </div>
+                            <span class="error-message" id="titleError"></span>
+                        </div>
+
 
                         <!-- 내용 작성 섹션 -->
                         <div class="form-section">
@@ -120,7 +118,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                                     🔄 초기화
                                 </button>
                                 <button type="submit" name="action" value="publish" class="btn btn-primary" id="publishBtn">
-                                    📢 발행하기
+                                    📢 등록하기
                                 </button>
                             </div>
                         </div>
@@ -178,7 +176,6 @@ GreenCycle 환경톡톡 게시글 등록 페이지
                 </div>
             </div>
         </div>
-    </main>
 
     <!-- Preview Modal -->
     <div class="modal-overlay" id="previewModal" style="display: none;">
@@ -192,7 +189,7 @@ GreenCycle 환경톡톡 게시글 등록 페이지
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closePreview()">닫기</button>
-                <button class="btn btn-primary" onclick="submitPost()">이대로 발행</button>
+                <button class="btn btn-primary" onclick="submitPost()">등록하기</button>
             </div>
         </div>
     </div>

@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
      - 250708 | yukyeong | VO 기본 필드 작성
      - 250723 | yukyeong | 작성자 닉네임(nickname) 필드 추가 (member 테이블 조인용)
      - 250729 | yukyeong | 카테고리 필드 추가
+     - 250802 | yukyeong | 작성자 권한(role) 필드 추가 (member 테이블 조인용)
  */
 
 @Getter @Setter
@@ -37,4 +38,5 @@ public class NoticeVO {
     private LocalDateTime updatedAt; // 수정일자
 
     private String nickname; // 작성자 닉네임 (조인된 member 테이블)
+    private String role; // 작성자 권한 (조인된 member 테이블)
 }

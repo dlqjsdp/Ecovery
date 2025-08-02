@@ -14,6 +14,8 @@ GreenCycle 환경톡톡 게시글 상세보기
                           - notice-detail-layout, notice-article 등 구조 정비
                           - 관리자 전용 버튼 섹션(admin-actions) 개선
                           - 공지사항 조회 전용 notice-get.js 연동
+    - 250802 | yukyeong | 작성자 정보(author-info) 영역 구조 개선 : 아바타, 작성자명, 권한(role) 요소 분리 및 ID 지정
+    - 250802 | yukyeong | 관리자 전용 영역 제목(admin-actions-title) 블록 추가
 -->
 
 <!DOCTYPE html>
@@ -22,8 +24,8 @@ GreenCycle 환경톡톡 게시글 상세보기
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 
-<head th:with="pageTitle='환경톡톡 - 게시글 조회'">
-    <title>환경톡톡</title>
+<head th:with="pageTitle='공지사항 - 게시글 조회'">
+    <title>공지사항</title>
     <th:block layout:fragment="css">
         <link rel="stylesheet" th:href="@{/css/notice-detail.css}">
     </th:block>
@@ -74,9 +76,9 @@ GreenCycle 환경톡톡 게시글 상세보기
                         <!-- 공지사항 메타 정보 -->
                         <div class="notice-article-meta">
                             <div class="author-info">
-                                <span class="author-avatar" id="notice-avatar">👨‍💼</span>
-                                <div class="author-name" id="notice-author">운영팀</div>
-                                <div class="author-role" id="notice-role">관리자</div>
+                                <span class="author-avatar" id="notice-avatar"></span>
+                                <div class="author-name" id="notice-author"></div>
+                                <div class="author-role" id="notice-role"></div>
                             </div>
                             <div class="notice-info">
                                 <div class="notice-date">
@@ -104,6 +106,9 @@ GreenCycle 환경톡톡 게시글 상세보기
 
                 <!-- 관리자 전용 액션 버튼들 (관리자만) -->
                 <section class="admin-actions" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                    <div class="admin-actions-title">
+                        <span>🛠️ 관리자 전용</span>
+                    </div>
                     <div class="admin-action-buttons">
                         <a id="editBtn" class="admin-btn edit-btn">
                             ✏️ 글 수정
