@@ -6,6 +6,11 @@
  *  - 250801 | sehui | 장바구니 기능 삭제
  *  - 250801 | sehui | 주문 상태, 배송 상태, 결제 정보 기능 삭제
  *  - 250801 | sehui | 배송조회, 상품 후기 작성, 재주문, 주문 문의, URL 파라미터 처리 함수 기능 삭제
+ *  - 250802 | sehui | 카카오 주소 API 모달창 실행 함수 추가
+ *  - 250802 | sehui | 이벤트 핸들러 함수 추가
+ *  - 250802 | sehui | 결제 버튼 클릭 시 주문 정보 요청 함수 추가
+ *  - 250802 | sehui | 결제 정보 금액 렌더링 함수 추가
+ *  - 250802 | sehui | 입력값 유효성 겁사 함수 추가
  */
 
 // ==========================================================================
@@ -39,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         //주문 데이터 로드
         const orderData = await loadOrderData();
 
-        if(!orderData || !orderData.orderId) {
+        if(!orderData || !orderData.orderUuid) {
             showNotification('잘못된 접근입니다. 마이페이지로 이동합니다.', 'warning');
             setTimeout(() => {
                 window.location.href = '/member/mypage';
@@ -48,16 +53,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         //주문 ID를 저장하고 안내 메시지
-        const currentOrderId = orderData.orderId;
+        const currentOrderUuid = orderData.orderUuid;
         console.log('🛍️ 주문상세 페이지가 성공적으로 초기화되었습니다.');
-        console.log("orderId : ", currentOrderId);
 
         // 환영 메시지 표시 (1초 후)
         setTimeout(() => {
-            showNotification(`주문번호 ${currentOrderId} 상세 정보를 불러왔습니다! 📋`, 'success');
+            showNotification(`주문번호 ${currentOrderUuid} 상세 정보를 불러왔습니다! 📋`, 'success');
         }, 1000);
 
         isInitialized = true;
+
+        //이벤트 리스너 설정
+        setupEventListeners();
 
     } catch (error) {
         handleError(error, 'Order detail page initialization');
@@ -237,18 +244,15 @@ function getCartItemCount() {
  */
 async function loadOrderData() {
     try {
-        // 실제 구현에서는 API 호출: fetch(`/api/orders/${currentOrderId}`)
         console.log('🚀 주문 데이터 로드 시작...');
 
-        const orderItemRequestsText = document.getElementById('orderItemRequests').textContent;
-        console.log('주문 정보 >> ', orderItemRequestsText);
+        const json = document.getElementById('orderItemRequests').value;
 
-        if (!orderItemRequestsText || orderItemRequestsText.length === 0) {
+        if (!json || json.trim().length === 0) {
             throw new Error('❌ 주문 상품 정보를 찾을 수 없습니다.');
         }
 
-        const orderItemRequests = JSON.parse(orderItemRequestsText);
-        console.log('주문 정보 JSON >> ', orderItemRequests);
+        const orderItemRequests = JSON.parse(json);
 
         const response = await fetch('/api/order/prepare', {
             method: 'POST',
@@ -262,135 +266,20 @@ async function loadOrderData() {
             throw new Error('❌ 주문 데이터를 불러오는 데 실패했습니다.');
         }
 
-        const orderData = await response.json();
+        const orderData = await response.json();        //응답객체 OrderDto를 파싱
+        window.orderDtoFromServer = orderData;          //전역에  저장
         displayOrderData(orderData);    // 주문 정보를 화면에 표시
-        console.log(`✅ 주문 데이터 로드 완료: ${currentOrderId}`);
+        console.log(`✅ 주문 데이터 로드 완료`);
 
         return orderData;
 
     } catch (error) {
         handleError(error, 'Order data loading fail');
-
-        // 에러 발생 시 마이페이지로 리다이렉트
+        //에러 발생 시 마이페이지로 리다이렉트
         setTimeout(() => {
             window.location.href = '/member/mypage';
         }, 3000);
     }
-}
-
-/**
- * 모의 주문 데이터를 반환합니다
- * @param {string} orderId - 주문번호
- * @returns {Object|null} 주문 데이터 객체 또는 null
- */
-function getMockOrderData(orderId) {
-    // 실제 구현에서는 서버에서 데이터를 가져옵니다
-    const mockOrders = {
-        'ORD-2025010001': {
-            orderNumber: 'ORD-2025010001',
-            orderDate: '2025년 1월 15일',
-            orderName: '김환경',
-            orderPhone: '010-****-1234',
-            status: 'delivered',
-            statusText: '배송완료',
-            products: [
-                {
-                    id: 1,
-                    name: '천연 세제 세트',
-                    description: '탄소중립 인증 제품',
-                    options: ['용량: 1L', '향: 라벤더'],
-                    quantity: 2,
-                    unitPrice: 16000,
-                    totalPrice: 32000,
-                    image: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23e3f2fd' width='100' height='100'/><text x='50' y='55' font-size='40' text-anchor='middle'>🧴</text></svg>"
-                },
-                {
-                    id: 2,
-                    name: '대나무 칫솔 세트',
-                    description: '플라스틱 프리 제품',
-                    options: ['구성: 4개입', '색상: 내추럴'],
-                    quantity: 1,
-                    unitPrice: 15000,
-                    totalPrice: 15000,
-                    image: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f3e5f5' width='100' height='100'/><text x='50' y='55' font-size='40' text-anchor='middle'>🌱</text></svg>"
-                }
-            ],
-            delivery: {
-                recipientName: '김환경',
-                recipientPhone: '010-****-1234',
-                address: '서울특별시 강남구 테헤란로 123 (역삼동)\n그린타워 101호',
-                request: '부재 시 경비실에 맡겨주세요',
-                timeline: [
-                    { step: '주문완료', date: '2025.01.15 14:30', icon: '📦', completed: true },
-                    { step: '상품준비중', date: '2025.01.16 09:00', icon: '🏭', completed: true },
-                    { step: '배송중', date: '2025.01.17 10:30', icon: '🚛', completed: true },
-                    { step: '배송완료', date: '2025.01.18 16:45', icon: '✅', completed: true, current: true }
-                ]
-            },
-            payment: {
-                productAmount: 47000,
-                shippingFee: 0,
-                discount: 2000,
-                usedPoints: 2000,
-                finalAmount: 43000,
-                method: {
-                    type: 'credit_card',
-                    name: '신용카드',
-                    detail: 'KB국민카드 (**** **** **** 1234)',
-                    date: '2025.01.15 14:32',
-                    amount: 43000
-                }
-            }
-        },
-        'ORD-2025010002': {
-            orderNumber: 'ORD-2025010002',
-            orderDate: '2025년 1월 18일',
-            orderName: '김환경',
-            orderPhone: '010-****-1234',
-            status: 'shipping',
-            statusText: '배송중',
-            products: [
-                {
-                    id: 2,
-                    name: '대나무 칫솔 세트',
-                    description: '플라스틱 프리 제품',
-                    options: ['구성: 4개입', '색상: 내추럴'],
-                    quantity: 1,
-                    unitPrice: 15000,
-                    totalPrice: 15000,
-                    image: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f3e5f5' width='100' height='100'/><text x='50' y='55' font-size='40' text-anchor='middle'>🌱</text></svg>"
-                }
-            ],
-            delivery: {
-                recipientName: '김환경',
-                recipientPhone: '010-****-1234',
-                address: '서울특별시 강남구 테헤란로 123 (역삼동)\n그린타워 101호',
-                request: '부재 시 경비실에 맡겨주세요',
-                timeline: [
-                    { step: '주문완료', date: '2025.01.18 10:15', icon: '📦', completed: true },
-                    { step: '상품준비중', date: '2025.01.19 08:30', icon: '🏭', completed: true },
-                    { step: '배송중', date: '2025.01.20 11:20', icon: '🚛', completed: true, current: true },
-                    { step: '배송완료', date: '예정: 2025.01.21', icon: '✅', completed: false }
-                ]
-            },
-            payment: {
-                productAmount: 15000,
-                shippingFee: 3000,
-                discount: 0,
-                usedPoints: 0,
-                finalAmount: 18000,
-                method: {
-                    type: 'credit_card',
-                    name: '신용카드',
-                    detail: 'KB국민카드 (**** **** **** 1234)',
-                    date: '2025.01.18 10:16',
-                    amount: 18000
-                }
-            }
-        }
-    };
-
-    return mockOrders[orderId] || null;
 }
 
 /**
@@ -404,6 +293,9 @@ function displayOrderData(data) {
 
         // 주문 상품 정보 표시
         displayOrderProducts(data.orderItems);
+
+        //결제 정보 표시
+        displayPaymentSummary(data.orderItems);
 
         console.log('✅ 주문 정보 표시 완료');
 
@@ -435,6 +327,7 @@ function displayBasicOrderInfo(data) {
  * @param {Array} products - 상품 배열
  */
 function displayOrderProducts(products) {
+    
     const productCountEl = document.getElementById('productCount');
     const productListEl = document.getElementById('productList');
 
@@ -448,6 +341,9 @@ function displayOrderProducts(products) {
     // 상품 목록 생성
     productListEl.innerHTML = products.map(product => `
         <div class="product-item">
+            <input type="hidden" class="item-id" value="${product.itemId}">
+            <input type="hidden" class="item-img-id" value="${product.itemImgId || ''}">
+        
             <div class="product-image">
                 <img src="${product.imgUrl}" alt="${product.imgName}">
             </div>
@@ -457,7 +353,7 @@ function displayOrderProducts(products) {
             </div>
             <div class="product-quantity">
                 <span class="quantity-label">수량</span>
-                <span class="quantity-value">${product.count}${product.name.includes('세트') ? '세트' : '개'}</span>
+                <span class="quantity-value">${product.count}개</span>
             </div>
             <div class="product-price">
                 <span class="unit-price">${product.price.toLocaleString()}원</span>
@@ -465,6 +361,139 @@ function displayOrderProducts(products) {
             </div>
         </div>
     `).join('');
+}
+
+/**
+ * 결제 금액 정보
+ * @param {Array} products - 주문 상품 배열 (각 상품의 orderPrice 등 포함)
+ */
+function displayPaymentSummary(products) {
+
+    console.log("결제 금액 정보 렌더링 진입...");
+
+    const productAmountContainer = document.getElementById('productAmountContainer');
+    const finalAmount = document.getElementById('finalAmount');
+
+    if(!productAmountContainer || !finalAmount) return;
+
+    productAmountContainer.innerHTML = products.map(product => `
+        <div class="summary-row">
+            <span className="summary-label">상품금액</span>
+            <span className="summary-value">${product.orderPrice.toLocaleString()}원</span>
+        </div>
+    `).join('');
+
+    //총 합계 계산 후 렌더링
+    const totalSum = products.reduce((sum, p) => sum + p.orderPrice, 0);
+    finalAmount.textContent = `${totalSum.toLocaleString()}원`;
+}
+
+
+// ==========================================================================
+// 카카오 주소 API
+// ==========================================================================
+
+/**
+ * 우편번호 검색 모달 띄우기
+ */
+function postcodeModal() {
+    console.log("우편번호 검색 버튼 클릭 이벤트 동작...");
+    new daum.Postcode({
+        oncomplete: function (data) {
+            //도로명 주소, 우편번호 세팅
+            document.getElementById('postcode').value = data.zonecode;
+            document.getElementById('roadAddress').value = data.roadAddress;
+
+            //상세 주소 입력란에 포커스 이동
+            const detailInput = document.getElementById('detailAddress');
+            if (detailInput) detailInput.focus();
+        }
+    }).open();
+}
+
+// ==========================================================================
+// 결제 기능들
+// ==========================================================================
+
+/**
+ * 결제 버튼 클릭 시 실행
+ * 서버에 최종 주문정보 보내고, 결제 API 호출
+ */
+async function handleOrderPayment(){
+    try{
+        console.log("결제 버튼 클릭 이벤트 실행...");
+
+        //전체 유효성 검사 실행
+        if (!validateForm()) {
+            console.warn("❌ 유효성 검사 실패 - 입력값 누락");
+            showNotification(`필수 입력값을 입력하세요.`,'error');
+            return;
+        }
+
+        //서버에서 받은 기존 주문 정보
+        const orderDto = window.orderDtoFromServer || {};
+        console.log("기존 주문 정보 : ", orderDto);
+
+        //사용자 입력값
+        const name = document.getElementById('orderName').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
+        const zipcode = document.getElementById('postcode').value.trim();
+        const roadAddress = document.getElementById('roadAddress').value.trim();
+        const detailAddress = document.getElementById('detailAddress').value.trim();
+
+        //동적으로 추가된 상품 요소들 가져옴
+        const productEls = document.querySelectorAll('#productList .product-item');
+
+        //주문 상품 정보 추출
+        const orderItems = Array.from(productEls).map(el => ({
+            itemId: parseInt(el.querySelector('.item-id').value),
+            itemImgId: el.querySelector('.item-img-id').value || null,
+            imgUrl: el.querySelector('.product-image img').src,
+            imgName: el.querySelector('.product-image img').alt,
+            itemName: el.querySelector('.product-name').textContent.trim(),
+            itemDetail: el.querySelector('.product-description').textContent.trim(),
+            count: parseInt(el.querySelector('.quantity-value').textContent.replace('개', '').trim()),
+            price: parseInt(el.querySelector('.unit-price').textContent.replace(/원|,/g, '').trim()),
+            orderPrice: parseInt(el.querySelector('.total-price').textContent.replace(/원|,/g, '').trim())
+        }));
+
+        const totalPrice = document.getElementById('finalAmount').value.trim();
+
+        //최종 주문 정보 생성
+        const finalOrderDto = {
+            ...orderDto,
+            name,
+            phoneNumber,
+            zipcode,
+            roadAddress,
+            detailAddress,
+            orderItems,
+            totalPrice
+        };
+
+        console.log("최종 주문 정보: ", finalOrderDto);
+
+        //서버에 최종 주문정보 저장 비동기 요청
+        const response = await fetch('/api/order/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalOrderDto)
+        });
+
+        if(response.status !== 201){
+            throw new Error('주문 정보 저장에 실패했습니다.');
+        }
+
+        const result = await response.json();
+
+        console.log("저장된 orderId: ", result);
+
+        //최종 결제 금액 값 가져와서 결제 API 호출하는 로직 추가
+
+    }catch (error) {
+        console.error('❌ 결제 처리 중 오류 발생: ', error);
+        showNotification(`결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.`, 'error');
+    }
 }
 
 // ==========================================================================
@@ -824,6 +853,90 @@ function getNotificationColor(type) {
 function handleError(error, context = '') {
     console.error(`Error in ${context}:`, error);
     showNotification(`오류가 발생했습니다: ${error.message}`, 'error');
+}
+
+/* ==========================================================================
+   이벤트 리스너 설정
+   ========================================================================== */
+
+function setupEventListeners() {
+    console.log('🔧 이벤트 리스너 설정...');
+
+    //주소 검색 버튼
+    const searchAddressBtn = document.getElementById('btn-search-postcode');
+    if(searchAddressBtn) {
+        searchAddressBtn.addEventListener('click', postcodeModal);
+    }
+
+    //결제 버튼
+    const orderBtn = document.getElementById('orderBtn');
+    if(orderBtn){
+        orderBtn.addEventListener('click', handleOrderPayment);
+    }
+}
+
+// ==========================================================================
+// 입력값 유효성 겁사 함수
+// ==========================================================================
+
+// 개별 필드 유효성 검사
+function validateField(field) {
+    const value = field.value.trim();
+    const isRequired = field.hasAttribute('required');
+
+    if (isRequired && !value) {
+        showFieldError(field, '필수 입력 항목입니다.');
+        return false;
+    } else if (value) {
+        clearFieldError(field);
+        field.classList.add('success');
+        return true;
+    }
+
+    return true;
+}
+
+// 필드 에러 표시
+function showFieldError(field, message) {
+    field.classList.add('error');
+    field.classList.remove('success');
+
+    // 기존 에러 메시지 제거
+    const existingError = field.parentNode.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+
+    // 새 에러 메시지 생성
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    field.parentNode.appendChild(errorDiv);
+}
+
+// 필드 에러 제거
+function clearFieldError(field) {
+    field.classList.remove('error');
+
+    const errorMessage = field.parentNode.querySelector('.error-message');
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+}
+
+// 전체 폼 유효성 검사
+function validateForm() {
+    let isValid = true;
+    const requiredFields = ['orderName', 'phoneNumber', 'postcode', 'roadAddress', 'detailAddress', 'delivery-memo'];
+
+    requiredFields.forEach(function(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (field && !validateField(field)) {
+            isValid = false;
+        }
+    });
+
+    return isValid;
 }
 
 // ==========================================================================
