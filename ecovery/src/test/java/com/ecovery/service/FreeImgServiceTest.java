@@ -69,20 +69,36 @@ class FreeImgServiceTest {
     @DisplayName("이미지 수정 테스트")
     @Transactional
     void testUpdateImage() throws Exception {
-        // Given: 먼저 하나 등록
+        // Given: 기존 이미지 하나 등록
         MultipartFile originalFile = new MockMultipartFile("imgFile", "old.png", "image/png", "old-content".getBytes());
         FreeImgVO vo = FreeImgVO.builder().freeId(9L).repImgYn("N").build();
         freeImgService.saveFreeImg(vo, originalFile);
         Long imgId = vo.getFreeImgId();
 
-        // When: 새 파일로 수정
-        MultipartFile newFile = new MockMultipartFile("imgFile", "new.png", "image/png", "new-content".getBytes());
-        vo.setFreeImgId(imgId);
-        boolean updated = freeImgService.updateFreeImg(vo, newFile);
+        // 기존 이미지 정보 → FreeImgDto 리스트 생성
+        FreeImgDto existingDto = new FreeImgDto();
+        existingDto.setFreeImgId(imgId);
+        existingDto.setFreeId(9L);  // 게시글 ID도 설정
+        existingDto.setImgName(vo.getImgName());
+        existingDto.setOriImgName(vo.getOriImgName());
+        existingDto.setImgUrl(vo.getImgUrl());
+        existingDto.setRepImgYn("N");
 
-        // Then
-        assertThat(updated).isTrue();
-        log.info("이미지 수정 완료: {}", imgId);
+        List<FreeImgDto> deletedImgList = List.of(existingDto); // 삭제할 이미지로 가정
+
+        // 새 이미지 파일 준비
+        MultipartFile newFile = new MockMultipartFile("imgFile", "new.png", "image/png", "new-content".getBytes());
+        List<MultipartFile> newFileList = List.of(newFile);
+
+        // When: 새 이미지로 수정
+        freeImgService.updateFreeImg(9L, deletedImgList, newFileList);
+
+        // Then: 대표 이미지가 새 파일로 설정되었는지 확인
+        FreeImgDto repImg = freeImgMapper.getRepImg(9L);
+        assertThat(repImg).isNotNull();
+        assertThat(repImg.getOriImgName()).isEqualTo("new.png");
+
+        log.info("대표 이미지 변경 완료: {}", repImg.getImgUrl());
     }
 
     @Test

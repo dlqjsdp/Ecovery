@@ -41,10 +41,10 @@
         ORDER BY free_img_id
     </select>
 
-    <!-- 이미지 번호 기준으로 삭제 -->
+    <!-- 이미지 수정을 위한 delete -->
     <delete id="delete" parameterType="Long">
         DELETE FROM free_img
-        WHERE free_img_id = #{freeImgId}
+        WHERE free_id = #{freeId}
     </delete>
 
     <!-- 이미지 번호로 1장 조회 -->

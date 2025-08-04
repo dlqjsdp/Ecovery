@@ -1,7 +1,6 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.FreeImgVO;
-import com.ecovery.domain.ItemImgVO;
 import com.ecovery.dto.FreeImgDto;
 import com.ecovery.mapper.FreeImgMapper;
 import io.micrometer.common.util.StringUtils;
@@ -12,9 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
-import java.util.UUID;
 
 /*
  * 무료나눔 이미지 서비스 구현 클래스
@@ -90,65 +87,80 @@ public class FreeImgServiceImpl implements FreeImgService {
      * 기존 파일 삭제 후, 새로운 파일로 업데이트
      */
     @Override
-    public boolean updateFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception {
-        if (freeImgFile.isEmpty()) {
-            return false;
-        }
-
-        // 기존 이미지 조회
-        FreeImgDto savedImg = freeImgMapper.getById(freeImgVO.getFreeImgId());
+    public void updateFreeImg(Long freeId, List<FreeImgDto> freeImgDtoList, List<MultipartFile> freeImgFileList) throws Exception {
 
         // 기존 이미지 삭제
-        if (!StringUtils.isEmpty(savedImg.getImgName())) {
-            fileService.deleteFile(freeImgLocation + "/" + savedImg.getImgName());
+        if (freeImgDtoList != null && !freeImgDtoList.isEmpty()) {
+            for (FreeImgDto dto : freeImgDtoList) {
+                // DB에 저장된 이미지 정보 조회
+                FreeImgDto savedImg = freeImgMapper.getById(dto.getFreeImgId());
+
+                // 저장된 파일이 있으면 파일 시스템에서도 삭제
+                if (savedImg != null && savedImg.getImgName() != null) {
+                    fileService.deleteFile(freeImgLocation + "/" + savedImg.getImgName());
+                }
+
+                // DB에서 이미지 삭제
+                freeImgMapper.delete(dto.getFreeId());  // 이 메서드는 Mapper에 작성되어 있어야 함
+            }
         }
 
-        // 새 이미지 저장
-        String oriImgName = freeImgFile.getOriginalFilename();
-        String imgName = fileService.uploadFile(freeImgLocation, oriImgName, freeImgFile.getBytes());
-        String imgUrl = "/images/free/" + imgName;
+        // 새 이미지 업로드 및 등록
+        if (freeImgFileList != null && !freeImgFileList.isEmpty()) {
+            for (int i = 0; i < freeImgFileList.size(); i++) {
+                MultipartFile file = freeImgFileList.get(i);
 
-        // VO 업데이트
-        freeImgVO.setOriImgName(oriImgName);
-        freeImgVO.setImgName(imgName);
-        freeImgVO.setImgUrl(imgUrl);
+                if (!file.isEmpty()) {
+                    String oriImgName = file.getOriginalFilename();
+                    String imgName = fileService.uploadFile(freeImgLocation, oriImgName, file.getBytes());
+                    String imgUrl = "/ecovery/free/" + imgName;
 
-        int result = freeImgMapper.update(freeImgVO);
-        return result == 1;
+                    FreeImgVO freeImgVO = new FreeImgVO();
+                    freeImgVO.setFreeId(freeId);
+                    freeImgVO.setOriImgName(oriImgName);
+                    freeImgVO.setImgName(imgName);
+                    freeImgVO.setImgUrl(imgUrl);
+                    freeImgVO.setRepImgYn("N"); // 일단 전부 'N'으로 저장
+
+                    // DB에 저장
+                    freeImgMapper.insert(freeImgVO);
+
+                    // 첫 번째 이미지는 대표 이미지로 설정
+                    if (i == 0) {
+                        freeImgMapper.setRepImg(freeImgVO.getFreeImgId());
+                    }
+                }
+            }
+        }
     }
 
     // 이미지 삭제
     @Override
     @Transactional
-    public void deleteFreeImg(Long freeImgId) throws Exception {
+    public void deleteFreeImg(Long freeId) throws Exception {
 
-        // 삭제 대상 이미지 조회
-        FreeImgDto img = freeImgMapper.getById(freeImgId);
-        if (img == null) {
-            throw new IllegalArgumentException("삭제할 이미지가 존재하지 않습니다.");
+        // 1. 해당 게시글의 모든 이미지 조회
+        List<FreeImgVO> imgList = freeImgMapper.getFreeImgList(freeId);
+
+        if (imgList == null || imgList.isEmpty()) {
+            // 이미지가 없을 경우 예외 안 던지고 그냥 리턴
+            return;
         }
 
-        // 실제 파일 삭제
-        if (!StringUtils.isEmpty(img.getImgName())) {
-            fileService.deleteFile(freeImgLocation + "/" + img.getImgName());
-        }
-
-        // DB 삭제
-        int deleted = freeImgMapper.delete(freeImgId);
-        if (deleted != 1) {
-            throw new IllegalStateException("DB에서 이미지 삭제 실패");
-        }
-
-        // 대표이미지였는지 확인 → 남은 이미지 중 하나를 대표로 자동 지정
-        if ("Y".equals(img.getRepImgYn())) {
-            List<FreeImgVO> remaining = freeImgMapper.getFreeImgList(img.getFreeId());
-
-            if (!remaining.isEmpty()) {
-                Long newRepImgId = remaining.get(0).getFreeImgId();
-                freeImgMapper.setRepImg(newRepImgId); // ← Mapper에 추가 필요!
+        // 2. 실제 파일 삭제
+        for (FreeImgVO img : imgList) {
+            if (!StringUtils.isEmpty(img.getImgName())) {
+                fileService.deleteFile(freeImgLocation + "/" + img.getImgName());
             }
         }
+
+        // 3. DB에서 이미지들 전체 삭제
+        int deletedCount = freeImgMapper.deleteAllByFreeId(freeId);
+        if (deletedCount == 0) {
+            throw new IllegalStateException("DB에서 이미지 삭제 실패");
+        }
     }
+
 
     // 다중 이미지 업로드
     @Override
@@ -187,6 +199,8 @@ public class FreeImgServiceImpl implements FreeImgService {
     public List<FreeImgVO> getAll(Long freeId) {
         return freeImgMapper.getFreeImgList(freeId);
     }
+
+
 
     @Override
     public void deleteAllByFreeId(Long freeId) throws Exception {
