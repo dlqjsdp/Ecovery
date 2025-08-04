@@ -119,6 +119,33 @@ function submitComment(e, freeId) {
         });
 }
 
+// ==============================
+// 대댓글 입력창 생성 함수
+// ==============================
+function createChildReplyInput(parentId) {
+    const container = document.getElementById(`childReplyBox-${parentId}`);
+    if (!container) return;
+
+    // textarea 생성
+    const textarea = document.createElement('textarea');
+    textarea.id = `childCommentInput-${parentId}`;
+    textarea.classList.add('edit-textarea'); // ← 여기서 CSS 클래스 추가
+    textarea.placeholder = '답글을 입력하세요';
+
+    // 등록 버튼 생성
+    const submitBtn = document.createElement('button');
+    submitBtn.textContent = '등록';
+    submitBtn.onclick = () => submitChildComment(parentId);
+
+    // 기존 내용 비우고 새로 추가
+    container.innerHTML = '';
+    container.appendChild(textarea);
+    container.appendChild(submitBtn);
+
+    // Enter 키로 등록하는 이벤트 연결
+    setupChildReplyEnterEvent(parentId);
+}
+
 
 // 대댓글 등록 함수
 function submitChildComment(parentId) {

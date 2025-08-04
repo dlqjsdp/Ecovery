@@ -899,18 +899,32 @@ body {
     align-items: flex-end; /* 하단 정렬 */
 }
 
-/* 대댓글 입력창 */
+/* case 1: HTML로 직접 넣은 대댓글 입력창 */
 .reply-form textarea {
     flex: 1;
     padding: 8px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    resize: none;              /* 크기 조절 비활성화 */
+    resize: none !important;;              /* 크기 조절 비활성화 */
     min-height: 60px;
     max-height: 80px;          /* 최대 높이 제한 */
     overflow-y: auto;          /* 스크롤 허용 */
     font-size: 14px;
     font-family: inherit;
+}
+
+/* case 2: JS로 동적으로 만든 대댓글 입력창 */
+textarea.edit-textarea {
+    resize: none !important;
+    min-height: 60px;
+    max-height: 80px;
+    overflow-y: auto;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
 }
 
 /* 대댓글 등록 버튼 */

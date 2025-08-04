@@ -24,10 +24,10 @@ public interface FreeImgService {
    public void saveFreeImg( FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
 
     //상품 이미지 수정
-    public boolean updateFreeImg(FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
+    public void updateFreeImg(Long freeId, List<FreeImgDto> freeImgDtoList, List<MultipartFile> freeImgFile) throws Exception;
 
-    //이미지 단건 삭제
-    public void deleteFreeImg(Long freeImgId) throws Exception;
+    //이미지 삭제
+    public void deleteFreeImg(Long freeId) throws Exception;
 
     //다중 이미지 업로드
     public void saveAllFreeImages(Long freeId, List<MultipartFile> imgFiles) throws Exception;
@@ -38,7 +38,7 @@ public interface FreeImgService {
     // 이미지 전체 조회
     List<FreeImgVO> getAll(Long freeId);
 
-    // 추가된 메서드: 특정 게시글(freeId)에 속한 모든 이미지 삭제
+    // 특정 게시글(freeId)에 속한 모든 이미지 삭제
     public void deleteAllByFreeId(Long freeId) throws Exception;
  }
 

@@ -164,6 +164,32 @@ body {
 }
 
 
+/* 뒤로가기 버튼 */
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: var(--white);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.back-icon {
+    font-size: 18px;
+}
+
+
 /* ==========================================
    주문 정보 섹션 - 새로운 레이아웃
    ========================================== */
@@ -1093,7 +1119,6 @@ body {
     gap: 40px;
     align-items: center;
 }
-
 /* 네비게이션 링크 */
 .nav-menu a {
     text-decoration: none;
