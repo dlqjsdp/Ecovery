@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,10 @@ import java.util.Map;
  *  - 250723 | sehui | 주문 페이지 요청 기능 추가
  *  - 250723 | sehui | 결제 버튼 클릭 시 주문 저장 기능 추가
  *  - 250728 | sehui | 결제 실패 시 주문 페이지 재구성 기능 추가
- *  - 250802 | sehui | 주문 페이지 요청 Principal 대신 Authentication 사용으로 변경
+ *  - 250802 | sehui | 주문 페이지 요청 Principal를 Authentication으로 변경
+ *  - 250804 | sehui | 주문 저장 요청 Principal를 Authentication으로 변경
+ *  - 250804 | sehui | 주문 페이지 재구성 요청 Principal를 Authentication으로 변경
+ *  - 250804 | sehui | 주문 저장 반환값에 orderUuid가 추가된 result로 변경
  */
 
 @RestController
@@ -89,26 +91,37 @@ public class OrderApiController {
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> saveOrder(@Valid @RequestBody OrderDto orderDto,
                                                          BindingResult bindingResult,
-                                                         Principal principal) {
-
-        //유효성 검사
-        if(bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
-        //로그인한 사용자 정보 조회
-        String email = principal.getName();
-        Long memberId  = memberService.getMemberByEmail(email).getMemberId();
-
-        Map<String, Object> response = new HashMap<>();
-
-        //주문 저장
+                                                         Authentication auth) {
         try{
-            Long saveOrderId = orderService.saveOrder(orderDto, memberId);
-            response.put("orderId", saveOrderId);
+            //유효성 검사
+            if(bindingResult.hasErrors()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            //로그인한 사용자가 아닐 경우
+            if(auth == null || !auth.isAuthenticated()) {
+                throw new IllegalArgumentException("로그인한 사용자만 주문할 수 있습니다.");
+            }
+
+            //로그인한 사용자 정보 조회
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            String email = userDetails.getEmail();
+
+            MemberVO member = memberService.getMemberByEmail(email);
+
+            //사용자 정보 DB에 없는 경우
+            if(member == null) {
+                throw new IllegalArgumentException("해당 이메일로 등록된 사용자가 없습니다." + email);
+            }
+
+            Long memberId  = memberService.getMemberByEmail(email).getMemberId();
+
+            //저장 요청(result: orderId, orderUuid)
+            Map<String, Object> result = orderService.saveOrder(orderDto, memberId);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
         }catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
             response.put("message", "주문 등록 중 에러가 발생하였습니다.");
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -117,27 +130,38 @@ public class OrderApiController {
 
     //주문 페이지 재구성
     @GetMapping("/retry/{orderId}")
-    public ResponseEntity<Map<String, Object>> retryOrder(@PathVariable Long orderId, Principal principal) {
-
-        //로그인한 사용자 정보 조회
-        String email = principal.getName();
-        Long memberId  = memberService.getMemberByEmail(email).getMemberId();
-
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<?> retryOrder(@PathVariable Long orderId, Authentication auth) {
 
         try{
+            //로그인한 사용자가 아닐 경우
+            if(auth == null || !auth.isAuthenticated()) {
+                throw new IllegalArgumentException("로그인한 사용자만 주문할 수 있습니다.");
+            }
+
+            //로그인한 사용자 정보 조회
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            String email = userDetails.getEmail();
+
+            MemberVO member = memberService.getMemberByEmail(email);
+
+            //사용자 정보 DB에 없는 경우
+            if(member == null) {
+                throw new IllegalArgumentException("해당 이메일로 등록된 사용자가 없습니다." + email);
+            }
+
+            Long memberId  = memberService.getMemberByEmail(email).getMemberId();
+
             //주문 조희
             OrderDto orderDto = orderService.getOrderDto(orderId, memberId);
-            response.put("order", orderDto);
 
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(orderDto);
         }catch (IllegalArgumentException e) {
             //주문이 존재하지 않거나 권한이 없는 경우
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            log.error("주문 정보 조회 중 오류 : {}",e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            response.put("message", "서버 내부 오류가 발생했습니다.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            log.error("알수 없는 오류 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류가 발생했습니다.");
         }
     }
 }

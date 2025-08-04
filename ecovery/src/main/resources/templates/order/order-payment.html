@@ -8,6 +8,7 @@
      - 250801 | sehui | 교환/반품, 주문 취소 확인 모달 삭제
      - 250801 | sehui | 서버에서 전달받은 DTO를 JS 전달하기 위해 <input> 추가
      - 250802 | sehui | 포인트 내역 <div> 삭제
+     - 250804 | sehui | 포트원 결제 API 스크립트 추가
 -->
 
 <!DOCTYPE html>
@@ -20,7 +21,7 @@
 
     <!-- 추가 css -->
     <th:block layout:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/order-detail.css}">
+        <link rel="stylesheet" th:href="@{/css/order-payment.css}">
     </th:block>
 
 </head>
@@ -108,30 +109,38 @@
                             <h3 class="address-title">배송지 정보</h3>
                             <div class="address-details">
                                 <div class="address-item">
-                                    <span class="address-label">받는분</span>
-                                    <input type="text" class="address-value" id="orderName" required>
+                                    <span class="address-label">받는 분</span>
+                                    <input type="text" class="address-value" id="orderName" placeholder="이름" required>
                                     <div class="error-message" id="orderNameError"></div>
                                 </div>
                                 <div class="address-item">
                                     <span class="address-label">연락처</span>
-                                    <input type="number" class="address-value" id="phoneNumber" required>
+                                    <input type="text" class="address-value" id="phoneNumber" placeholder="연락처" required>
                                     <div class="error-message" id="phoneNumberError"></div>
                                 </div>
                                 <div class="address-item">
                                     <span class="address-label">주소</span>
-                                    <input type="text" id="postcode" placeholder="우편번호" readonly required>
-                                    <div class="error-message" id="postcodeError"></div>
+                                    <div class="address-input-group">
+                                        <div class="postcode-row">
+                                            <input type="text" id="postcode" placeholder="우편번호" readonly required>
+                                            <input type="button" id="btn-search-postcode" value="우편번호 찾기">
+                                        </div>
 
-                                    <input type="button" id="btn-search-postcode" value="우편번호 찾기"><br>
-                                    <input type="text" id="roadAddress" placeholder="도로명 주소" readonly required><br>
-                                    <div class="error-message" id="roadAddressError"></div>
+                                        <div class="input-with-error">
+                                            <input type="text" id="roadAddress" placeholder="도로명 주소" readonly required>
+                                            <div class="error-message" id="roadAddressError"></div>
+                                        </div>
 
-                                    <input type="text" id="detailAddress" placeholder="상세 주소" required>
-                                    <div class="error-message" id="detailAddressError"></div>
+                                        <div class="input-with-error">
+                                            <input type="text" id="detailAddress" placeholder="상세 주소" required>
+                                            <div class="error-message" id="detailAddressError"></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="address-item">
-                                    <span class="address-label">배송요청사항</span>
+                                    <span class="address-label">배송 요청사항</span>
                                     <input class="address-value" id="delivery-memo" placeholder="배송 요청사항" required>
+                                    <div class="error-message" id="deliveryMemoError"></div>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +162,7 @@
                                 <span class="summary-label">배송비</span>
                                 <span class="summary-value" id="deliveryFee">무료배송</span>
                             </div>
-                            <div class="summary-row used-points" id="usedPointsWrapper" style="display: none">
+                            <div class="summary-row used-points" id="usedPointsWrapper">
                                 <span class="summary-label">사용 포인트</span>
                                 <span class="summary-value" id="usedPoints">0p</span>
                             </div>
@@ -169,9 +178,21 @@
                             <div class="method-details">
                                 <!-- 결제 버튼 표시 -->
                                 <div class="method-item">
+                                    <button class="btn-action btn-reorder">
+                                        <span class="btn-icon">💰</span>
+                                        <span class="btn-text">무통장입금</span>
+                                    </button>
+                                    <button class="btn-action btn-reorder">
+                                        <span class="btn-icon">📱</span>
+                                        <span class="btn-text">휴대폰 결제</span>
+                                    </button>
+                                    <button class="btn-action btn-reorder">
+                                        <span class="btn-icon">💵</span>
+                                        <span class="btn-text">계좌이체</span>
+                                    </button>
                                     <button class="btn-action btn-reorder" id="orderBtn">
                                         <span class="btn-icon">💳</span>
-                                        <span class="btn-text">결제하기</span>
+                                        <span class="btn-text">간편결제</span>
                                     </button>
                                 </div>
                             </div>
@@ -199,9 +220,11 @@
 
 <!-- 추가 JS -->
 <th:block layout:fragment="script">
-    <script th:src="@{/js/order-detail.js}"></script>
+    <script th:src="@{/js/order-payment.js}"></script>
     <!-- 카카오 주소 검색 스크립트 -->
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <!-- 포트원 결제 API 스크립트 -->
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
 </th:block>
 </body>
 </html>
