@@ -160,8 +160,8 @@ create table cart (
 -- 장바구니 상품 table (cart_item)
 create table cart_item (
 	cart_item_id bigint auto_increment primary key,
-    cart_id bigint not null unique,
-    item_id bigint not null unique,
+    cart_id bigint not null,
+    item_id bigint not null,
     count int not null default 1,
     created_at date not null default (current_date),
     foreign key(cart_id) references cart(cart_id),
