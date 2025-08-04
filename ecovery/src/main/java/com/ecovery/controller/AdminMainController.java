@@ -61,10 +61,36 @@ public class AdminMainController {
         model.addAttribute("recentEnvTalks", adminEnv);
         model.addAttribute("recentNotices", adminNotice);
 
+        double avgAiConfidence = adminDisposalHistory.stream()
+                .map(DisposalHistoryDto::getAiConfidence)       // Double 객체 스트림
+                .filter(java.util.Objects::nonNull)             // null 제거
+                .mapToDouble(Double::doubleValue)               // double로 변환
+                .average()
+                .orElse(0);
+        avgAiConfidence = Math.round(avgAiConfidence * 100.0) / 100.0;
+        model.addAttribute("avgAiConfidence", avgAiConfidence);
+
+        double feedbackAvgAiConfidence = adminDisposalFeedback.stream()
+                .map(DisposalFeedbackDto::getAiConfidence)       // Double 객체 스트림
+                .filter(java.util.Objects::nonNull)             // null 제거
+                .mapToDouble(Double::doubleValue)               // double로 변환
+                .average()
+                .orElse(0);
+        feedbackAvgAiConfidence = Math.round(feedbackAvgAiConfidence * 100.0) / 100.0;
+        model.addAttribute("feedbackAvgAiConfidence", feedbackAvgAiConfidence);
 
 
-        /*int total = disposalHistoryService.getTotal(cri);
-        model.addAttribute("disposalHistoryPage", new PageDto(cri, total));*/
+
+        int disposalHistoryTotal = disposalHistoryService.getTotal(cri);
+        model.addAttribute("disposalHistoryTotal", disposalHistoryTotal);
+        int memberTotal = memberService.getTotal(cri);
+        model.addAttribute("memberTotal", memberTotal);
+        int feedbackTotal = disposalFeedbackService.getTotalCount(cri);
+        model.addAttribute("feedbackTotal", feedbackTotal);
+        int envTotal = envService.getTotal(cri);
+        model.addAttribute("envTotal", envTotal);
+        int noticeTotal = noticeService.getTotal(cri);
+        model.addAttribute("noticeTotal", noticeTotal);
 
         return "admin/adminMain";
     }
