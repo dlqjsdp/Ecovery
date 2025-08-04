@@ -53,7 +53,6 @@ function loadItems(pageNum = 1,  itemNm = "", category = "") {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            console.log("PageMaker: ", data.pageMaker);
             renderItemList(data.itemList);
             renderPagination(data.pageMaker, itemNm, category);
         })

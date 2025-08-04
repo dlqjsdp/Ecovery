@@ -25,6 +25,7 @@ import java.util.List;
  *  - 250802 | sehui | 주문 페이지 첫 화면에 orderItemRequestDto를 JSON 문자열로 반환 로직 추가
  *  - 250804 | 방희경 | 여러개 상품 주문을 위한 로직 변경
  *  - 250804 | yukyeong | 주문 완료 페이지 이동 메서드 추가
+ *  - 250804 | sehui | 주문 페이지 첫 화면 @RequestBody 추가 시 오류 발생하여 삭제함
  */
 
 
@@ -37,7 +38,7 @@ public class OrderViewController {
 
     //주문 페이지 첫 화면
     @PostMapping("/prepare")
-    public String prepareOrderPage(@RequestBody List<OrderItemRequestDto> orderItemRequest, Model model) {
+    public String preparePage(OrderItemRequestDto orderItemRequest, Model model) {
 
         try{
             //OrderItemRequestDto를 JSON 문자열로 변환

@@ -80,6 +80,7 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new RuntimeException("토큰 발급 실패: "+ response.getBody());
             }
         }catch (Exception e) {
+            log.error(e.getMessage());
             //요청 도중에 예외 발생한 경우
             throw  new RuntimeException("토큰 요청 중 오류 발생", e);
         }
@@ -108,6 +109,11 @@ public class PaymentServiceImpl implements PaymentService {
 
             //2. orderId 조회
             Long orderId = orderService.getOrderId(paymentResult.getOrderUuid());
+            if(orderId != null){
+                throw new RuntimeException("주문 정보를 찾을 수 없습니다." + paymentResult.getOrderUuid());
+            }
+
+            System.out.println("PaymentResult" + paymentResult);
 
             //3. 결제 정보 저장용 객체 생성
             PaymentVO payment = PaymentVO.builder()
@@ -115,7 +121,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .orderUuid(paymentResult.getOrderUuid())
                     .memberId(memberId)
                     .paymentKey(paymentResult.getPaymentKey())
-                    .payMethod(PayMethod.valueOf((String) responseBody.get("payMethod")))
+                    .payMethod(paymentResult.getPayMethod())
                     .payAmount((Integer) responseBody.get("amount"))
                     .payStatus(PayStatus.PAID)
                     .build();
