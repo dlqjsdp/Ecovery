@@ -98,7 +98,7 @@ public class FreeApiController {
     }
 
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    @PutMapping("/modify/{freeId}")
+    @PostMapping("/modify/{freeId}")
     public ResponseEntity<String> modify(
             @PathVariable Long freeId,
             @RequestPart("freeDto") FreeDto freeDto,
@@ -137,10 +137,8 @@ public class FreeApiController {
         }
 
         try {
-            boolean result = freeService.modify(freeDto, imgFiles, deletedImageIds);
-            return result
-                    ? ResponseEntity.ok("게시글이 수정되었습니다.")
-                    : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("수정 실패");
+            freeService.modify(freeDto, imgFiles, deletedImageIds);
+            return ResponseEntity.ok("게시글이 수정되었습니다.");
         } catch (Exception e) {
             log.error("게시글 수정 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("수정 중 오류가 발생했습니다.");
@@ -180,7 +178,7 @@ public class FreeApiController {
                 : ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
     }
 
-    @DeleteMapping("/image/{imgId}")
+    @DeleteMapping("/image/{freeImgId}")
     public ResponseEntity<String> deleteImage(@PathVariable Long freeImgId) {
         try {
             freeImgService.deleteFreeImg(freeImgId);

@@ -63,7 +63,7 @@
             <div class="stat-card primary">
                 <div class="card-icon">👥</div>
                 <div class="card-title">총 사용자</div>
-                <div class="card-value" th:data-count="${dashboardStats?.totalUsers ?: 0}" th:text="${dashboardStats?.totalUsers ?: 0}">0</div>
+                <div class="card-value" th:data-count="${memberTotal ?: 0}" th:text="${memberTotal ?: 0}">0</div>
                 <div class="card-change">
                     <span th:if="${dashboardStats?.userGrowthRate != null and dashboardStats.userGrowthRate > 0}">↗️</span>
                     <span th:if="${dashboardStats?.userGrowthRate != null and dashboardStats.userGrowthRate < 0}">↘️</span>
@@ -74,8 +74,8 @@
             <!-- 오늘 분리배출 -->
             <div class="stat-card success">
                 <div class="card-icon">♻️</div>
-                <div class="card-title">오늘 분리배출</div>
-                <div class="card-value" th:data-count="${dashboardStats?.todayWasteCount ?: 0}" th:text="${dashboardStats?.todayWasteCount ?: 0}">0</div>
+                <div class="card-title">총 분리배출</div>
+                <div class="card-value" th:data-count="${disposalHistoryTotal ?: 0}" th:text="${disposalHistoryTotal ?: 0}">0</div>
                 <div class="card-change">
                     <span th:if="${dashboardStats?.wasteGrowthRate != null and dashboardStats.wasteGrowthRate > 0}">↗️</span>
                     <span th:if="${dashboardStats?.wasteGrowthRate != null and dashboardStats.wasteGrowthRate < 0}">↘️</span>
@@ -86,8 +86,8 @@
             <!-- 활성 무료나눔 -->
             <div class="stat-card warning">
                 <div class="card-icon">🤝</div>
-                <div class="card-title">활성 무료나눔</div>
-                <div class="card-value" th:data-count="${dashboardStats?.activeSharingCount ?: 0}" th:text="${dashboardStats?.activeSharingCount ?: 0}">0</div>
+                <div class="card-title">분리배출 오인식</div>
+                <div class="card-value" th:data-count="${feedbackTotal ?: 0}" th:text="${dashboardStats?.activeSharingCount ?: 0}">0</div>
                 <div class="card-change">
                     <span th:if="${dashboardStats?.sharingGrowthRate != null and dashboardStats.sharingGrowthRate > 0}">↗️</span>
                     <span th:if="${dashboardStats?.sharingGrowthRate != null and dashboardStats.sharingGrowthRate < 0}">↘️</span>
@@ -98,8 +98,8 @@
             <!-- 총 게시글 -->
             <div class="stat-card info">
                 <div class="card-icon">📝</div>
-                <div class="card-title">총 게시글</div>
-                <div class="card-value" th:data-count="${dashboardStats?.totalPosts ?: 0}" th:text="${dashboardStats?.totalPosts ?: 0}">0</div>
+                <div class="card-title">환경톡톡</div>
+                <div class="card-value" th:data-count="${envTotal ?: 0}" th:text="${envTotal ?: 0}">0</div>
                 <div class="card-change">
                     <span th:if="${dashboardStats?.postGrowthRate != null and dashboardStats.postGrowthRate > 0}">↗️</span>
                     <span th:if="${dashboardStats?.postGrowthRate != null and dashboardStats.postGrowthRate < 0}">↘️</span>
@@ -126,17 +126,17 @@
                 <!-- 분리배출 통계 -->
                 <div class="mini-stats">
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${wasteStats?.accuracy != null ? wasteStats.accuracy + '%' : '99.7%'}">99.7%</span>
+                        <span class="mini-stat-value" th:text="${avgAiConfidence != null ? avgAiConfidence + '%' : '99.7%'}">99.7%</span>
                         <span class="mini-stat-label">정확도</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${wasteStats?.misclassified ?: 23}">23</span>
+                        <span class="mini-stat-value" th:text="${feedbackTotal ?: 23}">23</span>
                         <span class="mini-stat-label">오분류</span>
                     </div>
-                    <div class="mini-stat">
+                    <!--<div class="mini-stat">
                         <span class="mini-stat-value" th:text="${wasteStats?.todayProcessed != null ? wasteStats.todayProcessed + 'kg' : '1,247kg'}">1,247kg</span>
                         <span class="mini-stat-label">오늘 처리량</span>
-                    </div>
+                    </div>-->
                 </div>
 
                 <!-- 최근 분리배출 기록 -->
@@ -148,7 +148,7 @@
                             <th>사용자</th>
                             <th>폐기물 유형</th>
                             <th>정확도</th>
-                            <th>상태</th>
+                            <!--<th>상태</th>-->
                         </tr>
                         </thead>
                         <tbody>
@@ -184,16 +184,16 @@
                 <!-- 오류 통계 -->
                 <div class="mini-stats">
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${sharingStats?.activeCount ?: 89}">89</span>
-                        <span class="mini-stat-label">###</span>
+                        <span class="mini-stat-value" th:text="${feedbackTotal ?: 23}">89</span>
+                        <span class="mini-stat-label">총 신고량</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${sharingStats?.completedCount ?: 156}">156</span>
-                        <span class="mini-stat-label">###</span>
+                        <span class="mini-stat-value" th:text="${feedbackAvgAiConfidence != null ? feedbackAvgAiConfidence + '%' : '99.7%'}">89</span>
+                        <span class="mini-stat-label">정확도</span>
                     </div>
                     <div class="mini-stat">
                         <span class="mini-stat-value" th:text="${sharingStats?.pendingCount ?: 23}">23</span>
-                        <span class="mini-stat-label">###</span>
+                        <span class="mini-stat-label">처리량</span>
                     </div>
                 </div>
 
@@ -206,7 +206,7 @@
                             <th>사용자</th>
                             <th>폐기물 유형</th>
                             <th>정확도</th>
-                            <th>상태</th>
+                            <!--<th>상태</th>-->
                         </tr>
                         </thead>
                         <tbody>
@@ -245,16 +245,16 @@
                 <!-- 회원 통계 -->
                 <div class="mini-stats">
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${userStats?.totalCount != null ? #numbers.formatInteger(userStats.totalCount, 3, 'COMMA') : '15,247'}">15,247</span>
+                        <span class="mini-stat-value" th:text="${memberTotal != null ? #numbers.formatInteger(memberTotal, 3, 'COMMA') : '15,247'}">15,247</span>
                         <span class="mini-stat-label">총 회원</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${userStats?.activeCount != null ? #numbers.formatInteger(userStats.activeCount, 3, 'COMMA') : '13,892'}">13,892</span>
-                        <span class="mini-stat-label">활성 회원</span>
+                        <span class="mini-stat-value" th:text="${userStats?.activeCount != null ? #numbers.formatInteger(userStats.activeCount, 3, 'COMMA') : '15'}">13,892</span>
+                        <span class="mini-stat-label">일반 회원</span>
                     </div>
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${userStats?.newMemberCount ?: 145}">145</span>
-                        <span class="mini-stat-label">신규 가입</span>
+                        <span class="mini-stat-value" th:text="${userStats?.newMemberCount ?: 2}">145</span>
+                        <span class="mini-stat-label">관리자</span>
                     </div>
                 </div>
 
@@ -279,7 +279,7 @@
                             <td>
                                         <span class="status-badge"
                                               th:classappend="${user.role == 'ACTIVE' ? 'status-active' : 'status-inactive'}"
-                                              th:text="${user.role == 'ACTIVE' ? '활성' : '비활성'}">활성</span>
+                                              th:text="${user.role == 'ACTIVE' ? '활성' : '활성'}">활성</span>
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-secondary" th:onclick="|editUser(${user.memberId})|">수정</button>
@@ -307,13 +307,13 @@
                         <span class="section-icon">💬</span>
                         환경톡톡
                     </h2>
-                    <a th:href="@{env/list}" class="btn btn-primary">바로가기</a>
+                    <a th:href="@{/env/list}" class="btn btn-primary">바로가기</a>
                 </div>
 
                 <!-- 환경톡톡 통계 -->
                 <div class="mini-stats">
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${envTalkStats?.totalPosts ?: 2456}">2,456</span>
+                        <span class="mini-stat-value" th:text="${envTotal ?: 2456}">2,456</span>
                         <span class="mini-stat-label">총 게시글</span>
                     </div>
                     <div class="mini-stat">
@@ -364,13 +364,13 @@
                         <span class="section-icon">📢</span>
                         공지사항
                     </h2>
-                    <a th:href="@{notice/list}" class="btn btn-primary">바로가기</a>
+                    <a th:href="@{/notice/list}" class="btn btn-primary">바로가기</a>
                 </div>
 
                 <!-- 공지사항 통계 -->
                 <div class="mini-stats">
                     <div class="mini-stat">
-                        <span class="mini-stat-value" th:text="${noticeStats?.totalPosts ?: 2456}">2,456</span>
+                        <span class="mini-stat-value" th:text="${noticeTotal ?: 2456}">2,456</span>
                         <span class="mini-stat-label">총 게시글</span>
                     </div>
                     <div class="mini-stat">

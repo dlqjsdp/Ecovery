@@ -26,7 +26,7 @@ public interface FreeImgMapper {
 
     public FreeImgDto getById(Long freeImgId);           // 이미지 번호로 이미지 1건 조회
 
-    public int delete(Long freeImgId);                   // 이미지 고유번호 기준으로 이미지 1건 삭제(성공시 1, 실패시 0)
+    public int delete(Long freeId);                      // 게시글 id로 게시글 이미지 수정을 위한 삭제
 
     public FreeImgDto getRepImg(Long freeId);            // 대표 이미지 조회 (썸네일용)
 

@@ -166,21 +166,13 @@
 <!--                                </label>-->
 <!--                            </div>-->
 <!--                        </div>-->
-
+                        <form id="orderForm" method="POST" action="/order/prepare">
                         <div class="order-actions">
-                            <form id="orderForm" action="/order/prepare" method="post">
-                                <input type="hidden" name="itemId" value="상품ID1">
-                                <input type="hidden" name="count" value="수량1">
-                                <input type="hidden" name="itemId" value="상품ID2">
-                                <input type="hidden" name="count" value="수량2">
-                                <button type="submit" class="btn-order">
+                                <button type="button" class="btn-order" onclick="submitOrderForm()">
                                     🛒 주문하기 (<span id="pricetotal">0원</span>)
                                 </button>
-                            </form>
-                            <button class="btn-wishlist" onclick="moveAllToWishlist()">
-                                💖 전체 찜하기
-                            </button>
                         </div>
+                        </form>
                     </div>
                 </div>
 
@@ -266,23 +258,33 @@
 
 <script th:src="@{/js/cart-script.js}"></script>
 <script>
-    document.getElementById('orderForm').addEventListener('submit', function(event) {
-        const selectedItems = [];
+    // ✅ 주문 form 동적 구성 및 제출 함수
+    function submitOrderForm() {
+        const form = document.getElementById('orderForm');
+        form.innerHTML = ''; // 기존 input 초기화
 
-        selectedItems.forEach(item => {
-            const itemIdInput = document.createElement('input');
-            itemIdInput.type = 'hidden';
-            itemIdInput.name = 'orderItems[].itemId';
-            itemIdInput.value = item.itemId;
-            this.appendChild(itemIdInput);
+        const selectedItems = cartItems.filter(item => item.selected);
+        if (selectedItems.length === 0) {
+            showNotification("주문할 상품을 선택해주세요.", "warning");
+            return;
+        }
 
-            const countInput = document.createElement('input');
-            countInput.type = 'hidden';
-            countInput.name = 'orderItems[].count';
-            countInput.value = item.count;
-            this.appendChild(countInput);
+        selectedItems.forEach((item, i) => {
+            const input1 = document.createElement('input');
+            input1.type = 'hidden';
+            input1.name = `orderItems[${i}].itemId`;
+            input1.value = item.realItemId;
+            form.appendChild(input1);
+
+            const input2 = document.createElement('input');
+            input2.type = 'hidden';
+            input2.name = `orderItems[${i}].count`;
+            input2.value = item.quantity;
+            form.appendChild(input2);
         });
-    });
+
+        form.submit();
+    }
 </script>
 </body>
 </html>
