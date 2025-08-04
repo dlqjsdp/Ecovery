@@ -15,9 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /*
  * 에코마켓 주문 ServiceImpl
@@ -33,6 +31,7 @@ import java.util.UUID;
  *  - 250728 | sehui | 주문 페이지 재출력용 주문 단건 조회 기능 추가
  *  - 250728 | sehui | 주문 저장 기능에 totalPrice 추가
  *  - 250802 | sehui | orderUuid 가독성을 위해 날짜 + 랜덤 조합으로 변경
+ *  - 250804 | sehui | 실제 주문 저장 반환 타입 변경, 반환값에 orderUuid 추가
  */
 
 @Service
@@ -80,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     //주문 저장
     @Override
-    public Long saveOrder(OrderDto orderDto, Long memberId) {
+    public Map<String, Object> saveOrder(OrderDto orderDto, Long memberId) {
 
         //DB에 저장하기 전에 totalPrice 다시 계산
         int calculatedTotalPrice = orderDto.getOrderItems().stream()
@@ -107,8 +106,9 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("주문 저장에 실패하였습니다.");
         }
 
-        //주문 id 확인
+        //주문 id, 주문 고유 번호 확인
         Long orderId = order.getOrderId();
+        String orderUuid = order.getOrderUuid();
 
         //주문 상품 저장
         for(OrderItemDto orderItemDto : orderDto.getOrderItems()) {
@@ -119,7 +119,12 @@ public class OrderServiceImpl implements OrderService {
             orderItemService.saveOrderItem(orderItemDto, orderId);
         }
 
-        return orderId;
+        //Map으로 반환
+        Map<String, Object> saveResult = new HashMap<>();
+        saveResult.put("orderId", orderId);
+        saveResult.put("orderUuid", orderUuid);
+
+        return saveResult;
     }
 
     //주문 고유 id로 주문 id 조회

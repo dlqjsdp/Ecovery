@@ -41,11 +41,14 @@ public class PaymentServiceImpl implements PaymentService {
     private String impKey;
 
     //결제 API Secret
-    @Value("${portone.imp-secret")
+    @Value("${portone.imp-secret}")
     private String impSecret;
 
     //토큰 발급 메서드
     private String getPortOneAccessToken(){
+        log.info("🔑 impKey: {}", impKey);
+        log.info("🔐 impSecret: {}", impSecret);
+
         //토큰 요청할 포트원 공식 API URL
         String url = "https://api.iamport.kr/users/getToken";
 
@@ -112,7 +115,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .orderUuid(paymentResult.getOrderUuid())
                     .memberId(memberId)
                     .paymentKey(paymentResult.getPaymentKey())
-                    .payMethod(PayMethod.valueOf((String) responseBody.get("pay_method")))
+                    .payMethod(PayMethod.valueOf((String) responseBody.get("payMethod")))
                     .payAmount((Integer) responseBody.get("amount"))
                     .payStatus(PayStatus.PAID)
                     .build();
@@ -120,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
             //4. DB 저장
             paymentMapper.insertPayment(payment);
 
-            return payment.getPaymentId();
+            return payment.getOrderId();
         }else {
             throw new RuntimeException("결제 정보 확인 실패"+ response.getBody());
         }

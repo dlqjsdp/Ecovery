@@ -1,5 +1,6 @@
 package com.ecovery.dto;
 
+import com.ecovery.constant.PayMethod;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +18,5 @@ public class PaymentResultDto {
     private String paymentKey;       //외부 결제 API에서 반환하는 결제 고유 id
     private String orderUuid;       //결제 API에서 사용하는 주문 고유번호
     private int amount;
+    private PayMethod payMethod;    //결제 방식
 }

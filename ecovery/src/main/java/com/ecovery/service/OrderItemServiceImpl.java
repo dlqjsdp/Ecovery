@@ -58,6 +58,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .orderPrice(item.getPrice() * requestDto.getCount())
                 .itemImgId(itemImg.getItemImgId())
                 .imgName(itemImg.getImgName())
+                .itemDetail(item.getItemDetail())
                 .imgUrl(itemImg.getImgUrl())
                 .build();
 
