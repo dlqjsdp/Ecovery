@@ -107,6 +107,9 @@ const regionData = {
 
 // 새로 업로드될 이미지들을 저장할 배열 (기존 이미지는 DOM으로 관리)
 let newUploadedFiles = [];
+let deletedImageIds = []; // 기존 이미지 삭제용 배열
+
+let existingCount = 0;
 
 // =========================
 // 페이지가 로드되면 실행되는 함수
@@ -114,19 +117,28 @@ let newUploadedFiles = [];
 document.addEventListener('DOMContentLoaded', function() {
     console.log('무료나눔 수정 페이지가 로드되었습니다!');
 
-    // initializeFormData 함수 호출 전에 window.free가 설정되었는지 확인
+    // 1. Thymeleaf에서 free 객체가 넘어왔는지 확인
     if (typeof window.free === 'undefined' || window.free === null) {
         console.error('오류: Thymeleaf에서 free 객체가 JavaScript로 전달되지 않았습니다. window.free를 확인해주세요.');
         // 이 경우, 기본값 또는 에러 처리를 할 수 있습니다.
     }
 
-    // 폼 데이터 초기화 (Thymeleaf에서 채워진 데이터를 기반으로 JS 상태 업데이트)
+    // 2. 폼 초기화  (Thymeleaf에서 채워진 데이터를 기반으로 JS 상태 업데이트)
     initializeFormData();
 
-    // 각종 이벤트 리스너 등록
+    // 3. 이벤트 등록
     setupEventListeners();
 
-    // 페이드인 애니메이션 적용
+    // 4. 파일 선택 이벤트 → 이미지 처리 연결
+    const fileInput = document.getElementById('imageInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            handleNewImageFiles(Array.from(this.files));
+            this.value = '';  // 파일 input 초기화 (동일한 파일 다시 선택할 수 있게)
+        });
+    }
+
+    // 5. 페이드인 애니메이션 적용
     setTimeout(function() {
         const formContainer = document.querySelector('.form-container');
         if (formContainer) {
@@ -331,38 +343,47 @@ function setupDragAndDrop(uploadArea) {
 
 // 새 이미지 파일들 처리 (파일 선택 또는 드래그 맨 드롭 시 호출)
 function handleNewImageFiles(files) {
-    const imagePreviewDiv = document.getElementById('imagePreview');
-    // 현재 DOM에 있는 기존 이미지 개수 + 새로 추가될 이미지 개수 + 이미 newUploadedFiles에 있는 개수
-    const currentTotalImages = imagePreviewDiv.querySelectorAll('.preview-image').length + newUploadedFiles.length;
+    const imagePreview = document.getElementById('imagePreview');
+    if (!imagePreview) return;
 
-    // 이미지 파일만 필터링
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
-    // 최대 5개까지만 허용
-    if (currentTotalImages + imageFiles.length > 5) {
+    // ✅ 삭제되지 않은 기존 이미지만 카운트
+    existingCount = [...imagePreview.querySelectorAll('.preview-image')].filter(img => {
+        const statusInput = img.closest('.preview-item')?.querySelector('input[name$=".imgStatus"]');
+        return !statusInput || statusInput.value !== 'DELETED';
+    }).length;
+
+    const totalAfterAdd = existingCount + newUploadedFiles.length + imageFiles.length;
+
+    if (totalAfterAdd > 5) {
         showNotification('사진은 최대 5개까지 업로드 가능합니다.', 'error');
         return;
     }
 
-    // 각 이미지 파일 처리
     imageFiles.forEach(function(file) {
-        // 파일 크기 체크 (10MB)
         if (file.size > 10 * 1024 * 1024) {
             showNotification(file.name + '은 10MB를 초과합니다.', 'error');
             return;
         }
 
-        // 파일을 읽어서 미리보기 생성
+        const isDuplicate = newUploadedFiles.some(img =>
+            img.file.name === file.name && img.file.size === file.size
+        );
+        if (isDuplicate) {
+            showNotification(file.name + '은 이미 추가된 파일입니다.', 'warning');
+            return;
+        }
+
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             const imageData = {
                 file: file,
                 src: event.target.result,
-                // 새로운 이미지에는 고유 ID를 부여하여 제거 시 식별
                 id: 'new-image-' + Date.now() + Math.random().toString(36).substring(2, 9)
             };
 
-            newUploadedFiles.push(imageData); // 새로운 파일만 이 배열에 저장
+            newUploadedFiles.push(imageData);
             displayNewImagePreview(imageData);
         };
         reader.readAsDataURL(file);
@@ -391,7 +412,7 @@ function displayNewImagePreview(imageData) {
 
 // 새 이미지 삭제 (uploadedImages 배열에서 제거)
 function removeNewImage(freeImgId) {
-    // const imagePreviewDiv = document.getElementById('imagePreview');
+    // const imagePreview = document.getElementById('imagePreview');
     const imageToRemove = document.getElementById(freeImgId);
 
     if (imageToRemove) {
@@ -399,6 +420,119 @@ function removeNewImage(freeImgId) {
         newUploadedFiles = newUploadedFiles.filter(item => item.id !== freeImgId); // 배열에서 제거
     }
 }
+
+function renderAllImages() {
+    const previewContainer = document.getElementById('imagePreview');
+    if (!previewContainer) return;
+
+    // 기존 내용을 모두 지우고 새로 랜더링할 준비
+    previewContainer.innerHTML = '';
+
+    let allImageElements = []; // 렌더링된 이미지 div들 (대표 이미지 자동 지정용)
+    let currentImageIndex = 0; // imgList[${index}]를 위한 인덱스
+
+    // 기존 이미지 렌더링
+    existingImages.forEach(imgDto => {
+        // 삭제된 이미지 ID 리스트에 포함되어 있는지 확인
+        const isDeleted = deletedImageIds.includes(String(imgDto.freeImgId));
+        // 개별 이미지 박스 생성
+        const div = document.createElement('div');
+        div.className = 'preview-item existing-image-item';
+        div.style.opacity = isDeleted ? '0.5' : '1';
+        div.dataset.id = imgDto.freeImgId; // 기존 이미지 ID
+
+        // 버튼 텍스트 및 비활성화 처리
+        const buttonText = isDeleted ? '삭제됨' : '×';
+        const buttonDisabled = isDeleted ? 'disabled' : '';
+
+        // 이미지 미리보기 및 삭제 버튼
+        div.innerHTML = `
+            <img src="${imgDto.freeImgUrl}" alt="등록된 이미지" class="preview-image" style="width:100px; height:auto;">
+            <button type="button" class="btn-delete-existing" data-id="${imgDto.freeImgId}" ${buttonDisabled}>${buttonText}</button>
+
+            <input type="hidden" name="imgList[${index}].freeImgId" value="${imgDto.freeImgId}">
+            <input type="hidden" name="imgList[${index}].imgUrl" value="${imgDto.freeImgUrl}">
+            <input type="hidden" name="imgList[${index}].repImgYn" value="${imgDto.repImgYn || 'N'}">
+            <input type="hidden" name="imgList[${index}].imgStatus" value="${isDeleted ? 'DELETED' : 'EXIST'}">
+        `;
+
+        previewContainer.appendChild(div);
+        allImageElements.push(div); // 대표 이미지 후보로 추가
+        currentImageIndex++; // 인덱스 증가
+    });
+
+    // 전체 newUploadedFiles 배열 출력
+    console.log("현재 업로드된 새 이미지 리스트:", newUploadedFiles);
+
+    // 새 이미지 렌더링
+    newUploadedFiles.forEach((imageData, index) => {
+        const totalIndex = existingImages.length + index;
+
+        const div = document.createElement('div');
+        div.className = 'preview-item new-image-item';
+        div.dataset.id = imageData.id;
+
+        div.innerHTML = `
+            <img src="${imageData.src}" alt="미리보기" class="preview-image" />
+            <button type="button" class="remove-image" data-image-id="${imageData.id}">×</button>
+
+            <input type="hidden" name="imgList[${totalIndex}].imgUrl" value="${imageData.src}">
+            <input type="hidden" name="imgList[${totalIndex}].repImgYn" value="N">
+            <input type="hidden" name="imgList[${totalIndex}].imgStatus" value="NEW">
+        `;
+
+        previewContainer.appendChild(div);
+        allImageElements.push(div); // 대표 이미지 후보로 추가
+        currentImageIndex++; // 인덱스 증가
+
+        // 🔍 로그: 새 이미지 추가됨
+        console.log("새 이미지 추가됨:", imageData.id);
+
+        // 제거 이벤트 연결
+        div.querySelector('.remove-image').addEventListener('click', function () {
+            removeNewImage(this.dataset.imageId);
+            renderAllImages(); // 이미지 삭제 후 다시 렌더링하여 상태 업데이트 => 추가
+        });
+    });
+
+    // 기존 이미지 삭제 버튼 이벤트 등록
+    previewContainer.querySelectorAll('.btn-delete-existing').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+
+            // 이미 삭제된 이미지가 아니라면 삭제 리스트에 추가
+            if (!deletedImageIds.includes(String(id))) {
+                deletedImageIds.push(String(id));
+            }
+
+            // 🔍 로그: 삭제된 이미지 ID 목록 출력
+            console.log("삭제된 이미지 ID 목록:", deletedImageIds);
+
+            // 이미지 다시 렌더링 (버튼 disabled 처리 반영)
+            renderAllImages(); // 다시 렌더링
+        });
+    });
+
+    // 대표 이미지 자동 지정 로직
+    let repSet = false;
+
+    allImageElements.forEach(div => {
+        const imgStatusInput = div.querySelector('input[name$=".imgStatus"]');
+        const repInput = div.querySelector('input[name$=".repImgYn"]');
+
+        const isDeleted = imgStatusInput && imgStatusInput.value === 'DELETED';
+
+        if (!repSet && !isDeleted) {
+            // 첫 번째 삭제되지 않은 이미지를 대표 이미지로 지정
+            if (repInput) repInput.value = 'Y';
+            repSet = true; ; // 대표 이미지 설정 완료
+        } else {
+            if (repInput) repInput.value = 'N';
+        }
+    });
+}
+
+
 
 // =========================
 // 폼 유효성 검사 함수
@@ -507,7 +641,7 @@ function validateForm() {
     // memberId는 hidden 필드이므로 검사 대상에서 제외
     const requiredFields = ['title', 'condition', 'region1', 'region2', 'category', 'description'];
 
-    requiredFields.forEach(function(fieldId) {
+    requiredFields.forEach(function (fieldId) {
         const field = document.getElementById(fieldId);
         if (field && !validateField(field)) {
             isValid = false;
@@ -515,9 +649,9 @@ function validateForm() {
     });
 
     // 추가적으로 이미지 개수 검사
-    const totalImagesCount = document.getElementById('imagePreview').querySelectorAll('.preview-image').length + newUploadedFiles.length;
+    const totalImagesCount = existingCount + newUploadedFiles.length;
+
     if (totalImagesCount === 0) {
-        // 이미지 필드에 대한 가상의 오류 메시지 표시
         const imageUploadArea = document.getElementById('imageUploadArea');
         showFieldError(imageUploadArea, '사진은 최소 1개 이상 업로드해야 합니다.');
         isValid = false;
@@ -525,103 +659,142 @@ function validateForm() {
         clearFieldError(document.getElementById('imageUploadArea'));
     }
 
-    return isValid;
 }
-
 // =========================
-// 폼 제출 관련 함수 (수정 페이지용)
+// 폼 제출 처리 함수 (게시글 수정)
 // =========================
 async function handleFormSubmit(event) {
     event.preventDefault(); // 기본 폼 제출 방지
 
     console.log('폼 수정 제출 시도');
 
-    // 폼 유효성 검사
+
+    // 유효성 검사
     if (!validateForm()) {
         showNotification('필수 입력 항목을 모두 작성하고, 사진을 1개 이상 첨부해주세요.', 'error');
         return;
     }
 
-    // 제출 버튼 상태 변경
+    // 제출 버튼 비활성화 (중복 제출 방지)
     const submitBtn = document.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = '수정 중...';
     submitBtn.disabled = true;
 
-    const form = document.getElementById('modifyForm');
-    const formData = new FormData(form); // 폼의 모든 데이터를 자동으로 가져옴
+    // 게시글 ID 및 freeDto 생성
+    const freeId = document.querySelector('input[name="freeId"]').value;
 
-    // Thymeleaf 필드 바인딩 때문에 freeDto는 별도로 생성하지 않고,
-    // 폼 자체에 필드들이 바인딩되어 있으므로 FormData가 알아서 처리합니다.
-    // 다만, 파일 업로드를 위해 imgFile을 직접 추가해야 합니다.
+    const freeDto = {
+        freeId: Number(freeId),
+        title: document.getElementById('title').value,
+        content: document.getElementById('description').value,
+        category: document.getElementById('category').value,
+        regionGu: document.getElementById('region1').value,
+        regionDong: document.getElementById('region2').value,
+        itemCondition: document.getElementById('condition').value
+    };
 
-    // 새로운 이미지 파일들 추가
-    newUploadedFiles.forEach(function(imageData) {
+
+    // FormData 생성 및 필드 추가
+    const formData = new FormData();
+
+    // freeDto를 JSON 문자열로 변환 후 Blob 형태로 추가
+    formData.append("freeDto", new Blob([JSON.stringify(freeDto)], { type: "application/json" }));
+
+    // 새로 업로드된 이미지 파일들 추가
+    newUploadedFiles.forEach(imageData => {
         formData.append("imgFile", imageData.file);
     });
 
-    // ✅ 기존 이미지 중 삭제되지 않은 것만 FormData에 수동으로 추가
+    // 삭제된 기존 이미지 ID 수집 및 추가
+    const deletedIds = [];
     const existingImages = document.querySelectorAll('.preview-image.existing');
 
-    existingImages.forEach((imgBox, index) => {
+    existingImages.forEach(imgBox => {
         const statusInput = imgBox.querySelector('input[name$=".imgStatus"]');
-        if (statusInput && statusInput.value === 'DELETED') {
-            return; // 삭제된 이미지면 건너뜀
-        }
-
         const idInput = imgBox.querySelector('input[name$=".freeImgId"]');
-        const urlInput = imgBox.querySelector('input[name$=".freeImgUrl"]');
-        const repInput = imgBox.querySelector('input[name$=".repImgYn"]');
 
-        if (idInput) formData.append(`imgList[${index}].freeImgId`, idInput.value);
-        if (urlInput) formData.append(`imgList[${index}].freeImgUrl`, urlInput.value);
-        if (statusInput) formData.append(`imgList[${index}].imgStatus`, statusInput.value);
-        if (repInput) formData.append(`imgList[${index}].repImgYn`, repInput.value);
+        if (statusInput?.value === 'DELETED' && idInput?.value) {
+            deletedIds.push(idInput.value);
+        }
+    });
+    // 삭제된 기존 이미지 ID 수집 및 추가
+    deletedIds.forEach(id => {
+        formData.append("deletedImageIds", id);
     });
 
-    // 서버에 전송
+    // imgList 관련 input 필드 추가
+    document.querySelectorAll('input[name^="imgList"]').forEach(input => {
+        formData.append(input.name, input.value);
+    });
+
+    // 대표 이미지 자동 지정 확인 (렌더링된 이미지 중에서 repImgYn = 'Y'인 값이 있는지)
+    const allRepInputs = document.querySelectorAll('input[name$=".repImgYn"]');
+    const hasRepImg = Array.from(allRepInputs).some(input => input.value === 'Y');
+
+    if (!hasRepImg) {
+        showNotification('대표 이미지를 자동 지정하지 못했습니다. 다시 시도해주세요.', 'error');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+
+    // 서버로 Post 요청 전송
     try {
-        const response = await fetch('/free/modify', { // HTML 폼의 action URL과 일치시켜야 합니다.
+        const response = await fetch(`/api/free/modify/${freeId}`, {
             method: 'POST',
             body: formData
         });
 
-        // 응답이 JSON 형식일 수도, 텍스트일 수도 있으므로 분기 처리
-        let responseData;
+
+        // 응답 파싱: JSON 또는 텍스트
         const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
+        let responseData;
+
+        if (contentType?.includes("application/json")) {
             responseData = await response.json();
         } else {
             responseData = await response.text();
         }
 
+
+        // 응답 성공 처리
         if (response.ok) {
             showNotification('나눔 정보가 성공적으로 수정되었습니다! 🎉', 'success');
-            setTimeout(function () {
+
+            setTimeout(() => {
                 if (confirm('수정된 나눔 게시글을 확인하시겠습니까?')) {
-                    // 성공 시 상세 페이지로 리다이렉트 (freeId 필요)
-                    // 서버 응답에 freeId가 포함되어 있다면 활용
-                    // 현재는 수정 페이지에서 freeId를 hidden 필드로 가지고 있으므로 그것을 사용
-                    const freeId = document.querySelector('input[name="freeId"]').value;
-                    window.location.href = `/free/modify/${freeId}`;
+                    // 수정된 게시글 상세 페이지로 이동
+                    window.location.href = `/free/get/${freeId}`;
                 } else {
-                    window.location.href = '/free/list'; // 아니면 목록 페이지로
+                    // 아니면 목록으로 이동
+                    window.location.href = '/free/list';
                 }
             }, 500);
+
+
+            // 응답 실패 (else 블록)
         } else {
-            // 서버에서 넘어온 에러 메시지를 우선 사용
+            // 서버에서 온 메시지를 우선 활용
             let errorMessage = '수정 중 오류가 발생했습니다.';
             if (typeof responseData === 'object' && responseData.message) {
                 errorMessage = responseData.message;
             } else if (typeof responseData === 'string' && responseData.trim() !== '') {
                 errorMessage = responseData;
             }
+
             showNotification(errorMessage, 'error');
             console.error('수정 실패 응답:', responseData);
         }
+
+
+        // 네트워크 오류 또는 예외 (catch 블록)
     } catch (error) {
         console.error('수정 요청 오류:', error);
         showNotification('네트워크 오류 또는 서버 통신 중 문제가 발생했습니다.', 'error');
+
+
+        // 최종적으로 버튼 상태 복원 (finally 블록)
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -941,3 +1114,4 @@ console.log('   - 실시간 유효성 검사');
 console.log('   - 키보드 단축키 (Ctrl+S, ESC)');
 console.log('   - 접근성 지원');
 console.log('   - 페이지 이탈 시 변경사항 경고');
+console.log('newUploadedFiles:', newUploadedFiles);

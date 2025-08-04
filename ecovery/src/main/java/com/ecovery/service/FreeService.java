@@ -23,7 +23,7 @@ public interface FreeService {
 
     public List<FreeDto> getAll(Criteria cri); // 게시글 전체 목록 조회
 
-    public boolean modify(FreeDto dto, List<MultipartFile> freeImgFileList, List<Long> deletedImageIds) throws Exception;   // 게시글 수정
+    public void modify(FreeDto dto, List<MultipartFile> freeImgFileList, List<Long> deletedImageIds) throws Exception;   // 게시글 수정
 
     public boolean remove(FreeDto dto);  // 게시글 삭제
 

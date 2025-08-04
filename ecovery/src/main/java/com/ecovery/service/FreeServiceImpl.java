@@ -36,7 +36,6 @@ public class FreeServiceImpl implements FreeService {
     private final FreeMapper freeMapper;
     private final FreeImgMapper freeImgMapper;
     private final FreeImgService freeImgService;
-    private final MemberService memberService;
 
     /** DTO → VO 변환 (DB용) */
     private FreeVO dtoToVo(FreeDto dto) {
@@ -161,7 +160,7 @@ public class FreeServiceImpl implements FreeService {
     }
 
     @Override
-    public boolean modify(FreeDto dto, List<MultipartFile> imgFileList, List<Long> deletedImageIds) throws Exception {
+    public void modify(FreeDto dto, List<MultipartFile> imgFileList, List<Long> deletedImageIds) throws Exception {
         log.info("게시글 수정 서비스 시작 - freeId: {}, deletedImageIds: {}", dto.getFreeId(), deletedImageIds);
 
         // 1. 게시글 정보 수정
@@ -171,16 +170,11 @@ public class FreeServiceImpl implements FreeService {
         // 게시글 업데이트 실패 시
         if (updatedFreeCount != 1) {
             log.error("게시글 수정 실패 - freeId: {}", dto.getFreeId());
-            return false;
         }
 
         // 2. 삭제 요청된 이미지 처리
         if (deletedImageIds != null && !deletedImageIds.isEmpty()) {
-            log.info("삭제할 이미지 ID 목록: {}", deletedImageIds);
-            // FreeImgService의 deleteFreeImg를 반복 호출하여 다중 이미지 삭제
-            for (Long imgId : deletedImageIds) {
-                freeImgService.deleteFreeImg(imgId);
-            }
+            freeImgService.deleteFreeImg(dto.getFreeId());
         }
 
         // 3. 새로운 이미지 등록 처리
@@ -216,11 +210,10 @@ public class FreeServiceImpl implements FreeService {
         freeImgMapper.update(firstImage); // Mapper에 단일 이미지 업데이트 메서드 필요
 
         log.info("게시글 수정 성공 - freeId: {}", dto.getFreeId());
-        return true;
     }
 
 
-    // 게시글 삭제 (수정된 코드)
+    // 게시글 삭제
     @Override
     public boolean remove(FreeDto dto) {
         log.info("게시글 삭제 요청: {}", dto);
