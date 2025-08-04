@@ -1,10 +1,7 @@
-// cart-script.js - 실무 기준 전체 구조 정리본
-
 let cartItems = [];
 let cartTotal = 0;
 let appliedCoupons = [];
 
-// DOMContentLoaded 이후 실행
 document.addEventListener('DOMContentLoaded', function () {
     initializeHeader();
     initializeCartItemsFromDOM();
@@ -12,19 +9,13 @@ document.addEventListener('DOMContentLoaded', function () {
     bindDynamicEventListeners();
 });
 
-// ============================================
-// 초기화 함수들
-// ============================================
-
 function initializeHeader() {
     const header = document.getElementById('header');
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('navMenu');
-
     window.addEventListener('scroll', () => {
         header?.classList.toggle('scrolled', window.scrollY > 100);
     });
-
     hamburger?.addEventListener('click', () => {
         hamburger.classList.toggle('active');
         navMenu.classList.toggle('active');
@@ -37,33 +28,60 @@ function initializeCartItemsFromDOM() {
         const cartItemId = parseInt(itemEl.dataset.itemId);
         const realItemId = parseInt(itemEl.dataset.realItemId);
         const name = itemEl.querySelector('.item-name').textContent.trim();
-
-        // 여기! 이제 data-unit-price 속성에서 진짜 단가를 가져옵니다.
         const unitPrice = parseInt(itemEl.dataset.unitPrice);
-
         const qtyInput = itemEl.querySelector('.qty-input');
         const count = parseInt(qtyInput.value);
         const stock = parseInt(qtyInput.getAttribute('max'));
         const selected = itemEl.querySelector('.item-checkbox').checked;
 
         cartItems.push({
-            cartItemId: cartItemId,
-            realItemId: realItemId,
+            cartItemId,
+            realItemId,
             itemNm: name,
             price: unitPrice,
             quantity: count,
             stockNumber: stock,
-            selected: selected
+            selected
         });
     });
-
     updateSelectedCount();
     updateCartSummary();
 }
 
 function initializeEventListeners() {
-    const selectAllCheckbox = document.getElementById('selectAll');
-    selectAllCheckbox?.addEventListener('change', toggleSelectAll);
+    document.getElementById('selectAll')?.addEventListener('change', toggleSelectAll);
+    document.querySelector('.btn-order')?.addEventListener('click', () => {
+        const selectedItems = cartItems.filter(item => item.selected);
+        if (selectedItems.length === 0) return showNotification("주문할 상품을 선택해주세요.", "warning");
+
+        const orderData = selectedItems.map(item => ({
+            itemId: item.realItemId,
+            count: item.quantity
+        }));
+
+        fetch("/api/order/prepare", {   // ✅ 여기가 핵심: 실제 컨트롤러 경로는 '/api/order/prepare'야!
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"  // ✅ JSON으로 명시
+            },
+            body: JSON.stringify(selectedItems)     // ✅ 배열 형태 그대로 전송
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();             // ✅ 정상 응답이면 JSON 파싱
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .then(data => {
+                console.log("✅ 서버 응답:", data);
+                // 예: 주문 확인 페이지로 이동
+                window.location.href = `/order/confirm?orderId=${data.orderId}`; // ← 이건 상황에 따라
+            })
+            .catch(error => {
+                console.error("❌ 주문 요청 실패:", error);
+            });
+    });
 }
 
 function bindDynamicEventListeners() {
@@ -73,72 +91,49 @@ function bindDynamicEventListeners() {
 
     document.querySelectorAll('.qty-btn.plus').forEach(btn => {
         btn.addEventListener('click', () => {
-            const cartItemId = parseInt(btn.closest('.cart-item').dataset.itemId);
-            const realItemId = parseInt(btn.closest('.cart-item').dataset.realItemId);
-            updateQuantity(cartItemId, 1, realItemId);
+            const itemEl = btn.closest('.cart-item');
+            updateQuantity(parseInt(itemEl.dataset.itemId), 1, parseInt(itemEl.dataset.realItemId));
         });
     });
 
     document.querySelectorAll('.qty-btn.minus').forEach(btn => {
         btn.addEventListener('click', () => {
-            const cartItemId = parseInt(btn.closest('.cart-item').dataset.itemId);
-            const realItemId = parseInt(btn.closest('.cart-item').dataset.realItemId);
-            updateQuantity(cartItemId, -1, realItemId);
+            const itemEl = btn.closest('.cart-item');
+            updateQuantity(parseInt(itemEl.dataset.itemId), -1, parseInt(itemEl.dataset.realItemId));
         });
     });
 }
-
-// ============================================
-// 장바구니 관련 유틸 함수들
-// ============================================
 
 function updateQuantity(cartItemIdToUpdate, change, realItemId) {
     const item = cartItems.find(item => item.cartItemId === cartItemIdToUpdate);
     if (item) {
         const newQuantity = item.quantity + change;
-
-        // 새로운 수량이 유효한지 먼저 확인
         if (newQuantity > 0 && newQuantity <= item.stockNumber) {
-            // UI 업데이트 (즉시 반응을 보여주기 위함)
             item.quantity = newQuantity;
             document.getElementById(`qty-${cartItemIdToUpdate}`).value = newQuantity;
-
-            // 상품별 개별 금액 업데이트
             const itemElement = document.querySelector(`[data-item-id="${cartItemIdToUpdate}"]`);
-            if (itemElement) {
-                const salePriceElement = itemElement.querySelector('.sale-price');
-                if (salePriceElement) {
-                    const updatedItemPrice = item.price * newQuantity; // 단가 * 새로운 수량
-                    salePriceElement.textContent = formatPrice(updatedItemPrice); // 포맷하여 표시
-                }
-            }
+            itemElement.querySelector('.sale-price').textContent = formatPrice(item.price * newQuantity);
+            updateCartSummary();
 
-            updateCartSummary(); // 총 금액 업데이트
-
-            // 서버에 수량 변경 요청을 보내는 코드 추가
             fetch(`/cart/update?cartItemId=${cartItemIdToUpdate}&count=${newQuantity}&itemId=${realItemId}`, {
-                method: 'PUT' // 수량 변경은 PUT 방식으로 요청합니다.
+                method: 'PUT'
             })
                 .then(response => {
-                    if (response.ok) { // 서버 응답이 성공적이면
-                        showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'success');
-                    } else { // 서버에서 오류 응답이 오면
+                    if (response.ok) showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'success');
+                    else {
                         showNotification('수량 변경 실패! 서버 오류.', 'error');
-                        response.text().then(errorMessage => console.error("서버 오류 메시지:", errorMessage)); // 서버 오류 메시지 확인용
+                        response.text().then(msg => console.error("서버 오류 메시지:", msg));
                     }
                 })
-                .catch(error => { // 네트워크 오류 등 예외 발생 시
-                    console.error("수량 변경 중 네트워크 오류:", error);
+                .catch(err => {
+                    console.error("수량 변경 중 네트워크 오류:", err);
                     showNotification('수량 변경 중 문제가 발생했습니다.', 'error');
                 });
-
         } else {
-            console.log("❌ 수량 변경 실패: 재고 초과 또는 0 이하 (newQuantity:", newQuantity, "stockNumber:", item.stockNumber, ")");
-            showNotification("더 이상 수량을 변경할 수 없습니다. (재고 부족 또는 1개 미만)", 'warning'); // 사용자에게 알림
+            showNotification("더 이상 수량을 변경할 수 없습니다. (재고 부족 또는 1개 미만)", 'warning');
         }
     } else {
-        console.log("❓ 수량을 업데이트할 아이템을 찾지 못했습니다. itemId:", itemId);
-        showNotification("장바구니 아이템 정보를 찾을 수 없습니다.", 'error'); // 사용자에게 알림
+        showNotification("장바구니 아이템 정보를 찾을 수 없습니다.", 'error');
     }
 }
 
@@ -151,29 +146,23 @@ function toggleSelectAll() {
 }
 
 function toggleItemSelection(index) {
-    const item = cartItems[index];
-    if (item) {
-        item.selected = !item.selected;
-        updateSelectedCount();
-        updateCartSummary();
-        document.getElementById('selectAll').checked = cartItems.every(i => i.selected);
-    }
+    cartItems[index].selected = !cartItems[index].selected;
+    updateSelectedCount();
+    updateCartSummary();
+    document.getElementById('selectAll').checked = cartItems.every(i => i.selected);
 }
 
 function updateCartSummary() {
     const selectedItems = cartItems.filter(item => item.selected);
     const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     let finalTotal = subtotal;
-
     appliedCoupons.forEach(coupon => {
         if (coupon.type === 'percentage') finalTotal *= (1 - coupon.value / 100);
         else if (coupon.type === 'fixed') finalTotal = Math.max(0, finalTotal - coupon.value);
     });
-
     document.getElementById('subtotal').textContent = formatPrice(subtotal);
     document.getElementById('discount').textContent = formatPrice(subtotal - finalTotal);
     document.getElementById('total').textContent = formatPrice(finalTotal);
-
     document.querySelector('.btn-order').textContent = `🛒 주문하기 (${formatPrice(finalTotal)})`;
     cartTotal = finalTotal;
 }
@@ -183,39 +172,6 @@ function updateSelectedCount() {
     document.getElementById('selectedCount').textContent = selectedCount;
 }
 
-function removeItem(itemId) {
-    fetch(`/cart/delete/${itemId}`, { method: 'DELETE' })
-        .then(res => {
-            if (!res.ok) throw new Error('삭제 실패');
-            return res.text(); // <- JSON이 아닐 수 있으니 text로 받음
-        })
-        .then(() => {
-            const index = cartItems.findIndex(item => item.cartItemId === itemId);
-            if (index !== -1) {
-                cartItems.splice(index, 1);
-                document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
-                updateSelectedCount();
-                updateCartSummary();
-                showNotification('상품이 삭제되었습니다.', 'success');
-            }
-        })
-        .catch(() => {
-            showNotification('삭제 중 오류가 발생했습니다.', 'error');
-        });
-}
-
-function deleteSelected() {
-    const selectedItems = cartItems.filter(item => item.selected);
-    if (selectedItems.length === 0) return showNotification('선택된 상품이 없습니다.', 'warning');
-    if (confirm(`선택한 ${selectedItems.length}개 상품을 삭제할까요?`)) {
-        selectedItems.forEach(item => removeItem(item.cartItemId));
-    }
-}
-
-// ============================================
-// 기타 유틸리티 함수들
-// ============================================
-
 function formatPrice(price) {
     return new Intl.NumberFormat('ko-KR').format(Math.round(price)) + '원';
 }
@@ -223,7 +179,6 @@ function formatPrice(price) {
 function showNotification(message, type = 'success') {
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
-
     const n = document.createElement('div');
     n.className = `notification ${type}`;
     n.textContent = message;
@@ -253,7 +208,6 @@ function getNotificationColor(type) {
     }
 }
 
-// 쇼핑 페이지 이동
 function goToMarket() {
     window.location.href = "/eco/list";
 }

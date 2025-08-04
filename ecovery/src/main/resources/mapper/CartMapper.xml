@@ -23,7 +23,7 @@
     <!-- useGeneratedKeys="true": cart_id 자동 증가값을 VO 객체에 자동으로 주입 -->
     <!-- keyProperty="cartId": cartVO.setCartId() 자동 호출됨 -->
     <insert id="insertCart" parameterType="com.ecovery.domain.CartVO" useGeneratedKeys="true" keyProperty="cartId">
-        insert into cart(memberid, created_at)
+        insert into cart(member_id, created_at)
         values (#{memberid}, NOW())
     </insert>
 </mapper>

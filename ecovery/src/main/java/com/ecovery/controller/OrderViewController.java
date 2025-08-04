@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,6 +21,7 @@ import java.util.List;
  *  - 250801 | sehui | 반환하는 View 변경
  *  - 250801 | sehui | 주문 페이지 첫 화면에서 model로 전달하는 값 추가
  *  - 250802 | sehui | 주문 페이지 첫 화면에 orderItemRequestDto를 JSON 문자열로 반환 로직 추가
+ *  - 250804 | 방희경 | 여러개 상품 주문을 위한 로직 변경
  */
 
 
@@ -34,7 +32,7 @@ public class OrderViewController {
 
     //주문 페이지 첫 화면
     @PostMapping("/prepare")
-    public String preparePage(OrderItemRequestDto orderItemRequest, Model model) {
+    public String prepareOrderPage(@RequestBody List<OrderItemRequestDto> orderItemRequest, Model model) {
 
         try{
             //OrderItemRequestDto를 JSON 문자열로 변환
