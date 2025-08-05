@@ -14,9 +14,7 @@
 <body>
 <div th:replace="fragments/header :: header"></div>
 
-<!-- Main Content -->
 <main id="mainContent">
-    <!-- Cart Header -->
     <section class="cart-header">
         <div class="container">
             <div class="breadcrumb">
@@ -31,11 +29,9 @@
         </div>
     </section>
 
-    <!-- Cart Content -->
     <section class="cart-content">
         <div class="container">
             <div class="cart-layout">
-                <!-- Cart Items -->
                 <div class="cart-items-section">
                     <div class="cart-header-controls">
                         <div class="select-all">
@@ -91,7 +87,6 @@
                         </div>
                     </div>
 
-                    <!-- Continue Shopping -->
                     <div class="continue-shopping">
                         <button class="btn-continue" onclick="goToMarket()">
                             🛍️ 쇼핑 계속하기
@@ -99,7 +94,6 @@
                     </div>
                 </div>
 
-                <!-- Order Summary -->
                 <div class="order-summary">
                     <div class="summary-card">
                         <h3>🧾 주문 요약</h3>
@@ -140,38 +134,12 @@
                             </div>
                         </div>
 
-<!--                        <div class="payment-methods">-->
-<!--                            <h4>💳 결제 방법</h4>-->
-<!--                            <div class="payment-options">-->
-<!--                                <label class="payment-option">-->
-<!--                                    <input type="radio" name="payment" value="card" checked>-->
-<!--                                    <span class="option-content">-->
-<!--                        <span class="option-icon">💳</span>-->
-<!--                        <span>신용카드</span>-->
-<!--                    </span>-->
-<!--                                </label>-->
-<!--                                <label class="payment-option">-->
-<!--                                    <input type="radio" name="payment" value="bank">-->
-<!--                                    <span class="option-content">-->
-<!--                        <span class="option-icon">🏦</span>-->
-<!--                        <span>무통장입금</span>-->
-<!--                    </span>-->
-<!--                                </label>-->
-<!--                                <label class="payment-option">-->
-<!--                                    <input type="radio" name="payment" value="point">-->
-<!--                                    <span class="option-content">-->
-<!--                        <span class="option-icon">💎</span>-->
-<!--                        <span>포인트 (보유 포인트 표시 예정)</span>-->
-<!--                    </span>-->
-<!--                                </label>-->
-<!--                            </div>-->
-<!--                        </div>-->
                         <form id="orderForm" method="POST" action="/order/prepare">
-                        <div class="order-actions">
+                            <div class="order-actions">
                                 <button type="button" class="btn-order" onclick="submitOrderForm()">
                                     🛒 주문하기 (<span id="pricetotal">0원</span>)
                                 </button>
-                        </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -181,110 +149,16 @@
         </div>
     </section>
 
-    <!-- Recommended Products -->
     <section class="recommended-products">
         <div class="container">
             <h2>🌱 함께 구매하면 좋은 상품</h2>
-            <!--<div class="products-grid">
-                <div class="product-card" onclick="addRecommendedToCart(1)">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23fff3e0' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧴</text></svg>" alt="친환경 샴푸">
-                        <div class="eco-badge">🌿 유기농</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>천연 유기농 샴푸</h4>
-                        <p class="product-desc">화학 첨가물 없는 순수 천연 샴푸</p>
-                        <div class="product-price">
-                            <span class="current-price">18,000원</span>
-                            <span class="original-price">22,000원</span>
-                        </div>
-                        <button class="btn-add-cart">장바구니 추가</button>
-                    </div>
-                </div>
-
-                <div class="product-card" onclick="addRecommendedToCart(2)">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e8f5e8' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧼</text></svg>" alt="천연 비누">
-                        <div class="eco-badge">🌱 비건</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>천연 올리브 비누 세트</h4>
-                        <p class="product-desc">올리브 오일 100% 천연 비누</p>
-                        <div class="product-price">
-                            <span class="current-price">12,500원</span>
-                        </div>
-                        <button class="btn-add-cart">장바구니 추가</button>
-                    </div>
-                </div>
-
-                <div class="product-card" onclick="addRecommendedToCart(3)">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23f3e5f5' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧻</text></svg>" alt="대나무 휴지">
-                        <div class="eco-badge">🎋 대나무</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>대나무 화장지 12롤</h4>
-                        <p class="product-desc">나무 대신 대나무로 만든 친환경 화장지</p>
-                        <div class="product-price">
-                            <span class="current-price">24,000원</span>
-                            <span class="original-price">28,000원</span>
-                        </div>
-                        <button class="btn-add-cart">장바구니 추가</button>
-                    </div>
-                </div>
-
-                <div class="product-card" onclick="addRecommendedToCart(4)">
-                    <div class="product-image">
-                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e1f5fe' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🍽️</text></svg>" alt="밀짚 식기">
-                        <div class="eco-badge">🌾 밀짚</div>
-                    </div>
-                    <div class="product-info">
-                        <h4>밀짚 식기 세트</h4>
-                        <p class="product-desc">플라스틱 대신 밀짚으로 만든 식기</p>
-                        <div class="product-price">
-                            <span class="current-price">35,000원</span>
-                        </div>
-                        <button class="btn-add-cart">장바구니 추가</button>
-                    </div>
-                </div>
-            </div>-->
         </div>
     </section>
 </main>
 </main>
 
-<!-- Footer -->
 <div th:replace="fragments/footer :: footer"></div>
 
 <script th:src="@{/js/cart-script.js}"></script>
-<script>
-    // ✅ 주문 form 동적 구성 및 제출 함수
-    function submitOrderForm() {
-        const form = document.getElementById('orderForm');
-        form.innerHTML = ''; // 기존 input 초기화
-
-        const selectedItems = cartItems.filter(item => item.selected);
-        if (selectedItems.length === 0) {
-            showNotification("주문할 상품을 선택해주세요.", "warning");
-            return;
-        }
-
-        selectedItems.forEach((item, i) => {
-            const input1 = document.createElement('input');
-            input1.type = 'hidden';
-            input1.name = `orderItems[${i}].itemId`;
-            input1.value = item.realItemId;
-            form.appendChild(input1);
-
-            const input2 = document.createElement('input');
-            input2.type = 'hidden';
-            input2.name = `orderItems[${i}].count`;
-            input2.value = item.quantity;
-            form.appendChild(input2);
-        });
-
-        form.submit();
-    }
-</script>
 </body>
 </html>
