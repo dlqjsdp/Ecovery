@@ -16,25 +16,6 @@ CREATE TABLE member (
     provider_id VARCHAR(100)
 );
 
--- 회원 포인트 table (point)
-create table point (
-    point_id bigint auto_increment primary key,
-    member_id bigint not null,
-    point int not null,
-    last_modified_at date not null default (current_date),
-    foreign key(member_id) references member (member_id)
-);
-
--- 포인트 이력 table
-create table point_history (
-	point_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    member_id BIGINT NOT NULL,
-    point_change INT NOT NULL,
-    reason VARCHAR(255),
-    created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
-    FOREIGN KEY (member_id) REFERENCES member(member_id)
-);
-
 -- 대형폐기물 분류 이력 table
 CREATE TABLE disposal_history (
     disposal_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -127,7 +108,7 @@ create table item (
     stock_number int not null default 0,
     item_detail varchar(1000) not null,
     sell_status Enum('SELL', 'SOLD_OUT') not null default 'SELL',
-    created_at date not null default (current_date),
+    created_at datetime not null default (current_date),
     CONSTRAINT fk_category FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
 
@@ -208,7 +189,6 @@ create table payment (
     pay_amount int not null,
     pay_status enum('PAID', 'CANCEL', 'FAIL') not null default 'PAID',
     paid_at datetime not null default (current_timestamp),
-    test_mode boolean default true,
     foreign key(order_id) references orders(order_id),
     foreign key(member_id) references member(member_id)
 );

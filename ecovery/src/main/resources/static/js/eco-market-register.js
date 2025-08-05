@@ -1,6 +1,9 @@
 // =========================
 // @history
 //  - 250730 | sehui | 지역 선택, 폼 제출 기능 삭제
+//  - 250730 | sehui | 에코마켓 상품 등록 페이지 요청 기능 추가
+//  - 250730 | sehui | 에코마켓 상품 등록 버튼 클릭 시 등록 요청 기능 추가
+//  - 250730 | sehui | 취소 버튼 클릭 시 목록 페이지 이동 요청 기능 추가
 // =========================
 
 // =========================
@@ -14,21 +17,15 @@ let uploadedImages = [];
 // 페이지가 로드되면 실행되는 함수
 // =========================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('페이지가 로드되었습니다!');
-    
-    // 현재 날짜를 등록일에 자동으로 입력
-    setCurrentDate();
-    
-    // 각종 이벤트 리스너 등록
-    setupEventListeners();
-    
-    // 페이드인 애니메이션 적용
-    setTimeout(function() {
-        const formContainer = document.querySelector('.form-container');
-        if (formContainer) {
-            formContainer.classList.add('fade-in');
-        }
-    }, 200);
+    console.log('🚀 상품 등록 페이지 메인 기능 로딩 시작');
+
+    setCurrentDate();           // 현재 날짜 자동 입력
+    initializePage();           //페이지 기본 설정 초기화
+    initFormData();             //폼 초기화
+    setupEventListeners();      // 각종 이벤트 리스너 등록
+
+    console.log('✅ 상품 등록 페이지 메인 기능 로딩 완료!');
+
 });
 
 // =========================
@@ -49,9 +46,67 @@ function setCurrentDate() {
 }
 
 // =========================
+// 페이지 초기화 함수
+// =========================
+function initializePage() {
+    console.log('⚙️ 페이지 기본 설정 초기화...');
+
+    // 페이드인 애니메이션 적용
+    setTimeout(function() {
+        const formContainer = document.querySelector('.form-container');
+        if (formContainer) {
+            formContainer.classList.add('fade-in');
+        }
+    }, 200);
+}
+
+// =========================
+// 폼 초기화 함수
+// =========================
+function initFormData(){
+    console.log('⚙️ 폼 초기화...');
+    
+    fetch("/api/eco/new")
+        .then(response => {
+            if(response.status === 403) {
+                alert("권한이 없습니다. 관리자만 접근 가능합니다.");
+                window.location.href = "/eco/list";
+                throw new Error("권한 없음");
+            }
+            if(!response.ok) {
+                throw new Error("서버 에러");
+            }
+            return response.json();
+        })
+        .then(data => {
+            //응답객체 data.itemFormDto, data.categories 사용
+            //카테고리 select 박스에 옵션 추가
+            const categorySelect = document.getElementById("category");
+            categorySelect.innerHTML = '<option value="">카테고리를 선택해주세요</option>';
+
+            data.categories.forEach(category => {
+                const option = document.createElement("option");
+                option.value = category.categoryId;
+                option.textContent = category.categoryName;
+
+                categorySelect.appendChild(option);
+            });
+
+            console.log('✅ 기본 폼 데이터 로드 완료');
+        })
+        .catch(error => {
+            console.error("❌상품 등록 폼 데이터 로드 실패 : ", error);
+            showNotification('상품 등록 폼을 불러오지 못했습니다.', 'warning');
+        });
+
+}
+
+
+// =========================
 // 이벤트 리스너 설정 함수
 // =========================
 function setupEventListeners() {
+    console.log('🔧 이벤트 리스너 설정...');
     
     // 이미지 업로드 관련
     const imageUploadArea = document.getElementById('imageUploadArea');
@@ -80,12 +135,6 @@ function setupEventListeners() {
         categorySelect.addEventListener('change', handleCategoryChange);
     }
     
-    // 상품 상태 변경시 미리보기 표시
-    const conditionSelect = document.getElementById('condition');
-    if (conditionSelect) {
-        conditionSelect.addEventListener('change', handleConditionChange);
-    }
-    
     // 제목 글자수 제한
     const titleInput = document.getElementById('title');
     if (titleInput) {
@@ -100,6 +149,113 @@ function setupEventListeners() {
         descriptionInput.addEventListener('input', function() {
             limitCharacters(this, 1000, '설명');
             updateCharacterCounter(this, 1000);
+        });
+    }
+
+    //상품 등록 관련 이벤트
+    setupRegistrationEvents();
+}
+
+/**
+ * 상품 등록 이벤트 함수
+ * @param event
+ */
+function setupRegistrationEvents() {
+    console.log("🔧 상품 등록 버튼 이벤트 실행");
+    
+    const form = document.getElementById("registrationForm");
+    const cancelBtn = document.getElementById("cancelBtn");
+    let isSubmitting = false;
+
+    //beforeunload 경고창
+    function beforeUnloadHandler(event) {
+        if (isSubmitting) return;       //등록 중일 때는 경고창 안 띄움
+
+        if (checkFormHasContent()) {
+            event.preventDefault();
+            event.returnValue = '';
+            return '';
+        }
+    }
+
+
+    if (form) {
+        // beforeunload 등록
+        window.addEventListener("beforeunload", beforeUnloadHandler);
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();     //form의 기본 동작 막기
+            isSubmitting = true;    //제출 직전에 플래그 설정
+
+            //입력값 수집
+            const itemFormDto = {
+                itemNm: document.getElementById("productName").value,
+                price: document.getElementById("price").value,
+                stockNumber: document.getElementById("stockNumber").value,
+                categoryId: document.getElementById("category").value,
+                itemDetail: document.getElementById("description").value,
+                itemSellStatus: document.getElementById("condition").value,
+            };
+
+            //FormData 구성
+            const formData = new FormData();
+            formData.append("itemFormDto", new Blob([JSON.stringify(itemFormDto)], {
+                type: "application/json"
+            }));
+
+            //이미지 파일 추가 (전역 변수 uploadedImages 사용)
+            uploadedImages.forEach(img => {
+                formData.append("itemImgFile", img.file);
+            });
+
+            //서버에 POST 요청
+            try {
+                const response = await fetch("/api/eco/new", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.status === 201) {
+                    //경고창 제거
+                    window.removeEventListener("beforeunload", beforeUnloadHandler);
+                    showNotification('상품이 성공적으로 등록되었습니다.', 'success');
+                    console.log('✅ 상품 등록 완료');
+                    setTimeout(() => {
+                        window.location.href = "/eco/list";
+                    }, 200);
+                } else {
+                    isSubmitting = false;           //실패 시 플래그 복구
+                    const errorData = await response.json();
+                    showNotification(`상품 등록 중 오류가 발생했습니다.`, 'warning');
+                    console.error('❌ 상품 등록 중 오류가 발생했습니다 : ${errorData.errorMessage}');
+                }
+            } catch (error) {
+                isSubmitting = false;       //실패 시 플래그 복구
+                showNotification('서버와 통신 중 문제가 발생했습니다.', 'error');
+                console.error("❌ 상품 등록 요청 실패:", error);
+            }
+        });
+    }
+
+    //취소 버튼 클릭 시
+    if (cancelBtn) {
+        cancelBtn.addEventListener("click", function () {
+            //checkFormHasContent() : 입력값/이미지 있는지 확인하는 함수
+            if (checkFormHasContent()) {
+                const confirmLeave = confirm("작성한 내용이 삭제됩니다. 정말 나가시겠습니까?");
+                if (confirmLeave) {
+                    //경고창 제거
+                    window.removeEventListener("beforeunload", beforeUnloadHandler);
+                    setTimeout(() => {
+                        window.location.href = "/eco/list";
+                    }, 200);
+                }
+            //입력값이 없는 경우
+            } else {
+                setTimeout(() => {
+                    window.location.href = "/eco/list";
+                }, 200);
+            }
         });
     }
 }
@@ -305,12 +461,6 @@ function validateForm() {
 }
 
 // =========================
-// 폼 제출 관련 함수
-// =========================
-
-//eco-market-register-request.js에 작성
-
-// =========================
 // 카테고리 관련 함수
 // =========================
 
@@ -486,30 +636,6 @@ document.addEventListener('keydown', function(event) {
 });
 
 // =========================
-// 페이지 이탈 경고 -> 중복되어 주석 처리
-// =========================
-
-// 페이지를 벗어나려 할 때 경고 메시지
-// window.addEventListener('beforeunload', function(event) {
-//     // 폼에 내용이 있을 때만 경고
-//     if (checkFormHasContent()) {
-//         event.preventDefault();
-//         event.returnValue = '';
-//         return '';
-//     }
-// });
-
-// =========================
-// 페이지 초기화 완료 후 실행 - 임시 저장 기능 삭제
-// =========================
-
-// DOM이 완전히 로드된 후 추가 설정
-document.addEventListener('DOMContentLoaded', function() {
-    // 자동 저장 기능 설정
-    setupAutoSave();
-});
-
-// =========================
 // 전역 함수로 노출 (HTML에서 onclick 등으로 사용)
 // =========================
 
@@ -556,9 +682,7 @@ window.addEventListener('unhandledrejection', function(event) {
 
 console.log('🤝 무료나눔 등록 페이지 JavaScript가 로드되었습니다.');
 console.log('📝 사용 가능한 기능:');
-console.log('   - 지역 연동 선택');
 console.log('   - 이미지 드래그 앤 드롭');
 console.log('   - 실시간 유효성 검사');
-console.log('   - 자동 저장/복원');
 console.log('   - 키보드 단축키 (Ctrl+S, ESC)');
 console.log('   - 접근성 지원');
