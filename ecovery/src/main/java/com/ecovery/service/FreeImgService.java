@@ -24,7 +24,7 @@ public interface FreeImgService {
    public void saveFreeImg( FreeImgVO freeImgVO, MultipartFile freeImgFile) throws Exception;
 
     //상품 이미지 수정
-    public void updateFreeImg(Long freeId, List<FreeImgDto> freeImgDtoList, List<MultipartFile> freeImgFile) throws Exception;
+    public void updateFreeImg(Long freeId, List<FreeImgDto> freeImgDtoList, List<MultipartFile> newFreeImgFiles) throws Exception;
 
     //이미지 삭제
     public void deleteFreeImg(Long freeId) throws Exception;

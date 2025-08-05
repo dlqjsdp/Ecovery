@@ -1,7 +1,9 @@
 package com.ecovery.service;
 
 import com.ecovery.domain.FreeImgVO;
+import com.ecovery.domain.ItemImgVO;
 import com.ecovery.dto.FreeImgDto;
+import com.ecovery.dto.ItemImgDto;
 import com.ecovery.mapper.FreeImgMapper;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -87,51 +90,55 @@ public class FreeImgServiceImpl implements FreeImgService {
      * 기존 파일 삭제 후, 새로운 파일로 업데이트
      */
     @Override
-    public void updateFreeImg(Long freeId, List<FreeImgDto> freeImgDtoList, List<MultipartFile> freeImgFileList) throws Exception {
+    public void updateFreeImg(Long freeId, List<FreeImgDto> freeImgDtoList, List<MultipartFile> newImgFiles) throws Exception {
 
+        if (newImgFiles == null) {
+            newImgFiles = new ArrayList<>();
+        }
         // 기존 이미지 삭제
-        if (freeImgDtoList != null && !freeImgDtoList.isEmpty()) {
-            for (FreeImgDto dto : freeImgDtoList) {
-                // DB에 저장된 이미지 정보 조회
-                FreeImgDto savedImg = freeImgMapper.getById(dto.getFreeImgId());
+        freeImgMapper.delete(freeId);
 
-                // 저장된 파일이 있으면 파일 시스템에서도 삭제
-                if (savedImg != null && savedImg.getImgName() != null) {
-                    fileService.deleteFile(freeImgLocation + "/" + savedImg.getImgName());
-                }
+        // 2. 프론트에서 유지하기로 한 기존 이미지를 재등록
+        for (FreeImgDto dto : freeImgDtoList) {
+            FreeImgVO vo = new FreeImgVO();
+            vo.setFreeId(freeId);
+            vo.setImgName(dto.getImgName());
+            vo.setOriImgName(dto.getOriImgName());
+            vo.setImgUrl(dto.getImgUrl());
+            vo.setRepImgYn(dto.getRepImgYn());
 
-                // DB에서 이미지 삭제
-                freeImgMapper.delete(dto.getFreeId());  // 이 메서드는 Mapper에 작성되어 있어야 함
+            freeImgMapper.insert(vo);
+        }
+
+        // 3. 새로 추가된 이미지들 업로드 및 insert
+        for (MultipartFile file : newImgFiles) {
+            if (!file.isEmpty()) {
+                String oriImgName = file.getOriginalFilename();
+                String imgName = fileService.uploadFile(freeImgLocation, oriImgName, file.getBytes());
+                String imgUrl = "/ecovery/free/" + imgName;
+
+                FreeImgVO vo = new FreeImgVO();
+                vo.setFreeId(freeId);
+                vo.setImgName(imgName);
+                vo.setOriImgName(oriImgName);
+                vo.setImgUrl(imgUrl);
+                vo.setRepImgYn("N");
+
+                freeImgMapper.insert(vo);
             }
         }
 
-        // 새 이미지 업로드 및 등록
-        if (freeImgFileList != null && !freeImgFileList.isEmpty()) {
-            for (int i = 0; i < freeImgFileList.size(); i++) {
-                MultipartFile file = freeImgFileList.get(i);
+        // 4. 최종 대표 이미지 확인 및 없으면 첫 번째 이미지 자동 지정
+        List<FreeImgVO> allImages = freeImgMapper.getFreeImgList(freeId);
 
-                if (!file.isEmpty()) {
-                    String oriImgName = file.getOriginalFilename();
-                    String imgName = fileService.uploadFile(freeImgLocation, oriImgName, file.getBytes());
-                    String imgUrl = "/ecovery/free/" + imgName;
+        boolean hasRep = allImages.stream()
+                .anyMatch(img -> "Y".equalsIgnoreCase(img.getRepImgYn()));
 
-                    FreeImgVO freeImgVO = new FreeImgVO();
-                    freeImgVO.setFreeId(freeId);
-                    freeImgVO.setOriImgName(oriImgName);
-                    freeImgVO.setImgName(imgName);
-                    freeImgVO.setImgUrl(imgUrl);
-                    freeImgVO.setRepImgYn("N"); // 일단 전부 'N'으로 저장
-
-                    // DB에 저장
-                    freeImgMapper.insert(freeImgVO);
-
-                    // 첫 번째 이미지는 대표 이미지로 설정
-                    if (i == 0) {
-                        freeImgMapper.setRepImg(freeImgVO.getFreeImgId());
-                    }
-                }
-            }
+        if (!hasRep && !allImages.isEmpty()) {
+            FreeImgVO first = allImages.get(0);
+            freeImgMapper.setRepImg(first.getFreeImgId(), "Y");
         }
+
     }
 
     // 이미지 삭제
@@ -155,7 +162,7 @@ public class FreeImgServiceImpl implements FreeImgService {
         }
 
         // 3. DB에서 이미지들 전체 삭제
-        int deletedCount = freeImgMapper.deleteAllByFreeId(freeId);
+        int deletedCount = freeImgMapper.delete(freeId);
         if (deletedCount == 0) {
             throw new IllegalStateException("DB에서 이미지 삭제 실패");
         }
@@ -216,7 +223,7 @@ public class FreeImgServiceImpl implements FreeImgService {
             }
 
             // 3. DB에서 모든 이미지 레코드 삭제
-            freeImgMapper.deleteAllByFreeId(freeId); // 이 메서드는 Mapper에 직접 구현해야 합니다.
+            freeImgMapper.delete(freeId); // 이 메서드는 Mapper에 직접 구현해야 합니다.
         }
     }
 }

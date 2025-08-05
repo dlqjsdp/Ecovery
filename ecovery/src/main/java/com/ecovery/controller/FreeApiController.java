@@ -103,7 +103,6 @@ public class FreeApiController {
             @PathVariable Long freeId,
             @RequestPart("freeDto") FreeDto freeDto,
             @RequestPart(value = "imgFile", required = false) List<MultipartFile> imgFiles,
-            @RequestPart(value = "deletedImageIds", required = false) List<Long> deletedImageIds,
             Principal principal) {
 
         if (principal == null) {
@@ -124,20 +123,22 @@ public class FreeApiController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("작성자 또는 관리자만 수정할 수 있습니다.");
         }
 
+        // 4. itemId를 DTO에 설정 (강제 일치)
         freeDto.setFreeId(freeId);
-        freeDto.setMemberId(currentUserId);
 
-        Set<ConstraintViolation<FreeDto>> violations = validator.validate(freeDto);
-        if (!violations.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (ConstraintViolation<FreeDto> v : violations) {
-                sb.append(v.getPropertyPath()).append(": ").append(v.getMessage()).append("\n");
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("유효성 오류:\n" + sb);
+        // 5. 대표 이미지 누락 체크 (기존 이미지 모두 삭제 후 새 이미지가 없으면 에러)
+        boolean hasImagesToKeep = freeDto.getImgList().stream()
+                .anyMatch(dto -> !dto.isToBeDeleted());
+
+        boolean hasNewImages = imgFiles != null && !imgFiles.isEmpty()
+                && imgFiles.stream().anyMatch(file -> !file.isEmpty());
+
+        if (!hasImagesToKeep && !hasNewImages) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("최소 한 개 이상의 상품 이미지를 유지 또는 추가해야 합니다.");
         }
 
         try {
-            freeService.modify(freeDto, imgFiles, deletedImageIds);
+            freeService.modify(freeDto, imgFiles);
             return ResponseEntity.ok("게시글이 수정되었습니다.");
         } catch (Exception e) {
             log.error("게시글 수정 중 오류 발생", e);

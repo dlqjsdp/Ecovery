@@ -24,4 +24,6 @@ public class FreeImgDto {
     private String oriImgName;
     private String imgUrl;
     private String repImgYn;
+
+    private boolean toBeDeleted; // 사용자에 의해 삭제 요청된 이미지 여부
 }
