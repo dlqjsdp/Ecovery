@@ -1,10 +1,10 @@
 package com.ecovery.service;
 
-import com.ecovery.constant.PayMethod;
 import com.ecovery.constant.PayStatus;
 import com.ecovery.domain.PaymentVO;
 import com.ecovery.dto.PaymentResultDto;
 import com.ecovery.mapper.PaymentMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +23,7 @@ import java.util.Map;
  * @since : 250725
  * @history
  *  - 250725 | sehui | 결제내역 저장 기능 추가
+ *  - 250805 | yukyeong | 토큰 JSON 변환 처리로 변경
  */
 
 @Service
@@ -35,6 +36,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final PaymentMapper paymentMapper;
 
+    // 추가
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     //결제 API Key
     @Value("${portone.imp-key}")
@@ -46,9 +50,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     //토큰 발급 메서드
     private String getPortOneAccessToken(){
-        log.info("🔑 impKey: {}", impKey);
-        log.info("🔐 impSecret: {}", impSecret);
-
         //토큰 요청할 포트원 공식 API URL
         String url = "https://api.iamport.kr/users/getToken";
 
@@ -61,10 +62,11 @@ public class PaymentServiceImpl implements PaymentService {
         body.put("imp_key", impKey);
         body.put("imp_secret", impSecret);
 
-        //HTTP 요청 객체 생성
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-
         try {
+
+            String jsonBody = objectMapper.writeValueAsString(body); // 추가 : JSON 문자열로 변환
+            HttpEntity<String> request = new HttpEntity<>(jsonBody, headers); // 추가 : JSON 문자열 전달
+
             //RestTemplate 이용하여 POST 방식으로 포트원에 요청 보냄
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
 
@@ -109,11 +111,9 @@ public class PaymentServiceImpl implements PaymentService {
 
             //2. orderId 조회
             Long orderId = orderService.getOrderId(paymentResult.getOrderUuid());
-            if(orderId != null){
+            if(orderId == null){ // 추가 : orderId가 없을 때만 예외 발생
                 throw new RuntimeException("주문 정보를 찾을 수 없습니다." + paymentResult.getOrderUuid());
             }
-
-            System.out.println("PaymentResult" + paymentResult);
 
             //3. 결제 정보 저장용 객체 생성
             PaymentVO payment = PaymentVO.builder()

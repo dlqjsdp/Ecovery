@@ -11,21 +11,22 @@
  *  - 250802 | sehui | 결제 버튼 클릭 시 주문 정보 요청 함수 추가
  *  - 250802 | sehui | 결제 정보 금액 렌더링 함수 추가
  *  - 250802 | sehui | 입력값 유효성 겁사 함수 추가
+ *  - 250804 | sehui | 포트원 결제 초기화 함수 추가
+ *  - 250805 | sehui | 입력값 유효성 검사에 전화번호, 상세주소 형식 검증 추가
+ *  - 250805 | sehui | 이벤트 핸들러 함수에 전화번호 자동 포맷팅 기능 추가
+ *  - 250805 | sehui | 장바구니 기능 삭제
+ *  - 250805 | sehui | 결제 취소할 경우 페이지 새로고침 기능 추가
  */
 
 // ==========================================================================
 // 전역 변수 선언
 // ==========================================================================
-let currentOrderId = null;          // 현재 조회 중인 주문번호
-let orderData = null;               // 주문 상세 데이터
 let isInitialized = false;          // 초기화 상태 플래그
 
 // DOM 요소들
 const header = document.getElementById('header');
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
-const cartIcon = document.getElementById('cartIcon');
-const cartCount = document.getElementById('cartCount');
 
 // ==========================================================================
 // 페이지 초기화 - DOMContentLoaded 이벤트 리스너
@@ -36,47 +37,21 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // 핵심 기능 초기화
         initializeHeader();              // 헤더 기능 초기화
-        initializeCart();                // 장바구니 기능 초기화
         initializeInteractions();        // 인터랙션 초기화
         initializeKeyboardShortcuts();   // 키보드 단축키 초기화
         adjustLayoutForScreenSize();     // 반응형 레이아웃 조정
+        initializePortOne();             //포트원 결제 초기화
 
-        // 포트원 결제 API 초기화
-        if (typeof IMP !== 'undefined') {
-            IMP.init("imp70187520");     //가맹점 식별코드
-            console.log("✅ 포트원 결제 API 초기화 완료");
-        } else {
-            console.warn("⚠️ 포트원 결제 객체(IMP)를 찾을 수 없습니다.");
-        }
-
-        //주문 데이터 로드
-        const orderData = await loadOrderData();
-
-        if(!orderData || !orderData.orderUuid) {
-            showNotification('잘못된 접근입니다. 마이페이지로 이동합니다.', 'warning');
-            setTimeout(() => {
-                window.location.href = '/member/mypage';
-            }, 2000);
-            return;
-        }
-
-        //주문 ID를 저장하고 안내 메시지
-        const currentOrderUuid = orderData.orderUuid;
-        console.log('🛍️ 주문상세 페이지가 성공적으로 초기화되었습니다.');
-
-        // 환영 메시지 표시 (1초 후)
-        setTimeout(() => {
-            showNotification(`주문번호 ${currentOrderUuid} 상세 정보를 불러왔습니다! 📋`, 'success');
-        }, 1000);
+        //주문 데이터 확인
+        await validateOrderData();
 
         isInitialized = true;
 
-        //이벤트 리스너 설정
-        setupEventListeners();
+        setupEventListeners();      //이벤트 리스너 등록
 
     } catch (error) {
-        handleError(error, 'Order detail page initialization');
-        window.location.href = '/member/mypage';
+        handleError(error, '📄 주문 상세 페이지 초기화 중 오류 발생');
+        window.location.href = '/mypage';
     }
 });
 
@@ -167,86 +142,51 @@ function closeMobileMenu() {
 }
 
 // ==========================================================================
-// 장바구니 기능 초기화 (마이페이지와 동일)
+// 포트원 결제 초기화
 // ==========================================================================
 /**
- * 장바구니 기능 초기화
- * 장바구니 아이콘 클릭 이벤트와 장바구니 개수 업데이트 기능
- */
-function initializeCart() {
-    if (cartIcon) {
-        // 장바구니 아이콘 클릭 이벤트
-        cartIcon.addEventListener('click', handleCartClick);
-
-        // 장바구니 개수 초기화
-        updateCartCount();
-
-        console.log('✅ 장바구니 기능이 초기화되었습니다.');
-    }
-}
-
-/**
- * 장바구니 아이콘 클릭 처리
- * @param {Event} event - 클릭 이벤트
- */
-function handleCartClick(event) {
-    event.preventDefault();
-
-    // 클릭 애니메이션 효과
-    cartIcon.style.transform = 'scale(0.9)';
-    setTimeout(() => {
-        cartIcon.style.transform = '';
-    }, 150);
-
-    // 장바구니 페이지로 이동하기 전 알림 표시
-    showNotification('장바구니 페이지로 이동합니다! 🛒', 'info');
-
-    // 실제 구현에서는 cart.html로 페이지 이동
-    setTimeout(() => {
-        window.location.href = 'cart.html';
-    }, 800);
-
-    console.log('🛒 장바구니 클릭: cart.html로 이동');
-}
-
-/**
- * 장바구니 개수 업데이트
- * @param {number} count - 새로운 장바구니 아이템 개수
- */
-function updateCartCount(count = null) {
-    if (!cartCount) return;
-
-    // count가 없으면 로컬 스토리지에서 가져오기
-    if (count === null) {
-        count = getCartItemCount();
-    }
-
-    cartCount.textContent = count;
-
-    // 개수가 0이면 배지 숨기기
-    if (count === 0) {
-        cartCount.style.display = 'none';
+ * 포트원 결제 API 초기화 (페이지에서 1번만 실행)
+  */
+function initializePortOne(){
+    if (typeof IMP !== 'undefined') {
+        IMP.init("imp70187520");     //가맹점 식별코드
+        console.log("✅ 포트원 결제 API 초기화 완료");
     } else {
-        cartCount.style.display = 'block';
+        console.warn("❌ 포트원 결제 객체(IMP)를 찾을 수 없습니다.");
     }
 }
 
-/**
- * 장바구니 아이템 개수 가져오기 (로컬 스토리지)
- * @returns {number} 장바구니 아이템 개수
- */
-function getCartItemCount() {
-    try {
-        return parseInt(localStorage.getItem('cartItemCount') || '3');
-    } catch (error) {
-        console.warn('장바구니 개수 로드 실패:', error);
-        return 3; // 기본값
-    }
-}
 
 // ==========================================================================
 // 주문 데이터 로드 및 표시
 // ==========================================================================
+/**
+ * 주문 데이터 확인
+ */
+async function validateOrderData(){
+    const orderData = await loadOrderData();    //주문 데이터 로드
+
+    if(!orderData || !orderData.orderUuid) {
+        showNotification('잘못된 접근입니다. 마이페이지로 이동합니다.', 'warning');
+        setTimeout(() => {
+            window.location.href = '/mypage';
+        }, 2000);
+        throw new Error("❌ 유효하지 않은 주문 접근");
+    }
+
+    //주문 ID를 저장하고 안내 메시지
+    const currentOrderUuid = orderData.orderUuid;
+    console.log('🛍️ 주문상세 페이지가 성공적으로 초기화되었습니다.');
+
+    // 환영 메시지 표시 (1초 후)
+    setTimeout(() => {
+        showNotification(`📋 주문번호 ${currentOrderUuid} 상세 정보를 불러왔습니다! `, 'success');
+    }, 1000);
+
+    return orderData;
+
+}
+
 /**
  * 주문 데이터를 로드하고 화면에 표시합니다
  */
@@ -254,11 +194,17 @@ async function loadOrderData() {
     try {
         console.log('🚀 주문 데이터 로드 시작...');
 
-        const json = document.getElementById('orderItemRequests').value;
+        let json = document.getElementById('orderItemRequests').value;
 
+        //value가 없으면 localStorage에서 복구
         if (!json || json.trim().length === 0) {
-            throw new Error('❌ 주문 상품 정보를 찾을 수 없습니다.');
+            json = localStorage.getItem('savedOrderItemRequests');
+            if(!json) throw new Error('❌ 주문 상품 정보를 찾을 수 없습니다.');
+            document.getElementById('orderItemRequests').value = json;  //다시 채워줌
         }
+
+        //주문 요청 정보를 localStorage에 저장
+        localStorage.setItem('savedOrderItemRequests', json);
 
         const orderItemRequests = JSON.parse(json);
 
@@ -285,7 +231,7 @@ async function loadOrderData() {
         handleError(error, 'Order data loading fail');
         //에러 발생 시 마이페이지로 리다이렉트
         setTimeout(() => {
-            window.location.href = '/member/mypage';
+            window.location.href = '/mypage';
         }, 3000);
     }
 }
@@ -336,8 +282,6 @@ function displayBasicOrderInfo(data) {
  */
 function displayOrderProducts(products) {
 
-    console.log(products);
-    
     const productCountEl = document.getElementById('productCount');
     const productListEl = document.getElementById('productList');
 
@@ -347,8 +291,6 @@ function displayOrderProducts(products) {
     if (productCountEl) {
         productCountEl.textContent = `총 ${products.length}개 상품`;
     }
-
-    console.log(productListEl);
 
     // 상품 목록 생성
     productListEl.innerHTML = products.map(product => `
@@ -431,7 +373,7 @@ function postcodeModal() {
  */
 async function handleOrderPayment(){
     try{
-        console.log("🔧 결제 버튼 이벤트 실행...");
+        console.log("🔧 결제 버튼 이벤트 실행");
 
         //전체 유효성 검사 실행
         if (!validateForm()) {
@@ -513,8 +455,6 @@ function requestPortOnePayment(savedOrder, totalPrice, itemName) {
 
     const orderUuid = savedOrder.orderUuid;
 
-    console.log(totalPrice);
-
     if(typeof IMP === 'undefined') {
         throw new Error("❌ 결제 모듈을 불러오지 못했습니다.");
     }
@@ -529,8 +469,21 @@ function requestPortOnePayment(savedOrder, totalPrice, itemName) {
         merchant_uid: orderUuid,
         name: itemName          //결제창에 표시될 상품명
     }, async function(response) {
-        if(response.error_code != null) {
+        //결제 실패
+        if(response.error_code) {
             showNotification(`❌ 결제가 실패했습니다: ${response.error_msg}`, 'error');
+
+            //새로고침하여 주문 정보 다시 로드
+            setTimeout(() => {window.location.reload();}, 2000);
+            return;
+        }
+
+        //사용자가 결제 취소할 경우
+        if(response.success === false){
+            showNotification(`❌ 결제가 실패했습니다: ${response.error_msg}`, 'error');
+
+            //새로고침하여 주문 정보 다시 로드
+            setTimeout(() => {window.location.reload();}, 2000);
             return;
         }
 
@@ -558,8 +511,6 @@ function requestPortOnePayment(savedOrder, totalPrice, itemName) {
             payMethod
         };
 
-        console.log("결제 성공 데이터:", paymentResult);
-
         try {
             const completeResponse = await fetch('/api/payment/success', {
                 method: 'POST',
@@ -571,15 +522,20 @@ function requestPortOnePayment(savedOrder, totalPrice, itemName) {
                 throw new Error('결제 정보 저장 실패');
             }
 
-            // 결제 완료 처리
-            // const redirectUrl = `/order/complete/{result.savedOrderId}`;
-            // window.location.href = redirectUrl;
-            alert("결제 정보 저장 완료!!");
+            // 결제 정보 저장한 경우 주문 완료 페이지로 이동
+            const orderId = await completeResponse.json();
+
+            showNotification(`✅ 결제가 완료되었습니다! 주문 완료 페이지로 이동합니다.`, 'success');
+
+            setTimeout(() => {
+                const completeURL = `/order/complete/${orderId}`;
+                window.location.href = completeURL;
+            }, 3000);
 
         } catch (err) {
             console.error('❌ 결제 정보 전달 중 오류 발생:', err);
             showNotification(`결제 결과 저장 중 오류가 발생했습니다.`, 'error');
-            //주문 페이지 redirect
+            //실패 시 redirection 코드 추가해야 함
         }
 
     });
@@ -599,7 +555,7 @@ function goBack() {
         window.history.back();
     } else {
         // 없으면 마이페이지로 이동
-        window.location.href = 'mypage.html';
+        window.location.href = '/mypage';
     }
 
     console.log('뒤로가기 버튼 클릭');
@@ -940,6 +896,12 @@ function setupEventListeners() {
     if(orderBtn){
         orderBtn.addEventListener('click', handleOrderPayment);
     }
+
+    //전화번호 자동 포맷팅 이벤트
+    const phoneInput = document.getElementById('phoneNumber');
+    if(phoneInput){
+        phoneInput.addEventListener('input', formatPhoneNumber);
+    }
 }
 
 // ==========================================================================
@@ -950,11 +912,31 @@ function setupEventListeners() {
 function validateField(field) {
     const value = field.value.trim();
     const isRequired = field.hasAttribute('required');
+    const id = field.id;
 
     if (isRequired && !value) {
         showFieldError(field, '⚠️ 필수 입력 항목입니다.');
         return false;
-    } else if (value) {
+    }
+
+    //추가 유효성 검사
+    if(value) {
+        if(id === 'phoneNumber') {
+            const phonePattern = /^01[016789]-?\d{3,4}-?\d{4}$/;        //010으로 시작하고 숫자만 10~11자리인지 검사(하이픈 유무 모두 허용)
+            if(!phonePattern.test(value)) {
+                showFieldError(field, '⚠️ 유효한 전화번호 형식이 아닙니다.');
+                return false;
+            }
+        }
+
+        if(id === 'detailAddress') {
+            if(value.length < 2) {
+                showFieldError(field, '⚠️ 상세 주소를 조금 더 자세히 입력해 주세요.');
+                return false;
+            }
+        }
+
+        //성공 시 처리
         clearFieldError(field);
         field.classList.add('success');
         return true;
@@ -1004,6 +986,24 @@ function validateForm() {
     });
 
     return isValid;
+}
+
+// ==========================================================================
+// 기타 함수
+// ==========================================================================
+/**
+ * 전화번호 자동 포맷팅 함수
+ * 입력 중 자동으로 하이픈을 넣는 기능을 하는 함수
+ * @param event
+ */
+function formatPhoneNumber(event) {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length > 3 && value.length <= 7) {
+        value = value.substring(0, 3) + '-' + value.substring(3);
+    } else if (value.length > 7) {
+        value = value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+    }
+    event.target.value = value;
 }
 
 // ==========================================================================

@@ -9,6 +9,7 @@
  *  - 250801 | sehui | 에코마켓과 구매하기 버튼 제거
  *  - 250801 | sehui | 주문 수량 오류 메시지 위치 수정
  *  - 250801 | sehui | 주요 오류 수정 및 안정성 개선
+ *  - 250805 | sehui | 장바구니 사용자ID별 생성할 수 있도록 개선
  * ==========================================================================
  */
 
@@ -27,15 +28,15 @@ let productImages = [];
 let cartItems = [];
 
 // 로그인 상태 관리
-let isLoggedIn = false;
-let currentUser = null;
+let isLoggedIn = !!document.body.dataset.memberId;
+let currentUser = document.body.dataset.memberId || null;
 
 /* ==========================================================================
    페이지 초기화
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 상품 상세 페이지 메인 기능 로딩 시작...');
+    console.log('🚀 상품 상세 페이지 메인 기능 로딩 시작');
     
     // 기본 초기화
     initializePage();
@@ -473,6 +474,16 @@ function validateForm() {
    장바구니 기능
    ========================================================================== */
 
+/**
+ * 사용자별 장바구니 키
+ */
+function getCartKey(){
+    if(!currentUser) {
+        throw new Error("⚠️ 로그인한 사용자만 장바구니를 사용할 수 있습니다.");
+    }
+    return `ecomarket_cart_${currentUser}`;
+}
+
 function loadCartFromStorage() {
     try {
         // localStorage 사용 가능 여부 확인
@@ -481,11 +492,13 @@ function loadCartFromStorage() {
             cartItems = [];
             return;
         }
-        
-        const savedCart = localStorage.getItem('ecomarket_cart');
+
+        const key = getCartKey();
+        const savedCart = localStorage.getItem(key);
+
         if (savedCart) {
             cartItems = JSON.parse(savedCart);
-            console.log('🛒 장바구니 로드 완료:', cartItems.length + '개 상품');
+            console.log(`🛒 장바구니(${key}) 로드 완료:`, cartItems.length + '개 상품');
         } else {
             cartItems = [];
         }
@@ -501,9 +514,10 @@ function saveCartToStorage() {
             console.warn('⚠️ 브라우저가 localStorage를 지원하지 않습니다.');
             return;
         }
-        
-        localStorage.setItem('ecomarket_cart', JSON.stringify(cartItems));
-        console.log('💾 장바구니 저장 완료');
+
+        const key = getCartKey();
+        localStorage.setItem(key, JSON.stringify(cartItems));
+        console.log(`💾 장바구니(${key}) 저장 완료`);
     } catch (error) {
         console.error('❌ 장바구니 저장 실패:', error);
     }
@@ -610,7 +624,7 @@ async function purchaseProduct(e) {
         e.preventDefault();
     }
 
-    console.log("구매하기 버튼 클릭 이벤트 동작...");
+    console.log("🔧 구매하기 버튼 이벤트 실행");
 
     try {
         // 로그인 확인
@@ -626,7 +640,7 @@ async function purchaseProduct(e) {
         const stockNumber = document.getElementById('stockNumber');
         
         if (!itemId || !itemId.value || !productTitle || !productTitle.textContent) {
-            showNotification('상품 정보를 불러오는 중입니다...', 'warning');
+            showNotification('상품 정보를 불러오는 중입니다.', 'warning');
             return;
         }
         

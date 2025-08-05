@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /*
  * 에코마켓 주문 Api Controller
@@ -32,6 +33,7 @@ import java.util.Map;
  *  - 250804 | sehui | 주문 저장 요청 Principal를 Authentication으로 변경
  *  - 250804 | sehui | 주문 페이지 재구성 요청 Principal를 Authentication으로 변경
  *  - 250804 | sehui | 주문 저장 반환값에 orderUuid가 추가된 result로 변경
+ *  - 250805 | sehui | 주문 페이지 재구성 기능 삭제
  */
 
 @RestController
@@ -125,43 +127,6 @@ public class OrderApiController {
             response.put("message", "주문 등록 중 에러가 발생하였습니다.");
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    //주문 페이지 재구성
-    @GetMapping("/retry/{orderId}")
-    public ResponseEntity<?> retryOrder(@PathVariable Long orderId, Authentication auth) {
-
-        try{
-            //로그인한 사용자가 아닐 경우
-            if(auth == null || !auth.isAuthenticated()) {
-                throw new IllegalArgumentException("로그인한 사용자만 주문할 수 있습니다.");
-            }
-
-            //로그인한 사용자 정보 조회
-            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-            String email = userDetails.getEmail();
-
-            MemberVO member = memberService.getMemberByEmail(email);
-
-            //사용자 정보 DB에 없는 경우
-            if(member == null) {
-                throw new IllegalArgumentException("해당 이메일로 등록된 사용자가 없습니다." + email);
-            }
-
-            Long memberId  = memberService.getMemberByEmail(email).getMemberId();
-
-            //주문 조희
-            OrderDto orderDto = orderService.getOrderDto(orderId, memberId);
-
-            return ResponseEntity.status(HttpStatus.OK).body(orderDto);
-        }catch (IllegalArgumentException e) {
-            //주문이 존재하지 않거나 권한이 없는 경우
-            log.error("주문 정보 조회 중 오류 : {}",e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            log.error("알수 없는 오류 발생", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류가 발생했습니다.");
         }
     }
 }

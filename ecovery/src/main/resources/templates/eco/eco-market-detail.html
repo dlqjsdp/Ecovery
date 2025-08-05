@@ -25,7 +25,7 @@
     </th:block>
 
 </head>
-<body>
+<body th:data-member-id = "${#authentication.principal != 'anonymousUser'} ? ${#authentication.principal.memberId} : ''">
     <!-- 본문 fragment -->
     <div layout:fragment="content" class="product-detail-page">
 
@@ -150,7 +150,8 @@
                             </div>
 
                             <!-- 액션 버튼 영역 -->
-                            <div class="action-buttons" id="actionButtons" th:data-logged-in="${#authentication.principal != 'anonymousUser'}">
+                            <div class="action-buttons" id="actionButtons" th:if="${#authorization.expression('!hasRole(''ADMIN'')')}"
+                                 th:data-logged-in="${#authentication.principal != 'anonymousUser'}">
                                 <!-- 장바구니 버튼 -->
                                 <button class="btn btn-cart" id="cartBtn">🛒 장바구니</button>
                                 <!-- 구매하기 버튼 -->
