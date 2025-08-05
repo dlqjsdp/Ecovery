@@ -57,7 +57,7 @@ public class PaymentApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOrderId);
     }
 
-    //결제 실패 시 주문 상태 변경
+    //주문 취소 시 주문 상태 변경
     @PostMapping("/fail")
     public ResponseEntity<Map<String, Object>> failPayment(@RequestBody PaymentResultDto paymentResult, Authentication auth) {
 

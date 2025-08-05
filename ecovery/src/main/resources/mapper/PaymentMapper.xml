@@ -10,6 +10,7 @@
 * @since : 250725
 * @history
      - 250725 | sehui | 결제내역 저장 기능 추가
+     - 250805 | sehui | payment_key 오타 수정
 -->
 
 <mapper namespace="com.ecovery.mapper.PaymentMapper">
