@@ -16,6 +16,7 @@
  *  - 250801 | yukyeong | 본문 이미지 수정 시 삭제된 이미지 URL 추출 및 서버 전송(deleteContentImgUrls)
  *                       - 기존 vs 수정 후 이미지 목록 비교하여 삭제 대상 식별
  *                       - contentImgUrls와 함께 envFormDto로 전송하여 DB 반영 처리
+ *  - 250805 | yukyeong | 삭제된 본문 이미지 식별 시 공백/대소문자 차이로 인해 삭제되지 않는 문제 해결 (normalize 함수 추가)
  */
 
 
@@ -125,8 +126,14 @@ async function submitModifiedPost() {
     const prevImgUrls = extractImageUrlsFromHtml(window.initialContent || "");
     const newImgUrls = extractImageUrlsFromHtml(content);
 
+    // ✅ (2) 공백, 대소문자 차이 방지를 위한 정규화 함수
+    const normalize = (url) => url?.trim().toLowerCase();
+
+
     // ✅ (2) 삭제된 이미지 URL 식별
-    deleteContentImgUrls = prevImgUrls.filter(url => !newImgUrls.includes(url));
+    const deleteContentImgUrls = prevImgUrls
+        .map(normalize)
+        .filter(url => !newImgUrls.map(normalize).includes(url));
 
     console.log("삭제될 본문 이미지 목록:", deleteContentImgUrls);
 

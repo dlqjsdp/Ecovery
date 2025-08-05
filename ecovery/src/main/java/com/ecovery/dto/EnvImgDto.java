@@ -6,8 +6,9 @@ import java.time.LocalDateTime;
 
 /**
  * 환경톡톡 이미지 DTO
- * 클라이언트 <-> 서비스 계층 간 데이터 전송용 객체
- * API 응답 또는 뷰 렌더링용으로 사용됨
+ * - env_img 테이블의 레코드를 표현하는 객체
+ * - 클라이언트 <-> 서비스 계층 간 이미지 정보 전송에 사용
+ * - 뷰 렌더링, 이미지 목록 조회, 등록 응답 등에 활용됨
  *
  * @author : yukyeong
  * @fileName : EnvImgDto
