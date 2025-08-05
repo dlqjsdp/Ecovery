@@ -1,5 +1,5 @@
 /**
- * GreenCycle 구매이력 페이지 JavaScript
+ * ECOVERY 구매이력 페이지 JavaScript
  * 주문 목록 조회, 필터링, 검색, 페이지네이션 등의 기능을 제공합니다
  */
 
@@ -27,7 +27,7 @@ const pageNumbers = document.getElementById('pageNumbers');
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        console.log('🛒 GreenCycle 구매이력 페이지 초기화를 시작합니다...');
+        console.log('🛒 ECOVERY 구매이력 페이지 초기화를 시작합니다...');
 
         // 전역 변수로 전달받은 주문 데이터 초기화
         initializeOrderData();
@@ -1001,4 +1001,4 @@ window.addEventListener('unhandledrejection', (e) => {
     handleError(new Error(e.reason), 'Unhandled promise rejection');
 });
 
-console.log('🛒 GreenCycle 구매이력 페이지 JavaScript가 로드되었습니다.');
+console.log('🛒 ECOVERY 구매이력 페이지 JavaScript가 로드되었습니다.');

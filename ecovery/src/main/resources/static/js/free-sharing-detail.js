@@ -43,6 +43,9 @@ let currentSortType = 'recent'; // 정렬 방식
 const loginUserId = window.loginUserId ?? null;
 const loginUserRole = window.loginUserRole ?? null;
 
+// 현재 게시글의 freeId를 저장할 전역 변수
+let currentFreeId = null;
+
 
 // 이미지 렌더링 코드
 function renderImages(images) {
@@ -151,7 +154,9 @@ function createChildReplyInput(parentId) {
 function submitChildComment(parentId) {
     const input = document.getElementById(`childCommentInput-${parentId}`);
     const content = input.value.trim();
-    const freeId = item?.freeId;
+    // const freeId = item?.freeId;
+    // ❤️
+    const freeId = typeof currentFreeId !== 'undefined' ? currentFreeId : null;
 
     if (!content) {
         alert('대댓글 내용을 입력해주세요.');
@@ -177,7 +182,7 @@ function submitChildComment(parentId) {
         })
         .then(() => {
             input.value = '';
-            loadComments(freeId); // 부모 + 대댓글 포함 새로고침
+            loadChildReplies(parentId); // ❤️대댓글 등록 후 해당 부모 댓글의 대댓글 목록만 새로고침하여 열린 상태 유지
         })
         .catch(err => {
             console.error('대댓글 등록 실패:', err);
@@ -274,6 +279,7 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
     // 전역 변수 활용
     currentSortType = sortType;
     currentPage = page;
+    currentFreeId = freeId; //❤️
 
     fetch(`/api/replies/parent/${freeId}?sortType=${sortType}&page=${page}&amount=${amountPerPage}`)
         .then(response => response.json())
@@ -292,8 +298,11 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
             data.list.forEach(parent => {
                 const parentDiv = document.createElement('div');
                 parentDiv.className = 'comment-item';
+                parentDiv.id = `comment-item-${parent.replyId}`; // ✨ 이 줄이 추가되었습니다.
                 parentDiv.innerHTML = `
-                    <p class="comment-author">${parent.nickname}</p>
+                    <div class="comment-header"> <!-- ✨ 이 div를 추가합니다. -->
+                        <p class="comment-author">${parent.nickname}</p>
+                    </div>
                     <p class="comment-content" id="content-${parent.replyId}">${parent.content}</p>
                     <textarea class="edit-textarea" id="edit-${parent.replyId}" style="display: none;">${parent.content}</textarea>
                     <p class="comment-date">${formatTimeAgo(parent.createdAt)}</p>
@@ -305,7 +314,7 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
                         </div>
                     ` : ''}
 
-                    <div class="reply-toggle-container">
+                    <div class="reply-toggle-container" id="reply-toggle-section-${parent.replyId}">
                         <button class="reply-toggle-btn" onclick="toggleChildReplies(${parent.replyId})">
                             대댓글 보기
                         </button>
@@ -328,53 +337,118 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
                     setupChildReplyEnterEvent(parent.replyId);
                 }
 
-                // 대댓글 불러오기
-                fetch(`/api/replies/child/${parent.replyId}`)
-                    .then(res => res.json())
-                    .then(childReplies => {
-                        const childContainer = document.getElementById(`child-${parent.replyId}`);
-                        if (childContainer) {
-                            childReplies.forEach(child => {
-                                const childDiv = document.createElement('div');
-                                childDiv.className = 'child-comment-item';
-                                childDiv.innerHTML = `
-                                    <p class="child-author">↳ ${child.nickname}</p>
-                                    <p class="child-content" id="content-${child.replyId}">${child.content}</p>
-                                    <textarea class="edit-textarea" id="edit-${child.replyId}" style="display: none;">${child.content}</textarea>
-                                    <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
-
-                                    ${loginUserId === child.memberId || loginUserRole === 'ADMIN' ? `
-                                        <div class="comment-actions">
-                                            <button class="comment-action-btn reply-btn" onclick="toggleEdit(${child.replyId})">수정</button>
-                                            <button class="comment-action-btn" onclick="deleteComment(${child.replyId}, true)">삭제</button>
-                                        </div>
-                                    ` : ''}
-                                `;
-                                childContainer.appendChild(childDiv);
-                            });
-                        }
-                    })
-                    .catch(error => console.error('Error fetching child replies:', error));
+            //     // 대댓글 불러오기
+                //             //     fetch(`/api/replies/child/${parent.replyId}`)
+                //             //         .then(res => res.json())
+                //             //         .then(childReplies => {
+                //             //             const childContainer = document.getElementById(`child-${parent.replyId}`);
+                //             //             if (childContainer) {
+                //             //                 childReplies.forEach(child => {
+                //                     const childDiv = document.createElement('div');
+                //                     childDiv.className = 'child-comment-item';
+                //                     childDiv.innerHTML = `
+                //                         <p class="child-author">↳ ${child.nickname}</p>
+                //                         <p class="child-content" id="content-${child.replyId}">${child.content}</p>
+            //                         <textarea class="edit-textarea" id="edit-${child.replyId}" style="display: none;">${child.content}</textarea>
+            //                         <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
+            //
+            //                         ${loginUserId === child.memberId || loginUserRole === 'ADMIN' ? `
+            //                             <div class="comment-actions">
+            //                                 <button class="comment-action-btn reply-btn" onclick="toggleEdit(${child.replyId})">수정</button>
+            //                                 <button class="comment-action-btn" onclick="deleteComment(${child.replyId}, true)">삭제</button>
+            //                             </div>
+            //                         ` : ''}
+            //                     `;
+            //                     childContainer.appendChild(childDiv);
+            //                 });
+            //             }
+            //         })
+            //         .catch(error => console.error('Error fetching child replies:', error));
             });
             // 페이징 렌더링
-            renderReplyPagination(data.total, freeId, sortType);
+            // renderReplyPagination(data.total, freeId, sortType);
         })
         .catch(error => console.error('Error fetching comments:', error));
 }
 
 // 대댓글 목록 토글 함수
+// - 고유 ID를 사용하여 특정 부모 댓글의 버튼을 정확히 선택
+// - 대댓글 섹션을 열 때만 'loadChildReplies' 호출
 function toggleChildReplies(parentId) {
     const childReplySection = document.getElementById(`child-reply-section-${parentId}`);
-    const toggleBtn = document.querySelector(`.reply-toggle-container button`);
+    // 고유 ID를 사용하여 정확한 버튼을 찾음
+    const toggleBtn = document.querySelector(`#reply-toggle-section-${parentId} .reply-toggle-btn`);
+
+    if (!childReplySection || !toggleBtn) {
+        console.error(`대댓글 섹션 또는 토글 버튼을 찾을 수 없습니다: ${parentId}`);
+        return;
+    }
 
     if (childReplySection.style.display === 'none') {
         childReplySection.style.display = 'block';
         toggleBtn.textContent = '대댓글 숨기기';
+        // 대댓글 열때만 대댓글을 불러오도록 호출
+        loadChildReplies(parentId);
     } else {
         childReplySection.style.display = 'none';
         toggleBtn.textContent = '대댓글 보기';
     }
 }
+
+// ✨ 대댓글만 새로고침하는 함수 (새로 추가됨)
+// - 특정 부모 댓글의 대댓글만 동적으로 불러와 HTML에 추가
+function loadChildReplies(parentId) {
+    const childContainer = document.getElementById(`child-${parentId}`);
+    if (!childContainer) {
+        console.error(`대댓글 컨테이너를 찾을 수 없습니다: child-${parentId}`);
+        return;
+    }
+
+    // 대댓글 섹션 자체를 찾습니다. 이 섹션이 toggleChildReplies에 의해 열리고 닫힙니다.
+    const childReplySection = document.getElementById(`child-reply-section-${parentId}`);
+    if (!childReplySection) {
+        console.error(`대댓글 섹션(child-reply-section-${parentId})을 찾을 수 없습니다.`);
+        return;
+    }
+
+
+    childContainer.innerHTML = ''; // 기존 대댓글 초기화
+
+    fetch(`/api/replies/child/${parentId}`)
+        .then(res => res.json())
+        .then(childReplies => {
+            childReplies.forEach(child => {
+                const childDiv = document.createElement('div');
+                childDiv.className = 'child-comment-item';
+                childDiv.innerHTML = `
+                     <div class="child-comment-header"> <!-- ✨ 이 div를 추가합니다. -->
+                        <p class="child-author">↳ ${child.nickname}</p>
+                    </div>
+                    <p class="child-content" id="content-${child.replyId}">${child.content}</p>
+                    <textarea class="edit-textarea" id="edit-${child.replyId}" style="display: none;">${child.content}</textarea>
+                    <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
+
+                    ${loginUserId === child.memberId || loginUserRole === 'ADMIN' ? `
+                        <div class="comment-actions">
+                            <button class="comment-action-btn reply-btn" onclick="toggleEdit(${child.replyId})">수정</button>
+                            <button class="comment-action-btn" onclick="deleteComment(${child.replyId}, true)">삭제</button>
+                        </div>
+                    ` : ''}
+                `;
+                childContainer.appendChild(childDiv);
+            });
+            // 대댓글이  로딩이 완료된 후, 해당 섹션이 강제로 보이게
+            childReplySection.style.display = 'block';
+
+            // 또한, 토글 버튼의 텍스트도 '숨기기'로 업데이트하여 UI 일관성을 유지합니다.
+            const toggleBtn = document.querySelector(`#reply-toggle-section-${parentId} .reply-toggle-btn`);
+            if (toggleBtn) {
+                toggleBtn.textContent = '대댓글 숨기기';
+            }
+        })
+        .catch(error => console.error('Error fetching child replies:', error));
+}
+
 
 // 조회수 증가
 function updateViewCount(freeId) {
@@ -512,13 +586,41 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // =========================
-// 댓글 수정창 열기
+// 댓글 수정창 열기/닫기 및 버튼 텍스트 변경
 // =========================
 function toggleEdit(replyId) {
     const contentEl = document.getElementById(`content-${replyId}`);
     const textareaEl = document.getElementById(`edit-${replyId}`);
 
     if (!contentEl || !textareaEl) return;
+
+    // ✨ 수정: contentEl의 부모 요소를 정확히 찾아옵니다.
+    const currentCommentOrChildCommentItem = contentEl.closest('.comment-item, .child-comment-item');
+
+    if (!currentCommentOrChildCommentItem) {
+        console.error(`toggleEdit: 유효한 댓글/대댓글 컨테이너를 찾을 수 없습니다. replyId: ${replyId}`);
+        return;
+    }
+
+    // ✨ 수정: 선언된 currentCommentOrChildCommentItem 변수를 사용합니다.
+    const commentActionsDiv = currentCommentOrChildCommentItem.querySelector('.comment-actions');
+
+    if (!commentActionsDiv) {
+        console.error("comment-actions div를 찾을 수 없습니다:", replyId);
+        return;
+    }
+
+    // 수정 또는 등록 버튼을 찾음
+    const editButton = commentActionsDiv.querySelector('.comment-action-btn.reply-btn');
+
+    if (!editButton) {
+        console.error("수정 버튼(.comment-action-btn.reply-btn)을 찾을 수 없습니다:", replyId);
+        return;
+    }
+
+    //  현재 댓글이 대댓글인지 여부를 확인
+    // 'child-comment-item' 클래스를 가지고 있으면 대댓글
+    const isChild = currentCommentOrChildCommentItem.classList.contains('child-comment-item');
 
     const isEditing = textareaEl.style.display === 'block';
 
@@ -527,13 +629,14 @@ function toggleEdit(replyId) {
         textareaEl.style.display = 'none';
         contentEl.style.display = 'block';
 
-        // 등록 버튼 제거
-        const registerBtn = document.getElementById(`register-${replyId}`);
-        if (registerBtn) {
-            registerBtn.remove();
-        }
+        // '등록' 버튼 텍스트를 다시 '수정'으로 변경
+        editButton.textContent = '수정';
+        // '등록' 상태 스타일 클래스 제거
+        editButton.classList.remove('is-submitting-edit');
+        // 버튼 클릭 시 다시 toggleEdit 함수를 호출하도록 변경
+        editButton.onclick = () => toggleEdit(replyId);
 
-        //Enter 키 이벤트 리스너 제거 (중복 방지)
+        // Enter 키 이벤트 리스너 제거 (중복 방지)
         textareaEl.removeEventListener('keydown', handleEnterKey);
 
     } else {
@@ -542,49 +645,99 @@ function toggleEdit(replyId) {
         contentEl.style.display = 'none';
         textareaEl.focus();
 
-        // 등록 버튼 동적으로 생성
-        if (!document.getElementById(`register-${replyId}`)) {
-            const registerBtn = document.createElement('button');
-            registerBtn.id = `register-${replyId}`;
-            registerBtn.textContent = '등록';
-            registerBtn.classList.add('edit-confirm-btn');
+        // '수정' 버튼 텍스트를 '등록'으로 변경
+        editButton.textContent = '등록';
+        // '등록' 상태 스타일 클래스 추가
+        editButton.classList.add('is-submitting-edit');
+        // 버튼 클릭 시 submitEdit 함수를 호출하도록 변경
+        editButton.onclick = () => submitEdit(replyId, isChild);
 
-            // isChild 여부는 replyId 기준 판단 어렵다면 false로만 써도 됨
-            registerBtn.onclick = () => submitEdit(replyId, false);
-
-            textareaEl.parentNode.insertBefore(registerBtn, textareaEl.nextSibling);
-        }
-
-        // ️Enter 키 이벤트 리스너 추가
+        // Enter 키 이벤트 리스너 추가
         textareaEl.addEventListener('keydown', handleEnterKey);
     }
 }
 
 //️ Enter 키 이벤트 핸들러
-function handleEnterKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault(); // 줄바꿈 방지
-        const replyId = this.id.split('-')[1];
-        submitEdit(replyId);
+function handleEnterKey(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault(); // 기본 엔터 동작 방지
+
+        const replyId = event.target.id.replace('edit-', '');
+        const textareaEl = event.target; // 현재 이벤트가 발생한 textarea 요소
+
+        // 현재 textarea가 속한 댓글/대댓글 컨테이너를 찾습니다.
+        const currentCommentOrChildCommentItem = textareaEl.closest('.comment-item, .child-comment-item');
+
+        if (!currentCommentOrChildCommentItem) {
+            console.error(`handleEnterKey: 유효한 댓글/대댓글 컨테이너를 찾을 수 없습니다. replyId: ${replyId}`);
+            return;
+        }
+
+        // 현재 댓글이 대댓글인지 여부를 확인합니다.
+        const isChild = currentCommentOrChildCommentItem.classList.contains('child-comment-item');
+
+        // submitEdit 함수에 isChild 값을 함께 넘겨줍니다.
+        submitEdit(replyId, isChild); // Enter 키로 수정 완료
     }
 }
+
 
 // ️수정 내용을 서버에 전송하는 함수 (예시)
 function submitEdit(replyId) {
     const textareaEl = document.getElementById(`edit-${replyId}`);
     const newContent = textareaEl.value.trim();
+    // 현재 수정 중인 댓글이 대댓글인지 확인
+    const isChild = textareaEl.closest('.child-comment-item') !== null;
 
     if (newContent === '') {
         alert('내용을 입력해주세요.');
         return;
     }
 
-    // UI 즉시 업데이트 및 수정 모드 종료
-    const contentEl = document.getElementById(`content-${replyId}`);
-    contentEl.textContent = newContent;
-    toggleEdit(replyId);
-}
 
+    fetch(`/api/replies/modify/${replyId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: newContent })
+    })
+        .then(res => {
+            if (res.ok) {
+                alert('댓글이 수정되었습니다.');
+                // ✨ 이 부분이 변경되었습니다.
+                // UI 즉시 업데이트
+                const contentEl = document.getElementById(`content-${replyId}`);
+                contentEl.textContent = newContent;
+                toggleEdit(replyId); // 읽기 모드로 전환
+
+                // 만약 대댓글을 수정했다면 부모 댓글의 대댓글 목록을 새로고침
+                if (isChild) {
+                    // ✨ 변경된 부분: 부모 댓글 컨테이너의 ID에서 직접 replyId를 추출합니다.
+                    const parentCommentItem = textareaEl.closest('.comment-item');
+                    if (parentCommentItem) {
+                        const parentIdMatch = parentCommentItem.id.match(/comment-item-(\d+)/); // ✨ 정규식 변경
+                        if (parentIdMatch && parentIdMatch[1]) {
+                            const parentId = parentIdMatch[1];
+                            loadChildReplies(parentId); // 해당 부모의 대댓글만 새로고침
+                        } else {
+                            console.error("부모 댓글 ID를 찾을 수 없습니다:", parentCommentItem.id);
+                        }
+                    } else {
+                        console.error("대댓글의 부모 댓글 아이템을 찾을 수 없습니다.");
+                    }
+                } else {
+                    // 일반 댓글 수정 시 전체 댓글 목록 새로고침
+                    loadComments(currentFreeId, currentSortType, currentPage);
+                }
+            } else if (res.status === 403) {
+                alert('수정 권한이 없습니다.');
+            } else {
+                alert('댓글 수정 실패');
+            }
+        })
+        .catch(err => console.error('댓글 수정 오류:', err));
+}
 
 
 // =========================
@@ -603,15 +756,31 @@ function submitEdit(replyId, isChild) {
 
     fetch(`/api/replies/modify/${replyId}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: updatedContent })
     })
         .then(res => {
             if (res.ok) {
                 alert('댓글이 수정되었습니다.');
-                location.reload(); // 새로고침으로 변경된 댓글 반영
+
+                // UI 즉시 업데이트
+                const contentEl = document.getElementById(`content-${replyId}`);
+                contentEl.textContent = updatedContent;
+                toggleEdit(replyId); // 읽기 모드로 전환
+
+                if (isChild) {
+                    const parentCommentItem = textareaEl.closest('.comment-item');
+                    if (parentCommentItem) {
+                        const parentIdMatch = parentCommentItem.id.match(/comment-item-(\d+)/);
+                        if (parentIdMatch && parentIdMatch[1]) {
+                            const parentId = parentIdMatch[1];
+                            // loadChildReplies만 호출
+                            loadChildReplies(parentId);
+                        }
+                    }
+                } else {
+                    loadComments(currentFreeId, currentSortType, currentPage);
+                }
             } else if (res.status === 403) {
                 alert('수정 권한이 없습니다.');
             } else {
@@ -620,7 +789,6 @@ function submitEdit(replyId, isChild) {
         })
         .catch(err => console.error('댓글 수정 오류:', err));
 }
-
 // =========================
 // 댓글 삭제
 // =========================
