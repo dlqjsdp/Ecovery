@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
       - 250731 | yukyeong | 브라우저 접근용 URL 경로 수정: /images → /ecovery 로 변경
       - 250801 | yukyeong | 이미지 파일 없이 URL만 등록하는 register(EnvImgDto) 구현
                             이미지 URL 기반 삭제 기능 deleteByImgUrl(String imgUrl) 구현
+      - 250805 | yukyeong | 본문 이미지 중복 등록 방지를 위한 existsByImgUrlAndEnvId 구현
  */
 
 @Service
@@ -208,6 +209,12 @@ public class EnvImgServiceImpl implements EnvImgService{
     private String extractFileName(String imgUrl) {
         if (imgUrl == null || !imgUrl.contains("/")) return null;
         return imgUrl.substring(imgUrl.lastIndexOf("/") + 1);
+    }
+
+    // 본문 이미지 중복 등록 방지를 위한 existsByImgUrlAndEnvId 구현
+    @Override
+    public boolean existsByImgUrlAndEnvId(String imgUrl, Long envId) {
+        return envImgMapper.existsByImgUrlAndEnvId(imgUrl, envId);
     }
 
 }

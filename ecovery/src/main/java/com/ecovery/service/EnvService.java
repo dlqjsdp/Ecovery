@@ -43,4 +43,6 @@ public interface EnvService {
 
     // 이미지 URL 삭제
     public int deleteContentImg(String imgUrl);
+
+
 }

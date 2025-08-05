@@ -17,6 +17,7 @@ import java.util.List;
       - 250726 | yukyeong | 이미지 등록, 조회, 삭제 서비스 메서드 정의 (EnvImgDto 기반)
       - 250801 | yukyeong | 이미지 URL만 등록하는 register(EnvImgDto) 메서드 추가
                             이미지 URL 기반 삭제 메서드 deleteByImgUrl(String imgUrl) 추가
+      - 250805 | yukyeong | 본문 이미지 중복 등록 방지를 위한 existsByImgUrlAndEnvId 메서드 추가
  */
 
 public interface EnvImgService {
@@ -38,4 +39,7 @@ public interface EnvImgService {
 
     // 이미지 URL 삭제
     public int deleteByImgUrl(String imgUrl);
+
+    // 본문 이미지 중복 등록 방지
+    public boolean existsByImgUrlAndEnvId(String imgUrl, Long envId);
 }

@@ -5,6 +5,7 @@ import com.ecovery.dto.Criteria;
 import com.ecovery.dto.EnvDto;
 import com.ecovery.dto.EnvFormDto;
 import com.ecovery.dto.EnvImgDto;
+import com.ecovery.mapper.EnvImgMapper;
 import com.ecovery.mapper.EnvMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
                            - DB 삭제 전에 첨부/본문 이미지 파일을 파일 시스템에서도 삭제하도록 추가
                            - imgName → 첨부 이미지, imgUrl → 본문 이미지로 분기하여 경로 생성
                            - FileService.deleteFile(fullPath) 통해 로컬 폴더에서도 삭제되도록 처리
+     - 250805 | yukyeong | 본문 이미지 등록 시 중복 이미지 필터링 로직 추가 (envImgService.existsByImgUrlAndEnvId)
  */
 
 @Service
@@ -183,6 +185,13 @@ public class EnvServiceImpl implements EnvService {
             for (String imgUrl : contentImgUrls) {
                 if (imgUrl != null && !imgUrl.isBlank()) {
                     imgUrl = imgUrl.trim(); // 공백 제거
+
+                    // 중복 등록 방지
+                    boolean exists = envImgService.existsByImgUrlAndEnvId(imgUrl, env.getEnvId());
+                    if (exists) {
+                        log.info("이미 등록된 본문 이미지이므로 건너뜀: {}", imgUrl);
+                        continue;
+                    }
 
                     EnvImgDto imgDto = EnvImgDto.builder()
                             .envId(env.getEnvId())

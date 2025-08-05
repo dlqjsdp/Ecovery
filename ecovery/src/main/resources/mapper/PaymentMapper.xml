@@ -20,7 +20,7 @@
         <result property="orderId" column="order_id" />
         <result property="orderUuid" column="order_uuid" />
         <result property="memberId" column="member_id" />
-        <result property="paymentKey" column="paymentKey" />
+        <result property="paymentKey" column="payment_key" />
         <result property="payMethod" column="pay_method" />
         <result property="payAmount" column="pay_amount" />
         <result property="payStatus" column="pay_status" />
@@ -29,7 +29,7 @@
 
     <!-- 결제내역 저장 -->
     <insert id="insertPayment" parameterType="com.ecovery.domain.PaymentVO" useGeneratedKeys="true" keyProperty="paymentId">
-        insert into payment (order_id, order_uuid, member_id, paymentKey, pay_method, pay_amount, pay_status, paid_at)
+        insert into payment (order_id, order_uuid, member_id, payment_key, pay_method, pay_amount, pay_status, paid_at)
         values (#{orderId}, #{orderUuid}, #{memberId}, #{paymentKey}, #{payMethod}, #{payAmount}, #{payStatus}, NOW())
     </insert>
 </mapper>

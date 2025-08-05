@@ -5,6 +5,7 @@ import com.ecovery.constant.PayStatus;
 import com.ecovery.domain.PaymentVO;
 import com.ecovery.dto.PaymentResultDto;
 import com.ecovery.mapper.PaymentMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,9 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final PaymentMapper paymentMapper;
 
+    // 추가
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     //결제 API Key
     @Value("${portone.imp-key}")
@@ -61,10 +65,14 @@ public class PaymentServiceImpl implements PaymentService {
         body.put("imp_key", impKey);
         body.put("imp_secret", impSecret);
 
-        //HTTP 요청 객체 생성
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+//          변경 전
+//        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
 
         try {
+
+            String jsonBody = objectMapper.writeValueAsString(body); // 추가 : JSON 문자열로 변환
+            HttpEntity<String> request = new HttpEntity<>(jsonBody, headers); // 추가 : JSON 문자열 전달
+
             //RestTemplate 이용하여 POST 방식으로 포트원에 요청 보냄
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
 
@@ -109,7 +117,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             //2. orderId 조회
             Long orderId = orderService.getOrderId(paymentResult.getOrderUuid());
-            if(orderId != null){
+            if(orderId == null){ // 추가 : orderId가 없을 때만 예외 발생
                 throw new RuntimeException("주문 정보를 찾을 수 없습니다." + paymentResult.getOrderUuid());
             }
 
