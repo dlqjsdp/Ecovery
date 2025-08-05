@@ -343,22 +343,21 @@ function renderAllImages() {
 
     // 기존 이미지 렌더링
     existingImages.forEach(img => {
+        // deletedImageIds에 포함되지 않은 이미지만 그립니다.
         const isDeleted = deletedImageIds.includes(String(img.id));
-        const div = document.createElement('div');
-        div.className = 'preview-item existing-image-item';
-        div.classList.toggle('deleted-image', isDeleted);
-        div.dataset.id = img.id;
+        if (!isDeleted) {
+            const div = document.createElement('div');
+            div.className = 'preview-item existing-image-item';
+            div.dataset.id = img.id;
 
-        const buttonText = isDeleted ? '복원' : '×';
-
-        div.innerHTML = `
-            <img src="${img.imgUrl}" alt="등록된 이미지" class="preview-image" style="width:100px; height:auto;">
-            <button type="button" class="btn-delete-existing" data-id="${img.id}">
-                ${buttonText}
-            </button>
-        `;
-
-        previewContainer.appendChild(div);
+            div.innerHTML = `
+                <img src="${img.imgUrl}" alt="등록된 이미지" class="preview-image" style="width:100px; height:auto;">
+                <button type="button" class="btn-delete-existing remove-image" data-id="${img.id}">
+                    ×
+                </button>
+            `;
+            previewContainer.appendChild(div);
+        }
     });
 
     // 새로 업로드된 이미지 렌더링
@@ -375,20 +374,15 @@ function renderAllImages() {
         previewContainer.appendChild(div);
     });
 
-    // 기존 이미지 삭제/복원 버튼 이벤트 등록
+    // 기존 이미지 삭제 버튼 이벤트 등록
     previewContainer.querySelectorAll('.btn-delete-existing').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
-            const index = deletedImageIds.indexOf(String(id));
+            deletedImageIds.push(String(id));
+            console.log('deletedImageIds:', deletedImageIds);
 
-            if (index === -1) {
-                deletedImageIds.push(String(id));
-                console.log('deletedImageIds (추가):', deletedImageIds);
-            } else {
-                deletedImageIds.splice(index, 1);
-                console.log('deletedImageIds (제거):', deletedImageIds);
-            }
-            renderAllImages(); // UI를 다시 렌더링하여 상태를 반영
+            // UI를 다시 렌더링하여 삭제 상태를 반영합니다.
+            renderAllImages();
         });
     });
 }
@@ -553,7 +547,8 @@ async function handleFormSubmit(event) {
         regionDong: document.getElementById('region2').value,
         itemCondition: document.getElementById('condition').value,
         nickname: document.getElementById('author').value,
-        dealStatus: 'ONGOING',
+        dealStatus: document.getElementById('dealStatus').value,
+
         imgList: imagesToKeep.map(img => ({
             freeImgId: img.id,
             imgUrl: img.imgUrl,
@@ -814,16 +809,16 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-// =========================
-// 페이지 이탈 경고
-// =========================
-window.addEventListener('beforeunload', function(event) {
-    if (checkFormChanged()) {
-        event.preventDefault();
-        event.returnValue = '';
-        return '';
-    }
-});
+// // =========================
+// // 페이지 이탈 경고
+// // =========================
+// window.addEventListener('beforeunload', function(event) {
+//     if (checkFormChanged()) {
+//         event.preventDefault();
+//         event.returnValue = '';
+//         return '';
+//     }
+// });
 
 // =========================
 // 전역 함수로 노출
@@ -854,4 +849,4 @@ console.log('    - 기존 이미지 삭제 및 새 이미지 추가 통합');
 console.log('    - 실시간 유효성 검사');
 console.log('    - 키보드 단축키 (Ctrl+S, ESC)');
 console.log('    - 접근성 지원');
-console.log('    - 페이지 이탈 시 변경사항 경고');
+// console.log('    - 페이지 이탈 시 변경사항 경고');

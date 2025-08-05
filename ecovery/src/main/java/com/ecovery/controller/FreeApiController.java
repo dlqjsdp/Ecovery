@@ -138,6 +138,9 @@ public class FreeApiController {
         }
 
         try {
+            // 이 부분에 로그를 추가합니다.
+            log.info("Received freeDto's dealStatus: {}", freeDto.getDealStatus());
+
             freeService.modify(freeDto, imgFiles);
             return ResponseEntity.ok("게시글이 수정되었습니다.");
         } catch (Exception e) {

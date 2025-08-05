@@ -1122,6 +1122,65 @@ textarea.edit-textarea {
     }
 }
 
+/* 대댓글 버튼 컨테이너 */
+.reply-toggle-container {
+    margin-top: 10px;
+    margin-left: 20px; /* 들여쓰기 효과 */
+}
+
+/* 대댓글 보기/숨기기 버튼 */
+.reply-toggle-btn {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    color: #555;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.reply-toggle-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* 대댓글 영역 스타일 (선택사항) */
+.child-reply-section {
+    padding: 10px 0;
+    margin-left: 20px; /* 대댓글 들여쓰기 */
+    border-left: 2px solid #e0e0e0; /* 구분선 */
+}
+
+/* 대댓글 입력 폼 */
+.reply-form {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.reply-form textarea {
+    flex: 1; /* 남은 공간 모두 차지 */
+    resize: none;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 8px;
+    margin-right: 8px;
+}
+
+.reply-form button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5cb85c;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+.reply-form button:hover {
+    background-color: #4cae4c;
+}
+
 /* =========================
    모달 창 스타일
    ========================= */

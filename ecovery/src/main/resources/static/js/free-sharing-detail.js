@@ -191,9 +191,20 @@ function setupChildReplyEnterEvent(parentId) {
     if (!input) return;
 
     input.addEventListener('keydown', function (e) {
+        // '수정 중' 상태인지 확인하는 변수
+        const isEditing = input.dataset.isEditing === 'true';
+
         if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault(); // 줄바꿈 방지
-            submitChildComment(parentId); // 대댓글 등록 함수 호출
+            e.preventDefault(); // 기본 동작(줄바꿈) 방지
+
+            if (isEditing) {
+                // 수정 중일 때는 수정 완료 함수 호출
+                submitEditedChildComment(parentId); // 예시 함수
+                input.dataset.isEditing = 'false'; // 상태 초기화
+            } else {
+                // 일반적인 대댓글 작성 중일 때는 등록 함수 호출
+                submitChildComment(parentId);
+            }
         }
     });
 }
@@ -294,14 +305,21 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
                         </div>
                     ` : ''}
 
-                    <div class="child-comments" id="child-${parent.replyId}"></div>
-                    
-                    ${loginUserId ? `
-                        <div class="reply-form">
-                            <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
-                            <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
-                        </div>
-                    ` : ''}
+                    <div class="reply-toggle-container">
+                        <button class="reply-toggle-btn" onclick="toggleChildReplies(${parent.replyId})">
+                            대댓글 보기
+                        </button>
+                    </div>
+
+                    <div class="child-reply-section" id="child-reply-section-${parent.replyId}" style="display: none;">
+                        <div class="child-comments" id="child-${parent.replyId}"></div>
+                        ${loginUserId ? `
+                            <div class="reply-form">
+                                <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
+                                <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
+                            </div>
+                        ` : ''}
+                    </div>
                 `;
                 list.appendChild(parentDiv);
 
@@ -342,6 +360,20 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
             renderReplyPagination(data.total, freeId, sortType);
         })
         .catch(error => console.error('Error fetching comments:', error));
+}
+
+// 대댓글 목록 토글 함수
+function toggleChildReplies(parentId) {
+    const childReplySection = document.getElementById(`child-reply-section-${parentId}`);
+    const toggleBtn = document.querySelector(`.reply-toggle-container button`);
+
+    if (childReplySection.style.display === 'none') {
+        childReplySection.style.display = 'block';
+        toggleBtn.textContent = '대댓글 숨기기';
+    } else {
+        childReplySection.style.display = 'none';
+        toggleBtn.textContent = '대댓글 보기';
+    }
 }
 
 // 조회수 증가
@@ -500,10 +532,15 @@ function toggleEdit(replyId) {
         if (registerBtn) {
             registerBtn.remove();
         }
+
+        //Enter 키 이벤트 리스너 제거 (중복 방지)
+        textareaEl.removeEventListener('keydown', handleEnterKey);
+
     } else {
         // 편집모드 시작
         textareaEl.style.display = 'block';
         contentEl.style.display = 'none';
+        textareaEl.focus();
 
         // 등록 버튼 동적으로 생성
         if (!document.getElementById(`register-${replyId}`)) {
@@ -517,8 +554,38 @@ function toggleEdit(replyId) {
 
             textareaEl.parentNode.insertBefore(registerBtn, textareaEl.nextSibling);
         }
+
+        // ️Enter 키 이벤트 리스너 추가
+        textareaEl.addEventListener('keydown', handleEnterKey);
     }
 }
+
+//️ Enter 키 이벤트 핸들러
+function handleEnterKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // 줄바꿈 방지
+        const replyId = this.id.split('-')[1];
+        submitEdit(replyId);
+    }
+}
+
+// ️수정 내용을 서버에 전송하는 함수 (예시)
+function submitEdit(replyId) {
+    const textareaEl = document.getElementById(`edit-${replyId}`);
+    const newContent = textareaEl.value.trim();
+
+    if (newContent === '') {
+        alert('내용을 입력해주세요.');
+        return;
+    }
+
+    // UI 즉시 업데이트 및 수정 모드 종료
+    const contentEl = document.getElementById(`content-${replyId}`);
+    contentEl.textContent = newContent;
+    toggleEdit(replyId);
+}
+
+
 
 // =========================
 // 댓글 수정 제출

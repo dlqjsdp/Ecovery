@@ -156,6 +156,8 @@ function createItemElement(item) {
     const card = document.createElement('div');
     card.className = 'sharing-card';
 
+    const statusClass = getStatusClass(item.dealStatus);
+
     // ✅ 개선사항 1: 거래상태를 조회수 옆으로 이동하여 레이아웃 개선
     card.innerHTML = `
         <div class="item-image">
@@ -195,7 +197,7 @@ function createItemElement(item) {
 function getStatusClass(status) {
     switch (status) {
         case 'ONGOING': return 'available';
-        case 'DONE': return 'completed';
+        case 'DONE': return 'reserved';
         default: return 'available';
     }
 }
