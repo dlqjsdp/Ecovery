@@ -30,7 +30,7 @@ public interface FreeImgMapper {
 
     public FreeImgDto getRepImg(Long freeId);            // 대표 이미지 조회 (썸네일용)
 
-    public void setRepImg(Long freeImgId);              // 대표 이미지로 설정 (free_img_id기준)
+    public void setRepImg(Long freeImgId, String repImgYn);              // 대표 이미지로 설정 (free_img_id기준)
 
-    public int deleteAllByFreeId(Long freeId);         // 특정 게시글에 속한 모든 이미지 삭제
+    //public int deleteAllByFreeId(Long freeId);         // 특정 게시글에 속한 모든 이미지 삭제
 }
