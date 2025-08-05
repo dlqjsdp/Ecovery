@@ -97,6 +97,20 @@
 
                     <div class="form-row">
                         <div class="form-label-section">
+                            <label class="form-label">거래상태 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <select class="form-select" th:field="*{dealStatus}" id="dealStatus" required>
+                                <option value="ONGOING" th:selected="${free.dealStatus == T(com.ecovery.constant.DealStatus).ONGOING}">나눔중</option>
+                                <option value="DONE" th:selected="${free.dealStatus == T(com.ecovery.constant.DealStatus).DONE}">나눔 완료</option>
+                            </select>
+                            <div class="error-message" th:if="${#fields.hasErrors('dealStatus')}" th:errors="*{dealStatus}"></div>
+                            <div class="help-text">나눔의 현재 거래 상태를 선택해주세요.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label-section">
                             <label class="form-label">상품상태 <span class="required">*</span></label>
                         </div>
                         <div class="form-input-section">

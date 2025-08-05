@@ -60,7 +60,7 @@
                     <div class="product-header">
                         <div class="product-title-area">
                             <!-- 상태 배지 -->
-                            <div class="status-badge" id="itemStatus">나눔 상태</div>
+                            <div class="status-badge" id="itemStatus" th:text="${board.dealStatus == T(com.ecovery.constant.DealStatus).ONGOING} ? '나눔중' : '나눔 완료'">나눔 상태</div>
                             <!-- 상품 제목 -->
                             <h1 class="product-title" id="itemTitle">제목</h1>
                         </div>
