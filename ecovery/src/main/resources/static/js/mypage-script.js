@@ -1,6 +1,6 @@
 /**
  * ==========================================================================
- * GreenCycle 개선된 마이페이지 JavaScript
+ * ECOVERY 개선된 마이페이지 JavaScript
  * 4x4 그리드 레이아웃과 회원정보 수정 모달창 포함
  * ==========================================================================
  */
@@ -30,7 +30,7 @@ function loadUserPreferences() {}
 
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        console.log('🌱 GreenCycle 개선된 마이페이지 초기화를 시작합니다...');
+        console.log('🌱 ECOVERY 개선된 마이페이지 초기화를 시작합니다...');
 
         // 핵심 기능 초기화
         initializeHeader();              // 헤더 기능 초기화
@@ -58,11 +58,11 @@ document.addEventListener('DOMContentLoaded', function() {
         loadUserPreferences();
 
         isInitialized = true;
-        console.log('🌱 GreenCycle 개선된 마이페이지가 성공적으로 초기화되었습니다.');
+        console.log('🌱 ECOVERY 개선된 마이페이지가 성공적으로 초기화되었습니다.');
 
         // 환영 메시지 표시 (1초 후)
         setTimeout(() => {
-            showNotification('GreenCycle 마이페이지에 오신 것을 환영합니다! 🌱', 'success');
+            showNotification('ECOVERY 마이페이지에 오신 것을 환영합니다! 🌱', 'success');
         }, 1000);
 
     } catch (error) {
@@ -1056,4 +1056,4 @@ window.addEventListener('unhandledrejection', (e) => {
     handleError(new Error(e.reason), 'Unhandled promise rejection');
 });
 
-console.log('🌱 GreenCycle 개선된 마이페이지 JavaScript가 로드되었습니다.');
+console.log('🌱 ECOVERY 개선된 마이페이지 JavaScript가 로드되었습니다.');
