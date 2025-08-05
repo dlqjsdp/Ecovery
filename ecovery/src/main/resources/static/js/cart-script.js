@@ -1,26 +1,11 @@
 let cartItems = [];
 let cartTotal = 0;
-let appliedCoupons = [];
 
 document.addEventListener('DOMContentLoaded', function () {
-    initializeHeader();
     initializeCartItemsFromDOM();
     initializeEventListeners();
     bindDynamicEventListeners();
 });
-
-function initializeHeader() {
-    const header = document.getElementById('header');
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('navMenu');
-    window.addEventListener('scroll', () => {
-        header?.classList.toggle('scrolled', window.scrollY > 100);
-    });
-    hamburger?.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
-}
 
 function initializeCartItemsFromDOM() {
     cartItems = [];
@@ -50,38 +35,6 @@ function initializeCartItemsFromDOM() {
 
 function initializeEventListeners() {
     document.getElementById('selectAll')?.addEventListener('change', toggleSelectAll);
-    document.querySelector('.btn-order')?.addEventListener('click', () => {
-        const selectedItems = cartItems.filter(item => item.selected);
-        if (selectedItems.length === 0) return showNotification("주문할 상품을 선택해주세요.", "warning");
-
-        const orderData = selectedItems.map(item => ({
-            itemId: item.realItemId,
-            count: item.quantity
-        }));
-
-        fetch("/api/order/prepare", {   // ✅ 여기가 핵심: 실제 컨트롤러 경로는 '/api/order/prepare'야!
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"  // ✅ JSON으로 명시
-            },
-            body: JSON.stringify(selectedItems)     // ✅ 배열 형태 그대로 전송
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();             // ✅ 정상 응답이면 JSON 파싱
-                } else {
-                    return response.text().then(text => { throw new Error(text); });
-                }
-            })
-            .then(data => {
-                console.log("✅ 서버 응답:", data);
-                // 예: 주문 확인 페이지로 이동
-                window.location.href = `/order/confirm?orderId=${data.orderId}`; // ← 이건 상황에 따라
-            })
-            .catch(error => {
-                console.error("❌ 주문 요청 실패:", error);
-            });
-    });
 }
 
 function bindDynamicEventListeners() {
@@ -117,20 +70,17 @@ function updateQuantity(cartItemIdToUpdate, change, realItemId) {
 
             fetch(`/cart/update?cartItemId=${cartItemIdToUpdate}&count=${newQuantity}&itemId=${realItemId}`, {
                 method: 'PUT'
-            })
-                .then(response => {
-                    if (response.ok) showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'success');
-                    else {
-                        showNotification('수량 변경 실패! 서버 오류.', 'error');
-                        response.text().then(msg => console.error("서버 오류 메시지:", msg));
-                    }
-                })
-                .catch(err => {
-                    console.error("수량 변경 중 네트워크 오류:", err);
-                    showNotification('수량 변경 중 문제가 발생했습니다.', 'error');
-                });
+            }).then(response => {
+                if (response.ok) {
+                    showNotification(`수량이 ${newQuantity}개로 변경되었습니다.`, 'success');
+                } else {
+                    showNotification('수량 변경 실패! 서버 오류.', 'error');
+                }
+            }).catch(() => {
+                showNotification('수량 변경 중 문제가 발생했습니다.', 'error');
+            });
         } else {
-            showNotification("더 이상 수량을 변경할 수 없습니다. (재고 부족 또는 1개 미만)", 'warning');
+            showNotification("더 이상 수량을 변경할 수 없습니다.", 'warning');
         }
     } else {
         showNotification("장바구니 아이템 정보를 찾을 수 없습니다.", 'error');
@@ -155,16 +105,11 @@ function toggleItemSelection(index) {
 function updateCartSummary() {
     const selectedItems = cartItems.filter(item => item.selected);
     const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    let finalTotal = subtotal;
-    appliedCoupons.forEach(coupon => {
-        if (coupon.type === 'percentage') finalTotal *= (1 - coupon.value / 100);
-        else if (coupon.type === 'fixed') finalTotal = Math.max(0, finalTotal - coupon.value);
-    });
     document.getElementById('subtotal').textContent = formatPrice(subtotal);
-    document.getElementById('discount').textContent = formatPrice(subtotal - finalTotal);
-    document.getElementById('total').textContent = formatPrice(finalTotal);
-    document.querySelector('.btn-order').textContent = `🛒 주문하기 (${formatPrice(finalTotal)})`;
-    cartTotal = finalTotal;
+    document.getElementById('discount').textContent = formatPrice(0); // 할인 없음
+    document.getElementById('total').textContent = formatPrice(subtotal);
+    document.getElementById('pricetotal').textContent = formatPrice(subtotal);
+    cartTotal = subtotal;
 }
 
 function updateSelectedCount() {
@@ -173,12 +118,13 @@ function updateSelectedCount() {
 }
 
 function formatPrice(price) {
-    return new Intl.NumberFormat('ko-KR').format(Math.round(price)) + '원';
+    return new Intl.NumberFormat('ko-KR').format(price) + '원';
 }
 
 function showNotification(message, type = 'success') {
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
+
     const n = document.createElement('div');
     n.className = `notification ${type}`;
     n.textContent = message;
@@ -210,4 +156,54 @@ function getNotificationColor(type) {
 
 function goToMarket() {
     window.location.href = "/eco/list";
+}
+
+// ✅ 주문 form 동적 구성 및 제출 함수 (최종 수정)
+function submitOrderForm() {
+    const selectedItems = cartItems.filter(item => item.selected);
+    if (selectedItems.length === 0) {
+        showNotification("주문할 상품을 선택해주세요.", "warning");
+        return;
+    }
+
+    // `OrderViewController.preparePage`가 기대하는 `OrderItemRequestDto` 형식에 맞게
+    // 첫 번째 아이템의 정보만 추출하여 폼을 동적으로 생성
+    const firstItem = selectedItems[0];
+
+    // 기존의 form이 있다면 제거하고 새로 생성
+    let form = document.getElementById('tempOrderForm');
+    if (form) {
+        form.remove();
+    }
+
+    form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/order/prepare';
+    form.id = 'tempOrderForm';
+    form.style.display = 'none';
+
+    // hidden input 필드 추가
+    const itemIdInput = document.createElement('input');
+    itemIdInput.type = 'hidden';
+    itemIdInput.name = 'itemId';
+    itemIdInput.value = firstItem.realItemId;
+    form.appendChild(itemIdInput);
+
+    const countInput = document.createElement('input');
+    countInput.type = 'hidden';
+    countInput.name = 'count';
+    countInput.value = firstItem.quantity;
+    form.appendChild(countInput);
+
+    document.body.appendChild(form);
+
+    // 주문 페이지로 이동하기 전, 모든 상품 정보를 sessionStorage에 저장
+    const orderItemRequests = selectedItems.map(item => ({
+        itemId: item.realItemId,
+        count: item.quantity
+    }));
+    sessionStorage.setItem("allSelectedItems", JSON.stringify(orderItemRequests));
+
+    // 폼 제출 (POST 요청)
+    form.submit();
 }
