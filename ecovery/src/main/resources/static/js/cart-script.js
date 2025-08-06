@@ -87,6 +87,43 @@ function updateQuantity(cartItemIdToUpdate, change, realItemId) {
     }
 }
 
+function deleteSelected() {
+    const selectedCartItemIds = cartItems.filter(item => item.selected).map(item => item.cartItemId);
+
+    if (selectedCartItemIds.length === 0) {
+        showNotification("삭제할 상품을 선택해주세요.", "warning");
+        return;
+    }
+
+    // 모든 삭제 요청을 Promise 배열로 만들어 실행
+    const deletePromises = selectedCartItemIds.map(id => {
+        return fetch(`/cart/delete/${id}`, { method: 'DELETE' });
+    });
+
+    Promise.all(deletePromises)
+        .then(responses => {
+            // 응답 중 실패가 있는지 체크
+            if (responses.every(response => response.ok)) {
+                // 모두 성공 시 클라이언트 상태 및 DOM 업데이트
+                cartItems = cartItems.filter(item => !selectedCartItemIds.includes(item.cartItemId));
+                selectedCartItemIds.forEach(id => {
+                    const el = document.querySelector(`.cart-item[data-item-id="${id}"]`);
+                    if (el) el.remove();
+                });
+                updateSelectedCount();
+                updateCartSummary();
+                showNotification(`${selectedCartItemIds.length}개의 상품이 삭제되었습니다.`, 'success');
+            } else {
+                showNotification('일부 상품 삭제에 실패했습니다.', 'error');
+            }
+        })
+        .catch(() => {
+            showNotification('상품 삭제 중 오류가 발생했습니다.', 'error');
+        });
+}
+
+
+
 function toggleSelectAll() {
     const isChecked = document.getElementById('selectAll').checked;
     cartItems.forEach(item => item.selected = isChecked);

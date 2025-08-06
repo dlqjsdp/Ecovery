@@ -59,11 +59,11 @@ CREATE TABLE disposal_history_img (
 
 -- 대형폐기물 분류 피드백 table
 create table disposal_feedback (
-	disposal_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    history_id BIGINT NOT NULL,
+	feedback_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    disposal_history_id BIGINT NOT NULL,
     member_id BIGINT,
     created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
-    FOREIGN KEY (history_id) REFERENCES disposal_history(disposal_history_id),
+    FOREIGN KEY (disposal_history_id) REFERENCES disposal_history(disposal_history_id),
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );
 

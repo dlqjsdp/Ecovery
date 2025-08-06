@@ -194,20 +194,29 @@ async function loadOrderData() {
     try {
         console.log('🚀 주문 데이터 로드 시작...');
 
-        let json = document.getElementById('orderItemRequests').value;
+        let orderItemRequests;
+        const allSelectedItems = sessionStorage.getItem("allSelectedItems");
 
-        //value가 없으면 localStorage에서 복구
-        if (!json || json.trim().length === 0) {
-            json = localStorage.getItem('savedOrderItemRequests');
-            if(!json) throw new Error('❌ 주문 상품 정보를 찾을 수 없습니다.');
-            document.getElementById('orderItemRequests').value = json;  //다시 채워줌
+        // 1. 장바구니에서 온 경우: sessionStorage의 데이터를 사용
+        if (allSelectedItems) {
+            orderItemRequests = JSON.parse(allSelectedItems);
+            // 사용 후 데이터 삭제
+            sessionStorage.removeItem("allSelectedItems");
+
+            console.log('✅ sessionStorage에서 장바구니 주문 데이터를 불러왔습니다.');
+        }
+        // 2. 상세 페이지에서 온 경우: hidden input의 데이터를 사용
+        else {
+            const json = document.getElementById('orderItemRequests')?.value;
+            if (!json || json.trim().length === 0) {
+                throw new Error('❌ 주문 상품 정보를 찾을 수 없습니다.');
+            }
+            orderItemRequests = JSON.parse(json);
+
+            console.log('✅ HTML hidden input에서 바로 구매 주문 데이터를 불러왔습니다.');
         }
 
-        //주문 요청 정보를 localStorage에 저장
-        localStorage.setItem('savedOrderItemRequests', json);
-
-        const orderItemRequests = JSON.parse(json);
-
+        // OrderApiController.prepareOrder API 호출 (두 경우 모두 동일하게 동작)
         const response = await fetch('/api/order/prepare', {
             method: 'POST',
             headers: {
@@ -220,16 +229,16 @@ async function loadOrderData() {
             throw new Error('❌ 주문 데이터를 불러오는 데 실패했습니다.');
         }
 
-        const orderData = await response.json();        //응답객체 OrderDto를 파싱
-        window.orderDtoFromServer = orderData;          //전역에 저장
-        displayOrderData(orderData);    // 주문 정보를 화면에 표시
+        const orderData = await response.json();
+        window.orderDtoFromServer = orderData;
+        displayOrderData(orderData);
         console.log(`✅ 주문 데이터 로드 완료`);
 
         return orderData;
 
     } catch (error) {
         handleError(error, 'Order data loading fail');
-        //에러 발생 시 마이페이지로 리다이렉트
+        // 에러 발생 시 마이페이지로 리다이렉트
         setTimeout(() => {
             window.location.href = '/mypage';
         }, 3000);
