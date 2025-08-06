@@ -180,6 +180,7 @@ function renderPagination(pageMaker, itemNm, category) {
     const total = Math.ceil(pageMaker.total / pageMaker.cri.amount);
 
     //이전 페이지 버튼
+    pageMaker.prev = current > 1;
     const prevBtn  = createPaginationButton("<", current -1, !pageMaker.prev, false, itemNm, category);
     pagination.appendChild(prevBtn);
 
@@ -199,6 +200,7 @@ function renderPagination(pageMaker, itemNm, category) {
     });
 
     //다음 페이지 버튼
+    pageMaker.next = current < total;
     const nextBtn = createPaginationButton("›", current + 1, !pageMaker.next, false, itemNm, category);
     pagination.appendChild(nextBtn);
 }
@@ -209,13 +211,12 @@ function createPaginationButton(text, pageNum, disabled = false, active = false,
     button.className = `pagination-btn ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
     button.textContent = text;
     
-    // 비활성 상태가 아닌 경우 클릭 이벤트 추가
-    if (!disabled) {
+    // 비활성 상태가 아닌 경우 클릭 이벤트 
         button.addEventListener('click', () => {
+            if(disabled) return;         //내부에서 클릭제한
             loadItems(pageNum, itemNm, category);
             window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 상단으로 스크롤
         });
-    }
     
     return button;
 }
