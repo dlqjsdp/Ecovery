@@ -21,7 +21,7 @@ CREATE TABLE disposal_history (
     disposal_history_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     ai_prediction VARCHAR(255),
-	final_item varchar(255) NOT NULL,
+	final_item varchar(255),
     region_gu VARCHAR(50) NOT NULL,
 	ai_confidence DOUBLE,
     created_at DATE NOT NULL DEFAULT (CURRENT_DATE),
@@ -70,7 +70,7 @@ CREATE TABLE free (
     item_condition ENUM('HIGH', 'MEDIUM', 'LOW') NOT NULL DEFAULT 'HIGH',
     deal_status ENUM('ONGOING', 'DONE') NOT NULL DEFAULT 'ONGOING',
     view_count INT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES member(member_id)
 );
 
@@ -154,7 +154,7 @@ create table orders (
     order_id bigint auto_increment primary key,
     member_id bigint not null,
     order_uuid varchar(100) not null unique,
-    order_status enum('READY','ORDER','CANCEL' not null default 'READY',
+    order_status ENUM('READY', 'ORDER', 'CANCEL') NOT NULL DEFAULT 'READY',
     created_at date not null default (current_date),
     updated_at date not null default (current_date),
     name varchar(50) NOT NULL,
