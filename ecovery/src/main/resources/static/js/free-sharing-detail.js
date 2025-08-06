@@ -36,7 +36,7 @@ function formatTimeAgo(dateTime){
 
 // 전역 변수 선언 (item을 여기에 선언)
 let item = null; // 게시글 데이터를 저장할 전역 변수
-let currentPage = 1;
+let currentPage  = 1;
 const amountPerPage = 10; // 한 페이지에 몇 개씩 보여줄지
 let currentSortType = 'recent'; // 정렬 방식
 
@@ -225,12 +225,12 @@ function renderReplyPagination(totalCount, freeId, sortType) {
     // 이전 버튼
     const prevBtn = document.createElement('button');
     prevBtn.textContent = '이전';
-    prevBtn.classList.add('page-btn', 'prev-btn'); // 클래스 추가
-    prevBtn.disabled = currentPage === 1; // 첫 페이지일 때 비활성화
+    prevBtn.classList.add('page-btn', 'prev-btn');
+    prevBtn.disabled = currentPage  === 1; // 변수명 변경
     prevBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            loadComments(freeId, sortType, currentPage, amountPerPage);
+        if (currentPage  > 1) {
+            currentPage --; // 변수명 변경
+            loadComments(freeId, sortType, currentPage , amountPerPage);
         }
     });
     paginationContainer.appendChild(prevBtn);
@@ -240,16 +240,16 @@ function renderReplyPagination(totalCount, freeId, sortType) {
     for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
-        btn.classList.add('page-btn'); // 모든 페이지 버튼에 기본 스타일 적용
-        btn.disabled = i === currentPage; // 현재 페이지는 비활성화
+        btn.classList.add('page-btn');
+        btn.disabled = i === currentPage ; // 변수명 변경
 
-        if (i === currentPage) {
-            btn.classList.add('active'); // 현재 페이지에 'active' 클래스 추가
+        if (i === currentPage ) { // 변수명 변경
+            btn.classList.add('active');
         }
 
         btn.addEventListener('click', () => {
-            currentPage = i;
-            loadComments(freeId, sortType, currentPage, amountPerPage);
+            currentPage  = i; // 변수명 변경
+            loadComments(freeId, sortType, currentPage , amountPerPage);
         });
         paginationContainer.appendChild(btn);
     }
@@ -257,21 +257,21 @@ function renderReplyPagination(totalCount, freeId, sortType) {
     // 다음 버튼
     const nextBtn = document.createElement('button');
     nextBtn.textContent = '다음';
-    nextBtn.classList.add('page-btn', 'next-btn'); // 클래스 추가
-    nextBtn.disabled = currentPage === totalPages; // 마지막 페이지일 때 비활성화
+    nextBtn.classList.add('page-btn', 'next-btn');
+    nextBtn.disabled = currentPage  === totalPages; // 변수명 변경
     nextBtn.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            loadComments(freeId, sortType, currentPage, amountPerPage);
+        if (currentPage  < totalPages) {
+            currentPage ++; // 변수명 변경
+            loadComments(freeId, sortType, currentPage , amountPerPage);
         }
     });
     paginationContainer.appendChild(nextBtn);
 }
 
 // 댓글 목록 불러오는 함수
-function loadComments(freeId, sortType = currentSortType, page = currentPage) {
+function loadComments(freeId, sortType = currentSortType, page = currentPage, amount = amountPerPage) {
 
-    if (!freeId){
+    if (!freeId) {
         console.log("freeId가 null이거나 유효하지 않아 댓글을 불러올 수 없습니다.");
         return;
     }
@@ -279,94 +279,78 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage) {
     // 전역 변수 활용
     currentSortType = sortType;
     currentPage = page;
-    currentFreeId = freeId; //❤️
+    currentFreeId = freeId;
 
-    fetch(`/api/replies/parent/${freeId}?sortType=${sortType}&page=${page}&amount=${amountPerPage}`)
+    fetch(`/api/replies/parent/${freeId}?sortType=${sortType}&page=${page}&amount=${amount}`)
         .then(response => response.json())
         .then(data => {
 
             console.log('loginUserId:', loginUserId);
             console.log('loginUserRole:', loginUserRole);
+            console.log('서버 응답 데이터:', data); // 서버 응답 데이터 확인용 로그
 
             const list = document.getElementById('commentList');
-            if (!list) { // commentList 요소가 없을 경우 에러 방지
+            if (!list) {
                 console.error("commentList 요소를 찾을 수 없습니다.");
                 return;
             }
-            list.innerHTML = ''; // 기존 댓글 초기화
+            list.innerHTML = '';
 
-            data.list.forEach(parent => {
-                const parentDiv = document.createElement('div');
-                parentDiv.className = 'comment-item';
-                parentDiv.id = `comment-item-${parent.replyId}`; // ✨ 이 줄이 추가되었습니다.
-                parentDiv.innerHTML = `
-                    <div class="comment-header"> <!-- ✨ 이 div를 추가합니다. -->
-                        <p class="comment-author">${parent.nickname}</p>
-                    </div>
-                    <p class="comment-content" id="content-${parent.replyId}">${parent.content}</p>
-                    <textarea class="edit-textarea" id="edit-${parent.replyId}" style="display: none;">${parent.content}</textarea>
-                    <p class="comment-date">${formatTimeAgo(parent.createdAt)}</p>
-
-                    ${loginUserId === parent.memberId || loginUserRole === 'ADMIN' ? `
-                        <div class="comment-actions">
-                            <button class="comment-action-btn reply-btn" onclick="toggleEdit(${parent.replyId})">수정</button>
-                            <button class="comment-action-btn" onclick="deleteComment(${parent.replyId}, false)">삭제</button>
+            // 댓글이 없을 경우 처리
+            if (data.list.length === 0) {
+                list.innerHTML = '<p class="no-comments">아직 댓글이 없습니다.</p>';
+            } else {
+                data.list.forEach(parent => {
+                    const parentDiv = document.createElement('div');
+                    parentDiv.className = 'comment-item';
+                    parentDiv.id = `comment-item-${parent.replyId}`;
+                    parentDiv.innerHTML = `
+                        <div class="comment-header">
+                            <p class="comment-author">${parent.nickname}</p>
                         </div>
-                    ` : ''}
+                        <p class="comment-content" id="content-${parent.replyId}">${parent.content}</p>
+                        <textarea class="edit-textarea" id="edit-${parent.replyId}" style="display: none;">${parent.content}</textarea>
+                        <p class="comment-date">${formatTimeAgo(parent.createdAt)}</p>
 
-                    <div class="reply-toggle-container" id="reply-toggle-section-${parent.replyId}">
-                        <button class="reply-toggle-btn" onclick="toggleChildReplies(${parent.replyId})">
-                            대댓글 보기
-                        </button>
-                    </div>
-
-                    <div class="child-reply-section" id="child-reply-section-${parent.replyId}" style="display: none;">
-                        <div class="child-comments" id="child-${parent.replyId}"></div>
-                        ${loginUserId ? `
-                            <div class="reply-form">
-                                <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
-                                <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
+                        ${loginUserId === parent.memberId || loginUserRole === 'ADMIN' ? `
+                            <div class="comment-actions">
+                                <button class="comment-action-btn reply-btn" onclick="toggleEdit(${parent.replyId})">수정</button>
+                                <button class="comment-action-btn" onclick="deleteComment(${parent.replyId}, false)">삭제</button>
                             </div>
                         ` : ''}
-                    </div>
-                `;
-                list.appendChild(parentDiv);
 
-                // Enter 키로 대댓글 등록 이벤트 연결
-                if (loginUserId) {
-                    setupChildReplyEnterEvent(parent.replyId);
-                }
+                        <div class="reply-toggle-container" id="reply-toggle-section-${parent.replyId}">
+                            <button class="reply-toggle-btn" onclick="toggleChildReplies(${parent.replyId})">
+                                대댓글 보기
+                            </button>
+                        </div>
 
-            //     // 대댓글 불러오기
-                //             //     fetch(`/api/replies/child/${parent.replyId}`)
-                //             //         .then(res => res.json())
-                //             //         .then(childReplies => {
-                //             //             const childContainer = document.getElementById(`child-${parent.replyId}`);
-                //             //             if (childContainer) {
-                //             //                 childReplies.forEach(child => {
-                //                     const childDiv = document.createElement('div');
-                //                     childDiv.className = 'child-comment-item';
-                //                     childDiv.innerHTML = `
-                //                         <p class="child-author">↳ ${child.nickname}</p>
-                //                         <p class="child-content" id="content-${child.replyId}">${child.content}</p>
-            //                         <textarea class="edit-textarea" id="edit-${child.replyId}" style="display: none;">${child.content}</textarea>
-            //                         <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
-            //
-            //                         ${loginUserId === child.memberId || loginUserRole === 'ADMIN' ? `
-            //                             <div class="comment-actions">
-            //                                 <button class="comment-action-btn reply-btn" onclick="toggleEdit(${child.replyId})">수정</button>
-            //                                 <button class="comment-action-btn" onclick="deleteComment(${child.replyId}, true)">삭제</button>
-            //                             </div>
-            //                         ` : ''}
-            //                     `;
-            //                     childContainer.appendChild(childDiv);
-            //                 });
-            //             }
-            //         })
-            //         .catch(error => console.error('Error fetching child replies:', error));
-            });
-            // 페이징 렌더링
-            // renderReplyPagination(data.total, freeId, sortType);
+                        <div class="child-reply-section" id="child-reply-section-${parent.replyId}" style="display: none;">
+                            <div class="child-comments" id="child-${parent.replyId}"></div>
+                            ${loginUserId ? `
+                                <div class="reply-form">
+                                    <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
+                                    <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    list.appendChild(parentDiv);
+
+                    if (loginUserId) {
+                        setupChildReplyEnterEvent(parent.replyId);
+                    }
+                });
+            }
+
+            // // 페이지 이동 시 댓글 목록의 상단으로 스크롤
+            // const commentList = document.getElementById('commentList');
+            // if (commentList) {
+            //     commentList.scrollIntoView({ behavior: 'smooth' });
+            // }
+
+            // ⭐ forEach 루프 밖에서 페이징 렌더링 함수를 한 번만 호출
+            renderReplyPagination(data.total, freeId, sortType);
         })
         .catch(error => console.error('Error fetching comments:', error));
 }
@@ -510,7 +494,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderImages(item.imgList);
 
         // 댓글 목록 기본 정렬 (최신순)
-        loadComments(item.freeId, 'recent');
+        loadComments(item.freeId, 'recent', currentPage, amountPerPage);
 
         // 댓글 등록 이벤트 연결
         const submitCommentBtn = document.getElementById('submitCommentBtn');
