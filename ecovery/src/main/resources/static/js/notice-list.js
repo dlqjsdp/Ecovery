@@ -11,6 +11,8 @@
  *     - 250731 | yukyeong | 수정일 우선 표시 로직 적용 (updatedAt 우선 표시)
  *     - 250731 | yukyeong | 카테고리 탭 필터링 기능 추가 (dataset.category 기반)
  *     - 250731 | yukyeong | HTML 클래스명 변경 (post-* → notice-*), CSS 스타일 연동 완료
+ *     - 250806 | yukyeong | 목록 초기화 시 쿼리스트링(pageNum, keyword, category) 기반 렌더링 처리
+ *                         | 상세 페이지에서 목록 복귀 시 검색어·카테고리·페이지 유지
  */
 
 // HTML 문서의 모든 요소가 완전히 로딩된 후에 실행할 코드
@@ -29,7 +31,26 @@ document.addEventListener("DOMContentLoaded", function () { // 웹 페이지의 
         });
     });
 
-    loadNoticeList(); // 페이지 처음 열렸을 때, 검색 조건 없이 전체 게시글 목록을 가져옴
+    // ✅ 쿼리 파라미터 기반 초기값 설정
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageNum = parseInt(urlParams.get("pageNum")) || 1;
+    const keyword = urlParams.get("keyword") || "";
+    const category = urlParams.get("category") || "";
+
+    // 검색어 입력창 초기화
+    document.getElementById("searchInput").value = keyword;
+
+    // 카테고리 탭 초기화
+    if (category) {
+        const selectedTab = document.querySelector(`.category-tab[data-category="${category}"]`);
+        if (selectedTab) {
+            document.querySelectorAll(".category-tab").forEach(t => t.classList.remove("active"));
+            selectedTab.classList.add("active");
+        }
+    }
+
+    // 페이지 번호 기반으로 목록 불러오기
+    loadNoticeList(pageNum);
 }) // DOMContentLoaded의 끝 — HTML 로딩 후 실행되는 초기화 작업 완료
 
 
@@ -96,7 +117,17 @@ function viewPost(noticeId) { // 사용자가 게시글 목록에서 글을 클�
     const keyword = document.getElementById("searchInput").value.trim(); // 검색창에 입력된 검색어를 가져옴
     const pageNum = document.querySelector(".page-btn.active")?.textContent || 1; // 현재 페이지 번호를 가져옴
 
+    // ✅ 현재 선택된 카테고리 가져오기 (이게 빠졌음!)
+    const selectedCategoryBtn = document.querySelector(".category-tab.active");
+    const category = selectedCategoryBtn?.dataset.category || "";
+
     let url = `/notice/get?noticeId=${noticeId}&pageNum=${pageNum}`; // 상세 페이지의 URL을 만듦
+
+    // ✅ 카테고리 파라미터 추가
+    if (category && category !== "all") {
+        url += `&category=${category}`;
+    }
+
     if (keyword) { // 검색어가 입력되어 있다면
         url += `&type=TCW&keyword=${encodeURIComponent(keyword)}`; // URL에 검색 조건을 추가
     }

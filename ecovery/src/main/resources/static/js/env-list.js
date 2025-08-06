@@ -9,6 +9,8 @@
  * @history
  *    - 250722 | yukyeong | 게시글 목록 비동기 로딩, 검색, 페이징 기능 구현
  *    - 250731 | yukyeong | 수정일이 존재할 경우 목록에도 수정일 우선 표시되도록 개선
+ *    - 250806 | yukyeong | 목록 초기화 시 쿼리스트링(pageNum, keyword, category) 기반 렌더링 처리
+ *                        | 상세 페이지에서 목록 복귀 시 검색어·카테고리·페이지 유지
  */
 
 // HTML 문서의 모든 요소가 완전히 로딩된 후에 실행할 코드
@@ -27,7 +29,25 @@ document.addEventListener("DOMContentLoaded", function () { // 웹 페이지의 
         });
     });
 
-    loadEnvList(); // 페이지 처음 열렸을 때, 검색 조건 없이 전체 게시글 목록을 가져옴
+    // ✅ 여기 추가: URL 파라미터 기반 초기화
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageNum = parseInt(urlParams.get("pageNum")) || 1;
+    const keyword = urlParams.get("keyword") || "";
+    const category = urlParams.get("category") || "";
+
+    // 검색창에 값 설정
+    document.getElementById("searchInput").value = keyword;
+
+    // 카테고리 탭 선택 반영
+    if (category) {
+        const selectedTab = document.querySelector(`.category-tab[data-category="${category}"]`);
+        if (selectedTab) {
+            document.querySelectorAll(".category-tab").forEach(t => t.classList.remove("active"));
+            selectedTab.classList.add("active");
+        }
+    }
+    // ✅ pageNum 기반으로 목록 불러오기
+    loadEnvList(pageNum); // 페이지 처음 열렸을 때, 검색 조건 없이 전체 게시글 목록을 가져옴
 }) // DOMContentLoaded의 끝 — HTML 로딩 후 실행되는 초기화 작업 완료
 
 
@@ -94,7 +114,17 @@ function viewPost(envId) { // 사용자가 게시글 목록에서 글을 클릭�
     const keyword = document.getElementById("searchInput").value.trim(); // 검색창에 입력된 검색어를 가져옴
     const pageNum = document.querySelector(".page-btn.active")?.textContent || 1; // 현재 페이지 번호를 가져옴
 
+    // ✅ 현재 선택된 카테고리 가져오기 (이게 빠졌음!)
+    const selectedCategoryBtn = document.querySelector(".category-tab.active");
+    const category = selectedCategoryBtn?.dataset.category || "";
+
     let url = `/env/get?envId=${envId}&pageNum=${pageNum}`; // 상세 페이지의 URL을 만듦
+
+    // ✅ 카테고리 파라미터 추가
+    if (category && category !== "all") {
+        url += `&category=${category}`;
+    }
+
     if (keyword) { // 검색어가 입력되어 있다면
         url += `&type=TCW&keyword=${encodeURIComponent(keyword)}`; // URL에 검색 조건을 추가
     }

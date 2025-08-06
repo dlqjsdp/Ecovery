@@ -18,6 +18,8 @@
                             - roleMap 추가로 관리자/사용자 역할 표시
                             - avatar 기본 이모지 설정
                             - notice-role, notice-avatar 요소에 값 바인딩 추가
+     - 250806 | yukyeong | 목록 이동 시 검색어·카테고리·페이지 상태 유지 처리
+                            - backToListBtn 클릭 시 URL 파라미터 기반 이동
 
  */
 
@@ -33,6 +35,20 @@ const categoryMap = {
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const noticeId = urlParams.get("noticeId");
+
+    // ✅ 목록으로 돌아가기 버튼 처리
+    const backBtn = document.getElementById("backToListBtn");
+    if (backBtn) {
+        const pageNum = urlParams.get("pageNum") || 1;
+        const keyword = urlParams.get("keyword") || '';
+        const type = urlParams.get("type") || '';
+        const category = urlParams.get("category") || '';
+
+        const backUrl = `/notice/list?pageNum=${pageNum}&keyword=${encodeURIComponent(keyword)}&type=${type}&category=${category}`;
+        backBtn.addEventListener("click", function () {
+            window.location.href = backUrl;
+        });
+    }
 
     if (!noticeId) {
         alert("잘못된 접근입니다.");

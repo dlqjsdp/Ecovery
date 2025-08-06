@@ -16,6 +16,7 @@ GreenCycle 환경톡톡 게시글 상세보기
                           - 공지사항 조회 전용 notice-get.js 연동
     - 250802 | yukyeong | 작성자 정보(author-info) 영역 구조 개선 : 아바타, 작성자명, 권한(role) 요소 분리 및 ID 지정
     - 250802 | yukyeong | 관리자 전용 영역 제목(admin-actions-title) 블록 추가
+    - 250806 | yukyeong | "목록으로 돌아가기" 버튼 클릭 시 쿼리스트링(pageNum, keyword, category) 반영되도록 개선
 -->
 
 <!DOCTYPE html>
@@ -61,7 +62,7 @@ GreenCycle 환경톡톡 게시글 상세보기
             <!-- 공지사항 상세 메인 콘텐츠 -->
             <div class="notice-detail-main fade-in">
                 <!-- 뒤로가기 버튼 -->
-                <button class="back-btn" onclick="history.back()">
+                <button class="back-btn" id="backToListBtn">
                     ← 목록으로 돌아가기
                 </button>
 
