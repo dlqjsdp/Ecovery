@@ -35,7 +35,7 @@
         <div class="container">
             <!-- 🔥 수정: 목록으로 돌아가는 버튼 추가 -->
             <div class="back-to-list">
-                <a th:href="@{/free/list}" class="back-btn">
+                <a th:href="@{/free/list(page=${page})}" class="back-btn">
                     <span class="icon">←</span>
                     목록보기
                 </a>

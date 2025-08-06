@@ -59,7 +59,7 @@ public class FreeController {
 
     //무료나눔 상세 페이지
     @GetMapping("/get/{freeId}")
-    public String get(@PathVariable Long freeId, Principal principal, Model model) {
+    public String get(@PathVariable Long freeId, @RequestParam(defaultValue = "1") int page, Principal principal, Model model) {
         // 게시글 정보 조회 (board.nickname 등 포함)
         FreeDto board = freeService.get(freeId);
         model.addAttribute("board", board); // Thymeleaf에서 board.nickname 등 사용
@@ -83,6 +83,9 @@ public class FreeController {
 
         model.addAttribute("loginMemberNickname", loginMemberNickname);
         model.addAttribute("loginMemberRole", loginMemberRole);
+
+        // 페이지 정보를 모델에 추가
+        model.addAttribute("page", page);
 
         return "free/get";
     }
