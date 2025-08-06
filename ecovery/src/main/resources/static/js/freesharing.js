@@ -45,7 +45,8 @@ function formatTimeAgo(dateTime){
 
 // 전역 변수 선언
 let currentItems = [];  // 현재 페이지의 나눔 게시글 데이터를 담는 배열 (서버 응답)
-let currentPage = 1;  // 현재 보고 있는 페이지 번호 (페이징용)
+const urlParams = new URLSearchParams(window.location.search);
+let currentPage =  parseInt(urlParams.get('page')) || 1;   // 현재 보고 있는 페이지 번호 (페이징용)
 const itemsPerPage = 8; // 한 페이지당 보여줄 게시글 수 (8개로 고정)
 let totalPages = 1;   // 서버에서 받은 총 페이지 수
 
@@ -186,7 +187,7 @@ function createItemElement(item) {
         card.style.transform = 'scale(0.98)';
         setTimeout(() => {
             card.style.transform = '';
-            window.location.href = `/free/get/${item.freeId}`;
+            window.location.href = `/free/get/${item.freeId}?page=${currentPage}`;
         }, 150);
     });
 
@@ -384,6 +385,15 @@ function createPaginationButton(text, pageNum, disabled = false, active = false)
                 button.style.transform = '';
             }, 150);
 
+            // URL을 업데이트하는 코드 추가
+            // URL 파라미터에 'page' 번호를 추가
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', pageNum);
+            window.history.pushState({}, '', url.href);
+
+            // currentPage 변수도 업데이트
+            currentPage = pageNum;
+
             await loadPage(pageNum); // 서버에서 해당 페이지 데이터
             window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 상단으로 스크롤
         });
@@ -434,9 +444,8 @@ function generatePageNumbers(current, total) {
 
 // 무료나눔 게시판에서 검색 필터링 기능을 수행하는 함수 (이제 단순히 loadPage(1) 호출)
 function applyFilters() {
-    loadPage(1); // 검색/필터 변경 시 항상 1페이지로 돌아가도록
+    loadPage(currentPage); // 검색/필터 변경 시에도 현재 페이지에 머무르도록함
 }
-
 // Apply sorting (정렬 기준 필드는 서버에 따라 달라질 수 있음)
 function applySorting() {
     const sortBy = document.getElementById('sortSelect').value;
