@@ -96,7 +96,7 @@ CREATE TABLE free_reply (
    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    FOREIGN KEY (free_id) REFERENCES free(free_id) ON DELETE CASCADE,
    FOREIGN KEY (member_id) REFERENCES member(member_id),
-   FOREIGN KEY (parent_id) REFERENCES free_reply(reply_id)
+   FOREIGN KEY (parent_id) REFERENCES free_reply(reply_id) ON DELETE CASCADE
 );
 
 -- 에코마켓 상품 정보 table (item)
