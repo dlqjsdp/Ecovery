@@ -11,6 +11,7 @@ GreenCycle 환경톡톡 게시글 상세보기
     - 250730 | yukyeong | 상세페이지 전체 구조 전면 수정 (레이아웃 개선, 관리자 버튼 정비 등)
     - 250731 | yukyeong | Toast UI Editor 기반 본문 표시로 전환, 첨부파일 관련 마크업 및 액션 버튼 주석 처리
     - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
+    - 250806 | yukyeong | "목록으로 돌아가기" 버튼 클릭 시 쿼리스트링(pageNum, keyword, category) 반영되도록 개선
 
 -->
 
@@ -71,7 +72,7 @@ GreenCycle 환경톡톡 게시글 상세보기
                 <!-- 게시글 상세 메인 콘텐츠 -->
                 <div class="post-detail-main fade-in">
                     <!-- 뒤로가기 버튼 -->
-                    <button class="back-btn" onclick="history.back()">
+                    <button class="back-btn" id="backToListBtn">
                         ← 목록으로 돌아가기
                     </button>
 

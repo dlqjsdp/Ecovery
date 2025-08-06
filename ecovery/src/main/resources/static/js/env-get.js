@@ -14,6 +14,8 @@
                            - 글 삭제 버튼 이벤트 바인딩 기능 추가
                            - 본문 내용에 포함된 이미지 자동 렌더링 처리
      - 250731 | yukyeong | 수정일이 있을 경우 '작성일:' → '수정일:'로 표시 및 날짜 변경 처리
+     - 250806 | yukyeong | 목록 이동 시 검색어·카테고리·페이지 상태 유지 처리
+                           - backToListBtn 클릭 시 URL 파라미터 기반 이동
  */
 
 
@@ -27,6 +29,20 @@ const categoryMap = {
 document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const envId = urlParams.get("envId");
+
+    // ✅ 목록으로 돌아가기 버튼 처리
+    const backBtn = document.getElementById("backToListBtn");
+    if (backBtn) {
+        const pageNum = urlParams.get("pageNum") || 1;
+        const keyword = urlParams.get("keyword") || '';
+        const type = urlParams.get("type") || '';
+        const category = urlParams.get("category") || '';
+
+        const backUrl = `/env/list?pageNum=${pageNum}&keyword=${encodeURIComponent(keyword)}&type=${type}&category=${category}`;
+        backBtn.addEventListener("click", function () {
+            window.location.href = backUrl;
+        });
+    }
 
     if (!envId) {
         alert("잘못된 접근입니다.");
