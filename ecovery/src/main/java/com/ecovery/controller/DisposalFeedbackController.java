@@ -29,11 +29,15 @@ public class DisposalFeedbackController {
     public String feedbackReport(DisposalFeedbackVO feedbackVO) {
         if (!disposalFeedbackService.isAlreadyReported(feedbackVO.getDisposalHistoryId())) {
             disposalFeedbackService.saveFeedback(feedbackVO);
+            log.info("DisposalFeedbackVO : {}", feedbackVO);
+            log.info("feedbackVo : {}", feedbackVO.getMemberId());
+            return "ok"; // 정상 처리
+        } else {
+            log.info("중복 신고 시도됨: DisposalHistoryId={}", feedbackVO.getDisposalHistoryId());
+            return "duplicate"; // 중복 신고임을 알림
         }
-        log.info("DisposalFeedbackVO : {}", feedbackVO);
-        log.info("feedbackVo : {}", feedbackVO.getMemberId());
-        return "ok"; // 단순 문자열 응답
     }
+
 
 
     @GetMapping("/history")
