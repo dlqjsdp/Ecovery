@@ -87,16 +87,16 @@ CREATE TABLE free_img (
 );
 
 -- 무료나눔 게시글 댓글 table
-create table free_reply (
-    reply_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    free_id BIGINT NOT NULL,
-    member_id BIGINT NOT NULL,
-    content VARCHAR(1000) NOT NULL,
-    parent_id BIGINT DEFAULT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (free_id) REFERENCES free(free_id),
-    FOREIGN KEY (member_id) REFERENCES member(member_id),
-    FOREIGN KEY (parent_id) REFERENCES free_reply(reply_id)
+CREATE TABLE free_reply (
+   reply_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+   free_id BIGINT NOT NULL,
+   member_id BIGINT NOT NULL,
+   content VARCHAR(1000) NOT NULL,
+   parent_id BIGINT DEFAULT NULL,
+   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   FOREIGN KEY (free_id) REFERENCES free(free_id) ON DELETE CASCADE,
+   FOREIGN KEY (member_id) REFERENCES member(member_id),
+   FOREIGN KEY (parent_id) REFERENCES free_reply(reply_id)
 );
 
 -- 에코마켓 상품 정보 table (item)
