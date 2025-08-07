@@ -1,0 +1,214 @@
+<!--
+GreenCycle 환경톡톡 목록 페이지
+환경 커뮤니티 게시판의 글 목록을 보여주는 페이지
+Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
+헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 글쓰기 버튼, 페이징 등을 표시함
+@author : eunji
+@fileName : list.html
+@since : 250717
+@history
+    - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
+    - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
+    - 250722 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용
+    - 250731 | yukyeong | 카테고리 탭 버튼에 'tab category-tab' 클래스 동시 적용 (CSS 유지 및 JS 이벤트 바인딩 분리 목적)
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='환경톡톡'">
+    <title>환경톡톡</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
+    </th:block>
+</head>
+
+<body>
+    <!-- 본문 fragment로 감싸기 -->
+    <div layout:fragment="content">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <div class="page-header-content">
+                <h1>💬 환경톡톡</h1>
+                <p>환경을 생각하는 이들의 따뜻한 이야기와 지식 나눔</p>
+                <!-- 커뮤니티 통계 - 서버에서 전달받은 데이터 -->
+<!--                <div class="page-stats">-->
+<!--                    <div class="stat-item">-->
+<!--                        <span class="stat-number" th:text="${#numbers.formatInteger(communityStats.totalPosts, 3, 'COMMA')}">1,247</span>-->
+<!--                        <span class="stat-label">전체 게시글</span>-->
+<!--                    </div>-->
+<!--                    <div class="stat-item">-->
+<!--                        <span class="stat-number" th:text="${#numbers.formatInteger(communityStats.activeMembers, 3, 'COMMA')}">892</span>-->
+<!--                        <span class="stat-label">활성 회원</span>-->
+<!--                    </div>-->
+<!--                    <div class="stat-item">-->
+<!--                        <span class="stat-number" th:text="${communityStats.todayPosts}">156</span>-->
+<!--                        <span class="stat-label">오늘 글</span>-->
+<!--                    </div>-->
+<!--                    <div class="stat-item">-->
+<!--                        <span class="stat-number" th:text="${communityStats.onlineUsers}">34</span>-->
+<!--                        <span class="stat-label">실시간 접속</span>-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="page-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">1,247</span>
+                        <span class="stat-label">전체 게시글</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">892</span>
+                        <span class="stat-label">활성 회원</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">156</span>
+                        <span class="stat-label">오늘 글</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">34</span>
+                        <span class="stat-label">실시간 접속</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <div class="board-container">
+            <!-- Main Board -->
+            <div class="board-main fade-in">
+                <!-- Board Header -->
+                <div class="board-header">
+                    <h2 class="board-title">함께하는 환경 실천</h2>
+                    <div class="board-actions">
+                        <!-- 관리자만 글쓰기 가능 -->
+                        <a th:href="@{/env/register}"
+                           class="btn btn-primary"
+                           sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                            ✏️ 글쓰기
+                        </a>
+
+                        <!-- 검색 폼 -->
+                        <form id="searchForm" class="search-form">
+                            <div class="search-box">
+                                <input type="text" class="search-input" id="searchInput"
+                                       placeholder="검색어를 입력하세요">
+                                <button type="submit" class="search-btn">🔍</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="category-tabs">
+                    <button class="tab category-tab active" data-category="">전체</button>
+                    <button class="tab category-tab" data-category="policy">정책/제도</button>
+                    <button class="tab category-tab" data-category="news">환경 뉴스</button>
+                    <button class="tab category-tab" data-category="issue">환경 이슈</button>
+                    <button class="tab category-tab" data-category="tips">생활 속 팁</button>
+                </div>
+
+                <!-- Post List -->
+                <div class="post-list" id="postList">
+                    <!-- JS에서 비동기로 렌더링 -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- JS에서 동적으로 구성 -->
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="board-sidebar fade-in">
+                <!-- User Info - 로그인한 사용자만 표시 -->
+                <div class="sidebar-card user-stats" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <h3>👤 내 정보</h3>
+                    <div class="user-avatar">🌱</div>
+                    <div class="user-name">
+                        <span th:text="${#authentication.principal.nickname}">환경지킴이</span>
+                    </div>
+                    <div class="user-point-stats">
+                        <div class="point-item">
+                            <span class="point-number">1,247</span>
+                            <span class="point-label">에코포인트</span>
+                        </div>
+                        <div class="point-item">
+                            <span class="point-number">89</span>
+                            <span class="point-label">작성글</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 로그인 유도 (비로그인 사용자) -->
+                <div class="sidebar-card login-prompt" th:unless="${#authorization.expression('isAuthenticated()')}">
+                    <h3>👋 환영합니다!</h3>
+                    <p>환경을 위한 실천, <br>에코버리와 함께 시작해요 🍀</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <a th:href="@{/member/login}" class="btn btn-primary" style="flex: 1;">로그인</a>
+                        <a th:href="@{/member/signup}" class="btn btn-secondary" style="flex: 1;">회원가입</a>
+                    </div>
+                </div>
+
+                <!-- Popular Posts -->
+                <div class="sidebar-card">
+                    <h3>🔥 인기글</h3>
+                    <div class="popular-list">
+                        <!-- 인기글 목록 - 반복문으로 출력 -->
+                        <div class="popular-item" th:each="popularPost, iterStat : ${popularPosts}"
+                             th:onclick="|location.href='@{/eco-talk/view/{id}(id=${popularPost.id})}'|">
+                            <div class="popular-rank" th:text="${iterStat.count}">1</div>
+                            <div class="popular-title" th:text="${popularPost.title}">인기글 제목</div>
+                            <div class="popular-stats">
+                                <span th:text="'👁️ ' + ${popularPost.viewCount}">👁️ 847</span>
+                                <span th:text="'❤️ ' + ${popularPost.likeCount}">❤️ 89</span>
+                                <span th:text="'💬 ' + ${popularPost.commentCount}">💬 23</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Environmental Tips -->
+                <div class="sidebar-card" th:if="${dailyTip}">
+                    <h3>💡 오늘의 환경 팁</h3>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 48px; margin-bottom: 15px;" th:text="${dailyTip.icon}">♻️</div>
+                        <h4 style="color: var(--primary-green); margin-bottom: 10px;" th:text="${dailyTip.title}">분리배출 핵심</h4>
+                        <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);" th:utext="${dailyTip.content}">
+                            플라스틱 용기는 내용물을 비우고 물로 한 번 헹군 후 배출하면
+                            재활용 효율이 <strong>30% 향상</strong>됩니다!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="sidebar-card">
+                    <h3>🔗 바로가기</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a th:href="@{/disposal/disposalMain}" class="btn btn-secondary" style="width: 100%;">
+                            📋 분리배출 가이드
+                        </a>
+                        <a th:href="@{/templates/eco/list}" class="btn btn-secondary" style="width: 100%;">
+                            🛒 친환경 제품 보기
+                        </a>
+                        <a th:href="@{/free/list}" class="btn btn-secondary" style="width: 100%;">
+                            🤝 무료나눔 참여
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <th:block layout:fragment="script">
+        <!-- 추가 JS (필요시만) -->
+        <script th:src="@{/js/eco-talk-script.js}"></script>
+        <script th:src="@{/js/env-list.js}"></script> <!-- 목록 전용 -->
+    </th:block>
+</body>
+</html>
+

@@ -1,0 +1,136 @@
+<!--
+GreenCycle 환경톡톡 게시글 상세보기
+게시글 본문, 작성자, 작성일 등 상세 내용을 보여주는 페이지
+작성자 본인 또는 관리자만 수정 버튼이 노출됨
+@author : eunji
+@fileName : get.html
+@since : 250721
+@history
+    - 250721 | yukyeong | 단건 조회, 수정버튼 출력을 확인하기 위한 임시 뷰 최조 작성, 수정 버튼은 작성자 또는 관리자만 볼 수 있도록 설정
+    - 250722 | yukyeong | 비동기 게시글 단건 조회 기능 적용
+    - 250801 | yukyeong | 공지사항 상세 레이아웃 전면 개편:
+                          - 페이지 레이아웃을 환경톡톡 스타일로 통일
+                          - 헤드 섹션(타이틀/서브타이틀/경로) 추가
+                          - notice-detail-layout, notice-article 등 구조 정비
+                          - 관리자 전용 버튼 섹션(admin-actions) 개선
+                          - 공지사항 조회 전용 notice-get.js 연동
+    - 250802 | yukyeong | 작성자 정보(author-info) 영역 구조 개선 : 아바타, 작성자명, 권한(role) 요소 분리 및 ID 지정
+    - 250802 | yukyeong | 관리자 전용 영역 제목(admin-actions-title) 블록 추가
+    - 250806 | yukyeong | "목록으로 돌아가기" 버튼 클릭 시 쿼리스트링(pageNum, keyword, category) 반영되도록 개선
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='공지사항 - 게시글 조회'">
+    <title>공지사항</title>
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/notice-detail.css}">
+    </th:block>
+</head>
+
+<body>
+<!-- 본문 콘텐츠 -->
+<div layout:fragment="content" class="fade-in">
+    <div class="container">
+        <!-- 헤드 섹션 -->
+        <section class="head-section">
+            <div class="container">
+                <div class="head-content">
+                    <div class="head-title-wrap">
+                        <span class="head-icon">📖</span>
+                        <h1 class="head-title">공지사항 상세보기</h1>
+                    </div>
+                    <p class="head-subtitle">최신 공지사항의 자세한 내용을 확인해보세요</p>
+                    <div class="head-breadcrumb">
+                        <a th:href="@{/}">홈</a>
+                        <span>·</span>
+                        <a th:href="@{/notices}">공지사항</a>
+                        <span>·</span>
+                        <span class="current">상세보기</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 공지사항 상세 컨테이너 (중앙배치) -->
+        <div class="notice-detail-layout">
+            <!-- 공지사항 상세 메인 콘텐츠 -->
+            <div class="notice-detail-main fade-in">
+                <!-- 뒤로가기 버튼 -->
+                <button class="back-btn" id="backToListBtn">
+                    ← 목록으로 돌아가기
+                </button>
+
+                <!-- 공지사항 아티클 -->
+                <article class="notice-article">
+                    <!-- 공지사항 헤더 -->
+                    <header class="notice-article-header">
+
+                        <!-- 공지사항 제목 -->
+                        <h1 class="notice-article-title" id="notice-title">공지사항 제목</h1>
+
+                        <!-- 공지사항 메타 정보 -->
+                        <div class="notice-article-meta">
+                            <div class="author-info">
+                                <span class="author-avatar" id="notice-avatar"></span>
+                                <div class="author-name" id="notice-author"></div>
+                                <div class="author-role" id="notice-role"></div>
+                            </div>
+                            <div class="notice-info">
+                                <div class="notice-date">
+                                    <span style="font-weight: 500;">작성일:</span>
+                                    <span id="notice-date">날짜</span>
+                                </div>
+                                <div class="notice-views">
+                                    <span style="font-weight: 500;">조회:</span>
+                                    <span id="notice-views">0회</span>
+                                </div>
+                                <div class="notice-category" id="notice-category-wrapper" style="display: none;">
+                                    <span style="font-weight: 500;">분류:</span>
+                                    <span id="notice-category">카테고리</span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- 공지사항 내용 -->
+                    <div class="notice-article-content" id="notice-content">
+                        <!-- 여기에 공지사항 내용이 표시됩니다 -->
+                    </div>
+
+                </article>
+
+                <!-- 관리자 전용 액션 버튼들 (관리자만) -->
+                <section class="admin-actions" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                    <div class="admin-actions-title">
+                        <span>🛠️ 관리자 전용</span>
+                    </div>
+                    <div class="admin-action-buttons">
+                        <a id="editBtn" class="admin-btn edit-btn">
+                            ✏️ 글 수정
+                        </a>
+                        <button type="button" id="deleteBtn" class="admin-btn delete-btn">
+                            🗑️ 글 삭제
+                        </button>
+                        <a th:href="@{/notice/register}" class="admin-btn new-btn">
+                            ➕ 새 글 작성
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/notice-detail.js}"></script>
+        <script th:src="@{/js/notice-get.js}"></script>
+    </th:block>
+
+</body>
+</html>
