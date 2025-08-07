@@ -312,14 +312,14 @@ body {
 
 .profile-info {
     display: flex;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
 }
 
 /* 사용자 이름과 편집 아이콘 컨테이너 */
 .user-name-container {
     display: flex;
-    align-items: center;
+    align-items:normal;
     gap: 15px;
     margin-bottom: 8px;
 }
@@ -332,8 +332,8 @@ body {
 
 /* 프로필 편집 아이콘 */
 .edit-profile-icon {
-    width: 40px;
-    height: 40px;
+    width: 20px;
+    height: 20px;
     border: none;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
@@ -348,7 +348,7 @@ body {
 
 .edit-profile-icon:hover {
     background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
+    transform: none;
 }
 
 .edit-icon {
@@ -492,64 +492,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-/* ==========================================================================
-   1. 장바구니 바로가기 섹션 (얇고 가로로 긴 형태)
-   ========================================================================== */
-.cart-quicklink {
-    padding: 20px 30px; /* 세로 패딩을 줄여서 얇게 만듦 */
-}
-
-.cart-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.cart-item-count {
-    background: rgba(45, 90, 61, 0.1);
-    color: var(--primary-green);
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.cart-summary {
-    margin-top: 15px;
-}
-
-.cart-preview {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.cart-item-preview {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--light-gray);
-    padding: 8px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    transition: var(--transition-fast);
-}
-
-.cart-item-preview:hover {
-    background: rgba(45, 90, 61, 0.1);
-    transform: translateY(-2px);
-}
-
-.item-icon {
-    font-size: 16px;
-}
-
-.item-name {
-    font-weight: 500;
-    color: var(--dark-gray);
 }
 
 /* ==========================================================================

@@ -401,11 +401,7 @@ function initializeDashboardCards() {
         item.setAttribute('aria-label', '포인트 내역 상세보기');
     });
 
-    // 장바구니 미리보기 아이템 호버 효과
-    const cartPreviews = document.querySelectorAll('.cart-item-preview');
-    cartPreviews.forEach(item => {
-        item.addEventListener('mouseenter', handleCartPreviewHover);
-    });
+
 
     console.log('✅ 대시보드 카드 이벤트가 초기화되었습니다.');
 }
@@ -473,20 +469,8 @@ function handlePointsItemClick(event) {
     console.log(`포인트 내역 클릭: ${itemDesc}`);
 }
 
-/**
- * 장바구니 미리보기 호버 처리
- */
-function handleCartPreviewHover(event) {
-    const item = event.currentTarget;
-    const icon = item.querySelector('.item-icon');
 
-    if (icon) {
-        icon.style.transform = 'scale(1.2) rotate(10deg)';
-        setTimeout(() => {
-            icon.style.transform = '';
-        }, 300);
-    }
-}
+
 
 // ==========================================================================
 // 빠른 액션 함수들

@@ -91,33 +91,6 @@
                             <h1 class="product-title" id="itemTitle">제목</h1>
                         </div>
 
-                        <!-- 관리 버튼 (초기에 숨김 처리) -->
-                        <!-- STEP 1: 로그인한 사용자만 관리 버튼 영역 진입 -->
-                        <div class="product-actions"
-                             th:if="${#authentication.authenticated}"
-                             id="productActions">
-
-                            <!-- STEP 2: 작성자 또는 관리자일 경우에만 버튼 표시 -->
-                            <!-- 수정/삭제 버튼은 로그인한 사용자이면서 작성자 또는 관리자일 때만 표시 -->
-                            <div th:if="${loginMemberNickname != null and (loginMemberNickname == board.nickname or loginMemberRole?.name() == 'ADMIN')}" class="dropdown">
-                                <!--                                <button class="dropdown-toggle" id="dropdownToggle">-->
-                                <!--                                    <span class="dots">⋯</span>-->
-                                <!--                                </button> -->
-                                <div class="dropdown-menu" id="dropdownMenu">
-                                    <!-- 수정하기 버튼 -->
-                                    <a th:href="@{'/free/modify/' + ${board.freeId}}" class="action-btn edit-btn" id="editBtn">
-                                        <span class="icon">✏️</span>
-                                        수정
-                                    </a>
-                                    <!-- 삭제하기 버튼 -->
-                                    <button class="action-btn delete-btn" id="deleteBtn">
-                                        <span class="icon">🗑️</span>
-                                        삭제
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- 작성자 정보 -->
                         <div class="author-info">
                             <div class="author-details">
@@ -159,6 +132,30 @@
                             </span>
                             </div>
                         </div>
+
+                        <!-- 관리 버튼 (수정된 위치) -->
+                        <!-- STEP 1: 로그인한 사용자만 관리 버튼 영역 진입 -->
+                        <div class="product-actions"
+                             th:if="${#authentication.authenticated}"
+                             id="productActions">
+
+                            <!-- STEP 2: 작성자 또는 관리자일 경우에만 버튼 표시 -->
+                            <!-- 수정/삭제 버튼은 로그인한 사용자이면서 작성자 또는 관리자일 때만 표시 -->
+                            <div th:if="${loginMemberNickname != null and (loginMemberNickname == board.nickname or loginMemberRole?.name() == 'ADMIN')}" class="dropdown">
+                                <div class="dropdown-menu" id="dropdownMenu">
+                                    <!-- 수정하기 버튼 -->
+                                    <a th:href="@{'/free/modify/' + ${board.freeId}}" class="action-btn edit-btn" id="editBtn">
+                                        <span class="icon">✏️</span>
+                                        수정
+                                    </a>
+                                    <!-- 삭제하기 버튼 -->
+                                    <button class="action-btn delete-btn" id="deleteBtn">
+                                        <span class="icon">🗑️</span>
+                                        삭제
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -170,21 +167,21 @@
                     </div>
                 </div>
 
-
                 <!-- 💬 댓글 전체 블록은 로그인 여부 관계없이 항상 렌더링 -->
                 <div class="comments">
-                    <h2>💬 댓글</h2>
-
-                    <!-- 댓글 정렬 드롭다운 -->
-                    <div class="comment-sort">
-                        <label for="sortSelect">정렬:</label>
-                        <select id="sortSelect">
-                            <option value="recent">최신순</option>
-                            <option value="oldest">등록순</option>
-                        </select>
+                    <!-- 댓글 헤더: 제목과 정렬 드롭다운을 양쪽 끝에 배치 -->
+                    <div class="comment-header">
+                        <h2>💬 댓글</h2>
+                        <div class="comment-sort">
+                            <label for="sortSelect">정렬:</label>
+                            <select id="sortSelect">
+                                <option value="recent">최신순</option>
+                                <option value="oldest">등록순</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- 댓글 작성 폼 (로그인한 사용자만 보이게) -->
+                    <!-- 댓글 작성 폼 헤더: 입력창과 등록 버튼을 양쪽 끝에 배치 -->
                     <div th:if="${loginMemberNickname != null}" class="comment-form">
                         <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
                         <button id="submitCommentBtn">등록</button>

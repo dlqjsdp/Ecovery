@@ -32,7 +32,7 @@ Thymeleaf Layout Dialect를 이용한 기본 레이아웃 구성
 </head>
 
 <body>
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 
 <main class="main-content">
@@ -40,7 +40,7 @@ Thymeleaf Layout Dialect를 이용한 기본 레이아웃 구성
 </main>
 
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <!-- 공통 JS -->
 <!--<script th:src="@{/js/eco-talk-script.js}"></script>-->
