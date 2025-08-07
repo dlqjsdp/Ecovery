@@ -4,6 +4,7 @@
  *  - 250801 | sehui | 에코 마켓과 구매하기 버튼 btn-eco-buy 제거
  *  - 250801 | sehui | 주문 수량 오류 메시지 위치 및 스타일 개선
  *  - 250801 | sehui | 상품 설명 이미지 정렬 및 스타일 개선
+ *  - 250807 | sehui | 연관 상품 섹션 제거
  */
 
 /* ==========================================================================
@@ -1090,82 +1091,6 @@
 
 .description-content strong {
     color: var(--primary-green);
-}
-
-/* ==========================================================================
-   연관 상품 섹션
-   ========================================================================== */
-.related-products-section {
-    background: var(--light-gray);
-    padding: 40px 0;
-}
-
-.related-products-section h2 {
-    color: var(--primary-green);
-    margin-bottom: 30px;
-    font-size: 24px;
-    text-align: center;
-}
-
-.related-products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-}
-
-.related-product-card {
-    background: var(--white);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
-    transition: all var(--transition-normal);
-    cursor: pointer;
-}
-
-.related-product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.related-product-image {
-    width: 100%;
-    height: 180px;
-    background: var(--light-gray);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-    overflow: hidden;
-}
-
-.related-product-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.related-product-info {
-    padding: 20px;
-}
-
-.related-product-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--dark-gray);
-    line-height: 1.3;
-}
-
-.related-product-price {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--price-color);
-    margin-bottom: 8px;
-}
-
-.related-product-location {
-    font-size: 14px;
-    color: var(--medium-gray);
 }
 
 /* ==========================================================================
