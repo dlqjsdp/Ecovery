@@ -386,7 +386,7 @@ body {
 .checkmark {
     width: 18px;
     height: 18px;
-    border: 2px solid var(--light-gray);
+    border: 2px solid var(--accent-green);
     border-radius: 4px;
     position: relative;
     transition: var(--transition);
@@ -394,7 +394,7 @@ body {
 }
 
 .checkbox-wrapper:hover .checkmark {
-    border-color: var(--accent-green);
+    border-color: var(--primary-green);
 }
 
 .checkbox-wrapper input:checked ~ .checkmark {
