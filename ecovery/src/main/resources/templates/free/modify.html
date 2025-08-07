@@ -1,3 +1,28 @@
+<!--
+ * 무료나눔 게시판 수정 페이지
+ * 기존에 등록된 게시글 정보를 수정하고 저장하는 화면
+ *
+ * [프론트엔드 기능 - by eunji]
+ * - 사용자 입력 UI 구성 (제목, 작성자, 거래상태, 상품상태, 지역, 카테고리, 설명, 이미지 업로드)
+ * - 이미지 업로드 및 미리보기 영역 (최대 5장, 기존 이미지 삭제/대체 가능)
+ * - 취소 및 수정하기 버튼, 페이지 레이아웃 및 스타일링 (free-sharing-edit.css)
+ * - free-sharing-edit.js로 이미지 처리, 동적 UI 업데이트, 폼 유효성 검사 수행
+ * - breadcrumb, page-header 등 사용자 친화적인 페이지 구성
+ *
+ * [백엔드 기능 - by yeonsu]
+ * - Thymeleaf th:object와 th:field로 FreeDto/FreeVO 데이터 바인딩
+ * - th:action="@{'/free/modify/' + ${free.freeId}}"를 통해 수정 요청 URL 매핑
+ * - Spring Security/Thymeleaf 기반으로 작성자(memberId, nickname) 정보 출력 (readonly)
+ * - enum 값(ItemCondition, DealStatus)을 기반으로 select 박스에서 현재 상태 선택
+ * - 서버 전달 데이터(free, free.imgList)를 JavaScript 변수(window.free, window.existingImages)로 전달
+ * - 유효성 검사 에러 메시지 표시(th:errors)
+ * - 레이아웃(layout1.html) 적용 및 header fragment 재사용
+ *
+ * @author   : eunji, yeonsu
+ * @fileName : modify.html
+ * @since    : 250801
+-->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"

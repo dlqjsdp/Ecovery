@@ -1,3 +1,32 @@
+/*
+ * 무료나눔 게시판 목록 페이지 스크립트
+ * 게시글 목록을 서버에서 비동기로 받아와 화면에 렌더링하고,
+ * 검색, 필터링, 정렬, 페이지네이션 등 사용자 인터랙션을 처리합니다.
+ *
+ * [프론트엔드 기능 - by eunji]
+ * - 게시글 카드 UI 생성 및 그리드 렌더링 (createItemElement, renderItems)
+ * - 애니메이션 효과 적용 (페이지 전환, 카드 페이드인 등)
+ * - 검색 필터, 정렬 드롭다운, 페이지네이션 UI 처리
+ * - 상태 배지 표시, 시간 포맷팅(formatTimeAgo), 알림창(showNotification)
+ * - 반응형 UI: 햄버거 메뉴, 스크롤 시 헤더 스타일 변경
+ * - 이미지 lazy loading 및 부드러운 전환 처리(optimizeImages)
+ * - 사용자 경험 개선 요소: 결과 없음 메시지, 버튼 클릭 피드백 등
+
+ * [백엔드 연동 기능 - by yeonsu]
+ * - 서버에서 게시글 목록 조회: `/api/free/list?pageNum=&amount=&keyword=&type=`
+ *   - 검색어(keyword), 필터조건(type), 페이지 번호(pageNum), 페이지 크기(amount) 포함
+ * - 백엔드 응답(JSON)에서 게시글 리스트(result.list 또는 result.content), 전체 개수(result.pageMaker.total) 추출
+ * - 페이징 처리를 위한 totalPages 계산 및 렌더링(renderPagination)
+ * - 클릭 시 상세 페이지로 이동: `/free/get/{freeId}?page={currentPage}`
+ * - URL 파라미터(page) 처리 및 브라우저 히스토리 반영 (pushState)
+ * - 서버 데이터 기반 동적 정렬(현재는 클라이언트 정렬만 구현됨)
+ *
+ * @author   : eunji, yeonsu
+ * @fileName : free-sharing.js
+ * @since    : 250728
+ */
+
+
 /*서버에서 받은 데이터를 사용자가 읽기 좋게 바꿔주는 유틸리티 함수*/
 // 거래상태
 function getStatusText(status){
