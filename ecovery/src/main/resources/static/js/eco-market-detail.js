@@ -1025,13 +1025,6 @@ async function addToCart() {
             return;
         }
 
-        // 중복 확인
-        const existingItem = cartItems.find(item => item.id === itemId.value);
-        if (existingItem) {
-            showNotification('이미 장바구니에 담긴 상품입니다! 🛒', 'warning');
-            return;
-        }
-
         // 장바구니에 추가 - 서버 요청
         const response = await fetch('/cart/add', {
             method: 'POST',
