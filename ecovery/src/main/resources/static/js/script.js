@@ -1,3 +1,5 @@
+// ECOVERY 스마트 환경 플랫폼 JavaScript
+
 // Global variables
 let currentSlide = 0;
 let totalSlides = 4;
@@ -5,10 +7,103 @@ let slideInterval;
 let activityInterval;
 let resizeTimeout;
 
+// 가라데이터 정의
+const DEMO_DATA = {
+    // 메인 통계 데이터
+    stats: {
+        monthlyWaste: 15680,      // 월간 처리량 (톤)
+        activeUsers: 12340,       // 활성 사용자
+        accuracy: 99.3,           // 분류 정확도 (%)
+        uptime: 24                // 시간 무중단 운영
+    },
+
+    // 실시간 임팩트 데이터
+    impact: {
+        carbonSaved: 1247,        // 오늘 절약된 탄소 (kg CO₂)
+        wasteRecycled: 834,       // 재활용된 폐기물 (톤)
+        sharingCompleted: 156,    // 무료나눔 완료 (개)
+        ecoProducts: 89           // 친환경 제품 판매 (건)
+    },
+
+    // 오늘의 활동 현황
+    dailyActivity: {
+        disposal: 1247,           // 분리배출
+        sharing: 156,             // 무료나눔
+        ecoShopping: 189,         // 친환경 구매
+        community: 234            // 커뮤니티 참여
+    }
+};
+
 // DOM Elements
 const header = document.getElementById('header');
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
+
+// 푸터 로드 함수
+async function loadFooter() {
+    try {
+        const response = await fetch('footer.html');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const footerHTML = await response.text();
+        const footerContainer = document.getElementById('footer-container');
+        if (footerContainer) {
+            footerContainer.innerHTML = footerHTML;
+            console.log('✅ 푸터가 성공적으로 로드되었습니다.');
+        }
+    } catch (error) {
+        console.error('❌ 푸터 로드 실패:', error);
+        // 푸터 로드 실패 시 기본 푸터 표시
+        showFallbackFooter();
+    }
+}
+
+// 푸터 로드 실패 시 기본 푸터 표시
+function showFallbackFooter() {
+    const footerContainer = document.getElementById('footer-container');
+    if (footerContainer) {
+        footerContainer.innerHTML = `
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <div class="logo" style="margin-bottom: 20px;">
+                            <span class="logo-icon">🌱</span>
+                            <span class="logo-text">ECOVERY</span>
+                        </div>
+                        <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>서비스</h4>
+                        <ul>
+                            <li><a href="/disposal/disposalMain">스마트 분리배출</a></li>
+                            <li><a href="/free/list">무료나눔</a></li>
+                            <li><a href="/eco/list">에코마켓</a></li>
+                            <li><a href="/env/list">환경톡톡</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>고객지원</h4>
+                        <ul>
+                            <li><a href="#">문의하기</a></li>
+                            <li><a href="#">이용가이드</a></li>
+                            <li><a href="#">기술지원</a></li>
+                            <li><a href="#">고객센터</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 ECOVERY. All rights reserved.</p>
+                    <div class="footer-links">
+                        <a href="#">개인정보처리방침</a>
+                        <a href="#">이용약관</a>
+                    </div>
+                </div>
+            </div>
+        `;
+        console.log('⚠️ 기본 푸터를 표시했습니다.');
+    }
+}
 
 // Screen size detection
 function getScreenSize() {
@@ -30,39 +125,43 @@ window.addEventListener('scroll', () => {
 });
 
 // Mobile menu toggle
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
 
-    // Animate hamburger
-    const spans = hamburger.querySelectorAll('span');
-    if (hamburger.classList.contains('active')) {
-        spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
-        spans[1].style.opacity = '0';
-        spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
-    } else {
+        // Animate hamburger
+        const spans = hamburger.querySelectorAll('span');
+        if (hamburger.classList.contains('active')) {
+            spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+            spans[1].style.opacity = '0';
+            spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+        } else {
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        }
+    });
+}
+
+// Close mobile menu when clicking on a link
+function closeMobileMenu() {
+    if (hamburger && navMenu) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+
+        const spans = hamburger.querySelectorAll('span');
         spans[0].style.transform = 'none';
         spans[1].style.opacity = '1';
         spans[2].style.transform = 'none';
     }
-});
-
-// Close mobile menu when clicking on a link
-function closeMobileMenu() {
-    hamburger.classList.remove('active');
-    navMenu.classList.remove('active');
-
-    const spans = hamburger.querySelectorAll('span');
-    spans[0].style.transform = 'none';
-    spans[1].style.opacity = '1';
-    spans[2].style.transform = 'none';
 }
 
 // Smooth scrolling
 function scrollToSection(sectionId) {
     const element = document.getElementById(sectionId);
     if (element) {
-        const headerHeight = header.offsetHeight;
+        const headerHeight = header ? header.offsetHeight : 0;
         const elementPosition = element.offsetTop - headerHeight;
 
         window.scrollTo({
@@ -78,24 +177,22 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
         const href = link.getAttribute('href');
 
         if (href && href.startsWith('#')) {
-            e.preventDefault(); // 내부 앵커일 때만 기본 동작 막기
+            e.preventDefault();
             scrollToSection(href.substring(1));
             closeMobileMenu();
         }
     });
 });
 
-// Enhanced Services Slider Functions
+// Services Slider Functions
 function updateSliderForScreenSize() {
     const screenSize = getScreenSize();
     const slidesWrapper = document.getElementById('slidesWrapper');
 
-    // Adjust slider behavior based on screen size
     switch (screenSize) {
         case 'ultra-wide':
         case 'extra-large':
-            // Large screens can show 2 slides at once if desired
-            totalSlides = 4; // Keep original for now
+            totalSlides = 4;
             if (slidesWrapper) {
                 slidesWrapper.style.width = '400%';
             }
@@ -107,7 +204,6 @@ function updateSliderForScreenSize() {
             }
     }
 
-    // Reset slide position if out of bounds
     if (currentSlide >= totalSlides) {
         currentSlide = 0;
     }
@@ -117,7 +213,7 @@ function updateSliderForScreenSize() {
 function showSlide(slideIndex) {
     const slidesWrapper = document.getElementById('slidesWrapper');
     if (slidesWrapper) {
-        const translateX = -slideIndex * 25; // 각 슬라이드는 25%씩 이동
+        const translateX = -slideIndex * 25;
         slidesWrapper.style.transform = `translateX(${translateX}%)`;
     }
     currentSlide = slideIndex;
@@ -134,7 +230,7 @@ function prevSlide() {
 }
 
 function startAutoSlide() {
-    slideInterval = setInterval(nextSlide, 3000); // 3초마다 자동 슬라이드
+    slideInterval = setInterval(nextSlide, 4000); // 4초마다 자동 슬라이드
 }
 
 function stopAutoSlide() {
@@ -145,7 +241,6 @@ function stopAutoSlide() {
 
 // Initialize slider
 function initializeSlider() {
-    // Touch/swipe support for mobile
     let startX = 0;
     let endX = 0;
     let isDragging = false;
@@ -189,7 +284,7 @@ function initializeSlider() {
                 isDragging = false;
                 sliderContainer.style.cursor = 'grab';
                 slidesWrapper.style.transition = 'transform 0.8s cubic-bezier(0.23, 1, 0.320, 1)';
-                showSlide(currentSlide); // Return to current slide
+                showSlide(currentSlide);
             }
         });
 
@@ -221,25 +316,21 @@ function initializeSlider() {
             if (Math.abs(diff) > swipeThreshold) {
                 stopAutoSlide();
                 if (diff > 0) {
-                    nextSlide(); // Swipe left - next slide
+                    nextSlide();
                 } else {
-                    prevSlide(); // Swipe right - previous slide
+                    prevSlide();
                 }
                 startAutoSlide();
             } else {
-                // Return to current slide if swipe wasn't strong enough
                 showSlide(currentSlide);
             }
         }
 
-        // Set initial cursor
         sliderContainer.style.cursor = 'grab';
     }
 
-    // Start auto-slide
     startAutoSlide();
 
-    // Pause auto-slide on hover
     const sliderSection = document.querySelector('.services-slider-container');
     if (sliderSection) {
         sliderSection.addEventListener('mouseenter', stopAutoSlide);
@@ -293,9 +384,14 @@ const observer = new IntersectionObserver((entries) => {
             // Trigger counter animation for stats
             if (entry.target.classList.contains('stats')) {
                 const statNumbers = entry.target.querySelectorAll('.stat-number');
-                statNumbers.forEach(stat => {
-                    const target = parseFloat(stat.getAttribute('data-count'));
-                    animateCounter(stat, target);
+                statNumbers.forEach((stat, index) => {
+                    const dataCount = stat.getAttribute('data-count');
+                    if (dataCount) {
+                        const target = parseFloat(dataCount);
+                        setTimeout(() => {
+                            animateCounter(stat, target);
+                        }, index * 200);
+                    }
                 });
             }
 
@@ -304,29 +400,9 @@ const observer = new IntersectionObserver((entries) => {
                 entry.target.style.transform = 'translateY(0)';
                 entry.target.style.opacity = '1';
             }
-
-            // Animate certification items
-            if (entry.target.classList.contains('cert-item')) {
-                entry.target.style.transform = 'translateY(0)';
-                entry.target.style.opacity = '1';
-            }
         }
     });
 }, observerOptions);
-
-// Form validation functions
-function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-function validatePassword(password) {
-    return password.length >= 6;
-}
-
-function validateNickname(nickname) {
-    return nickname.length >= 2 && nickname.length <= 20;
-}
 
 // Enhanced Notification system
 function showNotification(message, type = 'success') {
@@ -357,7 +433,9 @@ function showNotification(message, type = 'success') {
 
 // Impact Dashboard Functions
 function initializeImpactDashboard() {
-    // Animate impact numbers
+    // 가라데이터로 임팩트 숫자 업데이트
+    updateImpactNumbers();
+
     const impactNumbers = document.querySelectorAll('.impact-number');
 
     const impactObserver = new IntersectionObserver((entries) => {
@@ -374,15 +452,30 @@ function initializeImpactDashboard() {
         impactObserver.observe(number);
     });
 
-    // Animate progress bars
     setTimeout(() => {
         animateProgressBars();
     }, 1000);
 
-    // Animate chart bars
     setTimeout(() => {
         animateChartBars();
     }, 1500);
+}
+
+function updateImpactNumbers() {
+    // 임팩트 데이터 업데이트
+    const impactNumbers = document.querySelectorAll('.impact-number');
+    const impactData = [
+        DEMO_DATA.impact.carbonSaved,
+        DEMO_DATA.impact.wasteRecycled,
+        DEMO_DATA.impact.sharingCompleted,
+        DEMO_DATA.impact.ecoProducts
+    ];
+
+    impactNumbers.forEach((number, index) => {
+        if (impactData[index] !== undefined) {
+            number.setAttribute('data-count', impactData[index]);
+        }
+    });
 }
 
 function animateProgressBars() {
@@ -400,25 +493,51 @@ function animateProgressBars() {
 
 function animateChartBars() {
     const chartBars = document.querySelectorAll('.chart-bar');
+    const heights = ['65%', '78%', '92%', '100%']; // 4개 값 모두 있음
+
+    console.log('📊 차트 바 개수:', chartBars.length); // 디버깅용
+
     chartBars.forEach((bar, index) => {
-        const height = bar.style.height;
         bar.style.height = '0%';
+        bar.style.transition = 'height 0.8s ease-in-out';
+
         setTimeout(() => {
-            bar.style.height = height;
-        }, index * 300);
+            const targetHeight = heights[index]; // undefined 체크 제거
+            bar.style.height = targetHeight;
+            console.log(`차트 바 ${index + 1}: ${targetHeight}`); // 디버깅용
+        }, 200 + (index * 300)); // 시작 지연 추가
     });
+
+    console.log('📊 차트 애니메이션 실행됨');
 }
 
 // Activity Feed Functions
 function initializeActivityFeed() {
+    updateDailyStats();
     startActivityFeed();
 }
 
+function updateDailyStats() {
+    // 오늘의 활동 현황 업데이트
+    const statMinis = document.querySelectorAll('.stat-mini .stat-number');
+    const dailyData = [
+        DEMO_DATA.dailyActivity.disposal,
+        DEMO_DATA.dailyActivity.sharing,
+        DEMO_DATA.dailyActivity.ecoShopping,
+        DEMO_DATA.dailyActivity.community
+    ];
+
+    statMinis.forEach((stat, index) => {
+        if (dailyData[index] !== undefined) {
+            stat.textContent = dailyData[index].toLocaleString();
+        }
+    });
+}
+
 function startActivityFeed() {
-    // Simulate real-time activity updates
     activityInterval = setInterval(() => {
         addNewActivity();
-    }, 8000); // New activity every 8 seconds
+    }, 8000); // 8초마다 새로운 활동 추가
 }
 
 function stopActivityFeed() {
@@ -431,7 +550,7 @@ function addNewActivity() {
     const activities = [
         {
             icon: 'waste',
-            text: '<strong>이○○님</strong>이 캔을 정확히 분리배출했습니다',
+            text: '<strong>김○○님</strong>이 캔을 정확히 분리배출했습니다',
             reward: '+15P 적립',
             type: 'reward'
         },
@@ -493,18 +612,16 @@ function addNewActivity() {
         </div>
     `;
 
-    // Insert at the beginning
     activityList.insertBefore(activityItem, activityList.firstChild);
 
-    // Animate in
     setTimeout(() => {
         activityItem.style.opacity = '1';
     }, 100);
 
-    // Update existing timestamps
+    // 기존 시간 업데이트
     const timeElements = activityList.querySelectorAll('.activity-time');
     timeElements.forEach((element, index) => {
-        if (index === 0) return; // Skip the new one
+        if (index === 0) return;
 
         const currentText = element.textContent;
         if (currentText === '방금 전') {
@@ -515,12 +632,11 @@ function addNewActivity() {
         }
     });
 
-    // Remove old activities (keep only 6)
+    // 최대 6개까지만 유지
     while (activityList.children.length > 6) {
         activityList.removeChild(activityList.lastChild);
     }
 
-    // Update mini stats
     updateMiniStats();
 }
 
@@ -528,28 +644,26 @@ function updateMiniStats() {
     const statNumbers = document.querySelectorAll('.stat-mini .stat-number');
     statNumbers.forEach(stat => {
         const current = parseInt(stat.textContent.replace(',', ''));
-        const increment = Math.floor(Math.random() * 5) + 1;
+        const increment = Math.floor(Math.random() * 3) + 1;
         const newValue = current + increment;
         stat.textContent = newValue.toLocaleString();
     });
 }
 
-// Enhanced Service Previews Functions
+// Service Previews Functions
 function initializeServicePreviews() {
-    // Large demo button interactions
+    // 큰 데모 버튼 상호작용
     const largeDemoBtns = document.querySelectorAll('.demo-btn-large');
     largeDemoBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const originalText = btn.textContent;
             btn.textContent = '분석 중...';
             btn.disabled = true;
             btn.style.background = 'linear-gradient(135deg, #6c757d, #495057)';
 
-            // Add loading animation
-            btn.style.position = 'relative';
             btn.innerHTML = '분석 중... <span class="loading-dots">●●●</span>';
 
-            // Animate loading dots
             const loadingDots = btn.querySelector('.loading-dots');
             if (loadingDots) {
                 let dotCount = 0;
@@ -565,7 +679,6 @@ function initializeServicePreviews() {
                     btn.disabled = false;
                     btn.style.background = 'linear-gradient(135deg, var(--primary-green), var(--accent-green))';
 
-                    // Animate result appearance
                     const resultSection = document.querySelector('.demo-result-large');
                     if (resultSection) {
                         resultSection.style.transform = 'scale(0.95)';
@@ -581,10 +694,11 @@ function initializeServicePreviews() {
         });
     });
 
-    // Regular demo button interactions (for backward compatibility)
+    // 일반 데모 버튼
     const demoBtns = document.querySelectorAll('.demo-btn');
     demoBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             btn.textContent = '분석 중...';
             btn.disabled = true;
 
@@ -596,14 +710,14 @@ function initializeServicePreviews() {
         });
     });
 
-    // Preview more buttons
+    // 미리보기 더보기 버튼
     const previewBtns = document.querySelectorAll('.preview-more');
     previewBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             const text = btn.textContent;
             showNotification(`${text} 페이지로 이동합니다!`, 'info');
 
-            // Add click animation
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 btn.style.transform = 'scale(1)';
@@ -611,14 +725,13 @@ function initializeServicePreviews() {
         });
     });
 
-    // Enhanced sharing item interactions
+    // 나눔 아이템 상호작용
     const sharingItems = document.querySelectorAll('.sharing-item');
     sharingItems.forEach(item => {
         item.addEventListener('click', () => {
             const title = item.querySelector('h4').textContent;
             showNotification(`"${title}" 상세 정보를 확인합니다.`, 'info');
 
-            // Add selection effect
             item.style.background = 'rgba(45, 90, 61, 0.1)';
             item.style.borderRadius = '8px';
             setTimeout(() => {
@@ -627,7 +740,6 @@ function initializeServicePreviews() {
             }, 200);
         });
 
-        // Add hover effect for better UX
         item.addEventListener('mouseenter', () => {
             item.style.transform = 'translateX(5px)';
             item.style.transition = 'transform 0.2s ease';
@@ -638,14 +750,13 @@ function initializeServicePreviews() {
         });
     });
 
-    // Enhanced product item interactions
+    // 제품 아이템 상호작용
     const productItems = document.querySelectorAll('.product-item');
     productItems.forEach(item => {
         item.addEventListener('click', () => {
             const title = item.querySelector('h4').textContent;
             showNotification(`"${title}" 장바구니에 추가되었습니다! 🛒`, 'success');
 
-            // Add cart animation effect
             item.style.transform = 'scale(0.95)';
             item.style.boxShadow = '0 0 20px rgba(45, 90, 61, 0.3)';
             setTimeout(() => {
@@ -654,7 +765,6 @@ function initializeServicePreviews() {
             }, 200);
         });
 
-        // Add hover effect
         item.addEventListener('mouseenter', () => {
             item.style.transform = 'translateY(-3px)';
             item.style.transition = 'transform 0.2s ease';
@@ -667,21 +777,19 @@ function initializeServicePreviews() {
         });
     });
 
-    // Enhanced post item interactions
+    // 게시글 아이템 상호작용
     const postItems = document.querySelectorAll('.post-item');
     postItems.forEach(item => {
         item.addEventListener('click', () => {
             const title = item.querySelector('h4').textContent;
             showNotification(`"${title}" 게시글을 읽습니다.`, 'info');
 
-            // Add reading effect
             item.style.opacity = '0.7';
             setTimeout(() => {
                 item.style.opacity = '1';
             }, 150);
         });
 
-        // Add hover effect
         item.addEventListener('mouseenter', () => {
             if (!item.classList.contains('hot')) {
                 item.style.background = 'rgba(45, 90, 61, 0.05)';
@@ -700,16 +808,14 @@ function initializeServicePreviews() {
         });
     });
 
-    // Upload zone drag and drop functionality
+    // 드래그 앤 드롭 기능
     const uploadZones = document.querySelectorAll('.upload-zone-large, .upload-zone');
     uploadZones.forEach(zone => {
-        // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             zone.addEventListener(eventName, preventDefaults, false);
             document.body.addEventListener(eventName, preventDefaults, false);
         });
 
-        // Highlight drop zone when item is dragged over it
         ['dragenter', 'dragover'].forEach(eventName => {
             zone.addEventListener(eventName, highlight, false);
         });
@@ -718,7 +824,6 @@ function initializeServicePreviews() {
             zone.addEventListener(eventName, unhighlight, false);
         });
 
-        // Handle dropped files
         zone.addEventListener('drop', handleDrop, false);
 
         function preventDefaults(e) {
@@ -745,7 +850,6 @@ function initializeServicePreviews() {
                 if (file.type.startsWith('image/')) {
                     showNotification(`이미지 "${file.name}"이 업로드되었습니다! 분석을 시작합니다...`, 'info');
 
-                    // Simulate processing
                     setTimeout(() => {
                         showNotification('AI 분석이 완료되었습니다! 🤖', 'success');
                     }, 2000);
@@ -756,7 +860,7 @@ function initializeServicePreviews() {
         }
     });
 
-    // Add intersection observer for animations
+    // 애니메이션을 위한 Intersection Observer
     const serviceObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -769,7 +873,6 @@ function initializeServicePreviews() {
         rootMargin: '0px 0px -50px 0px'
     });
 
-    // Observe service preview elements
     document.querySelectorAll('.ai-demo-large, .other-services-row .preview-card').forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(30px)';
@@ -778,44 +881,18 @@ function initializeServicePreviews() {
     });
 }
 
-// Enhanced loading animation styles
-const loadingStyles = `
-.loading-dots {
-    display: inline-block;
-    font-size: 12px;
-    margin-left: 5px;
-    animation: loadingPulse 1.5s infinite;
-}
-
-@keyframes loadingPulse {
-    0%, 20% { opacity: 0.2; }
-    50% { opacity: 1; }
-    100% { opacity: 0.2; }
-}
-`;
-
-// Inject loading styles
-if (!document.querySelector('#loading-styles')) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'loading-styles';
-    styleSheet.textContent = loadingStyles;
-    document.head.appendChild(styleSheet);
-}
-// Enhanced viewport and layout management
+// 뷰포트 및 레이아웃 관리
 function handleViewportChange() {
     const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
     const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 
-    // CSS 변수로 뷰포트 크기 전달
     document.documentElement.style.setProperty('--vw', `${vw}px`);
     document.documentElement.style.setProperty('--vh', `${vh}px`);
 
-    // 화면 크기별 클래스 추가/제거
     const screenSize = getScreenSize();
     document.body.className = document.body.className.replace(/screen-\w+/g, '');
     document.body.classList.add(`screen-${screenSize}`);
 
-    // 컨테이너 변수 업데이트
     if (vw >= 1600) {
         document.documentElement.style.setProperty('--container-max-width', '1600px');
         document.documentElement.style.setProperty('--container-padding', '40px');
@@ -828,7 +905,7 @@ function handleViewportChange() {
     }
 }
 
-// Enhanced window resize handler
+// 윈도우 리사이즈 핸들러
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
@@ -836,18 +913,16 @@ window.addEventListener('resize', () => {
         updateSliderForScreenSize();
         adjustGridLayouts();
 
-        // 큰 화면에서 애니메이션 다시 트리거
         if (window.innerWidth >= 1200) {
             triggerLargeScreenAnimations();
         }
     }, 250);
 });
 
-// Grid layout dynamic adjustment
+// 그리드 레이아웃 동적 조정
 function adjustGridLayouts() {
     const screenSize = getScreenSize();
 
-    // Impact grid 조정
     const impactGrid = document.querySelector('.impact-grid');
     if (impactGrid) {
         switch (screenSize) {
@@ -865,27 +940,10 @@ function adjustGridLayouts() {
                 impactGrid.style.gap = '';
         }
     }
-
-    // Preview grid 조정
-    const previewGrid = document.querySelector('.preview-grid');
-    if (previewGrid) {
-        switch (screenSize) {
-            case 'ultra-wide':
-                previewGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                break;
-            case 'extra-large':
-            case 'large':
-                previewGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                break;
-            default:
-                previewGrid.style.gridTemplateColumns = '';
-        }
-    }
 }
 
-// Large screen animations
+// 큰 화면용 애니메이션
 function triggerLargeScreenAnimations() {
-    // Impact cards 재애니메이션
     const impactCards = document.querySelectorAll('.impact-card');
     impactCards.forEach((card, index) => {
         setTimeout(() => {
@@ -894,7 +952,6 @@ function triggerLargeScreenAnimations() {
         }, index * 100);
     });
 
-    // Chart bars 재애니메이션
     const chartBars = document.querySelectorAll('.chart-bar');
     chartBars.forEach((bar, index) => {
         const height = bar.style.height;
@@ -905,50 +962,7 @@ function triggerLargeScreenAnimations() {
     });
 }
 
-// Environmental data simulation
-function updateEnvironmentalData() {
-    // Update air quality randomly
-    const aqiNumber = document.querySelector('.aqi-number');
-    if (aqiNumber) {
-        const currentAqi = parseInt(aqiNumber.textContent);
-        const newAqi = Math.max(20, Math.min(80, currentAqi + (Math.random() - 0.5) * 10));
-        aqiNumber.textContent = Math.round(newAqi);
-
-        // Update grade based on AQI
-        const aqiGrade = document.querySelector('.aqi-grade');
-        if (newAqi <= 50) {
-            aqiGrade.textContent = '좋음';
-            aqiGrade.parentElement.className = 'aqi-value good';
-        } else if (newAqi <= 100) {
-            aqiGrade.textContent = '보통';
-            aqiGrade.parentElement.className = 'aqi-value moderate';
-        }
-    }
-}
-
-// Add active state to navigation based on scroll position
-window.addEventListener('scroll', () => {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-menu a[href^="#"]');
-
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (scrollY >= sectionTop - 200 && scrollY < sectionTop + sectionHeight - 200) {
-            current = section.getAttribute('id');
-        }
-    });
-
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === '#' + current) {
-            link.classList.add('active');
-        }
-    });
-});
-
-// Enhanced scroll to top functionality
+// 스크롤 투 탑 버튼 생성
 function createScrollToTopButton() {
     const scrollButton = document.createElement('button');
     scrollButton.innerHTML = '↑';
@@ -982,7 +996,6 @@ function createScrollToTopButton() {
 
     document.body.appendChild(scrollButton);
 
-    // Show/hide scroll button based on scroll position
     window.addEventListener('scroll', () => {
         if (window.scrollY > 500) {
             scrollButton.style.opacity = '1';
@@ -994,9 +1007,8 @@ function createScrollToTopButton() {
     });
 }
 
-// Enhanced hover effects
+// 호버 효과 추가
 function addHoverEffects() {
-    // Impact cards hover effect
     const impactCards = document.querySelectorAll('.impact-card');
     impactCards.forEach(card => {
         card.addEventListener('mouseenter', () => {
@@ -1010,7 +1022,6 @@ function addHoverEffects() {
         });
     });
 
-    // Activity items hover effect
     const activityItems = document.querySelectorAll('.activity-item');
     activityItems.forEach(item => {
         item.addEventListener('mouseenter', () => {
@@ -1028,159 +1039,28 @@ function addHoverEffects() {
     });
 }
 
-// Environmental updates
-function startEnvironmentalUpdates() {
-    // Update environmental data every 30 seconds
-    setInterval(() => {
-        updateEnvironmentalData();
-    }, 30000);
-}
+// 가라데이터 초기화
+function initializeDemoData() {
+    // 메인 통계 숫자 업데이트
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const statsData = [
+        DEMO_DATA.stats.monthlyWaste,
+        DEMO_DATA.stats.activeUsers,
+        DEMO_DATA.stats.accuracy,
+        DEMO_DATA.stats.uptime
+    ];
 
-// Performance monitoring
-function trackPerformance() {
-    // Monitor page load performance
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            const loadTime = Math.round(perfData.loadEventEnd - perfData.loadEventStart);
-
-            if (loadTime > 0) {
-                console.log(`🚀 페이지 로드 시간: ${loadTime}ms`);
-
-                // Show performance notification for very fast loads
-                if (loadTime < 1000) {
-                    setTimeout(() => {
-                        showNotification('페이지가 빠르게 로드되었습니다! ⚡', 'success');
-                    }, 2000);
-                }
-            }
-        }, 1000);
+    statNumbers.forEach((stat, index) => {
+        if (statsData[index] !== undefined) {
+            stat.setAttribute('data-count', statsData[index]);
+        }
     });
 }
 
-// Initialize page functionality
-function initializePage() {
-    // Initialize viewport and responsive features
-    handleViewportChange();
-    updateSliderForScreenSize();
-    adjustGridLayouts();
-
-    // Initialize core components
-    initializeSlider();
-    initializeImpactDashboard();
-    initializeActivityFeed();
-    initializeServicePreviews();
-
-    // Create additional features
-    createScrollToTopButton();
-    addHoverEffects();
-
-    // Start background processes
-    startEnvironmentalUpdates();
-
-    // Observe elements for animation
-    document.querySelectorAll('.stats, .hero-content, .impact-card, .story-card, .cert-item').forEach(el => {
-        observer.observe(el);
-    });
-
-    // Add keyboard navigation support
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            // Close mobile menu if open
-            if (navMenu && navMenu.classList.contains('active')) {
-                closeMobileMenu();
-            }
-        }
-
-        // Slider keyboard navigation
-        if (e.key === 'ArrowLeft') {
-            stopAutoSlide();
-            prevSlide();
-            startAutoSlide();
-        } else if (e.key === 'ArrowRight') {
-            stopAutoSlide();
-            nextSlide();
-            startAutoSlide();
-        }
-    });
-
-    // Handle page visibility change
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            stopAutoSlide();
-            stopActivityFeed();
-        } else {
-            startAutoSlide();
-            startActivityFeed();
-        }
-    });
-
-    // Add resize listener
-    window.addEventListener('resize', handleViewportChange);
-
-    console.log('🌱 GreenCycle 스마트 환경 플랫폼이 초기화되었습니다.');
-    console.log(`📱 현재 화면 크기: ${getScreenSize()}`);
-}
-
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initializePage();
-    trackPerformance();
-
-    // Add loading animation
-    setTimeout(() => {
-        document.body.classList.add('loaded');
-    }, 500);
-
-    // Add initial CSS for story cards and cert items
-    const storyCards = document.querySelectorAll('.story-card');
-    const certItems = document.querySelectorAll('.cert-item');
-
-    storyCards.forEach(card => {
-        card.style.transform = 'translateY(30px)';
-        card.style.opacity = '0';
-        card.style.transition = 'all 0.6s ease';
-    });
-
-    certItems.forEach(item => {
-        item.style.transform = 'translateY(30px)';
-        item.style.opacity = '0';
-        item.style.transition = 'all 0.6s ease';
-    });
-
-    console.log('🎯 실시간 데이터 업데이트가 시작되었습니다.');
-});
-
-// Page load completion
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        if (window.innerWidth >= 1200) {
-            triggerLargeScreenAnimations();
-        }
-
-        // Performance optimization
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => {
-                console.log('💚 GreenCycle 대형 화면 최적화 완료');
-            });
-        }
-    }, 1000);
-});
-
-// Error handling
-window.addEventListener('error', (e) => {
-    console.warn('페이지 오류:', e.error);
-});
-
-// Export functions for global access
-window.scrollToSection = scrollToSection;
-window.showNotification = showNotification;
-
-// Hero Background Slider
+// 히어로 슬라이더 클래스
 class HeroSlider {
     constructor() {
         this.slides = document.querySelectorAll('.hero-slide');
-        this.indicators = document.querySelectorAll('.indicator');
         this.currentSlide = 0;
         this.slideInterval = null;
         this.isPlaying = true;
@@ -1191,20 +1071,9 @@ class HeroSlider {
     init() {
         if (this.slides.length === 0) return;
 
-        // 첫 번째 슬라이드 활성화
         this.showSlide(0);
-
-        // 인디케이터 이벤트 리스너
-        this.indicators.forEach((indicator, index) => {
-            indicator.addEventListener('click', () => {
-                this.goToSlide(index);
-            });
-        });
-
-        // 자동 재생 시작
         this.startAutoPlay();
 
-        // 페이지 가시성 변경 감지
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 this.pauseAutoPlay();
@@ -1213,7 +1082,6 @@ class HeroSlider {
             }
         });
 
-        // 윈도우 포커스/블러 이벤트
         window.addEventListener('focus', () => {
             if (this.isPlaying) {
                 this.startAutoPlay();
@@ -1224,7 +1092,6 @@ class HeroSlider {
             this.pauseAutoPlay();
         });
 
-        // 마우스 호버 시 일시정지 (선택사항)
         const heroSection = document.querySelector('.hero');
         if (heroSection) {
             heroSection.addEventListener('mouseenter', () => {
@@ -1237,28 +1104,15 @@ class HeroSlider {
                 }
             });
         }
-
-        console.log('🎬 Hero slider initialized with', this.slides.length, 'slides');
     }
 
     showSlide(index) {
-        // 모든 슬라이드 비활성화
         this.slides.forEach(slide => {
             slide.classList.remove('active');
         });
 
-        // 모든 인디케이터 비활성화
-        this.indicators.forEach(indicator => {
-            indicator.classList.remove('active');
-        });
-
-        // 해당 슬라이드와 인디케이터 활성화
         if (this.slides[index]) {
             this.slides[index].classList.add('active');
-        }
-
-        if (this.indicators[index]) {
-            this.indicators[index].classList.add('active');
         }
 
         this.currentSlide = index;
@@ -1269,31 +1123,13 @@ class HeroSlider {
         this.showSlide(nextIndex);
     }
 
-    prevSlide() {
-        const prevIndex = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
-        this.showSlide(prevIndex);
-    }
-
-    goToSlide(index) {
-        if (index >= 0 && index < this.slides.length) {
-            this.showSlide(index);
-            // 수동 전환 시 자동재생 잠시 중단 후 재시작
-            this.pauseAutoPlay();
-            setTimeout(() => {
-                if (this.isPlaying) {
-                    this.startAutoPlay();
-                }
-            }, 5000); // 5초 후 자동재생 재시작
-        }
-    }
-
     startAutoPlay() {
-        this.pauseAutoPlay(); // 기존 인터벌 정리
+        this.pauseAutoPlay();
 
         if (this.slides.length > 1) {
             this.slideInterval = setInterval(() => {
                 this.nextSlide();
-            }, 3000); // 3초마다 전환
+            }, 5000);
         }
     }
 
@@ -1313,126 +1149,131 @@ class HeroSlider {
         this.isPlaying = false;
         this.pauseAutoPlay();
     }
+}
 
-    // 키보드 컨트롤 (선택사항)
-    handleKeyboard(event) {
-        switch(event.key) {
-            case 'ArrowLeft':
-                this.prevSlide();
-                break;
-            case 'ArrowRight':
-                this.nextSlide();
-                break;
-            case ' ': // 스페이스바
-                event.preventDefault();
-                if (this.isPlaying) {
-                    this.pause();
-                } else {
-                    this.play();
-                }
-                break;
+// 페이지 기능 초기화
+function initializePage() {
+    // 푸터 로드
+    loadFooter();
+
+    // 가라데이터 초기화
+    initializeDemoData();
+
+    handleViewportChange();
+    updateSliderForScreenSize();
+    adjustGridLayouts();
+
+    initializeSlider();
+    initializeImpactDashboard();
+    initializeActivityFeed();
+    initializeServicePreviews();
+
+    createScrollToTopButton();
+    addHoverEffects();
+
+    // 관찰자 설정
+    document.querySelectorAll('.stats, .hero-content, .impact-card, .story-card').forEach(el => {
+        observer.observe(el);
+    });
+
+    // 키보드 네비게이션 지원
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (navMenu && navMenu.classList.contains('active')) {
+                closeMobileMenu();
+            }
         }
-    }
-}
 
-// 이미지 사전 로딩 함수
-function preloadHeroImages() {
-    const imageUrls = [
-        'images/hero-bg-1.jpg',
-        'images/hero-bg-2.jpg',
-        'images/hero-bg-3.jpg'
-    ];
-
-    const imagePromises = imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                console.log(`✅ Loaded: ${url}`);
-                resolve(img);
-            };
-            img.onerror = () => {
-                console.warn(`❌ Failed to load: ${url}`);
-                resolve(null); // 실패해도 계속 진행
-            };
-            img.src = url;
-        });
+        if (e.key === 'ArrowLeft') {
+            stopAutoSlide();
+            prevSlide();
+            startAutoSlide();
+        } else if (e.key === 'ArrowRight') {
+            stopAutoSlide();
+            nextSlide();
+            startAutoSlide();
+        }
     });
 
-    Promise.all(imagePromises).then(images => {
-        const loadedCount = images.filter(img => img !== null).length;
-        console.log(`🖼️ Preloaded ${loadedCount}/${imageUrls.length} hero images`);
+    // 페이지 가시성 변경 처리
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopAutoSlide();
+            stopActivityFeed();
+        } else {
+            startAutoSlide();
+            startActivityFeed();
+        }
     });
+
+    window.addEventListener('resize', handleViewportChange);
+
+    console.log('🌱 ECOVERY 스마트 환경 플랫폼이 초기화되었습니다.');
+    console.log(`📱 현재 화면 크기: ${getScreenSize()}`);
 }
 
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    // 이미지 사전 로딩
-    preloadHeroImages();
+// DOM 로드 완료 시 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    initializePage();
 
-    // 슬라이더 초기화 (약간의 지연을 두어 DOM이 완전히 로드되도록)
+    setTimeout(() => {
+        document.body.classList.add('loaded');
+    }, 500);
+
+    // 스토리 카드 초기 설정
+    const storyCards = document.querySelectorAll('.story-card');
+    storyCards.forEach(card => {
+        card.style.transform = 'translateY(30px)';
+        card.style.opacity = '0';
+        card.style.transition = 'all 0.6s ease';
+    });
+
+    // 히어로 슬라이더 초기화
     setTimeout(() => {
         window.heroSlider = new HeroSlider();
-
-        // 키보드 이벤트 리스너 추가 (선택사항)
-        document.addEventListener('keydown', (event) => {
-            // 입력 필드에 포커스가 있을 때는 키보드 컨트롤 비활성화
-            if (document.activeElement.tagName === 'INPUT' ||
-                document.activeElement.tagName === 'TEXTAREA') {
-                return;
-            }
-            window.heroSlider.handleKeyboard(event);
-        });
-
     }, 100);
 });
 
-// 윈도우 리사이즈 시 슬라이더 재조정 (선택사항)
-window.addEventListener('resize', function() {
-    // 필요시 슬라이더 크기 재조정 로직 추가
-    console.log('🔄 Window resized, hero slider adjusted');
-});
+// 페이지 로드 완료 시
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (window.innerWidth >= 1200) {
+            triggerLargeScreenAnimations();
+        }
 
-// 성능 최적화: Intersection Observer로 히어로 섹션이 보일 때만 슬라이더 실행
-function initIntersectionObserver() {
-    const heroSection = document.querySelector('.hero');
-    if (!heroSection) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (window.heroSlider) {
-                if (entry.isIntersecting) {
-                    window.heroSlider.play();
-                } else {
-                    window.heroSlider.pause();
-                }
-            }
-        });
-    }, {
-        threshold: 0.1 // 10% 보일 때 트리거
-    });
-
-    observer.observe(heroSection);
-}
-
-// Intersection Observer 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initIntersectionObserver, 200);
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                console.log('💚 ECOVERY 대형 화면 최적화 완료');
+            });
+        }
+    }, 1000);
 });
 
 // 에러 처리
-window.addEventListener('error', function(event) {
-    if (event.target.tagName === 'IMG') {
-        console.warn('Hero image failed to load:', event.target.src);
-        // 대체 이미지나 기본 배경으로 설정
-        event.target.style.backgroundColor = 'var(--primary-green)';
-    }
+window.addEventListener('error', (e) => {
+    console.warn('페이지 오류:', e.error);
 });
 
-// 개발자 도구에서 슬라이더 제어를 위한 전역 함수들
-window.heroSliderControls = {
-    next: () => window.heroSlider?.nextSlide(),
-    prev: () => window.heroSlider?.prevSlide(),
-    goTo: (index) => window.heroSlider?.goToSlide(index),
-    play: () => window.heroSlider?.play(),
-    pause: () => window.heroSlider?.pause()
+// 전역 함수 노출
+window.scrollToSection = scrollToSection;
+window.showNotification = showNotification;
+
+// 개발자 도구용 제어 함수
+window.egoveryControls = {
+    heroSlider: {
+        next: () => window.heroSlider?.nextSlide(),
+        play: () => window.heroSlider?.play(),
+        pause: () => window.heroSlider?.pause()
+    },
+    servicesSlider: {
+        next: () => nextSlide(),
+        prev: () => prevSlide(),
+        goto: (index) => showSlide(index)
+    },
+    notifications: {
+        success: (msg) => showNotification(msg, 'success'),
+        error: (msg) => showNotification(msg, 'error'),
+        info: (msg) => showNotification(msg, 'info')
+    },
+    data: DEMO_DATA
 };
