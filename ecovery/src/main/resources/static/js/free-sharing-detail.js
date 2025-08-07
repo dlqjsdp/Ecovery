@@ -1,3 +1,37 @@
+/*
+ * 무료나눔 게시글 상세 페이지 스크립트
+ * 상세 페이지의 UI 렌더링, 댓글 처리, 게시글 상태 업데이트 등 다양한 인터랙션 기능을 제공
+ *
+ * [프론트엔드 기능 - by eunji]
+ * - 대표 이미지 및 썸네일 이미지 렌더링
+ * - 상세 정보 UI 구성 및 시간 포맷 처리 (formatTimeAgo)
+ * - 댓글, 대댓글 입력창 및 입력/수정/삭제 UI 동작 처리
+ * - 댓글 페이징 및 정렬 드롭다운, Enter 키 등록 이벤트 처리
+ * - 게시글 수정/삭제 버튼 동작, 모달 UI 처리
+ * - 알림 메시지(showNotification) 및 애니메이션 효과 처리
+ * - 상태 배지 색상 변경 및 화면 실시간 반영 (updateProductStatus)
+ * - 반응형 UI 및 사용자 경험 개선 요소 (fade-in, ESC로 모달 닫기 등)
+
+ * [백엔드 연동 기능 - by yeonsu]
+ * - 게시글 상세 정보 조회: GET /api/free/get/{freeId}
+ * - 댓글 목록 조회: GET /api/replies/parent/{freeId}?sortType=&page=&amount=
+ * - 댓글 등록: POST /api/replies/register
+ * - 대댓글 등록: POST /api/replies/register/child
+ * - 댓글 수정: PUT /api/replies/modify/{replyId}
+ * - 댓글 삭제: DELETE /api/replies/remove/{replyId}
+ * - 대댓글 조회: GET /api/replies/child/{parentId}
+ * - 게시글 삭제: DELETE /api/free/remove/{freeId}
+ * - 게시글 상태 수정(나눔중/완료): PUT /api/free/modify/{freeId} (multipart/form-data)
+ * - 서버 전달 정보:
+ *   - window.loginUserId, window.loginUserRole (백엔드에서 Thymeleaf로 전달)
+ *   - 게시글 데이터(item), 이미지 리스트(item.imgList), 댓글(replyId 등)
+ *
+ * @author   : eunji, yeonsu
+ * @fileName : free-sharing-detail.js
+ * @since    : 250728
+ */
+
+
 /*서버에서 받은 데이터를 사용자가 읽기 좋게 바꿔주는 유틸리티 함수*/
 // 거래상태
 function getStatusText(status){

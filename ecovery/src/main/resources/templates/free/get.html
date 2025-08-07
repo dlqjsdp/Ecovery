@@ -1,3 +1,29 @@
+<!--
+ * 무료나눔 게시판 상세페이지
+ * 게시글의 상세 정보, 이미지, 댓글 등을 확인하고 관리할 수 있는 화면
+ *
+ * [프론트엔드 기능 - by eunji]
+ * - 상품 대표 이미지 및 썸네일 이미지 출력 영역 구성
+ * - 상품 정보(제목, 카테고리, 상태, 지역, 등록일 등) UI 표시
+ * - 작성자/관리자일 경우 수정/삭제 버튼 표시
+ * - 상세 설명 영역 분리 구성
+ * - 댓글 입력, 정렬 드롭다운, 댓글 목록 출력 및 페이징 UI 구성
+ * - free-sharing-detail.js를 통해 비동기 방식으로 상세 정보 및 댓글 렌더링
+ * - CSS 스타일링은 free-sharing-detail.css에서 담당
+ *
+ * [백엔드 기능 - by yeonsu]
+ * - 게시글 정보 전달: board, loginMemberNickname, loginMemberRole 등
+ * - 로그인 여부 판단 후 댓글 작성 폼 또는 로그인 안내 출력 (Thymeleaf 조건문)
+ * - 작성자 또는 관리자일 경우에만 수정/삭제 버튼 표시 (Thymeleaf 조건문 + Spring Security)
+ * - 댓글 정렬 및 페이징은 JS에서 fetch 호출로 처리, 로그인 정보는 window.loginUserId 등으로 JS에 전달
+ * - 레이아웃 템플릿(layout1.html) 및 헤더 fragment(header.html) 적용
+ * - 게시글 상세보기에서 목록 페이지로 돌아갈 때 현재 페이지 번호 전달 (th:href="@{/free/list(page=${page})}")
+ *
+ * @author   : eunji, yeonsu
+ * @fileName : detail.html
+ * @since    : 250728
+-->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
