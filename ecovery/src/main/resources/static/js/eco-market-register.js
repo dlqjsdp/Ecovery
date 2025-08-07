@@ -222,7 +222,7 @@ function setupRegistrationEvents() {
                     console.log('✅ 상품 등록 완료');
                     setTimeout(() => {
                         window.location.href = "/eco/list";
-                    }, 200);
+                    }, 2000);
                 } else {
                     isSubmitting = false;           //실패 시 플래그 복구
                     const errorData = await response.json();
