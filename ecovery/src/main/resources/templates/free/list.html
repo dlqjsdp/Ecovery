@@ -1,26 +1,3 @@
-<!--
- * 무료나눔 게시판 목록 페이지
- * 사용자가 등록한 무료나눔 게시글 목록을 조회 및 검색할 수 있는 페이지 (페이징 가능)
- *
- * [프론트엔드 기능 - eunji]
- * - Hero 영역에 오늘 나눔 건수, 전체 나눔 건수, 활성 회원 수 등의 통계 UI 제공
- * - 나눔 등록 버튼 및 검색 필터 UI 구성 (카테고리 선택, 키워드 입력)
- * - 게시글 카드 UI를 동적으로 렌더링 (JavaScript로 카드 목록 출력)
- * - '더 보기' 버튼을 통한 무한 로딩 UX 구현
- * - 사용자 경험 개선을 위한 애니메이션(fade-container), 반응형 레이아웃 구성
-
- * [백엔드 기능 - yeonsu]
- * - Spring Security를 이용해 로그인 여부에 따라 나눔 등록 버튼 제어
- *   (ROLE_USER, ROLE_ADMIN → 등록 버튼 / 비로그인 → 로그인 유도 버튼)
- * - 검색 조건(type, keyword)을 서버로 전송해 필터링된 게시글 목록 조회 처리
- * - Thymeleaf 문법(th:*, sec:*)을 통해 서버 데이터와 UI 동기화
-  * - freesharing.css 스타일 적용 및 freesharing.js 연동
-
- * @author   : eunji, yeonsu
- * @fileName : list.html
- * @since    : 250728
--->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -30,7 +7,8 @@
 <head th:with="pageTitle='무료나눔'">
     <title>무료나눔</title>
     <th:block layout:fragment="css">
-        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" href="/css/header.css">
+        <link rel="stylesheet" href="/css/footer.css">
         <link rel="stylesheet" th:href="@{/css/freesharing.css}">
     </th:block>
 </head>
@@ -40,7 +18,7 @@
 <!-- Main Content -->
 <div layout:fragment="content">
     <!-- Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section fade-in">
         <div class="container">
             <div class="hero-content">
                 <h1>🤝 무료나눔 커뮤니티</h1>
@@ -65,51 +43,52 @@
     </section>
 
     <!-- Filter and Actions -->
-    <section class="filter-section">
+    <section class="filter-section fade-in">
         <div class="container">
             <div class="filter-header">
                 <div class="filter-left">
                     <h2>우리 동네 나눔</h2>
                 </div>
-                <div class="filter-right">
-                    <!-- 로그인한 사용자만 보이는 버튼 -->
-                    <a th:href="@{/free/register}"
-                       class="btn btn-primary"
-                       sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">
-                        <span>+</span> 나눔 등록
-                    </a>
 
-                    <!-- 비로그인 사용자에게만 보이는 버튼 -->
-                    <a href="/member/login"
-                       class="btn btn-primary"
-                       sec:authorize="isAnonymous()">
-                        <span>+</span> 로그인 후 나눔 등록
-                    </a>
-                </div>
-            </div>
+                <div class="filter-controls">
+                    <!-- 왼쪽: 검색 영역 -->
+                    <div class="search-area">
+                        <!-- 선택창과 검색창을 하나의 그룹으로 묶기 -->
+                        <div class="search-input-group">
+                            <select id="categoryFilter" name="type">
+                                <option value="TCR">전체</option>
+                                <option value="T">제목</option>
+                                <option value="R">지역</option>
+                                <option value="C">내용</option>
+                            </select>
+                            <input type="text" id="searchInput" name="keyword" placeholder="원하는 검색어를 검색하세요...">
+                            <button type="button" class="search-btn" id="searchBtn">🔍</button>
+                        </div>
+                    </div>
 
-            <!-- 필터 컨트롤 영역 - 폼으로 감싸서 서버에 전송 -->
-            <div class="filter-controls" id="filterControls">
-                <div class="filter-group">
-                    <label>검색 항목</label>
-                    <select id="categoryFilter" name="type">
-                        <option value="TCR">전체</option>
-                        <option value="T">제목</option>
-                        <option value="R">지역</option>
-                        <option value="C">내용</option>
-                    </select>
-                </div>
+                    <!-- 오른쪽: 등록 버튼 -->
+                    <div class="register-area">
+                        <!-- 로그인한 사용자만 보이는 버튼 -->
+                        <a th:href="@{/free/register}"
+                           class="btn-register"
+                           sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">
+                            <span>+</span> 나눔 등록
+                        </a>
 
-                <div class="search-group">
-                    <input type="text" id="searchInput" name="keyword" placeholder="원하는 검색어를 검색하세요...">
-                    <button type="button" class="search-btn" id="searchBtn">🔍</button>
+                        <!-- 비로그인 사용자에게만 보이는 버튼 -->
+                        <a href="/member/login"
+                           class="btn-register"
+                           sec:authorize="isAnonymous()">
+                            <span>+</span> 나눔 등록
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Items Grid -->
-    <section class="items-section">
+    <section class="items-section fade-in">
         <div class="container">
             <div class="items-header">
                 <div class="items-count">
@@ -133,7 +112,7 @@
             <div class="pagination" id="pagination"></div>
         </div>
     </section>
-    
+
     <th:block layout:fragment="script">
         <!-- 추가 JS (필요시만) -->
         <script th:src="@{/js/freesharing.js}"></script>

@@ -5,11 +5,13 @@
 <head th:with="pageTitle='분리배출 ai 서비스'">
     <title>분리배출 ai 서비스</title>
     <th:block layout:fragment="css">
+        <link rel="stylesheet" href="/css/header.css">
+        <link rel="stylesheet" href="/css/footer.css">
         <link rel="stylesheet" href="/css/disposalMain.css">
     </th:block>
 </head>
 
-<div layout:fragment="content">
+  <div layout:fragment="content">
 
     <form id="uploadForm" method="post" enctype="multipart/form-data">
 
@@ -191,5 +193,6 @@
 <th:block layout:fragment="script">
     <script src="/js/disposalMain.js"></script>
 </th:block>
+
 
 </html>

@@ -4,6 +4,8 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 <th:block layout:fragment="css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
     <link rel="stylesheet" href="/css/free-sharing-register.css">
 </th:block>
 
@@ -24,13 +26,6 @@
         </div>
     </section>
 
-    <!-- 페이지 제목 -->
-    <section class="page-header">
-        <div class="container">
-            <h1 class="page-title">🤝 무료나눔 등록</h1>
-            <p class="page-subtitle">사용하지 않는 물건을 이웃과 나누며 자원 순환을 실현해보세요</p>
-        </div>
-    </section>
 
     <!-- 등록 폼 -->
     <section class="registration-section">

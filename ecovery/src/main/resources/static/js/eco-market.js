@@ -7,6 +7,7 @@
  *  - 250729 | sehui | 에코마켓 목록 페이징 처리 기능 추가
  *  - 250805 | sehui | 에코마켓 목록 페이지에서 사용하지 않는 기능 삭제
  *  - 250805 | sehui | 에코마켓 목록 한 페이지당 상품 개수 10개 -> 12개로 변경
+ *  - 250808 | sehui | 페이드인 효과 및 검색창 개선 기능 추가
  */
 
 /* ==========================================================================
@@ -27,8 +28,9 @@ const pagination = document.getElementById('pagination');           // 페이지
 // 페이지 로드 완료 시 실행
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 상품 목록 페이지 메인 기능 로딩 시작');
-    
+
     initializePage();       // 페이지 기본 설정 초기화
+    setupFadeInAnimation(); // 페이드인 애니메이션 설정
     loadItems();           // 상품 데이터 로드
     setupFilterForm();      //검색 필터 이벤트 리스너
 
@@ -45,25 +47,27 @@ function initializePage() {
     // 헤더 스크롤 효과 설정
     window.addEventListener('scroll', () => {
         if (window.scrollY > 100) {
-            header.classList.add('scrolled');
+            header && header.classList.add('scrolled');
         } else {
-            header.classList.remove('scrolled');
+            header && header.classList.remove('scrolled');
         }
     });
 
     // 모바일 햄버거 메뉴 토글
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
-
-    // 네비게이션 링크 클릭 시 모바일 메뉴 닫기
-    document.querySelectorAll('.nav-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
         });
-    });
+
+        // 네비게이션 링크 클릭         // 네비게이션 링크 클릭 시 모바일 메뉴 닫기
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+    }
 }
 
 /* ==========================================================================
@@ -73,7 +77,7 @@ function initializePage() {
 // 상품 목록 로드
 function loadItems(pageNum = 1,  itemNm = "", category = "") {
     console.log('⚙️ 상품 목록 로드...');
-    
+
     const url = new URL("/api/eco/list", window.location.origin);
     url.searchParams.set('pageNum', pageNum);
     url.searchParams.set("amount", 12);
@@ -188,15 +192,15 @@ function renderPagination(pageMaker, itemNm, category) {
     const pages = generatePageNumbers(current,total);
 
     pages.forEach(p => {
-       if(p === "..."){
-           const ellipsis = document.createElement("span");
-           ellipsis.className = "pagination-ellipsis";
-           ellipsis.textContent = "...";
-           pagination.appendChild(ellipsis);
-       }else {
-           const btn = createPaginationButton(p, p, false, p === current, itemNm, category);
-           pagination.appendChild(btn);
-       }
+        if(p === "..."){
+            const ellipsis = document.createElement("span");
+            ellipsis.className = "pagination-ellipsis";
+            ellipsis.textContent = "...";
+            pagination.appendChild(ellipsis);
+        }else {
+            const btn = createPaginationButton(p, p, false, p === current, itemNm, category);
+            pagination.appendChild(btn);
+        }
     });
 
     //다음 페이지 버튼
@@ -210,14 +214,14 @@ function createPaginationButton(text, pageNum, disabled = false, active = false,
     const button = document.createElement('button');
     button.className = `pagination-btn ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
     button.textContent = text;
-    
-    // 비활성 상태가 아닌 경우 클릭 이벤트 
-        button.addEventListener('click', () => {
-            if(disabled) return;         //내부에서 클릭제한
-            loadItems(pageNum, itemNm, category);
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 상단으로 스크롤
-        });
-    
+
+    // 비활성 상태가 아닌 경우 클릭 이벤트
+    button.addEventListener('click', () => {
+        if(disabled) return;         //내부에서 클릭제한
+        loadItems(pageNum, itemNm, category);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // 페이지 상단으로 스크롤
+    });
+
     return button;
 }
 
@@ -225,7 +229,7 @@ function createPaginationButton(text, pageNum, disabled = false, active = false,
 function generatePageNumbers(current, total) {
     const pages = [];
     const maxVisible = 7; // 최대 표시할 페이지 수
-    
+
     if (total <= maxVisible) {
         // 총 페이지가 7개 이하면 모두 표시
         for (let i = 1; i <= total; i++) {
@@ -258,7 +262,7 @@ function generatePageNumbers(current, total) {
             pages.push(total);
         }
     }
-    
+
     return pages;
 }
 
@@ -306,12 +310,12 @@ function showNotification(message, type = 'success') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // 새 알림 요소 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     // 알림 스타일 설정
     notification.style.cssText = `
         position: fixed;
@@ -328,14 +332,14 @@ function showNotification(message, type = 'success') {
         max-width: 300px;
         font-weight: 500;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // 애니메이션으로 표시
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // 3초 후 자동 제거
     setTimeout(() => {
         notification.style.transform = 'translateX(400px)';
@@ -362,4 +366,31 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
+}
+
+/* ==========================================================================
+   페이드인 애니메이션 설정 (새로 추가)
+   ========================================================================== */
+
+function setupFadeInAnimation() {
+    console.log('🎭 페이드인 애니메이션 설정...');
+
+    // Intersection Observer 설정
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    // 페이드인 효과를 적용할 요소들 관찰
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
 }

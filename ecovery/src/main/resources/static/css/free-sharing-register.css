@@ -25,7 +25,7 @@
     
     /* 크기 */
     --container-width: 1200px;     /* 최대 컨테이너 너비 */
-    --border-radius: 12px;         /* 모서리 둥글기 */
+    --border-radius: none;         /* 모서리 둥글기 */
     --box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1); /* 그림자 */
 }
 
@@ -44,119 +44,13 @@ body {
     padding: 0 20px;       /* 좌우 여백 */
 }
 
-/* =========================
-   헤더 (상단 메뉴)
-   ========================= */
-
-.header {
-    position: fixed;           /* 스크롤해도 고정 */
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.95); /* 반투명 흰색 */
-    backdrop-filter: blur(10px);            /* 뒷배경 흐림 효과 */
-    z-index: 1000;            /* 다른 요소보다 위에 */
-    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1); /* 그림자 */
-}
-
-.navbar {
-    padding: 15px 0;
-}
-
-.nav-container {
-    max-width: var(--container-width);
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;             /* 가로로 정렬 */
-    justify-content: space-between; /* 양쪽 끝에 배치 */
-    align-items: center;       /* 세로 가운데 정렬 */
-}
-
-/* 로고 스타일 */
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;                 /* 아이콘과 텍스트 사이 간격 */
-    text-decoration: none;     /* 밑줄 제거 */
-    color: var(--primary-green);
-    font-size: 24px;
-    font-weight: 700;          /* 굵은 글씨 */
-}
-
-.logo-img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-    display: block;
-}
-
-/* 메뉴 스타일 */
-.nav-menu {
-    display: flex;
-    list-style: none;          /* 불릿 포인트 제거 */
-    gap: 40px;                 /* 메뉴 간격 */
-    align-items: center;
-}
-
-.nav-menu a {
-    text-decoration: none;
-    color: var(--dark-gray);
-    font-weight: 500;
-    transition: color 0.3s ease; /* 색상 변화 애니메이션 */
-}
-
-.nav-menu a:hover {           /* 마우스 올렸을 때 */
-    color: var(--primary-green);
-}
-
-.nav-menu a.active {          /* 현재 페이지 */
-    color: var(--primary-green);
-    font-weight: 700;
-}
-
-/* 로그인/회원가입 버튼 */
-.auth-buttons {
-    display: flex;
-    gap: 15px;
-}
-
-.btn-login, .btn-signup {
-    padding: 8px 20px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-login {
-    background: transparent;
-    color: var(--primary-green);
-    border: 2px solid var(--primary-green);
-}
-
-.btn-login:hover {
-    background: var(--primary-green);
-    color: var(--white);
-}
-
-.btn-signup {
-    background: var(--primary-green);
-    color: var(--white);
-}
-
-.btn-signup:hover {
-    background: var(--dark-green);
-}
 
 /* =========================
    메인 내용
    ========================= */
 
 .main-content {
-    padding-top: 100px;       /* 헤더 높이만큼 여백 */
+    padding-top: 80px;       /* 헤더 높이만큼 여백 */
     min-height: 100vh;        /* 최소 화면 전체 높이 */
 }
 
@@ -189,26 +83,6 @@ body {
     font-weight: 500;
 }
 
-/* 페이지 제목 */
-.page-header {
-    padding: 40px 0;
-    text-align: center;
-    background: var(--white);
-}
-
-.page-title {
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--primary-green);
-    margin-bottom: 16px;
-}
-
-.page-subtitle {
-    font-size: 18px;
-    color: var(--medium-gray);
-    max-width: 600px;
-    margin: 0 auto;
-}
 
 /* =========================
    등록 폼
@@ -486,59 +360,6 @@ body {
     margin-top: 5px;
 }
 
-/* =========================
-   푸터 (하단)
-   ========================= */
-
-.footer {
-    background: var(--dark-green);
-    color: var(--white);
-    padding: 60px 0 20px;
-    margin-top: 80px;
-}
-
-.footer-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;  /* 첫 번째가 더 넓음 */
-    gap: 40px;
-    margin-bottom: 40px;
-}
-
-.footer-section h4 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--light-green);
-}
-
-.footer-section ul {
-    list-style: none;
-}
-
-.footer-section ul li {
-    margin-bottom: 12px;
-}
-
-.footer-section ul li a {
-    color: rgba(255, 255, 255, 0.8);      /* 반투명 흰색 */
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-section ul li a:hover {
-    color: var(--light-green);
-}
-
-.footer-section p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-}
-
-.footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px;
-    text-align: center;
-}
 
 /* =========================
    알림 메시지

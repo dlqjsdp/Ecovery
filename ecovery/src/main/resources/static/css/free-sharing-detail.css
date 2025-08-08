@@ -482,15 +482,16 @@ body {
 }
 
 /* =========================
-   버튼 스타일
+   버튼 스타일 (위치 수정)
    ========================= */
 
 /* 작성자 전용 액션 버튼 및 연락/채팅 버튼 */
 .product-actions { /* 변경: .action-buttons 대신 .product-actions 사용 */
     display: flex;
     gap: 10px;            /* 버튼 사이 간격 */
-    margin-top: 15px;
+    margin-top: 20px;
     justify-content: flex-end; /* 오른쪽으로 정렬 */
+    /* 🔥 수정: 작성자 정보와 상품 상세 정보 사이에 배치 */
 }
 
 /* 드롭다운 메뉴 스타일 */
@@ -533,10 +534,10 @@ body {
 .action-btn, /* 기존 .action-btn 유지 */
 .contact-btn {
     flex: 1;              /* 동일한 너비로 분할 */
-    padding: 15px 20px;
+    padding: 20px 30px;   /* 패딩 증가: 15px 20px → 20px 30px */
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 10px;  /* 모서리 둥글기 증가: 8px → 10px */
+    font-size: 18px;      /* 폰트 크기 증가: 16px → 18px */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -545,7 +546,8 @@ body {
     display: flex; /* 아이콘과 텍스트를 함께 중앙 정렬 */
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;            /* 아이콘과 텍스트 간격 증가: 8px → 10px */
+    min-height: 60px;     /* 최소 높이 추가 */
 }
 
 /* 수정 버튼 스타일 */
@@ -612,9 +614,8 @@ body {
 }
 
 /* =========================
-   댓글 섹션
+   댓글 섹션 (수정된 레이아웃)
    ========================= */
-
 
 /* 댓글 섹션 스타일 */
 .comments {
@@ -633,15 +634,7 @@ body {
     overflow-wrap: break-word;
 }
 
-/* 댓글 카드 (기존 스타일을 .comment 에 통합) */
-/* .comment-card {
-    background: var(--white);
-    border-radius: var(--border-radius);
-    padding: 40px;
-    box-shadow: var(--box-shadow);
-} */
-
-/* 댓글 헤더 (제목 + 정렬 옵션) */
+/* 댓글 헤더 (제목 + 정렬 옵션) - 수정된 레이아웃 */
 .comment-header {
     display: flex;
     justify-content: space-between; /* 양쪽 끝에 배치 */
@@ -652,7 +645,7 @@ body {
 }
 
 /* 댓글 제목 */
-.comment h2 { /* 변경: .comment-title 대신 .comment h2 사용 */
+.comment h2, .comment-header h2 { /* 변경: .comment-title 대신 .comment h2 사용 */
     font-size: 20px;
     font-weight: 700;
     color: var(--dark-gray);
@@ -669,12 +662,12 @@ body {
     margin-left: 8px;
 }
 
-/* 댓글 정렬 드롭다운 */
+/* 댓글 정렬 드롭다운 - 헤더 오른쪽으로 이동 */
 .comment-sort { /* HTML에 .comment-sort 있음 */
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px; /* 정렬 드롭다운과 목록 사이 간격 */
+    /* margin-bottom: 20px; */ /* 헤더로 이동했으므로 마진 제거 */
 }
 
 .comment-sort select {
@@ -684,6 +677,59 @@ body {
     font-size: 14px;
     background: var(--white);
     cursor: pointer;
+}
+
+/* 댓글 작성 폼 - 수정된 레이아웃 */
+.comment-form {
+    display: flex;
+    flex-direction: row; /* 가로 배치로 변경 */
+    gap: 15px;             /* 입력창과 버튼 사이 간격 */
+    align-items: flex-end; /* 하단 정렬 */
+    margin-bottom: 30px;   /* 댓글 목록과의 간격 */
+}
+
+/* 댓글 입력창 - 수정된 스타일 */
+.comment-form textarea {
+    flex: 1;                          /* 남은 공간 모두 차지 */
+    padding: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    resize: none;                     /* 크기 조절 비활성화 */
+    min-height: 80px;                 /* 높이 줄임 */
+    max-height: 120px;                /* 최대 높이 조정 */
+    overflow-y: auto;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* 댓글 입력창 포커스 효과 */
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-green);
+}
+
+/* 댓글 등록 버튼 - 수정된 위치 */
+.comment-form button {
+    /* align-self: flex-end; */ /* 우측 정렬 제거 */
+    padding: 12px 24px;
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;              /* 텍스트 줄바꿈 방지 */
+    height: fit-content;              /* 버튼 높이를 내용에 맞춤 */
+}
+
+/* 댓글 등록 버튼 호버 효과 */
+.comment-form button:hover {
+    background: var(--dark-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
 }
 
 /* 댓글 목록 컨테이너 */
@@ -756,7 +802,6 @@ body {
     gap: 15px;
     margin-bottom: 15px;
 }
-
 
 /* ❤️'수정' 버튼이 '등록' 기능일 때의 스타일 */
 /* 기존 .comment-action-btn .reply-btn 스타일을 기반으로 오버라이드 */
@@ -943,58 +988,6 @@ textarea.edit-textarea {
 /* 대댓글 등록 버튼 호버 효과 */
 .reply-form button:hover {
     background: var(--primary-green);
-}
-
-/* 댓글 작성 폼 */
-.comment-form {
-    display: flex;
-    flex-direction: column; /* 세로 배치 */
-    gap: 15px;             /* 입력창과 버튼 사이 간격 */
-}
-
-
-/* 댓글 입력창 */
-.comment-form textarea {
-    /*width: 100%;                      !* 부모 요소에 맞게 가로 채우기 *!*/
-    grid-column: 1 / -1; /* 전체 너비 차지 */
-    padding: 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    resize: none;                     /* 크기 조절 비활성화 */
-    min-height: 120px;
-    max-height: 140px;                /* 최대 높이 제한 */
-    overflow-y: auto;
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.3s ease;
-    box-sizing: border-box;
-}
-
-
-/* 댓글 입력창 포커스 효과 */
-.comment-form textarea:focus {
-    outline: none;
-    border-color: var(--primary-green);
-}
-
-/* 댓글 등록 버튼 */
-.comment-form button {
-    align-self: flex-end;  /* 우측 정렬 */
-    padding: 12px 24px;
-    background: var(--primary-green);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-/* 댓글 등록 버튼 호버 효과 */
-.comment-form button:hover {
-    background: var(--dark-green);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
 }
 
 /* 로그인하지 않은 경우 안내 문구 */
@@ -1496,6 +1489,16 @@ textarea.edit-textarea {
         margin-left: 0;
         margin-right: 0;
     }
+
+    /* 댓글 작성 폼을 모바일에서 세로로 배치 */
+    .comment-form {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .comment-form button {
+        align-self: flex-end;
+    }
 }
 
 /* 작은 모바일 (480px 이하) */
@@ -1529,6 +1532,13 @@ textarea.edit-textarea {
     /* 대댓글 들여쓰기 줄임 */
     .child-comments {
         margin-left: 15px;
+    }
+
+    /* 댓글 헤더를 작은 화면에서 세로 배치 */
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
     }
 }
 

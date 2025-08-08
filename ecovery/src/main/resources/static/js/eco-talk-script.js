@@ -52,7 +52,7 @@ function initializePage() {
 function toggleMobileMenu() {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
-    
+
     const spans = hamburger.querySelectorAll('span');
     if (hamburger.classList.contains('active')) {
         spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
@@ -70,7 +70,7 @@ function closeMobileMenu() {
     if (hamburger && navMenu) {
         hamburger.classList.remove('active');
         navMenu.classList.remove('active');
-        
+
         const spans = hamburger.querySelectorAll('span');
         spans[0].style.transform = 'none';
         spans[1].style.opacity = '1';
@@ -96,17 +96,17 @@ function showNotification(message, type = 'info') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.classList.add('show');
     }, 100);
-    
+
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -123,23 +123,23 @@ function switchTab(element, category) {
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    
+
     // Add active class to clicked tab
     element.classList.add('active');
-    
+
     // Update current category
     currentCategory = category;
-    
+
     // Filter posts based on category
     filterPosts(category);
-    
+
     showNotification(`${element.textContent} 카테고리로 전환되었습니다`, 'info');
 }
 
 // Filter posts by category
 function filterPosts(category) {
     const posts = document.querySelectorAll('.post-item');
-    
+
     posts.forEach(post => {
         if (category === 'all') {
             post.style.display = 'grid';
@@ -147,7 +147,7 @@ function filterPosts(category) {
             // Simple filtering logic - in real app, this would be more sophisticated
             const tags = post.querySelectorAll('.tag');
             let hasMatchingTag = false;
-            
+
             tags.forEach(tag => {
                 const tagText = tag.textContent.toLowerCase();
                 if (
@@ -160,7 +160,7 @@ function filterPosts(category) {
                     hasMatchingTag = true;
                 }
             });
-            
+
             post.style.display = hasMatchingTag ? 'grid' : 'none';
         }
     });
@@ -173,14 +173,14 @@ function searchPosts() {
         showNotification('검색어를 입력해주세요', 'info');
         return;
     }
-    
+
     const posts = document.querySelectorAll('.post-item');
     let visibleCount = 0;
-    
+
     posts.forEach(post => {
         const title = post.querySelector('.post-title').textContent.toLowerCase();
         const author = post.querySelector('.post-author').textContent.toLowerCase();
-        
+
         if (title.includes(searchTerm) || author.includes(searchTerm)) {
             post.style.display = 'grid';
             visibleCount++;
@@ -188,7 +188,7 @@ function searchPosts() {
             post.style.display = 'none';
         }
     });
-    
+
     showNotification(`"${searchTerm}" 검색 결과: ${visibleCount}개 게시글`, 'success');
 }
 
@@ -205,17 +205,17 @@ function changePage(page) {
     } else {
         currentPage = page;
     }
-    
+
     // Update active page button
     document.querySelectorAll('.page-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     const pageBtn = document.querySelector(`.page-btn:nth-child(${currentPage + 1})`);
     if (pageBtn && !isNaN(currentPage)) {
         pageBtn.classList.add('active');
     }
-    
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -223,26 +223,26 @@ function changePage(page) {
 // Join challenge
 function joinChallenge() {
     showNotification('챌린지에 참여하였습니다! 🎉', 'success');
-    
+
     // Send request to join the challenge
-    fetch('/api/challenge/join', { 
+    fetch('/api/challenge/join', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ challengeId: 'current' })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('챌린지에 참여하였습니다! 🎉', 'success');
-        } else {
-            showNotification('챌린지 참여 중 오류가 발생했습니다.', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('챌린지 참여 오류:', error);
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('챌린지에 참여하였습니다! 🎉', 'success');
+            } else {
+                showNotification('챌린지 참여 중 오류가 발생했습니다.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('챌린지 참여 오류:', error);
+        });
 }
 
 // Smooth scrolling for anchor links
@@ -266,22 +266,22 @@ function likePost(postId) {
     const likeBtn = document.querySelector(`[data-post-id="${postId}"] .post-likes`);
     if (likeBtn) {
         // Send like request to server
-        fetch(`/api/posts/${postId}/like`, { 
+        fetch(`/api/posts/${postId}/like`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                likeBtn.textContent = `❤️ ${data.likeCount}`;
-                showNotification('게시글에 좋아요를 눌렀습니다!', 'success');
-            }
-        })
-        .catch(error => {
-            console.error('좋아요 오류:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    likeBtn.textContent = `❤️ ${data.likeCount}`;
+                    showNotification('게시글에 좋아요를 눌렀습니다!', 'success');
+                }
+            })
+            .catch(error => {
+                console.error('좋아요 오류:', error);
+            });
     }
 }
 
@@ -309,7 +309,7 @@ function advancedSearch() {
         dateTo: document.getElementById('dateTo')?.value || '',
         tags: document.getElementById('tagSearch')?.value || ''
     };
-    
+
     // Send advanced search request to server
     fetch('/api/posts/search', {
         method: 'POST',
@@ -318,18 +318,18 @@ function advancedSearch() {
         },
         body: JSON.stringify(searchOptions)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update UI with search results
-            displaySearchResults(data.posts);
-            showNotification(`고급 검색 결과: ${data.posts.length}개 게시글`, 'success');
-        }
-    })
-    .catch(error => {
-        console.error('고급 검색 오류:', error);
-        showNotification('검색 중 오류가 발생했습니다.', 'error');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI with search results
+                displaySearchResults(data.posts);
+                showNotification(`고급 검색 결과: ${data.posts.length}개 게시글`, 'success');
+            }
+        })
+        .catch(error => {
+            console.error('고급 검색 오류:', error);
+            showNotification('검색 중 오류가 발생했습니다.', 'error');
+        });
 }
 
 function displaySearchResults(posts) {
@@ -348,12 +348,12 @@ document.addEventListener('keydown', function(e) {
             searchInput.select();
         }
     }
-    
+
     // ESC to close mobile menu
     if (e.key === 'Escape') {
         closeMobileMenu();
     }
-    
+
     // Number keys for category switching
     if (e.key >= '1' && e.key <= '6') {
         const categoryIndex = parseInt(e.key) - 1;
@@ -381,7 +381,7 @@ function showPostPreview(postId) {
         align-items: center;
         z-index: 10000;
     `;
-    
+
     const modalContent = document.createElement('div');
     modalContent.style.cssText = `
         background: white;
@@ -392,7 +392,7 @@ function showPostPreview(postId) {
         overflow-y: auto;
         margin: 20px;
     `;
-    
+
     // Fetch post data from server
     fetch(`/api/posts/${postId}`)
         .then(response => response.json())
@@ -429,10 +429,10 @@ function showPostPreview(postId) {
                 ">닫기</button>
             `;
         });
-    
+
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
-    
+
     // Close on background click
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
@@ -452,14 +452,14 @@ function closePostPreview() {
 function autoSaveDraft() {
     const titleInput = document.getElementById('postTitle');
     const contentInput = document.getElementById('postContent');
-    
+
     if (titleInput && contentInput) {
         const draft = {
             title: titleInput.value,
             content: contentInput.value,
             timestamp: new Date().toISOString()
         };
-        
+
         // Save to server
         fetch('/api/posts/draft', {
             method: 'POST',
@@ -468,22 +468,22 @@ function autoSaveDraft() {
             },
             body: JSON.stringify(draft)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const saveIndicator = document.getElementById('saveIndicator');
-                if (saveIndicator) {
-                    saveIndicator.textContent = '초안 저장됨';
-                    saveIndicator.style.opacity = '1';
-                    setTimeout(() => {
-                        saveIndicator.style.opacity = '0.5';
-                    }, 2000);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const saveIndicator = document.getElementById('saveIndicator');
+                    if (saveIndicator) {
+                        saveIndicator.textContent = '초안 저장됨';
+                        saveIndicator.style.opacity = '1';
+                        setTimeout(() => {
+                            saveIndicator.style.opacity = '0.5';
+                        }, 2000);
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            console.error('초안 저장 오류:', error);
-        });
+            })
+            .catch(error => {
+                console.error('초안 저장 오류:', error);
+            });
     }
 }
 
@@ -495,7 +495,7 @@ function loadDraft() {
             if (data.success && data.draft) {
                 const titleInput = document.getElementById('postTitle');
                 const contentInput = document.getElementById('postContent');
-                
+
                 if (titleInput && contentInput) {
                     titleInput.value = data.draft.title;
                     contentInput.value = data.draft.content;
@@ -526,10 +526,10 @@ function clearDraft() {
 function toggleTheme() {
     const currentTheme = document.body.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
+
     document.body.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    
+
     showNotification(`${newTheme === 'dark' ? '다크' : '라이트'} 모드로 전환되었습니다`, 'info');
 }
 
@@ -563,18 +563,18 @@ window.addEventListener('error', (e) => {
 document.addEventListener('DOMContentLoaded', function() {
     // Load saved theme
     loadSavedTheme();
-    
+
     // Auto-save setup (if on write post page)
     const titleInput = document.getElementById('postTitle');
     const contentInput = document.getElementById('postContent');
     if (titleInput && contentInput) {
         titleInput.addEventListener('input', autoSaveDraft);
         contentInput.addEventListener('input', autoSaveDraft);
-        
+
         // Load draft on page load
         loadDraft();
     }
-    
+
     console.log('🎯 모든 기능이 초기화되었습니다.');
 });
 
@@ -586,14 +586,14 @@ const Utils = {
         const postDate = new Date(date);
         const diffTime = Math.abs(now - postDate);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 1) return '어제';
         if (diffDays === 0) return '오늘';
         if (diffDays < 7) return `${diffDays}일 전`;
-        
+
         return postDate.toLocaleDateString('ko-KR');
     },
-    
+
     // Debounce function
     debounce: (func, wait) => {
         let timeout;
@@ -606,7 +606,7 @@ const Utils = {
             timeout = setTimeout(later, wait);
         };
     },
-    
+
     // Throttle function
     throttle: (func, limit) => {
         let inThrottle;
@@ -634,13 +634,13 @@ window.toggleTheme = toggleTheme;
 function viewPost(postId) {
     // URL 변경 (브라우저 뒤로가기 지원)
     window.history.pushState({ page: 'post', id: postId }, '', `/post/${postId}`);
-    
+
     // 게시판 페이지 숨기기
     hidePostList();
-    
+
     // 게시물 상세 페이지 보이기
     showPostDetail(postId);
-    
+
     showNotification(`게시글 ${postId}번을 조회합니다`, 'info');
 }
 
@@ -658,9 +658,9 @@ function goHome() {
 function hidePostList() {
     const boardContainer = document.querySelector('.board-container');
     const pageHeader = document.querySelector('.page-header');
-    
+
     if (boardContainer) boardContainer.style.display = 'none';
-    
+
     // 페이지 헤더 내용 변경
     if (pageHeader) {
         const h1 = pageHeader.querySelector('h1');
@@ -676,11 +676,30 @@ function showPostDetail(postId) {
     let detailContainer = document.querySelector('.post-detail-container');
     if (!detailContainer) {
         detailContainer = createPostDetailContainer();
-        const container = document.querySelector('.container');
+        const container = document.querySelector('.container') || document.body;
         if (container) container.appendChild(detailContainer);
     }
-    
-    // 서버에서 게시물 데이터 가져오기
+
+    // 서버에서 게시물 데이터 가져오기 (Mock data for demo)
+    const mockPostData = {
+        id: postId,
+        title: `게시글 ${postId} 제목`,
+        content: `게시글 ${postId}의 내용입니다. 환경을 위한 소중한 이야기와 경험을 공유합니다.`,
+        author: '환경지킴이',
+        authorAvatar: '🌱',
+        date: '2024-08-05',
+        views: 1247,
+        likes: 89,
+        comments: 23,
+        tags: ['환경', '실천', '후기']
+    };
+
+    loadAndDisplayPost(mockPostData, detailContainer);
+    detailContainer.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // 실제 서버 연동시 사용할 코드
+    /*
     fetch(`/api/posts/${postId}`)
         .then(response => response.json())
         .then(data => {
@@ -696,6 +715,7 @@ function showPostDetail(postId) {
             console.error('게시글 불러오기 오류:', error);
             showNotification('게시글을 불러오는 중 오류가 발생했습니다.', 'error');
         });
+    */
 }
 
 // 게시물 상세 컨테이너 생성
@@ -703,7 +723,7 @@ function createPostDetailContainer() {
     const container = document.createElement('div');
     container.className = 'post-detail-container fade-in';
     container.style.display = 'none';
-    
+
     container.innerHTML = `
         <div class="post-detail-content">
             <div class="post-detail-header">
@@ -756,7 +776,7 @@ function createPostDetailContainer() {
             </section>
         </div>
     `;
-    
+
     return container;
 }
 
@@ -765,39 +785,39 @@ function loadAndDisplayPost(postData, container) {
     // 제목 업데이트
     const titleElement = container.querySelector('#articleTitle');
     if (titleElement) titleElement.textContent = postData.title;
-    
+
     // 작성자 정보 업데이트
     const avatarElement = container.querySelector('#authorAvatar');
     const nameElement = container.querySelector('#authorName');
     if (avatarElement) avatarElement.textContent = postData.authorAvatar || '🌱';
     if (nameElement) nameElement.textContent = postData.author;
-    
+
     // 게시물 정보 업데이트
     const dateElement = container.querySelector('#postDate');
     const viewsElement = container.querySelector('#postViews');
     if (dateElement) dateElement.textContent = postData.date;
     if (viewsElement) viewsElement.textContent = `조회 ${postData.views}`;
-    
+
     // 태그 업데이트
     const tagsContainer = container.querySelector('#articleTags');
     if (tagsContainer && postData.tags) {
-        tagsContainer.innerHTML = postData.tags.map(tag => 
+        tagsContainer.innerHTML = postData.tags.map(tag =>
             `<span class="tag">${tag}</span>`
         ).join('');
     }
-    
+
     // 내용 업데이트
     const contentElement = container.querySelector('#articleContent');
     if (contentElement) contentElement.innerHTML = postData.content;
-    
+
     // 좋아요 수 업데이트
     const likeCountElement = container.querySelector('#likeCount');
     if (likeCountElement) likeCountElement.textContent = postData.likes || 0;
-    
+
     // 댓글 수 업데이트
     const commentCountElement = container.querySelector('#commentCount');
     if (commentCountElement) commentCountElement.textContent = postData.comments || 0;
-    
+
     // 조회수 증가
     incrementViewCount(postData.id);
 }
@@ -806,24 +826,24 @@ function loadAndDisplayPost(postData, container) {
 function goBackToList() {
     // URL 복원
     window.history.pushState({ page: 'list' }, '', '/community');
-    
+
     // 게시물 상세 숨기기
     const detailContainer = document.querySelector('.post-detail-container');
     if (detailContainer) detailContainer.style.display = 'none';
-    
+
     // 게시판 목록 보이기
     const boardContainer = document.querySelector('.board-container');
     if (boardContainer) boardContainer.style.display = 'grid';
-    
+
     // 페이지 헤더 복원
     const pageHeader = document.querySelector('.page-header');
     if (pageHeader) {
         const h1 = pageHeader.querySelector('h1');
         const p = pageHeader.querySelector('p');
         if (h1) h1.textContent = '💬 환경톡톡';
-        if (p) p.textContent = '환경을 사랑하는 사람들과 함께 나누는 소중한 이야기와 경험들';
+        if (p) p.textContent = '환경을 생각하는 이들의 따뜻한 이야기와 지식 나눔';
     }
-    
+
     // 상단으로 스크롤
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -847,9 +867,21 @@ function incrementViewCount(postId) {
 function submitComment() {
     const commentInput = document.querySelector('#commentInput');
     const commentText = commentInput?.value.trim();
-    
+
     if (commentText) {
-        // 서버에 댓글 전송
+        // Mock comment data for demo
+        const mockComment = {
+            author: '사용자',
+            content: commentText,
+            date: '방금 전'
+        };
+
+        addCommentToList(mockComment);
+        commentInput.value = '';
+        showNotification('댓글이 작성되었습니다!', 'success');
+
+        // 실제 서버 연동시 사용할 코드
+        /*
         fetch('/api/comments', {
             method: 'POST',
             headers: {
@@ -874,13 +906,14 @@ function submitComment() {
             console.error('댓글 작성 오류:', error);
             showNotification('댓글 작성 중 오류가 발생했습니다.', 'error');
         });
+        */
     }
 }
 
 function addCommentToList(comment) {
     const commentsList = document.querySelector('#commentsList');
     if (!commentsList) return;
-    
+
     const commentElement = document.createElement('div');
     commentElement.className = 'comment-item';
     commentElement.innerHTML = `
@@ -889,7 +922,7 @@ function addCommentToList(comment) {
         <div class="comment-date">${comment.date}</div>
     `;
     commentsList.insertBefore(commentElement, commentsList.firstChild);
-    
+
     // 댓글 수 업데이트
     const commentCountElement = document.querySelector('#commentCount');
     if (commentCountElement) {
@@ -904,3 +937,15 @@ window.writePost = writePost;
 window.goHome = goHome;
 window.goBackToList = goBackToList;
 window.submitComment = submitComment;
+
+// Auto-refresh functionality (optional)
+function autoRefresh() {
+    // 실제 구현에서는 서버에서 새로운 게시글 데이터를 가져옴
+    console.log('게시글 목록을 새로고침합니다...');
+    showNotification('게시글 목록이 업데이트되었습니다', 'info');
+}
+
+// Set auto-refresh every 5 minutes (optional)
+// setInterval(autoRefresh, 300000);
+
+console.log('🎯 환경톡톡 스크립트가 완전히 로드되었습니다.');

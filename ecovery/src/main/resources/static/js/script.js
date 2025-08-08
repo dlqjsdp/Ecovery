@@ -1225,7 +1225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     storyCards.forEach(card => {
         card.style.transform = 'translateY(30px)';
         card.style.opacity = '0';
-        card.style.transition = 'all 0.6s ease';
+        card.style.transition = 'all 0.３s ease';
     });
 
     // 히어로 슬라이더 초기화
