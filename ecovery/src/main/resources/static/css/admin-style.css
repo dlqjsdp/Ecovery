@@ -114,22 +114,26 @@ body {
 =================== */
 .page-header {
     margin-bottom: 30px;
-    padding: 20px 0;
+    padding: 30px;
+    background: var(--primary-green);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
 }
 
 .page-title {
     font-size: 32px;
     font-weight: 700;
-    color: var(--primary-green);
+    color: var(--white);
     margin-bottom: 8px;
 }
 
 .page-description {
-    color: var(--medium-gray);
+    color: var(--white);
     font-size: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
+    opacity: 0.9;
 }
 
 /* 실시간 업데이트 표시기 */
@@ -138,27 +142,28 @@ body {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: var(--success-green);
+    color: var(--white);
     font-weight: 500;
+    opacity: 0.9;
 }
 
 .pulse-dot {
     width: 8px;
     height: 8px;
-    background: var(--success-green);
+    background: var(--white);
     border-radius: 50%;
     animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
     }
     70% {
-        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
     }
 }
 
@@ -286,19 +291,37 @@ body {
     overflow: hidden;
 }
 
-/* 섹션 헤더 */
+/* 섹션 헤더 - 흰색 박스 스타일로 변경 */
 .section-header {
     padding: 20px 24px;
     border-bottom: 1px solid var(--light-gray);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(45, 90, 61, 0.02);
+    background: var(--white); /* 흰색 배경 */
+    color: var(--dark-green); /* 진한 녹색 텍스트 */
 }
 
 .section-header .section-title {
     font-size: 18px;
     margin-bottom: 0;
+    color: var(--dark-green); /* 제목 텍스트 진한 녹색 */
+}
+
+.section-header .section-icon {
+    color: var(--dark-green); /* 아이콘 진한 녹색 */
+}
+
+/* 흰색 헤더에서 버튼 스타일 조정 */
+.section-header .btn-primary {
+    background: var(--primary-green);
+    color: var(--white);
+    border: 2px solid var(--primary-green);
+}
+
+.section-header .btn-primary:hover {
+    background: var(--dark-green);
+    color: var(--white);
 }
 
 /* ===================
@@ -557,6 +580,7 @@ tbody tr:hover {
         width: 100%;
     }
 }
+
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .text-muted { color: var(--medium-gray); }

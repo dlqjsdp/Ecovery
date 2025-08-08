@@ -1,18 +1,3 @@
-<!--
-환경톡톡 목록 페이지
-환경 커뮤니티 게시판의 글 목록을 보여주는 페이지
-Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
-헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 글쓰기 버튼, 페이징 등을 표시함
-@author : eunji
-@fileName : list.html
-@since : 250717
-@history
-    - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
-    - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
-    - 250722 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용
-    - 250731 | yukyeong | 카테고리 탭 버튼에 'tab category-tab' 클래스 동시 적용 (CSS 유지 및 JS 이벤트 바인딩 분리 목적)
-    - 250808 | yukyeong | 에코마켓 이동 경로 수정
--->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -61,26 +46,9 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
     <div class="board-container">
         <!-- Main Board -->
         <div class="board-main fade-in">
-            <!-- Board Header -->
+            <!-- Board Header - 수정된 부분 -->
             <div class="board-header">
                 <h2 class="board-title">함께하는 환경 실천</h2>
-                <div class="board-actions">
-                    <!-- 관리자만 글쓰기 가능 -->
-                    <a th:href="@{/env/register}"
-                       class="btn btn-primary"
-                       sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                        ✏️ 글쓰기
-                    </a>
-
-                    <!-- 검색 폼 -->
-                    <form id="searchForm" class="search-form">
-                        <div class="search-box">
-                            <input type="text" class="search-input" id="searchInput"
-                                   placeholder="검색어를 입력하세요">
-                            <button type="submit" class="search-btn">🔍</button>
-                        </div>
-                    </form>
-                </div>
             </div>
 
             <!-- Category Tabs -->
@@ -196,6 +164,25 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                 </div>
             </div>
 
+            <!-- 검색창과 글쓰기 버튼을 게시물 아래로 이동 -->
+            <div class="board-actions">
+                <!-- 검색 폼 -->
+                <form id="searchForm" class="search-form">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchInput"
+                               placeholder="검색어를 입력하세요">
+                        <button type="submit" class="search-btn">🔍</button>
+                    </div>
+                </form>
+
+                <!-- 관리자만 글쓰기 가능 -->
+                <a th:href="@{/env/register}"
+                   class="btn btn-primary"
+                   sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                    ✏️ 글쓰기
+                </a>
+            </div>
+
             <!-- Pagination -->
             <div class="pagination" id="pagination">
                 <!-- JS에서 동적으로 구성 -->
@@ -246,7 +233,6 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                 <div class="popular-list">
                     <!-- 인기글 목록 - 가라 데이터 -->
                     <div class="popular-item" onclick="viewPost(1)">
-
                         <div class="popular-title">플라스틱 프리 생활 30일 챌린지 후기</div>
                         <div class="popular-stats">
                             <span>👁️ 1,247</span>
@@ -255,7 +241,6 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                         </div>
                     </div>
                     <div class="popular-item" onclick="viewPost(6)">
-
                         <div class="popular-title">우리 동네 친환경 카페 발견!</div>
                         <div class="popular-stats">
                             <span>👁️ 892</span>
@@ -264,7 +249,6 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                         </div>
                     </div>
                     <div class="popular-item" onclick="viewPost(7)">
-
                         <div class="popular-title">재활용품으로 만든 화분 DIY</div>
                         <div class="popular-stats">
                             <span>👁️ 756</span>
@@ -273,7 +257,6 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                         </div>
                     </div>
                     <div class="popular-item" onclick="viewPost(8)">
-
                         <div class="popular-title">환경부 신정책 분석과 전망</div>
                         <div class="popular-stats">
                             <span>👁️ 634</span>
@@ -282,7 +265,6 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                         </div>
                     </div>
                     <div class="popular-item" onclick="viewPost(9)">
-
                         <div class="popular-title">친환경 세제 효과 실험 결과</div>
                         <div class="popular-stats">
                             <span>👁️ 523</span>
@@ -326,7 +308,7 @@ Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
                     <a th:href="@{/disposal/disposalMain}" class="btn btn-secondary" style="width: 100%;">
                         📋 분리배출 가이드
                     </a>
-                    <a th:href="@{/eco/list}" class="btn btn-secondary" style="width: 100%;">
+                    <a th:href="@{/templates/eco/list}" class="btn btn-secondary" style="width: 100%;">
                         🛒 친환경 제품 보기
                     </a>
                     <a th:href="@{/free/list}" class="btn btn-secondary" style="width: 100%;">
