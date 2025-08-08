@@ -54,7 +54,6 @@ body {
     padding: 0 var(--container-padding);
 }
 
-
 /* 모바일 햄버거 메뉴 */
 .hamburger {
     display: none; /* 기본적으로 숨김 */
@@ -162,20 +161,20 @@ body {
     margin-right: 20px; /* 히어로 섹션과 동일한 여백 */
 }
 
-/* 필터 헤더 - 제목과 등록 버튼 */
+/* 필터 헤더 - 제목만 표시하도록 수정 */
 .filter-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start; /* 왼쪽 정렬 */
     align-items: center;
-    margin-bottom: 20px; /* 30px에서 20px로 축소 */
+    margin-bottom: 20px;
 }
 
-/* 필터 왼쪽 영역 (제목) */
+/* 필터 왼쪽 영역 (제목만) */
 .filter-left h2 {
     font-size: 28px;
     font-weight: 700;
     color: var(--primary-green);
-    margin-bottom: 8px;
+    margin-bottom: 0; /* 8px에서 0으로 변경 */
 }
 
 .filter-left p {
@@ -183,14 +182,20 @@ body {
     font-size: 16px;
 }
 
-/* 필터 컨트롤 영역 */
-.filter-controls {
-    display: flex;
-    justify-content: flex-start; /* 중앙 정렬에서 왼쪽 정렬로 변경 */
-    align-items: center;
+/* 필터 오른쪽 영역 숨김 처리 */
+.filter-right {
+    display: none;
 }
 
-/* 통합 검색 컨테이너 (새로 추가) */
+/* 필터 컨트롤 영역 - 검색창과 버튼을 나란히 배치 */
+.filter-controls {
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝으로 배치 */
+    align-items: center;
+    gap: 20px; /* 간격 추가 */
+}
+
+/* 통합 검색 컨테이너 */
 .search-container {
     display: flex;
     border: 2px solid var(--light-gray);
@@ -199,8 +204,9 @@ body {
     background: var(--white);
     box-shadow: 0 4px 20px rgba(45, 90, 61, 0.08);
     transition: all 0.3s ease;
-    max-width: 500px; /* 600px에서 500px로 축소 */
+    max-width: 500px;
     width: 100%;
+    flex: 1; /* 남은 공간 차지 */
 }
 
 .search-container:focus-within {
@@ -250,6 +256,13 @@ body {
 
 .search-btn:hover {
     background: var(--dark-green);
+}
+
+/* 검색창과 함께 배치될 버튼 영역 */
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0; /* 축소되지 않도록 */
 }
 
 /* ==========================================================================
@@ -1064,7 +1077,6 @@ body {
     color: var(--medium-gray);
 }
 
-
 /* ==========================================================================
    애니메이션 및 페이드인 효과 (새로 추가)
    ========================================================================== */
@@ -1204,6 +1216,21 @@ body {
 
 /* 모바일 크기 (768px 이하) */
 @media (max-width: 768px) {
+    /* 모바일에서는 세로 배치 */
+    .filter-controls {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .search-container {
+        max-width: 100%;
+    }
+
+    .filter-actions {
+        justify-content: center;
+    }
+
     /* 히어로 섹션 모바일 */
     .hero-section {
         margin: 15px;

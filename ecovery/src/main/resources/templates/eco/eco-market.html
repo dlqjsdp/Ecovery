@@ -6,6 +6,7 @@
     @history
      - 250729 | sehui | 에코마켓 상품 목록 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
      - 250808 | sehui | 헤더 둥근 모서리 및 검색창 개선, 페이드인 효과 추가
+     - 250808 | sehui | 글쓰기 버튼 위치 조정 - 검색창과 같은 라인 배치
 -->
 
 <!DOCTYPE html>
@@ -59,17 +60,10 @@
         <!-- 필터 및 액션 섹션 -->
         <section class="filter-section fade-in">
             <div class="container">
-                <!-- 필터 헤더 - 제목과 상품 등록 버튼 -->
+                <!-- 필터 헤더 - 제목만 표시 -->
                 <div class="filter-header">
                     <div class="filter-left">
                         <h2>우리 동네 에코마켓</h2>
-                    </div>
-                    <div class="filter-right">
-                        <a th:href="@{/eco/new}"
-                           class="btn btn-primary" id="addItemBtn"
-                           sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                            <span>+</span> 상품 등록
-                        </a>
                     </div>
                 </div>
 
@@ -86,6 +80,15 @@
                             <input type="text" id="searchInput" name="keyword" class="search-input"
                                    placeholder="원하는 상품을 검색하세요...">
                             <button type="submit" class="search-btn">🔍</button>
+                        </div>
+
+                        <!-- 액션 버튼 영역 -->
+                        <div class="filter-actions">
+                            <a th:href="@{/eco/new}"
+                               class="btn btn-primary" id="addItemBtn"
+                               sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                                <span>+</span> 상품 등록
+                            </a>
                         </div>
                     </div>
                 </form>
