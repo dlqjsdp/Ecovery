@@ -559,7 +559,7 @@ function requestPortOnePayment(savedOrder, totalPrice, itemName) {
  * 뒤로가기 버튼 클릭 처리
  */
 function goBack() {
-    // 브라우저 히스토리에 이전 페이지가 있으면 뒤로가기
+    //브라우저 히스토리에 이전 페이지가 있으면 뒤로가기
     if (window.history.length > 1) {
         window.history.back();
     } else {
@@ -567,7 +567,6 @@ function goBack() {
         window.location.href = '/mypage';
     }
 
-    console.log('뒤로가기 버튼 클릭');
 }
 
 // ==========================================================================
