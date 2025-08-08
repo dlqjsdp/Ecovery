@@ -146,12 +146,10 @@ body {
     padding: 40px;
 }
 
+/* 수정된 Board Header - 제목만 포함 */
 .board-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 2px solid var(--light-gray);
 }
 
@@ -161,10 +159,16 @@ body {
     color: var(--primary-green);
 }
 
+/* 수정된 Board Actions - 게시물 아래에 배치, 검색창은 왼쪽 */
 .board-actions {
     display: flex;
-    gap: 15px;
+    justify-content: space-between;
     align-items: center;
+    gap: 15px;
+    margin-top: 25px;
+    margin-bottom: 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--light-gray);
 }
 
 .btn {
@@ -198,6 +202,11 @@ body {
     background: var(--primary-green);
 }
 
+.search-form {
+    flex: 0 0 auto;
+    max-width: 300px;
+}
+
 .search-box {
     display: flex;
     gap: 10px;
@@ -211,7 +220,7 @@ body {
     font-size: 14px;
     outline: none;
     transition: border-color 0.3s ease;
-    width: 200px;
+    flex: 1;
 }
 
 .search-input:focus {
@@ -717,22 +726,14 @@ body {
         padding: 25px;
     }
 
-    .board-header {
+    .board-actions {
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
         align-items: stretch;
     }
 
-    .board-actions {
-        justify-content: space-between;
-    }
-
-    .search-box {
-        flex: 1;
-    }
-
-    .search-input {
-        flex: 1;
+    .search-form {
+        max-width: 100%;
     }
 
     .category-tabs {
