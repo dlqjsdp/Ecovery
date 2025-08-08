@@ -50,10 +50,30 @@ public class AdminMainController {
         }
 
         List<DisposalHistoryDto> adminDisposalHistory = disposalHistoryService.getAllHistory(cri);
+        if (adminDisposalHistory.size() > 3) {
+            adminDisposalHistory = adminDisposalHistory.subList(0, 3);
+        }
+
         List<DisposalFeedbackDto> adminDisposalFeedback = disposalFeedbackService.getAllFeedback(cri);
+        if (adminDisposalFeedback.size() > 3) {
+            adminDisposalFeedback = adminDisposalFeedback.subList(0, 3);
+        }
+
         List<MemberVO> adminMember = memberService.getAllMembers(cri);
+        if (adminMember.size() > 3) {
+            adminMember = adminMember.subList(0, 3);
+        }
+
         List<EnvDto> adminEnv = envService.getList(cri);
+        if (adminEnv.size() > 3) {
+            adminEnv = adminEnv.subList(0, 3);
+        }
+
         List<NoticeDto> adminNotice = noticeService.getList(cri);
+        if (adminNotice.size() > 3) {
+            adminNotice = adminNotice.subList(0, 3);
+        }
+
 
         model.addAttribute("recentWasteRecords", adminDisposalHistory);
         model.addAttribute("recentSharingList", adminDisposalFeedback);
