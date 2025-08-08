@@ -34,100 +34,108 @@ GreenCycle 환경톡톡 게시글 등록 페이지
         <!-- Toast UI Editor 스타일 CDN 추가 -->
         <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
         <link rel="stylesheet" th:href="@{/css/write-post-style.css}">
+
+
     </th:block>
 </head>
 
 <body>
 <!-- 본문 콘텐츠 -->
 <div layout:fragment="content" class="fade-in">
-    <!-- Main Content -->
+
+    <!-- 현재 위치 표시 (빵부스러기) -->
+    <section class="breadcrumb">
         <div class="container">
-            <!-- Page Header -->
-            <section class="page-header fade-in">
-                <div class="page-header-content">
-                    <h1>✏️ 새 글 쓰기</h1>
-                    <p>환경에 대한 소중한 경험과 생각을 나누어 주세요</p>
-                    <div class="breadcrumb">
-                        <a th:href="@{/}">홈</a>
-                        <span>›</span>
-                        <a th:href="@{/eco-talk}">환경톡톡</a>
-                        <span>›</span>
-                        <span>글쓰기</span>
+            <nav class="breadcrumb-nav">
+                <a th:href="@{/}">🏠</a>
+                <span>></span>
+                <a th:href="@{/eco-talk}">환경 톡톡</a>
+                <span>></span>
+                <span class="current">새 글 쓰기</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <section class="page-header fade-in">
+            <div class="page-header-content">
+                <h1>✏️ 새 글 쓰기</h1>
+                <p>환경에 대한 소중한 경험과 생각을 나누어 주세요</p>
+            </div>
+        </section>
+
+        <!-- Write Form Container -->
+        <div class="write-container">
+            <!-- Main Write Form -->
+            <div class="write-main fade-in">
+                <!-- 글 작성 폼 - 타임리프 객체 바인딩 -->
+                <form id="writeForm" class="write-form"
+                      method="post" enctype="multipart/form-data">
+
+                    <!-- Category Selection -->
+                    <div class="form-section">
+                        <label class="form-label">카테고리</label>
+                        <select id="categorySelect" name="categoryId" class="form-select" required>
+                            <option value="">카테고리를 선택하세요</option>
+                            <!-- JS로 동적 렌더링 -->
+                        </select>
+                        <span class="error-message" id="categoryError"></span>
                     </div>
-                </div>
-            </section>
 
-            <!-- Write Form Container -->
-            <div class="write-container">
-                <!-- Main Write Form -->
-                <div class="write-main fade-in">
-                    <!-- 글 작성 폼 - 타임리프 객체 바인딩 -->
-                    <form id="writeForm" class="write-form"
-                          method="post" enctype="multipart/form-data">
+                    <!-- Title Input -->
+                    <div class="form-section">
+                        <label class="form-label" for="postTitle">제목</label>
+                        <input type="text" id="postTitle" name="title" class="form-input title-input"
+                               placeholder="제목을 입력하세요 (최대 255자)" maxlength="255" required>
+                        <div class="char-count"><span id="titleCount">0</span>/255</div>
+                        <span class="error-message" id="titleError"></span>
+                    </div>
 
-                        <!-- Category Selection -->
-                        <div class="form-section">
-                            <label class="form-label">카테고리</label>
-                            <select id="categorySelect" name="categoryId" class="form-select" required>
-                                <option value="">카테고리를 선택하세요</option>
-                                <!-- JS로 동적 렌더링 -->
-                            </select>
-                            <span class="error-message" id="categoryError"></span>
-                        </div>
+                    <!-- Content Editor -->
+                    <div class="form-section">
+                        <label class="form-label" for="editor">내용</label>
+                        <!-- Toast UI Editor가 들어갈 영역 (기존 클래스 유지) -->
+                        <div id="editor" class="form-textarea content-editor"></div>
+                        <!-- 실제 form 전송용 hidden input -->
+                        <input type="hidden" name="content" id="hiddenContent" />
+                        <!-- 글자 수 카운트 유지 -->
+                        <div class="char-count"><span id="contentCount">0</span>/5000</div>
+                        <span class="error-message" id="contentError"></span>
+                    </div>
 
-                        <!-- Title Input -->
-                        <div class="form-section">
-                            <label class="form-label" for="postTitle">제목</label>
-                            <input type="text" id="postTitle" name="title" class="form-input title-input"
-                                   placeholder="제목을 입력하세요 (최대 255자)" maxlength="255" required>
-                            <div class="char-count"><span id="titleCount">0</span>/255</div>
-                            <span class="error-message" id="titleError"></span>
-                        </div>
-
-                        <!-- Content Editor -->
-                        <div class="form-section">
-                            <label class="form-label" for="editor">내용</label>
-                            <!-- Toast UI Editor가 들어갈 영역 (기존 클래스 유지) -->
-                            <div id="editor" class="form-textarea content-editor"></div>
-                            <!-- 실제 form 전송용 hidden input -->
-                            <input type="hidden" name="content" id="hiddenContent" />
-                            <!-- 글자 수 카운트 유지 -->
-                            <div class="char-count"><span id="contentCount">0</span>/5000</div>
-                            <span class="error-message" id="contentError"></span>
-                        </div>
-
-<!--                        &lt;!&ndash; File Upload &ndash;&gt;-->
-<!--                        <div class="form-section">-->
-<!--                            <label class="form-label">첨부파일</label>-->
-<!--                            <div class="upload-area" id="uploadArea">-->
-<!--                                <div class="upload-content">-->
-<!--                                    <div class="upload-icon">📎</div>-->
-<!--                                    <div class="upload-text">-->
-<!--                                        <strong>파일을 드래그하거나 클릭하여 업로드</strong>-->
-<!--                                        <p>이미지 파일 (JPG, PNG, GIF) | 최대 10MB</p>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                                <input type="file" id="fileInput" name="envImgFiles" multiple accept="image/*" style="display: none;">-->
-<!--                            </div>-->
-<!--                            <div class="uploaded-files" id="uploadedFiles"></div>-->
-<!--                            <span class="error-message" id="fileError"></span>-->
-<!--                        </div>-->
+                    <!--                    &lt;!&ndash; File Upload &ndash;&gt;-->
+                    <!--                    <div class="form-section">-->
+                    <!--                        <label class="form-label">첨부파일</label>-->
+                    <!--                        <div class="upload-area" id="uploadArea">-->
+                    <!--                            <div class="upload-content">-->
+                    <!--                                <div class="upload-icon">📎</div>-->
+                    <!--                                <div class="upload-text">-->
+                    <!--                                    <strong>파일을 드래그하거나 클릭하여 업로드</strong>-->
+                    <!--                                    <p>이미지 파일 (JPG, PNG, GIF) | 최대 10MB</p>-->
+                    <!--                                </div>-->
+                    <!--                            </div>-->
+                    <!--                            <input type="file" id="fileInput" name="envImgFiles" multiple accept="image/*" style="display: none;">-->
+                    <!--                        </div>-->
+                    <!--                        <div class="uploaded-files" id="uploadedFiles"></div>-->
+                    <!--                        <span class="error-message" id="fileError"></span>-->
+                    <!--                    </div>-->
 
 
-                        <!-- Action Buttons -->
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline" onclick="previewPost()">📄 미리보기</button>
-                            <button type="button" class="btn btn-danger" onclick="location.href='/env/list'">❌ 취소</button>
-                            <button type="submit" class="btn btn-primary">📝 등록하기</button>
-                        </div>
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="previewPost()">📄 미리보기</button>
+                        <button type="button" class="btn btn-danger" onclick="location.href='/env/list'">❌ 취소</button>
+                        <button type="submit" class="btn btn-primary">📝 등록하기</button>
+                    </div>
 
-
-                    </form>
-
-                </div>
+                </form>
 
             </div>
+
         </div>
+    </div>
 
     <!-- Preview Modal -->
     <div class="modal-overlay" id="previewModal" style="display: none;">
@@ -167,88 +175,88 @@ GreenCycle 환경톡톡 게시글 등록 페이지
         </div>
     </div>
 
-
 </div>
-    <th:block layout:fragment="script">
-        <script th:src="@{/js/write-post-script.js}"></script>
-        <script th:src="@{/js/env-register.js}"></script>
 
-        <!-- Toast UI Editor JS CDN 추가 -->
-        <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/write-post-script.js}"></script>
+    <script th:src="@{/js/env-register.js}"></script>
 
-
-        <!-- 타임리프 변수 및 에디터 설정 -->
-        <script th:inline="javascript">
-            var maxFileSize = /*[[${maxFileSize}]]*/ 10485760; // 10MB
-            var maxFileCount = /*[[${maxFileCount}]]*/ 5;
-            var fileUploadUrl = /*[[@{/api/env/upload-temp}]]*/ '/api/env/upload-temp';
+    <!-- Toast UI Editor JS CDN 추가 -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
 
-            // 에디터 설정
-            var editorConfig = {
+    <!-- 타임리프 변수 및 에디터 설정 -->
+    <script th:inline="javascript">
+        var maxFileSize = /*[[${maxFileSize}]]*/ 10485760; // 10MB
+        var maxFileCount = /*[[${maxFileCount}]]*/ 5;
+        var fileUploadUrl = /*[[@{/api/env/upload-temp}]]*/ '/api/env/upload-temp';
+
+
+        // 에디터 설정
+        var editorConfig = {
+            maxLength: 5000,
+            allowedTags: ['b', 'i', 'u', 'ul', 'ol', 'li', 'a'],
+            emojiCategories: {
+                nature: ['🌱', '🌳', '🌍', '🌿', '🌱', '🍃', '🌾', '🌸'],
+                recycle: ['♻️', '🗂️', '📦', '🛒', '🏭', '⚙️'],
+                energy: ['⚡', '🔋', '💡', '☀️', '🌊', '💨'],
+                face: ['😊', '😍', '🤔', '😢', '😡', '👍', '👎', '❤️']
+            }
+        };
+
+        // 폼 검증 규칙
+        var validationRules = {
+            title: {
+                required: true,
+                maxLength: 255,
+                message: '제목을 입력해주세요 (최대 255자)'
+            },
+            content: {
+                required: true,
                 maxLength: 5000,
-                allowedTags: ['b', 'i', 'u', 'ul', 'ol', 'li', 'a'],
-                emojiCategories: {
-                    nature: ['🌱', '🌳', '🌍', '🌿', '🌱', '🍃', '🌾', '🌸'],
-                    recycle: ['♻️', '🗂️', '📦', '🛒', '🏭', '⚙️'],
-                    energy: ['⚡', '🔋', '💡', '☀️', '🌊', '💨'],
-                    face: ['😊', '😍', '🤔', '😢', '😡', '👍', '👎', '❤️']
-                }
-            };
+                message: '내용을 입력해주세요 (최대 5000자)'
+            },
+            categoryId: {
+                required: true,
+                message: '카테고리를 선택해주세요'
+            }
+        };
 
-            // 폼 검증 규칙
-            var validationRules = {
-                title: {
-                    required: true,
-                    maxLength: 255,
-                    message: '제목을 입력해주세요 (최대 255자)'
-                },
-                content: {
-                    required: true,
-                    maxLength: 5000,
-                    message: '내용을 입력해주세요 (최대 5000자)'
-                },
-                categoryId: {
-                    required: true,
-                    message: '카테고리를 선택해주세요'
-                }
-            };
+        // Toast UI Editor 초기화
+        const editor = new toastui.Editor({
+            el: document.querySelector('#editor'),
+            height: '500px',
+            initialEditType: 'wysiwyg',
+            previewStyle: 'vertical',
+            hooks: {
+                addImageBlobHook: async (blob, callback) => {
+                    try {
+                        const formData = new FormData();
+                        formData.append('file', blob);
 
-            // Toast UI Editor 초기화
-            const editor = new toastui.Editor({
-                el: document.querySelector('#editor'),
-                height: '500px',
-                initialEditType: 'wysiwyg',
-                previewStyle: 'vertical',
-                hooks: {
-                    addImageBlobHook: async (blob, callback) => {
-                        try {
-                            const formData = new FormData();
-                            formData.append('file', blob);
+                        const res = await fetch('/api/env/upload-temp', {
+                            method: 'POST',
+                            body: formData
+                        });
 
-                            const res = await fetch('/api/env/upload-temp', {
-                                method: 'POST',
-                                body: formData
-                            });
+                        const result = await res.json();
+                        const imageUrl = `/ecovery/env/${result.fileName}`;
+                        callback(imageUrl, '업로드 이미지');
 
-                            const result = await res.json();
-                            const imageUrl = `/ecovery/env/${result.fileName}`;
-                            callback(imageUrl, '업로드 이미지');
-
-                        } catch (err) {
-                            console.error("이미지 업로드 실패", err);
-                            alert("이미지 업로드 중 오류가 발생했습니다.");
-                        }
+                    } catch (err) {
+                        console.error("이미지 업로드 실패", err);
+                        alert("이미지 업로드 중 오류가 발생했습니다.");
                     }
                 }
-            });
-
-            // form 제출 전 에디터 값 설정
-            function beforeSubmit() {
-                document.getElementById("hiddenContent").value = editor.getHTML();
-                document.getElementById("writeForm").submit();
             }
-        </script>
-    </th:block>
+        });
+
+        // form 제출 전 에디터 값 설정
+        function beforeSubmit() {
+            document.getElementById("hiddenContent").value = editor.getHTML();
+            document.getElementById("writeForm").submit();
+        }
+    </script>
+</th:block>
 </body>
 </html>

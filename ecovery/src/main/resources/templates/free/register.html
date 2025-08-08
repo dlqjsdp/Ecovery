@@ -4,14 +4,11 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
 <th:block layout:fragment="css">
-    <link rel="stylesheet" href="/css/header.css">
-    <link rel="stylesheet" href="/css/footer.css">
     <link rel="stylesheet" href="/css/free-sharing-register.css">
 </th:block>
 
 <!-- Main Content -->
 <div layout:fragment="content">
-
 
     <!-- 현재 위치 표시 (빵부스러기) -->
     <section class="breadcrumb">
@@ -26,18 +23,21 @@
         </div>
     </section>
 
+    <!-- 개선된 페이지 헤더 - 나눔 물품 등록하기 -->
+    <section class="page-header-enhanced">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="header-title">나눔 물품 등록하기</h1>
+                <p class="header-subtitle">정확한 정보를 입력해주시면 더 많은 이웃들이 관심을 가질 수 있어요</p>
+            </div>
+        </div>
+    </section>
 
     <!-- 등록 폼 -->
     <section class="registration-section">
         <div class="container">
-            <!-- 폼 컨테이너 -->
+            <!-- 개선된 폼 컨테이너 - 전체 너비 활용 -->
             <div class="form-container">
-                <!-- 폼 헤더 -->
-                <div class="form-header">
-                    <h2>나눔 물품 등록하기</h2>
-                    <p>정확한 정보를 입력해주시면 더 많은 이웃들이 관심을 가질 수 있어요</p>
-                </div>
-
                 <!-- 실제 폼 - Thymeleaf 폼 객체 바인딩 -->
                 <form class="form-body" id="registrationForm"
                       th:action="@{/free/register}"
@@ -47,10 +47,8 @@
 
                     <!-- 제목 입력 -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">제목 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">제목 <span class="required">*</span></label>
+                        <div class="form-input-wrapper">
                             <input type="text"
                                    class="form-input"
                                    th:field="*{title}"
@@ -65,12 +63,10 @@
 
                     <!-- 작성자 (자동 입력) -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">작성자 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">작성자 <span class="required">*</span></label>
+                        <div class="form-input-wrapper">
                             <input type="text"
-                                   class="form-input"s
+                                   class="form-input"
                                    id="author"
                                    th:value="${session.memberNickname}"
                                    readonly>
@@ -82,10 +78,8 @@
 
                     <!-- 등록일 (자동 입력) -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">등록일</label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">등록일</label>
+                        <div class="form-input-wrapper">
                             <input type="text"
                                    class="form-input"
                                    id="regDate"
@@ -96,10 +90,8 @@
 
                     <!-- 상품 상태 선택 -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">상품상태 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">상품상태 <span class="required">*</span></label>
+                        <div class="form-input-wrapper">
                             <select class="form-select" th:field="*{itemCondition}" id="condition" required>
                                 <option value="">상태를 선택해주세요</option>
                                 <option value="HIGH">상 (매우 좋음)</option>
@@ -115,10 +107,8 @@
 
                     <!-- 지역 선택 -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">지역 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">지역 <span class="required">*</span></label>
+                        <div class="form-input-wrapper">
                             <div class="form-group">
                                 <!-- 구 선택 -->
                                 <select class="form-select" th:field="*{regionGu}" id="region1" required>
@@ -162,10 +152,8 @@
 
                     <!-- 카테고리 선택 -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">카테고리 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">카테고리 <span class="required">*</span></label>
+                        <div class="form-input-wrapper">
                             <select class="form-select" th:field="*{category}" id="category" required>
                                 <option value="">카테고리를 선택해주세요</option>
                                 <!-- 서버에서 전달받은 카테고리 목록 출력 -->
@@ -180,10 +168,8 @@
 
                     <!-- 상품 설명 -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">상품설명 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">상품설명 <span class="required">*</span></label>
+                        <div class="form-input-wrapper">
                                 <textarea class="form-input form-textarea"
                                           th:field="*{content}"
                                           id="description"
@@ -194,55 +180,10 @@
                         </div>
                     </div>
 
-                    <!-- 거래 방법 선택 -->
-                    <!--<div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">거래 방법 <span class="required">*</span></label>
-                        </div>
-                        <div class="form-input-section">
-                            <div class="trade-methods">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" th:field="*{tradeMethods}" value="DIRECT" id="directTrade">
-                                    <span class="checkmark"></span>
-                                    직거래
-                                </label>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" th:field="*{tradeMethods}" value="DELIVERY" id="deliveryTrade">
-                                    <span class="checkmark"></span>
-                                    택배거래
-                                </label>
-                            </div>
-                            <div class="error-message" th:if="${#fields.hasErrors('tradeMethods')}" th:errors="*{tradeMethods}"></div>
-                            <div class="help-text">가능한 거래 방법을 선택해주세요</div>
-                        </div>
-                    </div>-->
-
-                    <!-- 연락처 정보 -->
-                    <!--<div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">연락처</label>
-                        </div>
-                        <div class="form-input-section">
-                            <div class="contact-group">
-                                <div class="contact-item">
-                                    <label>전화번호</label>
-                                    <input type="tel" th:field="*{phoneNumber}" placeholder="010-0000-0000">
-                                </div>
-                                <div class="contact-item">
-                                    <label>카카오톡 ID</label>
-                                    <input type="text" th:field="*{kakaoId}" placeholder="카카오톡 ID">
-                                </div>
-                            </div>
-                            <div class="help-text">연락 받을 수 있는 연락처를 입력해주세요</div>
-                        </div>
-                    </div>-->
-
                     <!-- 사진 업로드 -->
                     <div class="form-row">
-                        <div class="form-label-section">
-                            <label class="form-label">사진 첨부</label>
-                        </div>
-                        <div class="form-input-section">
+                        <label class="form-label">사진 첨부</label>
+                        <div class="form-input-wrapper">
                             <!-- 사진 업로드 영역 -->
                             <div class="image-upload-area" id="imageUploadArea">
                                 <div class="upload-icon">📷</div>
@@ -257,24 +198,21 @@
                             <div class="help-text">물품 사진을 올려주시면 나눔 성공률이 높아져요</div>
                         </div>
                     </div>
-                </form>
 
-                <!-- 폼 버튼들 -->
-                <div class="form-actions">
-                    <button type="button" class="btn btn-cancel" th:onclick="|location.href='@{/free/list}'|">취소</button>
-                    <button type="submit" class="btn btn-submit" form="registrationForm">등록하기</button>
-                </div>
+                    <!-- 폼 버튼들 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" th:onclick="|location.href='@{/free/list}'|">취소</button>
+                        <button type="submit" class="btn btn-submit">등록하기</button>
+                    </div>
+                </form>
             </div>
         </div>
     </section>
 </div>
 
-
 <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
 <th:block layout:fragment="script">
     <script src="/js/free-sharing-register.js"></script>
-
-
 
     <!-- 폼 데이터를 JavaScript로 전달 -->
     <script th:inline="javascript">
@@ -313,68 +251,16 @@
                 }
 
                 conditionPreview.innerHTML = `
-
                     <div style="padding: 10px; background: #f5f5f5; border-radius: 5px; margin-top: 10px;">
                         <span style="font-size: 16px;">${stars}</span>
                         <span style="margin-left: 10px; color: #666;">${conditionText}</span>
                     </div>
                 `;
-
             } else {
                 conditionPreview.innerHTML = '';
             }
         });
-
-        // 이미지 업로드 처리
-        /*document.getElementById('imageInput').addEventListener('change', function(event) {
-            const files = event.target.files;
-            const imagePreview = document.getElementById('imagePreview');
-
-            // 기존 미리보기 초기화
-            imagePreview.innerHTML = '';
-
-            if (files.length > 5) {
-                alert('최대 5개의 이미지만 업로드할 수 있습니다.');
-                this.value = '';
-                return;
-            }
-
-
-            // 이미지 미리보기 생성
-            Array.from(files).forEach((file, index) => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const imageDiv = document.createElement('div');
-                        imageDiv.className = 'preview-image';
-                        imageDiv.innerHTML = `
-                                <img src="${e.target.result}" alt="미리보기 ${index + 1}">
-                                <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
-                            `;
-                        imagePreview.appendChild(imageDiv);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        });*/
-
-        // 이미지 제거 함수
-        /*function removeImage(index) {
-            const imageInput = document.getElementById('imageInput');
-            const dt = new DataTransfer();
-            const files = Array.from(imageInput.files);
-
-            files.splice(index, 1);
-            files.forEach(file => dt.items.add(file));
-
-            imageInput.files = dt.files;
-
-            // 미리보기 다시 생성
-            const changeEvent = new Event('change', { bubbles: true });
-            imageInput.dispatchEvent(changeEvent);
-        }*/
     </script>
-
 </th:block>
 
 </html>
