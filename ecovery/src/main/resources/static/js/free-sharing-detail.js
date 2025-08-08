@@ -265,6 +265,11 @@ function renderReplyPagination(totalCount, freeId, sortType) {
         if (currentPage  > 1) {
             currentPage --; // 변수명 변경
             loadComments(freeId, sortType, currentPage , amountPerPage);
+            // 페이지 이동 시 댓글 목록의 상단으로 스크롤
+            const commentHeader = document.getElementById('commentHeader');
+            if (commentHeader) {
+                commentHeader.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     });
     paginationContainer.appendChild(prevBtn);
@@ -284,6 +289,11 @@ function renderReplyPagination(totalCount, freeId, sortType) {
         btn.addEventListener('click', () => {
             currentPage  = i; // 변수명 변경
             loadComments(freeId, sortType, currentPage , amountPerPage);
+            // 페이지 이동 시 댓글 목록의 상단으로 스크롤
+            const commentHeader = document.getElementById('commentHeader');
+            if (commentHeader) {
+                commentHeader.scrollIntoView({ behavior: 'smooth' });
+            }
         });
         paginationContainer.appendChild(btn);
     }
@@ -297,6 +307,11 @@ function renderReplyPagination(totalCount, freeId, sortType) {
         if (currentPage  < totalPages) {
             currentPage ++; // 변수명 변경
             loadComments(freeId, sortType, currentPage , amountPerPage);
+            // 페이지 이동 시 댓글 목록의 상단으로 스크롤
+            const commentHeader = document.getElementById('commentHeader');
+            if (commentHeader) {
+                commentHeader.scrollIntoView({ behavior: 'smooth' });
+            }
         }
     });
     paginationContainer.appendChild(nextBtn);
@@ -376,12 +391,6 @@ function loadComments(freeId, sortType = currentSortType, page = currentPage, am
                     }
                 });
             }
-
-            // // 페이지 이동 시 댓글 목록의 상단으로 스크롤
-            // const commentList = document.getElementById('commentList');
-            // if (commentList) {
-            //     commentList.scrollIntoView({ behavior: 'smooth' });
-            // }
 
             // ⭐ forEach 루프 밖에서 페이징 렌더링 함수를 한 번만 호출
             renderReplyPagination(data.total, freeId, sortType);
@@ -723,7 +732,6 @@ function submitEdit(replyId) {
         .then(res => {
             if (res.ok) {
                 alert('댓글이 수정되었습니다.');
-                // ✨ 이 부분이 변경되었습니다.
                 // UI 즉시 업데이트
                 const contentEl = document.getElementById(`content-${replyId}`);
                 contentEl.textContent = newContent;

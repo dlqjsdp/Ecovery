@@ -91,7 +91,7 @@
     <select id="getTotalReplyCount" resultType="int">
         SELECT COUNT(*)
         FROM free_reply
-        WHERE free_id = #{freeId}
+        WHERE free_id = #{freeId} AND parent_id IS NULL
     </select>
 
     <!-- 특정 부모 댓글 대댓글 수 조회-->
