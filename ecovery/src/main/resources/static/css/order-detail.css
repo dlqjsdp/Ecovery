@@ -586,12 +586,6 @@ body {
     color: var(--dark-gray);
 }
 
-.summary-note {
-    font-size: 11px;
-    color: var(--medium-gray);
-    margin-left: 8px;
-}
-
 .summary-row.discount .summary-value {
     color: var(--danger-color);
 }
