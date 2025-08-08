@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 public interface OAuth2MemberService extends OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     public OAuth2User loadUser(OAuth2UserRequest userRequest);
+
 }
 
 
