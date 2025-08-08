@@ -16,6 +16,7 @@ import java.util.List;
  * 작성자 : 방희경
  * @history
       - 250724 | yukyeong | 소셜 로그인 사용자 조회 메서드 추가 (findBySocialId)
+      - 250808 | yukyeong | 소셜 로그인 닉네임 중복 여부 확인 메서드 추가
  */
 @Mapper
 public interface MemberMapper {
@@ -71,4 +72,7 @@ public interface MemberMapper {
 
     // 소셜 로그인(provider + providerId)으로 회원 조회 (카카오, 구글 등 소셜 로그인 사용자 확인용)
     public MemberVO findBySocialId(String provider, String providerId);
+    
+    // 소셜 로그인 이용자 닉네임 중복 여부 확인, true: 중복 있음, false: 중복 없음
+    public boolean existsByNickname(String nickname);
 }

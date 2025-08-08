@@ -29,6 +29,7 @@ import java.util.Map;
        - 250724 | yukyeong | CustomUserDetails에 attributes 주입 방식으로 수정
        - 250725 | yukyeong | 카카오 소셜 로그인 시 nickname 값이 누락될 가능성에 대비해 로직 추가
        - 250725 | yukyeong | 구글 소셜 로그인 로직 추가 및 nickname 누락 시 기본값 처리
+       - 250808 | yukyeong | 닉네임 중복 방지 로직 추가 (nickname_provider 형태로 중복 시 숫자 suffix 증가)
  */
 
 @Service
@@ -83,6 +84,18 @@ public class OAuth2MemberServiceImpl extends DefaultOAuth2UserService
         } else {
             throw new IllegalArgumentException("지원하지 않는 소셜 로그인: " + provider);
         }
+
+        // 닉네임 중복 방지 로직 시작
+        String baseNickname = nickname + "_" + provider; // "eco_user_kakao"
+        String finalNickname = baseNickname; // 일단 기본 닉네임으로 시작
+        int suffix = 1;
+
+        while (memberMapper.existsByNickname(finalNickname)) {
+            finalNickname = baseNickname + suffix; // 뒤에 숫자 붙이기
+            suffix++;
+        }
+
+        nickname = finalNickname; // 최종 닉네임 확정
 
         // DB에서 해당 provider + providerId로 회원 조회
         MemberVO member = memberMapper.findBySocialId(provider, providerId);
