@@ -201,8 +201,7 @@
                                         가입일
                                     </a>
                                 </th>
-                                <th>상태</th>
-                                <th>포인트</th>
+                                <th>로그인 종류</th>
                                 <th>관리</th>
                             </tr>
                         </thead>
@@ -234,7 +233,6 @@
                                           <!--th:classappend="${#strings.toLowerCase(member.status)}"
                                           th:text="${T(com.greencycle.util.StatusUtil).getStatusDisplayName(member.status)}">활성</span>-->
                                 </td>
-                                <td class="points">15,420P</td> <!--th:text="${#numbers.formatInteger(member.point, 0, 'COMMA')} + 'P'">15,420P</td>-->
                                 <td>
                                     <div class="action-btns">
                                         <button class="action-btn view" 
@@ -336,7 +334,6 @@
                         <button class="tab-btn active" data-tab="basic">기본 정보</button>
                         <button class="tab-btn" data-tab="activity">활동 내역</button>
                         <button class="tab-btn" data-tab="transactions">거래 내역</button>
-                        <button class="tab-btn" data-tab="points">포인트 내역</button>
                         <button class="tab-btn" data-tab="support">고객 지원</button>
                     </div>
 
@@ -499,22 +496,7 @@
                         </div>
 
                         <!-- 포인트 내역 탭 -->
-                        <div class="tab-panel" id="pointsTab">
-                            <div class="points-summary">
-                                <div class="points-current">
-                                    <span class="points-label">보유 포인트</span>
-                                    <span class="points-value" id="currentPoints">15,420P</span>
-                                </div>
-                                <div class="points-total">
-                                    <span class="points-label">누적 적립 포인트</span>
-                                    <span class="points-value" id="totalPoints">127,850P</span>
-                                </div>
-                                <div class="points-used">
-                                    <span class="points-label">사용한 포인트</span>
-                                    <span class="points-value" id="usedPoints">112,430P</span>
-                                </div>
-                            </div>
-                        </div>
+                        
 
                         <!-- 고객 지원 탭 -->
                         <div class="tab-panel" id="supportTab">
