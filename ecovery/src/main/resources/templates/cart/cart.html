@@ -5,8 +5,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>GreenCycle - 장바구니</title>
+    <title>ECOVERY - 마이페이지</title>
+    <!-- 헤더/푸터 CSS 추가 -->
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <!-- 마이페이지 CSS -->
     <link rel="stylesheet" th:href="@{/css/cart-style.css}">
+    <!-- 폰트 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -18,7 +23,7 @@
     <section class="cart-header">
         <div class="container">
             <div class="breadcrumb">
-                <a href="main.html">홈</a>
+                <a th:href="@{/}">홈</a>
                 <span>></span>
                 <a href="#eco-market">에코마켓</a>
                 <span>></span>
@@ -48,6 +53,7 @@
                     </div>
 
                     <div class="cart-items-list" id="cartItemsList">
+                        <!-- 장바구니 아이템이 있을 때 -->
                         <div class="cart-item" th:each="cart : ${cartList}"
                              th:attr="data-item-id=${cart.cartItemId}, data-unit-price=${cart.price}, data-real-item-id=${cart.itemId}">
                             <div class="item-select">
@@ -78,11 +84,20 @@
                                         <button class="qty-btn plus">+</button>
                                     </div>
 
-
                                     <div class="item-price">
                                         <span class="sale-price" th:text="${#numbers.formatInteger(cart.price * cart.count, 3, 'COMMA') + '원'}"></span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- 장바구니가 비어있을 때 -->
+                        <div class="empty-cart" th:if="${#lists.isEmpty(cartList)}">
+                            <div class="empty-cart-content">
+                                <div class="empty-cart-icon">🛒</div>
+                                <h3>장바구니가 비어있습니다</h3>
+                                <p>친환경 제품을 둘러보고 지구를 지키는 쇼핑을 시작해보세요!</p>
+                                <a th:href="@{/shop}" class="btn-primary">쇼핑하러 가기</a>
                             </div>
                         </div>
                     </div>
@@ -143,22 +158,114 @@
                         </form>
                     </div>
                 </div>
-
             </div>
         </div>
-        </div>
     </section>
-
-    <section class="recommended-products">
-        <div class="container">
-            <h2>🌱 함께 구매하면 좋은 상품</h2>
-        </div>
-    </section>
-</main>
 </main>
 
 <div th:replace="fragments/footer :: footer"></div>
 
-<script th:src="@{/js/cart-script.js}"></script>
+<!-- JavaScript 파일을 찾을 수 없는 경우를 대비한 기본 스크립트 -->
+<script th:src="@{/js/cart-script.js}" onerror="console.log('cart-script.js 파일을 찾을 수 없습니다.')"></script>
+
+<!-- 기본 기능을 위한 인라인 스크립트 -->
+<script>
+    function deleteSelected() {
+        alert('선택된 상품이 삭제됩니다.');
+    }
+
+    function addToWishlist() {
+        alert('관심상품에 추가됩니다.');
+    }
+
+    function goToMarket() {
+        window.location.href = '/shop';
+    }
+
+    function submitOrderForm() {
+        alert('주문 페이지로 이동합니다.');
+        document.getElementById('orderForm').submit();
+    }
+
+    // 수량 조절 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        // 전체선택 체크박스
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedCount();
+            });
+        }
+
+        // 개별 체크박스
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectedCount();
+            });
+        });
+
+        // 수량 조절 버튼
+        document.querySelectorAll('.qty-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('.qty-input');
+                const isPlus = this.classList.contains('plus');
+                let currentValue = parseInt(input.value) || 1;
+
+                if (isPlus) {
+                    const max = parseInt(input.getAttribute('max')) || 999;
+                    if (currentValue < max) {
+                        input.value = currentValue + 1;
+                    }
+                } else {
+                    if (currentValue > 1) {
+                        input.value = currentValue - 1;
+                    }
+                }
+
+                // 가격 업데이트
+                updateCartTotals();
+            });
+        });
+
+        // 초기 로딩시 총액 계산
+        updateCartTotals();
+    });
+
+    function updateSelectedCount() {
+        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+        const selectedCount = document.getElementById('selectedCount');
+        if (selectedCount) {
+            selectedCount.textContent = checkedItems.length;
+        }
+    }
+
+    function updateCartTotals() {
+        let subtotal = 0;
+        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+
+        checkedItems.forEach(checkbox => {
+            const cartItem = checkbox.closest('.cart-item');
+            const unitPrice = parseInt(cartItem.getAttribute('data-unit-price')) || 0;
+            const qtyInput = cartItem.querySelector('.qty-input');
+            const quantity = parseInt(qtyInput.value) || 1;
+
+            subtotal += unitPrice * quantity;
+        });
+
+        // 화면에 업데이트
+        const subtotalElement = document.getElementById('subtotal');
+        const totalElement = document.getElementById('total');
+        const pricetotalElement = document.getElementById('pricetotal');
+
+        if (subtotalElement) subtotalElement.textContent = subtotal.toLocaleString() + '원';
+        if (totalElement) totalElement.textContent = subtotal.toLocaleString() + '원';
+        if (pricetotalElement) pricetotalElement.textContent = subtotal.toLocaleString() + '원';
+    }
+</script>
 </body>
 </html>

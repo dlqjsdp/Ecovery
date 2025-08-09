@@ -33,11 +33,6 @@
                             <div class="result-image">
                                 <img id="resultImage" th:src="${disposalHistory.disposalImgUrl}" alt="분석된 이미지">
                             </div>
-                            <form id="reportForm" th:action="@{/feedback/report}" method="post" style="display: inline;" >
-                                <input type="hidden" name="disposalHistoryId" th:value="${disposalHistory.disposalHistoryId}" />
-                                <input type="hidden" name="memberId" th:value="${disposalHistory.memberId}" />
-                                <button type="button" class="btn-outline" onclick="submitReport()">사물 인식 오류 신고</button>
-                            </form>
 
                             <!-- 이미지 아래 예측 결과
                             <div class="confidence-text"
@@ -93,9 +88,16 @@
                                 <a class="btn-outline" th:href="@{${disposalHistory.reportUrl}}" target="_blank">
                                     폐기물 배출 신고
                                 </a>
-                                <a class="btn-primary" th:href="@{/disposal/disposalMain}">
-                                    새로운 분류 시작
-                                </a>
+
+                                <!-- 버튼들을 가로로 나란히 배치 -->
+                                <div class="image-action-buttons">
+                                    <form id="reportForm" th:action="@{/feedback/report}" method="post" style="display: inline;">
+                                        <input type="hidden" name="disposalHistoryId" th:value="${disposalHistory.disposalHistoryId}" />
+                                        <input type="hidden" name="memberId" th:value="${disposalHistory.memberId}" />
+                                        <button type="button" class="btn-outline btn-half" onclick="submitReport()">사물 인식 오류 신고</button>
+                                    </form>
+                                    <a class="btn-primary btn-half" th:href="@{/disposal/disposalMain}">새로운 분류 시작</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -145,9 +147,7 @@
                 console.error(e);
             }
         }
-
     </script>
-
 </th:block>
 
 </html>

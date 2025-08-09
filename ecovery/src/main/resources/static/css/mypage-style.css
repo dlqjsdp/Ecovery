@@ -1,6 +1,6 @@
 /* ==========================================================================
    GreenCycle 마이페이지 개선된 레이아웃 CSS
-   장바구니 아이콘 포함 버전
+   프로필 헤더 내용과 대시보드 섹션 너비 완전 정렬 버전
    ========================================================================== */
 
 /* CSS 변수 정의 */
@@ -17,10 +17,11 @@
     --warning-color: #ffc107;
     --danger-color: #dc3545;
     --info-color: #17a2b8;
+    --error-red: #e53935;
     --font-family: 'Noto Sans KR', sans-serif;
     --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
     --border-radius: 12px;
-    --container-max-width: 1400px;
+    --container-max-width: 1200px;
     --container-padding: 20px;
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.2s ease;
@@ -48,232 +49,6 @@ body {
     padding: 0 var(--container-padding);
 }
 
-/* 고정 헤더 스타일 */
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.95); /* 반투명 배경 */
-    backdrop-filter: blur(10px); /* 배경 블러 효과 */
-    z-index: 1000; /* 다른 요소 위에 표시 */
-    transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
-}
-
-/* 스크롤 시 헤더 스타일 변경 */
-.header.scrolled {
-    background: var(--white);
-    box-shadow: 0 2px 20px rgba(45, 90, 61, 0.1);
-}
-
-/* 네비게이션 바 */
-.navbar {
-    padding: 15px 0;
-}
-
-/* 네비게이션 컨테이너 */
-.nav-container {
-    max-width: var(--container-max-width);
-    margin: 0 auto;
-    padding: 0 var(--container-padding);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* 로고 스타일 */
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: var(--primary-green);
-}
-
-.logo-img {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-}
-
-.logo-text {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--primary-green);
-}
-
-.logo-icon {
-    font-size: 28px;
-}
-
-/* 네비게이션 메뉴 */
-.nav-menu {
-    display: flex;
-    list-style: none;
-    gap: 40px;
-    align-items: center;
-}
-
-/* 네비게이션 링크 */
-.nav-menu a {
-    text-decoration: none;
-    color: var(--dark-gray);
-    font-weight: 500;
-    transition: color 0.3s ease;
-    position: relative;
-}
-
-/* 활성 페이지 링크 */
-.nav-menu a.active {
-    color: var(--primary-green);
-}
-
-/* 링크 호버 효과 - 하단 밑줄 */
-.nav-menu a::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--primary-green);
-    transition: width 0.3s ease;
-}
-
-.nav-menu a:hover::after,
-.nav-menu a.active::after {
-    width: 100%;
-}
-
-/* 인증 버튼 컨테이너 */
-.auth-buttons {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-/* 로그인/회원가입 버튼 공통 스타일 */
-.btn-login, .btn-signup {
-    padding: 8px 20px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-block;
-    text-align: center;
-}
-
-/* 로그인 버튼 - 아웃라인 스타일 */
-.btn-login {
-    background: transparent;
-    color: var(--primary-green);
-    border: 2px solid var(--primary-green);
-}
-
-.btn-login:hover {
-    background: var(--primary-green);
-    color: var(--white);
-}
-
-/* 회원가입 버튼 - 채워진 스타일 */
-.btn-signup {
-    background: var(--primary-green);
-    color: var(--white);
-}
-
-.btn-signup:hover {
-    background: var(--dark-green);
-}
-
-/* 모바일 햄버거 메뉴 */
-.hamburger {
-    display: none; /* 기본적으로 숨김 */
-    flex-direction: column;
-    cursor: pointer;
-    gap: 4px;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: var(--primary-green);
-    transition: all 0.3s ease;
-}
-
-/* Footer Styles */
-.footer {
-    background: var(--dark-green);
-    color: var(--white);
-    padding: 60px 0 20px;
-}
-
-.footer-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 40px;
-}
-
-.footer-section h4 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--light-green);
-}
-
-.footer-section ul {
-    list-style: none;
-}
-
-.footer-section ul li {
-    margin-bottom: 12px;
-}
-
-.footer-section ul li a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-section ul li a:hover {
-    color: var(--light-green);
-}
-
-.footer-section p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-}
-
-.footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-links a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: var(--light-green);
-}
-
-
 /* ==========================================================================
    메인 콘텐츠
    ========================================================================== */
@@ -283,14 +58,17 @@ body {
 }
 
 /* ==========================================================================
-   프로필 헤더 섹션
+   프로필 헤더 섹션 - 대시보드와 동일한 너비로 축소
    ========================================================================== */
 .profile-header {
     background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
-    padding: 40px 0;
+    padding: 40px var(--container-padding);
     color: var(--white);
     position: relative;
     overflow: hidden;
+    max-width: var(--container-max-width); /* 헤더 자체를 1200px로 제한 */
+    margin: 0 auto; /* 중앙 정렬 */
+    border-radius: var(--border-radius); /* 둥근 모서리 추가 */
 }
 
 /* 프로필 헤더 배경 패턴 */
@@ -305,21 +83,34 @@ body {
     opacity: 0.3;
 }
 
+/* 프로필 헤더 컨테이너 */
+.profile-header .container {
+    max-width: 100%; /* 헤더 내에서 전체 너비 사용 */
+    margin: 0;
+    padding: 0;
+}
+
 .profile-banner {
     position: relative;
     z-index: 1;
+    width: 100%;
 }
 
 .profile-info {
     display: flex;
-    justify-content: left;
+    justify-content: flex-start;
     align-items: center;
+    width: 100%;
+}
+
+.profile-details {
+    width: 100%;
 }
 
 /* 사용자 이름과 편집 아이콘 컨테이너 */
 .user-name-container {
     display: flex;
-    align-items:normal;
+    align-items: center;
     gap: 15px;
     margin-bottom: 8px;
 }
@@ -332,8 +123,8 @@ body {
 
 /* 프로필 편집 아이콘 */
 .edit-profile-icon {
-    width: 20px;
-    height: 20px;
+    width: 35px;
+    height: 35px;
     border: none;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
@@ -348,7 +139,7 @@ body {
 
 .edit-profile-icon:hover {
     background: rgba(255, 255, 255, 0.3);
-    transform: none;
+    transform: scale(1.05);
 }
 
 .edit-icon {
@@ -359,99 +150,56 @@ body {
     font-size: 16px;
     opacity: 0.9;
     margin-bottom: 15px;
-    text-align: center;
+    text-align: left;
 }
 
 .join-info {
     font-size: 14px;
     opacity: 0.8;
-    text-align: center;
-}
-
-/* Success state */
-.form-success .auth-card {
-    border-color: var(--success-green);
-}
-
-.form-success .auth-card::before {
-    background: var(--success-green);
+    text-align: left;
 }
 
 /* ==========================================================================
-   Error 메시지 스타일 - 수정 및 덮어쓰기용
-   ========================================================================== */
-:root {
-    --error-red: #e53935;
-}
-
-/* 공통 유효성 메시지 스타일 */
-.validation-message {
-    color: var(--error-red);        /* 빨간색 적용 */
-    font-size: 0.875rem;
-    margin-top: 4px;
-    font-weight: 400;
-}
-
-/* 에러 메시지를 숨기는 클래스 정의 */
-.error-hidden {
-    display: none;
-}
-
-/* 각 비밀번호 관련 오류 클래스도 공통 스타일과 동일하게 정리 */
-.currentPasswordError,
-.newPasswordError,
-.confirmPasswordError {
-    color: var(--error-red);        /* 빨간색 */
-    font-size: 0.875rem;
-    margin-top: 4px;
-    font-weight: 400;
-    display: none;
-}
-
-.error-message {
-    color: var(--error-red);
-}
-
-/* ==========================================================================
-   대시보드 메인 섹션
+   대시보드 메인 섹션 - 프로필 헤더와 완전히 동일한 너비
    ========================================================================== */
 .dashboard-main {
     padding: 60px 0;
+}
+
+.dashboard-main .container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
 }
 
 /* 대시보드 그리드 레이아웃 */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
     gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
 }
 
 /* 그리드 아이템 배치 */
-.cart-quicklink {
-    grid-column: 1 / -1; /* 전체 너비 */
-}
-
 .purchase-history {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
 }
 
 .sharing-management {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 1;
 }
 
 .waste-history {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 2;
 }
 
 .points-history {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 2;
 }
 
 /* ==========================================================================
@@ -884,22 +632,6 @@ body {
     transform: translateY(-1px);
 }
 
-.btn-validate {
-    background: var(--info-color);
-    color: var(--white);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.btn-validate:hover {
-    background: #138496;
-    transform: translateY(-1px);
-}
-
 /* ==========================================================================
    모달창 스타일
    ========================================================================== */
@@ -1022,6 +754,34 @@ body {
 }
 
 /* ==========================================================================
+   Error 메시지 스타일
+   ========================================================================== */
+.validation-message {
+    color: var(--error-red);
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+.error-hidden {
+    display: none;
+}
+
+.currentPasswordError,
+.newPasswordError,
+.confirmPasswordError {
+    color: var(--error-red);
+    font-size: 0.875rem;
+    margin-top: 4px;
+    font-weight: 400;
+    display: none;
+}
+
+.error-message {
+    color: var(--error-red);
+}
+
+/* ==========================================================================
    애니메이션
    ========================================================================== */
 @keyframes fadeIn {
@@ -1045,26 +805,36 @@ body {
 }
 
 /* ==========================================================================
-   반응형 디자인
+   반응형 디자인 - 모든 화면에서 너비 일치 유지
    ========================================================================== */
 
 /* 태블릿 (768px - 1199px) */
 @media (max-width: 1199px) {
+    .profile-header {
+        max-width: 100%;
+        margin: 0 var(--container-padding);
+    }
+
+    .profile-header .container,
+    .dashboard-main .container {
+        max-width: 100%;
+        padding: 0 var(--container-padding);
+    }
+
+    .profile-banner {
+        max-width: 100%;
+    }
+
     .dashboard-grid {
         grid-template-columns: 1fr;
         gap: 20px;
     }
 
-    .cart-quicklink,
     .purchase-history,
     .sharing-management,
     .waste-history,
     .points-history {
         grid-column: 1;
-    }
-
-    .cart-preview {
-        justify-content: center;
     }
 
     .modal-content {
@@ -1074,6 +844,17 @@ body {
 
 /* 모바일 (767px 이하) */
 @media (max-width: 767px) {
+    .profile-header {
+        margin: 0 15px;
+        padding: 30px 15px;
+        border-radius: 8px;
+    }
+
+    .profile-header .container,
+    .dashboard-main .container {
+        padding: 0 15px;
+    }
+
     .dashboard-main {
         padding: 40px 0;
     }
@@ -1086,19 +867,16 @@ body {
         font-size: 24px;
     }
 
-    .edit-profile-icon {
-        width: 35px;
-        height: 35px;
-    }
-
-    .cart-preview {
+    .user-name-container {
         flex-direction: column;
+        align-items: flex-start;
         gap: 10px;
     }
 
-    .cart-item-preview {
-        width: 100%;
-        justify-content: center;
+    .edit-profile-icon {
+        width: 30px;
+        height: 30px;
+        align-self: flex-start;
     }
 
     .purchase-stats,
@@ -1136,12 +914,13 @@ body {
     }
 
     .profile-header {
-        padding: 30px 0;
+        margin: 0 15px;
+        padding: 25px 15px;
     }
 
-    .user-name-container {
-        flex-direction: column;
-        gap: 10px;
+    .profile-header .container,
+    .dashboard-main .container {
+        padding: 0 15px;
     }
 
     .dashboard-card {
@@ -1169,25 +948,13 @@ body {
 .dashboard-card:focus-within,
 .purchase-item:focus,
 .sharing-item:focus,
-.waste-item:focus,cart-quicklink
+.waste-item:focus,
 .points-item:focus {
     outline: 2px solid var(--accent-green);
     outline-offset: 2px;
 }
 
-/* 고대비 모드 지원 */
-@media (prefers-contrast: high) {
-    :root {
-        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
 
-    .dashboard-card,
-    .purchase-item,
-    .sharing-item,
-    .waste-item {
-        border: 2px solid var(--medium-gray);
-    }
-}
 
 /* 애니메이션 감소 모드 지원 */
 @media (prefers-reduced-motion: reduce) {
@@ -1197,426 +964,5 @@ body {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-    }
-}
-
-/* ==========================================================================
-   푸터 스타일
-   ========================================================================== */
-.footer {
-    background: var(--dark-green);
-    color: var(--white);
-    padding: 60px 0 20px;
-    margin-top: 80px;
-}
-
-.footer-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 40px;
-    margin-bottom: 40px;
-}
-
-.footer-section h4 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--light-green);
-}
-
-.footer-section ul {
-    list-style: none;
-}
-
-.footer-section ul li {
-    margin-bottom: 12px;
-}
-
-.footer-section ul li a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: color 0.3s ease;
-}
-
-.footer-section ul li a:hover {
-    color: var(--light-green);
-}
-
-.footer-section p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-}
-
-.footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-links a {
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-    color: var(--light-green);
-}
-
-/* ==========================================================================
-   애니메이션 및 효과
-   ========================================================================== */
-.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.6s ease;
-}
-
-.animate-on-scroll.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* 로딩 애니메이션 */
-@keyframes shimmer {
-    0% {
-        background-position: -468px 0;
-    }
-    100% {
-        background-position: 468px 0;
-    }
-}
-
-.shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 400% 100%;
-    animation: shimmer 1.5s infinite linear;
-}
-
-/* 스크롤 동작 */
-html {
-    scroll-behavior: smooth;
-}
-
-/* 선택 색상 */
-::selection {
-    background-color: rgba(45, 90, 61, 0.2);
-    color: var(--primary-green);
-}
-
-/* 포커스 상태 개선 */
-button:focus,
-input:focus,
-select:focus,
-.btn:focus {
-    outline: 2px solid var(--accent-green);
-    outline-offset: 2px;
-}
-
-/* ==========================================================================
-   반응형 디자인
-   ========================================================================== */
-
-/* 대형 화면 (1200px 이상) */
-@media (min-width: 1200px) {
-    .grid-1x2 {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .activity-list-horizontal {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .profile-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* 중형 화면 (768px - 1199px) */
-@media (max-width: 1199px) {
-    .grid-1x2 {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .activity-list-horizontal {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .profile-banner {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 30px;
-    }
-
-    .profile-stats {
-        grid-template-columns: repeat(4, 1fr);
-        justify-self: center;
-    }
-
-    .points-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
-/* 소형 화면 (480px - 767px) */
-@media (max-width: 767px) {
-    .hamburger {
-        display: flex;
-    }
-
-    .nav-menu {
-        position: fixed;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: var(--white);
-        flex-direction: column;
-        padding: 20px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        transform: translateY(-100%);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .nav-menu.active {
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
-    }
-
-    /* 모바일에서 장바구니 아이콘 크기 조정 */
-    .cart-icon {
-        width: 40px;
-        height: 40px;
-    }
-
-    .cart-symbol {
-        font-size: 18px;
-    }
-
-    .auth-buttons {
-        gap: 10px;
-    }
-
-    .profile-info {
-        flex-direction: column;
-        text-align: center;
-        gap: 20px;
-    }
-
-    .profile-details h1 {
-        font-size: 28px;
-    }
-
-    .profile-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .activity-list-horizontal {
-        grid-template-columns: 1fr;
-    }
-
-    .activity-item-horizontal {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-
-    .activity-content {
-        text-align: center;
-    }
-
-    .unified-card {
-        padding: 20px;
-    }
-
-    .section-title h2 {
-        font-size: 24px;
-    }
-
-    .footer-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-
-    .footer-bottom {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-
-    .settings-actions {
-        flex-direction: column;
-    }
-
-    .points-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .sharing-stats,
-    .purchase-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* 초소형 화면 (480px 이하) */
-@media (max-width: 480px) {
-    :root {
-        --container-padding: 15px;
-    }
-
-    .profile-header {
-        padding: 40px 0;
-    }
-
-    .profile-avatar img {
-        width: 100px;
-        height: 100px;
-    }
-
-    .profile-details h1 {
-        font-size: 24px;
-    }
-
-    .profile-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .section-title h2 {
-        font-size: 20px;
-    }
-
-    .dashboard-section {
-        margin-bottom: 60px;
-    }
-
-    .activity-item-horizontal {
-        padding: 15px;
-    }
-
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 18px;
-    }
-
-    .unified-card {
-        padding: 15px;
-    }
-
-    .card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .sharing-stats,
-    .purchase-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .achievement-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-
-    .achievement-progress {
-        width: 100%;
-    }
-
-    .sharing-item,
-    .purchase-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .purchase-info {
-        width: 100%;
-    }
-
-    .item-status,
-    .purchase-status {
-        align-self: flex-end;
-    }
-}
-
-/* ==========================================================================
-   접근성 개선
-   ========================================================================== */
-
-/* 키보드 네비게이션 지원 */
-.keyboard-navigation *:focus {
-    outline: 3px solid var(--accent-green);
-    outline-offset: 2px;
-}
-
-/* 고대비 모드 지원 */
-@media (prefers-contrast: high) {
-    :root {
-        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-
-    .unified-card {
-        border: 2px solid var(--medium-gray);
-    }
-
-    .activity-item-horizontal,
-    .sharing-item,
-    .purchase-item {
-        border: 2px solid var(--medium-gray);
-    }
-}
-
-/* 애니메이션 감소 모드 지원 */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-
-    .animate-on-scroll {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-/* 인쇄 스타일 */
-@media print {
-    .header,
-    .footer,
-    .btn,
-    .hamburger,
-    .cart-icon {
-        display: none;
-    }
-
-    .unified-card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
-    }
-
-    .dashboard-section {
-        margin-bottom: 40px;
-    }
-
-    .section-title h2 {
-        color: #000;
     }
 }
