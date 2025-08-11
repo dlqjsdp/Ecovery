@@ -142,6 +142,10 @@ document.addEventListener("DOMContentLoaded", async() => {
         const modal = document.getElementById("classificationModal");
         const optionsContainer = document.getElementById("classificationOptions");
 
+        // ✅ 제목에 AI 예측 결과 표시
+        document.getElementById("aiPredictionTitle").innerText =
+            `AI 예측 결과: ${category}`;
+
         // 기존 옵션 초기화
         optionsContainer.innerHTML = "";
 
