@@ -85,7 +85,7 @@
                                 <div class="product-menu" style="display: none;">
                                     <button class="menu-toggle" id="menuToggle">⋯</button>
                                     <div class="menu-dropdown" id="menuDropdown">
-                                        <button class="menu-item" id="editProduct" 
+                                        <button class="menu-item" id="editProduct"
                                                 sec:authorize="hasAnyAuthority('ROLE_ADMIN')"
                                                 th:data-item-id="${itemId}">수정하기</button>
                                     </div>
