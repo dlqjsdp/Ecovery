@@ -1139,13 +1139,13 @@ body {
 }
 
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(30px); 
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -1384,16 +1384,16 @@ body {
     :root {
         --content-max-width: 90%;
     }
-    
+
     .notice-navigation {
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .nav-item.next {
         text-align: left;
     }
-    
+
     .related-notices-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
@@ -1408,109 +1408,109 @@ body {
     .notice-detail-main {
         padding: 25px 20px;
     }
-    
+
     .breadcrumb {
         padding: 12px 15px;
         font-size: 13px;
     }
-    
+
     .notice-article-title {
         font-size: 24px;
         line-height: 1.3;
     }
-    
+
     .notice-article-meta {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
         padding: 15px;
     }
-    
+
     .author-info {
         gap: 10px;
     }
-    
+
     .author-avatar {
         width: 35px;
         height: 35px;
         font-size: 20px;
     }
-    
+
     .notice-info {
         align-items: flex-start;
         gap: 6px;
     }
-    
+
     .notice-info > div {
         font-size: 13px;
         flex-direction: column;
         align-items: flex-start;
         gap: 3px;
     }
-    
+
     .notice-actions-bottom {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .notice-action-btn {
         justify-content: center;
         padding: 12px 20px;
     }
-    
+
     .notice-navigation {
         padding: 20px 0;
         margin: 30px 0;
     }
-    
+
     .nav-item {
         padding: 15px;
     }
-    
+
     .nav-title {
         font-size: 13px;
     }
-    
+
     .related-notices-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .related-notice-item {
         padding: 15px;
     }
-    
+
     .comment-input-group {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .comment-input-group textarea {
         min-height: 70px;
     }
-    
+
     .comment-input-group button {
         align-self: stretch;
         margin-top: 10px;
     }
-    
+
     .attachments-list {
         gap: 8px;
     }
-    
+
     .attachment-link {
         padding: 12px 15px;
         gap: 10px;
     }
-    
+
     .attachment-name {
         font-size: 14px;
     }
-    
+
     .attachment-size {
         font-size: 11px;
     }
-    
+
     /* 스크롤 업 버튼 모바일 위치 조정 */
     .scroll-top-btn {
         bottom: 20px;
@@ -1519,47 +1519,47 @@ body {
         height: 45px;
         font-size: 16px;
     }
-    
+
     .share-modal {
         width: 95%;
     }
-    
+
     .share-modal-content {
         padding: 20px;
     }
-    
+
     .share-social-buttons {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     .share-url-container {
         flex-direction: column;
     }
-    
+
     /* 헤드섹션 모바일 최적화 */
     .head-section {
         padding: 40px 0;
     }
-    
+
     .head-title {
         font-size: 28px;
     }
-    
+
     .head-subtitle {
         font-size: 16px;
     }
-    
+
     .head-breadcrumb {
         flex-wrap: wrap;
         font-size: 13px;
     }
-    
+
     /* 관리자 액션 모바일 최적화 */
     .admin-actions-buttons {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .admin-btn {
         justify-content: center;
         padding: 12px 16px;
@@ -1572,24 +1572,24 @@ body {
     .notice-detail-main {
         padding: 20px 15px;
     }
-    
+
     .notice-article-title {
         font-size: 22px;
     }
-    
+
     .notice-article-content {
         font-size: 15px;
     }
-    
+
     .notice-article-content h3 {
         font-size: 18px;
     }
-    
+
     .breadcrumb {
         padding: 10px 12px;
         font-size: 12px;
     }
-    
+
     .back-btn {
         padding: 10px 16px;
         font-size: 13px;

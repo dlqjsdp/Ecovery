@@ -18,14 +18,14 @@
     --light-green: #a8d5b7;       /* 밝은 녹색 */
     --sage-green: #9eb3a0;        /* 세이지 녹색 */
     --dark-green: #1e3d2a;        /* 진한 녹색 */
-    
+
     /* 기본 컬러 */
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --medium-gray: #6c757d;
     --dark-gray: #343a40;
     --black: #212529;
-    
+
     /* 특별 기능 컬러 */
     --price-color: #2d5a3d;;        /* 가격 표시용 초록색 */
     --discount-color: #27ae60;     /* 할인 표시용 초록색 */
@@ -33,19 +33,19 @@
     --danger-color: #e74c3c;       /* 위험 색상 */
     --success-color: #27ae60;      /* 성공 색상 */
     --cart-color: #8e44ad;         /* 장바구니 색상 (보라색) */
-    
+
     /* 댓글 시스템 컬러 */
     --comment-bg: #f8f9fa;
     --comment-border: #e9ecef;
     --comment-reply-bg: #f1f3f4;
-    
+
     /* 레이아웃 및 디자인 설정 */
     --font-family: 'Noto Sans KR', sans-serif;
     --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
     --border-radius: 12px;
     --container-max-width: 1400px;
     --container-padding: 20px;
-    
+
     /* 애니메이션 속도 설정 */
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
@@ -632,14 +632,14 @@
     --light-green: #a8d5b7;       /* 밝은 녹색 */
     --sage-green: #9eb3a0;        /* 세이지 녹색 */
     --dark-green: #1e3d2a;        /* 진한 녹색 */
-    
+
     /* 기본 컬러 */
     --white: #ffffff;
     --light-gray: #f8f9fa;
     --medium-gray: #6c757d;
     --dark-gray: #343a40;
     --black: #212529;
-    
+
     /* 특별 기능 컬러 - 가격 색상 변경 */
     --price-color: #2d5a3d;        /* 가격 표시용 녹색 (변경됨) */
     --discount-color: #27ae60;     /* 할인 표시용 초록색 */
@@ -647,7 +647,7 @@
     --danger-color: #e74c3c;       /* 위험 색상 */
     --success-color: #27ae60;      /* 성공 색상 */
     --cart-color: #8e44ad;         /* 장바구ni 색상 (보라색) */
-    
+
     /* 나머지 변수들은 동일... */
 }
 
@@ -1323,11 +1323,11 @@
         grid-template-columns: 1fr;
         gap: 40px;
     }
-    
+
     .product-images {
         position: static;
     }
-    
+
     .main-image {
         height: 400px;
     }
@@ -1338,81 +1338,81 @@
     .product-container {
         padding: 0 15px;
     }
-    
+
     .product-breadcrumb {
         font-size: 12px;
         flex-wrap: wrap;
     }
-    
+
     .product-detail-section {
         padding: 20px 0;
     }
-    
+
     .product-title {
         font-size: 24px;
         padding-right: 40px;
     }
-    
+
     .current-price {
         font-size: 28px;
     }
-    
+
     .main-image {
         height: 300px;
         font-size: 80px;
     }
-    
+
     .action-buttons {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-    
+
     .related-products-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
-    
+
     .related-product-image {
         height: 120px;
         font-size: 32px;
     }
-    
+
     .related-product-info {
         padding: 15px;
     }
-    
+
     .related-product-title {
         font-size: 14px;
     }
-    
+
     .related-product-price {
         font-size: 16px;
     }
-    
+
     .modal-content {
         margin: 5%;
         width: 90%;
     }
-    
+
     .modal-header {
         padding: 15px 20px;
     }
-    
+
     .modal-body {
         padding: 20px;
     }
-    
+
     .modal-main-image {
         height: 50vh;
         font-size: 80px;
     }
-    
+
     /* 모바일에서 폼 레이아웃 조정 */
     .form-row {
         grid-template-columns: 1fr;
         gap: 10px;
     }
-    
+
     /* 모바일에서 에러 메시지 폰트 크기 조정 */
     #stockError {
         font-size: 12px;
@@ -1425,48 +1425,48 @@
     .product-container {
         padding: 0 15px;
     }
-    
+
     .product-title {
         font-size: 20px;
         padding-right: 35px;
     }
-    
+
     .menu-toggle {
         width: 32px;
         height: 32px;
         font-size: 18px;
     }
-    
+
     .current-price {
         font-size: 24px;
     }
-    
+
     .main-image {
         height: 250px;
         font-size: 60px;
     }
-    
+
     .thumbnail {
         width: 60px;
         height: 60px;
         font-size: 18px;
     }
-    
+
     .price-section,
     .stock-section,
     .transaction-section {
         padding: 20px;
     }
-    
+
     .related-products-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .related-product-image {
         height: 150px;
         font-size: 48px;
     }
-    
+
     /* 작은 모바일에서 에러 메시지 더 작게 */
     #stockError {
         font-size: 11px;
@@ -1484,24 +1484,24 @@
     .product-menu {
         display: none;
     }
-    
+
     .product-main-content {
         margin-top: 0;
     }
-    
+
     .product-detail-container {
         grid-template-columns: 1fr;
     }
-    
+
     .main-image {
         height: 300px;
         border: 1px solid #000;
     }
-    
+
     .thumbnail-container {
         display: none;
     }
-    
+
     * {
         background: white !important;
         color: black !important;
