@@ -15,6 +15,8 @@ GreenCycle 환경톡톡 게시글 수정 페이지
                           - env-modify.js 및 전역 설정 변수 연동 처리
     - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
     - 250802 | yukyeong | 본문 글자 수 제한 2000자 → 5000자로 확장
+    - 250811 | yukyeong | Sidebar 주석처리
+    - 250811 | yukyeong | 본문 이미지 업로드 시 최대 5장 제한 및 중복 제거 로직 적용
 -->
 
 <!DOCTYPE html>
@@ -121,27 +123,27 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 
                 </div>
 
-                <!-- Sidebar -->
-                <div class="write-sidebar fade-in">
-                    <!-- 작성 가이드 -->
-                    <div class="sidebar-card" th:if="${#authorization.expression('isAuthenticated()')}">
-                        <h3>👋 안녕하세요, <span th:text="${#authentication.principal.nickname}">사용자</span>님!</h3>
-                        <div class="user-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">작성한 글</span>
-                                <span class="stat-value" th:text="${userStats != null ? userStats.postCount : 0}">0</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">받은 좋아요</span>
-                                <span class="stat-value" th:text="${userStats != null ? userStats.likeCount : 0}">0</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">환경 포인트</span>
-                                <span class="stat-value" th:text="${userStats != null ? userStats.ecoPoints : 0}">0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!--                &lt;!&ndash; Sidebar &ndash;&gt;-->
+<!--                <div class="write-sidebar fade-in">-->
+<!--                    &lt;!&ndash; 작성 가이드 &ndash;&gt;-->
+<!--                    <div class="sidebar-card" th:if="${#authorization.expression('isAuthenticated()')}">-->
+<!--                        <h3>👋 안녕하세요, <span th:text="${#authentication.principal.nickname}">사용자</span>님!</h3>-->
+<!--                        <div class="user-stats">-->
+<!--                            <div class="stat-item">-->
+<!--                                <span class="stat-label">작성한 글</span>-->
+<!--                                <span class="stat-value" th:text="${userStats != null ? userStats.postCount : 0}">0</span>-->
+<!--                            </div>-->
+<!--                            <div class="stat-item">-->
+<!--                                <span class="stat-label">받은 좋아요</span>-->
+<!--                                <span class="stat-value" th:text="${userStats != null ? userStats.likeCount : 0}">0</span>-->
+<!--                            </div>-->
+<!--                            <div class="stat-item">-->
+<!--                                <span class="stat-label">환경 포인트</span>-->
+<!--                                <span class="stat-value" th:text="${userStats != null ? userStats.ecoPoints : 0}">0</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
             </div>
         </div>
@@ -196,6 +198,9 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 
     <!-- 타임리프 변수 및 에디터 설정 -->
     <script th:inline="javascript">
+
+        const MAX_CONTENT_IMAGES = 5;
+
         const envId = /*[[${env.envId}]]*/ 0;
         const envCategory = /*[[${env.category}]]*/ null;
         const initialContent = /*[[${env.content}]]*/ "";
@@ -248,6 +253,16 @@ GreenCycle 환경톡톡 게시글 수정 페이지
             hooks: {
                 addImageBlobHook: async (blob, callback) => {
                     try {
+
+                        // 현재 본문 내 <img> 개수 계산
+                        const html = editor.getHTML();
+                        const currentCount = (html.match(/<img\s/gi) || []).length;
+
+                        if (currentCount >= MAX_CONTENT_IMAGES) {
+                            alert(`본문 이미지는 최대 ${MAX_CONTENT_IMAGES}장까지 가능합니다.`);
+                            return; // 업로드 중단
+                        }
+
                         const formData = new FormData();
                         formData.append('file', blob);
 
@@ -255,6 +270,10 @@ GreenCycle 환경톡톡 게시글 수정 페이지
                             method: 'POST',
                             body: formData
                         });
+
+                        if (!res.ok) {
+                            throw new Error('이미지 업로드 실패');
+                        }
 
                         const result = await res.json();
                         const imageUrl = `/ecovery/env/${result.fileName}`;
