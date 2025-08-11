@@ -1,5 +1,5 @@
 /**
- * GreenCycle 환경톡톡 게시글 수정 스크립트
+ * 환경톡톡 게시글 수정 스크립트
  * - 기존 게시글의 제목, 내용, 카테고리, 이미지 등을 수정할 수 있음
  * - 등록 페이지와 구조 통일
  *
@@ -17,6 +17,11 @@
  *                       - 기존 vs 수정 후 이미지 목록 비교하여 삭제 대상 식별
  *                       - contentImgUrls와 함께 envFormDto로 전송하여 DB 반영 처리
  *  - 250805 | yukyeong | 삭제된 본문 이미지 식별 시 공백/대소문자 차이로 인해 삭제되지 않는 문제 해결 (normalize 함수 추가)
+ *   - 250811 | yukyeong | 본문 이미지 중복 제거 후 최대 5장 제한 기능 추가
+ *                        - 등록 페이지와 동일하게 submit 시 중복 제거 및 개수 제한 검증
+ *                        - MAX_CONTENT_IMAGES 초과 시 수정 중단
+ *
+ *
  */
 
 
@@ -123,24 +128,37 @@ async function submitModifiedPost() {
     };
 
     // ✅ (1) 수정 전/후 이미지 URL 목록 추출
+    //    - prevImgUrls : 원본 게시글에서 사용되던 이미지 URL 목록
+    //    - newImgUrls  : 수정 후 본문에서 사용된 이미지 URL 목록
     const prevImgUrls = extractImageUrlsFromHtml(window.initialContent || "");
     const newImgUrls = extractImageUrlsFromHtml(content);
 
-    // ✅ (2) 공백, 대소문자 차이 방지를 위한 정규화 함수
+    // ✅ (2) 공백/대소문자 차이를 없애기 위한 정규화 함수
+    //    - URL 비교 시 " https://img.com/a.jpg " vs "https://IMG.com/a.jpg" 같은 케이스를 동일하게 처리
     const normalize = (url) => url?.trim().toLowerCase();
 
+    // ✅ (3) 등록 페이지와 동일한 로직 적용: 본문 이미지 중복 제거
+    //    - 같은 이미지 URL이 여러 번 본문에 있어도 1개로만 인식
+    const contentImgUrls = [...new Set(newImgUrls)];
 
-    // ✅ (2) 삭제된 이미지 URL 식별
-    const deleteContentImgUrls = prevImgUrls
-        .map(normalize)
-        .filter(url => !newImgUrls.map(normalize).includes(url));
+    // ✅ (4) 제출 직전에 본문 이미지 개수 제한 (기본값: MAX_CONTENT_IMAGES)
+    //    - 제한 초과 시 사용자에게 알림 후 전송 중단
+    if (typeof MAX_CONTENT_IMAGES !== 'undefined' && contentImgUrls.length > MAX_CONTENT_IMAGES) {
+        alert(`본문 이미지는 최대 ${MAX_CONTENT_IMAGES}장까지 가능합니다.`);
+        return; // 수정 중단
+    }
+
+    // ✅ (5) 삭제된 이미지 URL 식별
+    //    - 기존에는 있었지만, 수정 후 본문에는 없는 이미지 URL만 추출
+    const deleteContentImgUrls = prevImgUrls.filter(url => !newImgUrls.includes(url));
 
     console.log("삭제될 본문 이미지 목록:", deleteContentImgUrls);
 
-    // ✅ (3) 본문에 남아 있는 이미지 리스트도 서버로 전송
-    const contentImgUrls = newImgUrls;
 
-    // ✅ (4) JSON 형태로 envFormDto 구성
+    // ✅ (6) 서버 전송용 envFormDto JSON 구성
+    //    - envDto : 수정된 게시글 기본 정보
+    //    - contentImgUrls : 수정 후 본문에 남아있는 이미지 URL 목록
+    //    - deleteContentImgUrls : 삭제해야 하는 이미지 URL 목록
     const envFormDtoJson = {
         envDto,
         contentImgUrls,

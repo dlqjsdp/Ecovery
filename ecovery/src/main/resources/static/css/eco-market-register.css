@@ -1,3 +1,8 @@
+/*
+ * @history
+ *  - 250811 | sehui | 페이지 헤더, 등록 폼 css 변경
+ */
+
 /* =========================
    초기화 및 기본 설정
    ========================= */
@@ -28,8 +33,7 @@
     --info-blue: #17a2b8;          /* 정보 파란색 */
 
     /* 크기 */
-    --container-width: 1400px;     /* 최대 컨테이너 너비 */
-    --form-width: 1400px;           /* 폼 최대 너비 */
+    --container-width: 1200px;     /* 최대 컨테이너 너비 */
     --border-radius: 12px;         /* 모서리 둥글기 */
     --box-shadow: 0 8px 32px rgba(45, 90, 61, 0.1); /* 그림자 */
 }
@@ -161,13 +165,13 @@ body {
    ========================= */
 
 .main-content {
-    padding-top: 60px;        /* 헤더 높이만큼 여백 (더 줄임) */
+    padding-top: 100px;       /* 헤더 높이만큼 여백 */
     min-height: 100vh;        /* 최소 화면 전체 높이 */
 }
 
 /* 현재 위치 표시 (빵부스러기) */
 .breadcrumb {
-    padding: 8px 0;           /* 기존 15px에서 더 줄임 */
+    padding: 20px 0;
     background: var(--white);
     border-bottom: 1px solid var(--light-gray);
 }
@@ -178,9 +182,6 @@ body {
     gap: 10px;
     font-size: 14px;
     color: var(--medium-gray);
-    max-width: var(--form-width);  /* 폼과 동일한 너비 */
-    margin: 0 auto;                /* 가운데 정렬 */
-    padding: 0 20px;               /* 좌우 패딩 */
 }
 
 .breadcrumb-nav a {
@@ -198,62 +199,78 @@ body {
 }
 
 /* =========================
+   개선된 페이지 헤더
+   ========================= */
+
+.page-header-enhanced {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    color: var(--white);
+    padding: 60px 0;          /* 패딩 증가 */
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.06)"/></svg>') repeat;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.header-title {
+    font-size: 52px;          /* 기존 48px에서 증가 */
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -1px;
+}
+
+.header-subtitle {
+    font-size: 22px;          /* 기존 20px에서 증가 */
+    opacity: 0.95;
+    max-width: 700px;         /* 기존 600px에서 증가 */
+    margin: 0 auto;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+/* =========================
    등록 폼
    ========================= */
 
 .registration-section {
-    padding: 0;               /* 패딩 제거하여 간격 없애기 */
+    padding: 60px 0;
+    background: var(--light-gray);
 }
 
 /* 폼 전체 컨테이너 */
 .form-container {
-    max-width: var(--form-width);
+    max-width: 1200px;
     margin: 0 auto;
     background: var(--white);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    overflow: hidden;          /* 모서리 둥글기 유지 */
+    overflow: hidden;
 }
 
-/* 폼 헤더 (기존 page-header + form-header 통합) */
-.form-header {
-    background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
-    color: var(--white);
-    padding: 30px 40px;        /* 패딩 줄임 */
-    text-align: center;
-}
-
-/* 메인 타이틀 */
-.form-title {
-    font-size: 28px;           /* 크기 줄임 */
-    font-weight: 700;
-    margin-bottom: 10px;       /* 간격 줄임 */
-}
-
-/* 메인 서브타이틀 */
-.form-subtitle {
-    opacity: 0.9;
-    font-size: 15px;           /* 크기 줄임 */
-    margin-bottom: 25px;       /* 간격 줄임 */
-}
-
-/* 섹션 타이틀 */
-.form-section-title {
-    font-size: 20px;           /* 크기 줄임 */
-    font-weight: 700;
-    margin-bottom: 6px;        /* 간격 줄임 */
-}
-
-/* 섹션 설명 */
-.form-description {
-    opacity: 0.9;
-    font-size: 13px;           /* 크기 줄임 */
-}
-
-/* 폼 내용 */
+/* 폼 내용 - 기존 form-header 스타일 제거하고 바로 폼 시작 */
 .form-body {
-    padding: 30px 40px;        /* 위쪽 패딩을 늘려서 헤더와 간격 두기 */
-    margin-top: 0;             /* 마진 제거 */
+    padding: 60px;
 }
 
 /* 각 입력 항목의 행 */
@@ -983,8 +1000,8 @@ body {
     }
 
     /* 제목 크기 줄임 */
-    .form-title {
-        font-size: 24px;
+    .page-title {
+        font-size: 28px;
     }
 
     /* 푸터를 세로로 배치 */
@@ -1031,17 +1048,17 @@ body {
     }
 
     /* 제목 더 작게 */
-    .form-title {
-        font-size: 20px;
+    .page-title {
+        font-size: 24px;
     }
 
     /* 폼 헤더 크기 줄임 */
-    .form-section-title {
-        font-size: 20px;
+    .form-header h2 {
+        font-size: 24px;
     }
 
-    .form-subtitle, .form-description {
-        font-size: 12px;
+    .form-header p {
+        font-size: 14px;
     }
 
     /* 버튼 크기 줄임 */
@@ -1135,7 +1152,7 @@ body {
 }
 
 /* 고대비 모드 지원 */
-@media (prefers-contrast: more) {
+@media (prefers-contrast: high) {
     :root {
         --primary-green: #1a4d2e;
         --accent-green: #2d5a3d;

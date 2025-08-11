@@ -1,3 +1,30 @@
+<!--
+환경톡톡 게시글 등록 페이지
+환경 관련 게시글을 작성할 수 있는 입력 폼, 에디터, 이미지 업로드, 이모지, 미리보기 등의 기능 제공
+사용자 정보 및 작성 통계는 사이드바에 표시됨
+@author : eunji
+@fileName : register.html
+@since : 250721
+@history
+    - 250721 | yukyeong | 단순 테스트용 글쓰기 폼 임시 작성
+    - 250730 | yukyeong | 정식 글쓰기 페이지 전면 개편:
+                          - 제목, 내용, 카테고리, 파일첨부 등 입력 UI 구성
+                          - 미리보기/이모지 모달 추가
+                          - 사이드바에 사용자 통계 표시
+                          - env-register.js와 연동하여 유효성 검사 및 등록 처리
+                          - 스크립트 설정값(maxFileSize, emoji, validationRules 등) 타임리프로 연동
+    - 250731 | yukyeong | Toast UI Editor 본문 입력 적용:
+                          - 기존 textarea → toastui.Editor로 교체
+                          - addImageBlobHook으로 이미지 본문 자동 삽입 처리
+                          - 작성 내용은 hiddenContent에 저장 후 전송
+                          - 기존 파일 첨부 영역 UI는 주석 처리됨
+    - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
+    - 250802 | yukyeong | 본문 글자 수 제한 2000자 → 5000자로 확장
+    - 250811 | yukyeong | 본문 이미지 업로드 개수 제한 기능 추가:
+                          - MAX_CONTENT_IMAGES 상수 도입(기본 5장)
+                          - addImageBlobHook에서 현재 본문 이미지 개수 확인 후 초과 시 업로드 차단
+
+-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -161,6 +188,9 @@
 
     <!-- 타임리프 변수 및 에디터 설정 -->
     <script th:inline="javascript">
+
+        const MAX_CONTENT_IMAGES = 5;
+
         var maxFileSize = /*[[${maxFileSize}]]*/ 10485760; // 10MB
         var maxFileCount = /*[[${maxFileCount}]]*/ 5;
         var fileUploadUrl = /*[[@{/api/env/upload-temp}]]*/ '/api/env/upload-temp';
@@ -203,15 +233,29 @@
             initialEditType: 'wysiwyg',
             previewStyle: 'vertical',
             hooks: {
+                // ✅ 업로드 '순간'에 개수 제한
                 addImageBlobHook: async (blob, callback) => {
                     try {
+                        // 현재 본문 내 이미지 개수 계산
+                        const html = editor.getHTML();
+                        const currentCount = (html.match(/<img\s/gi) || []).length;
+
+                        if (currentCount >= MAX_CONTENT_IMAGES) {
+                            alert(`본문 이미지는 최대 ${MAX_CONTENT_IMAGES}장까지 가능합니다.`);
+                            return; // 업로드 중단
+                        }
+
                         const formData = new FormData();
                         formData.append('file', blob);
 
                         const res = await fetch('/api/env/upload-temp', {
                             method: 'POST',
                             body: formData
-                        });
+                        })
+
+                        if (!res.ok) {
+                            throw new Error('이미지 업로드 실패');
+                        }
 
                         const result = await res.json();
                         const imageUrl = `/ecovery/env/${result.fileName}`;

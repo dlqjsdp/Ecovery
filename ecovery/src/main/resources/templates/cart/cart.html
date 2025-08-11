@@ -22,7 +22,13 @@
 <main id="mainContent">
     <section class="cart-header">
         <div class="container">
-
+            <div class="breadcrumb">
+                <a href="main.html">홈</a>
+                <span>></span>
+                <a href="#eco-market">에코마켓</a>
+                <span>></span>
+                <span class="current">장바구니</span>
+            </div>
             <h1>🛒 장바구니</h1>
             <p class="cart-subtitle">친환경 제품으로 지구를 지키는 쇼핑</p>
         </div>
@@ -47,7 +53,6 @@
                     </div>
 
                     <div class="cart-items-list" id="cartItemsList">
-                        <!-- 장바구니 아이템이 있을 때 -->
                         <div class="cart-item" th:each="cart : ${cartList}"
                              th:attr="data-item-id=${cart.cartItemId}, data-unit-price=${cart.price}, data-real-item-id=${cart.itemId}">
                             <div class="item-select">
@@ -78,20 +83,11 @@
                                         <button class="qty-btn plus">+</button>
                                     </div>
 
+
                                     <div class="item-price">
                                         <span class="sale-price" th:text="${#numbers.formatInteger(cart.price * cart.count, 3, 'COMMA') + '원'}"></span>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- 장바구니가 비어있을 때 -->
-                        <div class="empty-cart" th:if="${#lists.isEmpty(cartList)}">
-                            <div class="empty-cart-content">
-                                <div class="empty-cart-icon">🛒</div>
-                                <h3>장바구니가 비어있습니다</h3>
-                                <p>친환경 제품을 둘러보고 지구를 지키는 쇼핑을 시작해보세요!</p>
-                                <a th:href="@{/shop}" class="btn-primary">쇼핑하러 가기</a>
                             </div>
                         </div>
                     </div>
@@ -152,6 +148,7 @@
                         </form>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -159,11 +156,13 @@
 
 <div th:replace="fragments/footer :: footer"></div>
 
+<script th:src="@{/js/cart-script.js}"></script>
+
 <!-- JavaScript 파일을 찾을 수 없는 경우를 대비한 기본 스크립트 -->
-<script th:src="@{/js/cart-script.js}" onerror="console.log('cart-script.js 파일을 찾을 수 없습니다.')"></script>
+<!--<script th:src="@{/js/cart-script.js}" onerror="console.log('cart-script.js 파일을 찾을 수 없습니다.')"></script>-->
 
 <!-- 기본 기능을 위한 인라인 스크립트 -->
-<script>
+<!--<script>
     function deleteSelected() {
         alert('선택된 상품이 삭제됩니다.');
     }
@@ -260,6 +259,6 @@
         if (totalElement) totalElement.textContent = subtotal.toLocaleString() + '원';
         if (pricetotalElement) pricetotalElement.textContent = subtotal.toLocaleString() + '원';
     }
-</script>
+</script>-->
 </body>
 </html>
