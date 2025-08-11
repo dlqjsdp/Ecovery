@@ -1,5 +1,5 @@
 /**
- * GreenCycle 환경톡톡 게시글 등록 스크립트
+ * 환경톡톡 게시글 등록 스크립트
  * 게시글 등록 페이지에서 카테고리 로딩, 유효성 검사, 이미지 삽입, 미리보기 등
  * 다양한 작성 인터랙션 기능을 제공함
  *
@@ -21,6 +21,10 @@
  *   - 250801 | yukyeong | 본문 이미지 src 추출 기능 추가(getImageSrcListFromEditor)
  *                        - submitPost() 수정: contentImgUrls 필드로 본문 이미지 리스트 포함 전송
  *                        - 이미지 등록 시 DB 저장 누락되는 오류 수정 반영
+ *   - 250811 | yukyeong | 본문 이미지 개수 제한 기능 추가
+ *                         - MAX_CONTENT_IMAGES 상수 도입 (기본 5장)
+ *                         - getImageSrcListFromEditor()로 추출 후 Set을 이용해 중복 제거
+ *                         - submitPost()에서 개수 초과 시 등록 중단 처리
  */
 
 document.addEventListener("DOMContentLoaded", function () {
