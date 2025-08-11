@@ -143,8 +143,9 @@ document.addEventListener("DOMContentLoaded", async() => {
         const optionsContainer = document.getElementById("classificationOptions");
 
         // ✅ 제목에 AI 예측 결과 표시
-        document.getElementById("aiPredictionTitle").innerText =
-            `AI 예측 결과: ${category}`;
+        document.getElementById("aiPredictionTitle").innerHTML =
+            `<span style="font-size:22px;">🤖</span> AI 예측 결과: <span style="color:#ffeb3b;">${category}</span>`;
+
 
         // 기존 옵션 초기화
         optionsContainer.innerHTML = "";

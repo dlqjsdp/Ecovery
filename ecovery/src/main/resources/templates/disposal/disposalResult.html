@@ -44,14 +44,14 @@
                         <!-- 정보 -->
                         <div class="result-info">
                             <div class="waste-type">
-                                <h3 id="wasteType" th:text="${disposalHistory.finalItem}">책꽂이</h3>
+                                <!--<h3 id="wasteType" th:text="${disposalHistory.finalItem}">책꽂이</h3>-->
                                 <span class="waste-category" id="wasteCategory" th:text="${disposalHistory.aiPrediction}">small_item</span>
                             </div>
 
                             <div class="waste-details">
                                 <div class="detail-item">
-                                    <span class="detail-label">물품명:</span>
-                                    <span class="detail-value" id="itemName" th:text="${disposalHistory.itemName}">책꽂이</span>
+                                    <span class="detail-label">최종 분류 품목:</span>
+                                    <span class="detail-value" id="itemName" th:text="${disposalHistory.finalItem}">책꽂이</span>
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">지역:</span>
@@ -60,9 +60,11 @@
                                 <div class="detail-item">
                                     <span class="detail-label">예상 수수료:</span>
                                     <span class="detail-value" id="processingFee"
-                                          th:text="${disposalHistory.minPrice == disposalHistory.maxPrice} ?
-                                          ${disposalHistory.minPrice + '원'} :
-                                          ${disposalHistory.minPrice + '원 ~ ' + disposalHistory.maxPrice + '원'}">
+                                          th:text="${disposalHistory.minPrice == null and disposalHistory.maxPrice == null} ?
+                                        '자세한 정보는 각 자치구에 확인 바랍니다' :
+                                        (${disposalHistory.minPrice == disposalHistory.maxPrice} ?
+                                        ${disposalHistory.minPrice + '원'} :
+                                        ${disposalHistory.minPrice + '원 ~ ' + disposalHistory.maxPrice + '원'})">
                                         2000원 ~ 5000원
                                     </span>
                                 </div>

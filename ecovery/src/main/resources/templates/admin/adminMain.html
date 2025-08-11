@@ -72,7 +72,7 @@
 
             <!-- 활성 무료나눔 -->
             <div class="stat-card warning">
-                <div class="card-icon">🤝</div>
+                <div class="card-icon">⚠️</div>
                 <div class="card-title">분리배출 오인식</div>
                 <div class="card-value" th:data-count="${feedbackTotal ?: 0}" th:text="${dashboardStats?.activeSharingCount ?: 0}">0</div>
                 <div class="card-change">
@@ -113,6 +113,10 @@
                 <!-- 분리배출 통계 -->
                 <div class="mini-stats">
                     <div class="mini-stat">
+                        <span class="mini-stat-value" th:text="${disposalHistoryTotal ?: 23}">23</span>
+                        <span class="mini-stat-label">분리배출</span>
+                    </div>
+                    <div class="mini-stat">
                         <span class="mini-stat-value" th:text="${avgAiConfidence != null ? avgAiConfidence + '%' : '99.7%'}">99.7%</span>
                         <span class="mini-stat-label">정확도</span>
                     </div>
@@ -152,7 +156,7 @@
             <section class="management-section">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <span class="section-icon">🤝</span>
+                        <span class="section-icon">⚠️</span>
                         오류 내역
                     </h2>
                     <a th:href="@{/feedback/history}" class="btn btn-primary">바로가기</a>
