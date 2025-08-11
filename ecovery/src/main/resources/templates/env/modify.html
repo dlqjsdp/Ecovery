@@ -121,27 +121,27 @@ GreenCycle 환경톡톡 게시글 수정 페이지
 
                 </div>
 
-                <!-- Sidebar -->
-                <div class="write-sidebar fade-in">
-                    <!-- 작성 가이드 -->
-                    <div class="sidebar-card" th:if="${#authorization.expression('isAuthenticated()')}">
-                        <h3>👋 안녕하세요, <span th:text="${#authentication.principal.nickname}">사용자</span>님!</h3>
-                        <div class="user-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">작성한 글</span>
-                                <span class="stat-value" th:text="${userStats != null ? userStats.postCount : 0}">0</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">받은 좋아요</span>
-                                <span class="stat-value" th:text="${userStats != null ? userStats.likeCount : 0}">0</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">환경 포인트</span>
-                                <span class="stat-value" th:text="${userStats != null ? userStats.ecoPoints : 0}">0</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!--                &lt;!&ndash; Sidebar &ndash;&gt;-->
+<!--                <div class="write-sidebar fade-in">-->
+<!--                    &lt;!&ndash; 작성 가이드 &ndash;&gt;-->
+<!--                    <div class="sidebar-card" th:if="${#authorization.expression('isAuthenticated()')}">-->
+<!--                        <h3>👋 안녕하세요, <span th:text="${#authentication.principal.nickname}">사용자</span>님!</h3>-->
+<!--                        <div class="user-stats">-->
+<!--                            <div class="stat-item">-->
+<!--                                <span class="stat-label">작성한 글</span>-->
+<!--                                <span class="stat-value" th:text="${userStats != null ? userStats.postCount : 0}">0</span>-->
+<!--                            </div>-->
+<!--                            <div class="stat-item">-->
+<!--                                <span class="stat-label">받은 좋아요</span>-->
+<!--                                <span class="stat-value" th:text="${userStats != null ? userStats.likeCount : 0}">0</span>-->
+<!--                            </div>-->
+<!--                            <div class="stat-item">-->
+<!--                                <span class="stat-label">환경 포인트</span>-->
+<!--                                <span class="stat-value" th:text="${userStats != null ? userStats.ecoPoints : 0}">0</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
             </div>
         </div>

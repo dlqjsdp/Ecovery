@@ -176,7 +176,16 @@ function submitPost() {
     const title = document.getElementById("postTitle").value.trim();
     const content = editor.getHTML();
     const categoryId = document.getElementById("categorySelect").value;
-    const contentImgUrls = getImageSrcListFromEditor(); // ✅ 본문 이미지 추출
+
+
+    // ✅ 본문 이미지 추출 + 중복 제거
+    const contentImgUrls = [...new Set(getImageSrcListFromEditor())];
+
+    // ✅ 제출 시 최종 개수 제한
+    if (typeof MAX_CONTENT_IMAGES !== 'undefined' && contentImgUrls.length > MAX_CONTENT_IMAGES) {
+        alert(`본문 이미지는 최대 ${MAX_CONTENT_IMAGES}장까지 가능합니다.`);
+        return; // 등록 중단
+    }
 
     window.onbeforeunload = null;
 

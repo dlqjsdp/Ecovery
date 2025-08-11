@@ -1,3 +1,18 @@
+<!--
+환경톡톡 목록 페이지
+환경 커뮤니티 게시판의 글 목록을 보여주는 페이지
+Thymeleaf layout:decorate="~{layouts/layout1}"로 레이아웃을 구성하며,
+헤더, 푸터, 사이드바 포함 전체 게시글, 검색, 글쓰기 버튼, 페이징 등을 표시함
+@author : eunji
+@fileName : list.html
+@since : 250717
+@history
+    - 250718 | yukyeong | 환경톡톡 목록 페이지 일부 수정
+    - 250721 | yukyeong | 글작성 버튼 관리자만 보이게 설정, 글쓰기 버튼 누르면 게시글 등록 페이지로 이동
+    - 250722 | yukyeong | 비동기 게시글 목록/검색/페이징 기능 적용
+    - 250731 | yukyeong | 카테고리 탭 버튼에 'tab category-tab' 클래스 동시 적용 (CSS 유지 및 JS 이벤트 바인딩 분리 목적)
+    - 250808 | yukyeong | 에코마켓 이동 경로 수정
+-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
@@ -308,7 +323,7 @@
                     <a th:href="@{/disposal/disposalMain}" class="btn btn-secondary" style="width: 100%;">
                         📋 분리배출 가이드
                     </a>
-                    <a th:href="@{/templates/eco/list}" class="btn btn-secondary" style="width: 100%;">
+                    <a th:href="@{/eco/list}" class="btn btn-secondary" style="width: 100%;">
                         🛒 친환경 제품 보기
                     </a>
                     <a th:href="@{/free/list}" class="btn btn-secondary" style="width: 100%;">
