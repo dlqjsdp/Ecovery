@@ -20,6 +20,10 @@
                           - 기존 파일 첨부 영역 UI는 주석 처리됨
     - 250802 | yukyeong | 헤더와 페이지 헤더 간 간격 축소, 불필요한 <main> 태그 제거
     - 250802 | yukyeong | 본문 글자 수 제한 2000자 → 5000자로 확장
+    - 250811 | yukyeong | 본문 이미지 업로드 개수 제한 기능 추가:
+                          - MAX_CONTENT_IMAGES 상수 도입(기본 5장)
+                          - addImageBlobHook에서 현재 본문 이미지 개수 확인 후 초과 시 업로드 차단
+
 -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
