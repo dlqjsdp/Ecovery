@@ -179,7 +179,7 @@ public class EnvImgServiceImpl implements EnvImgService{
             return 0;
         }
 
-        // ✅ 여기 추가하세요!!
+        // 추가
         imgUrl = imgUrl.trim(); // 앞뒤 공백 제거
 
         log.info("deleteByImgUrl() 호출됨 - imgUrl: '{}'", imgUrl);

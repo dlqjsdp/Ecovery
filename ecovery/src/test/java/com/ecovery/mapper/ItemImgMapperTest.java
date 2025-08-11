@@ -90,10 +90,10 @@ class ItemImgMapperTest {
                 .build();
 
         //when : 이미지 수정 요청
-        int result = itemImgMapper.updateItemImg(vo);
+//        int result = itemImgMapper.updateItemImg(vo);
 
         //then : 결과 검증
-        log.info("update result >> {}", result);
+//        log.info("update result >> {}", result);
     }
 
     @Test

@@ -100,8 +100,8 @@ class FreeReplyServiceTest {
         assertNotNull(reply, "댓글이 존재해야 합니다.");
         assertEquals(replyId, reply.getReplyId(), "조회된 댓글 ID가 일치해야 합니다.");
 
-        log.info("댓글 ID: {}, 작성자: {}, 내용: {}, 작성 시간: {}",
-                reply.getReplyId(), reply.getNickName(), reply.getContent(), reply.getCreatedAt());
+//        log.info("댓글 ID: {}, 작성자: {}, 내용: {}, 작성 시간: {}",
+//                reply.getReplyId(), reply.getNickName(), reply.getContent(), reply.getCreatedAt());
     }
 
     @Test
