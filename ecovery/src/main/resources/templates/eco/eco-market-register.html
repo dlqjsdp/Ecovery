@@ -1,11 +1,12 @@
 <!--
-    에코마켓 상품 상세 페이지
+    에코마켓 상품 등록 페이지
     @author : sehui
-    @fileName : eco-market-detail.html
-    @since : 250809
+    @fileName : eco-market-register.html
+    @since : 250730
     @history
-     - 250809 | sehui | 관리자 수정/삭제 기능 추가
-     - 250809 | sehui | 레이아웃 구조 변경 (왼쪽 이미지, 오른쪽 정보)
+     - 250730 | sehui | 에코마켓 상품 등록 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250730 | sehui | 재고수량 HTML 추가
+     - 250811 | sehui | 폼 헤더를 페이지 헤더로 변경, <main> 태그 삭제
 -->
 
 <!DOCTYPE html>
@@ -14,11 +15,11 @@
       layout:decorate="~{layouts/layout1}">
 
 <head th:with="pageTitle='에코마켓'">
-    <title>에코마켓 상품 상세</title>
+    <title>에코마켓 상품 등록</title>
 
     <!-- 추가 css -->
     <th:block layout:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/eco-market-detail.css}">
+        <link rel="stylesheet" th:href="@{/css/eco-market-register.css}">
     </th:block>
 
 </head>
@@ -27,244 +28,217 @@
 <!-- 본문 fragment -->
 <div layout:fragment="content">
 
-    <!-- 메인 내용 -->
-    <main class="main-content">
-        <!-- 현재 위치 표시 (빵부스러기) -->
-        <section class="breadcrumb">
-            <div class="container">
-                <nav class="breadcrumb-nav">
-                    <a th:href="@{/}">🏠</a>
-                    <span>></span>
-                    <a th:href="@{/eco/list}">에코마켓</a>
-                    <span>></span>
-                    <span class="current">상품 상세</span>
-                </nav>
+    <!-- 현재 위치 표시 (빵부스러기) -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a th:href="@{/}">🏠</a>
+                <span>></span>
+                <a th:href="@{/eco/list}">에코마켓</a>
+                <span>></span>
+                <span class="current">상품 등록</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- 페이지 헤더 (기존 폼 헤더를 상단으로 이동) -->
+    <section class="page-header-enhanced">
+        <div class="container">
+            <div class="header-content">
+                <h2 class="header-title">상품 정보 등록하기</h2>
+                <p class="header-subtitle">정확하고 자세한 정보를 입력하면 더 많은 구매자에게 어필할 수 있어요</p>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- 상품 상세 내용 -->
-        <section class="product-detail-section">
-            <div class="container">
-                <div class="product-detail-container">
+    <!-- 등록 폼 -->
+    <section class="registration-section">
+        <div class="container">
+            <!-- 폼 컨테이너 -->
+            <div class="form-container">
+                <!-- 폼 헤더 -->
+<!--                    <div class="form-header">-->
+<!--                        <h2>상품 정보 등록하기</h2>-->
+<!--                        <p>정확하고 자세한 정보를 입력하면 더 많은 구매자에게 어필할 수 있어요</p>-->
+<!--                    </div>-->
 
-                    <!-- 왼쪽: 상품 이미지 영역 -->
-                    <div class="product-images">
-                        <div class="main-image">
-                            <img src="/images/sample-product.jpg" alt="상품 이미지" id="mainImage">
+                <!-- 실제 폼 -->
+                <form class="form-body" id="registrationForm" enctype="multipart/form-data">
+
+                    <!-- 상품명 입력 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">상품명 <span class="required">*</span></label>
                         </div>
-                        <div class="thumbnail-images">
-                            <img src="/images/sample-product.jpg" alt="썸네일 1" class="thumbnail active">
-                            <img src="/images/sample-product2.jpg" alt="썸네일 2" class="thumbnail">
-                            <img src="/images/sample-product3.jpg" alt="썸네일 3" class="thumbnail">
+                        <div class="form-input-section">
+                            <input type="text"
+                                   class="form-input"
+                                   name="title"
+                                   id="productName"
+                                   placeholder="상품명을 입력해주세요"
+                                   required>
+
+                            <!-- JS에서 동적으로 채우는 오류 메시지 -->
+                            <div class="error-message" id="productNameError"></div>
+                        </div>
+                    </div>
+
+                    <!-- 등록일 (자동 입력) -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">등록일</label>
+                        </div>
+                        <div class="form-input-section">
+                            <input type="text"
+                                   class="form-input"
+                                   id="regDate"
+                                   name="regDate"
+                                   readonly>
                         </div>
                     </div>
 
-                    <!-- 오른쪽: 상품 정보 영역 -->
-                    <div class="product-info">
-                        <!-- 상품 기본 정보 -->
-                        <div class="product-header">
-                            <h1 class="product-title">친환경 대나무 텀블러</h1>
-                            <div class="product-meta">
-                                <span class="category-badge">친환경용품</span>
-                                <span class="product-id">#ECO-2024-001</span>
-                            </div>
+                    <!-- 카테고리 선택 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">카테고리 <span class="required">*</span></label>
                         </div>
-
-                        <!-- 가격 정보 -->
-                        <div class="price-section">
-                            <div class="price-info">
-                                <span class="current-price">25,000원</span>
-                                <span class="original-price">30,000원</span>
-                                <span class="discount-rate">17% 할인</span>
-                            </div>
+                        <div class="form-input-section">
+                            <select class="form-select" name="categoryId" id="category" required>
+                                <!-- JS로 동적으로 옵션 추가 예정 -->
+                            </select>
+                            <div class="error-message" id="categoryError"></div>
                         </div>
+                    </div>
 
-                        <!-- 상품 상세 정보 -->
-                        <div class="product-details">
-                            <div class="detail-item">
-                                <span class="detail-label">재고 수량</span>
-                                <span class="detail-value">15개</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">판매 상태</span>
-                                <span class="detail-value status-available">판매중</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">등록일</span>
-                                <span class="detail-value">2024.08.01</span>
-                            </div>
+                    <!-- 상품 판매 상태 선택 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">판매 상태 <span class="required">*</span></label>
                         </div>
+                        <div class="form-input-section">
+                            <select class="form-select" name="condition" id="condition" required>
+                                <option value="">판매 상태를 선택해주세요</option>
+                                <option value="SELL">판매중</option>
+                                <option value="SOLD_OUT">품절</option>
+                            </select>
 
-                        <!-- 수량 선택 -->
-                        <div class="quantity-section">
-                            <div class="quantity-selector">
-                                <label for="quantity">수량</label>
-                                <div class="quantity-controls">
-                                    <button type="button" class="quantity-btn" id="decreaseBtn">-</button>
-                                    <input type="number" id="quantity" value="1" min="1" max="15">
-                                    <button type="button" class="quantity-btn" id="increaseBtn">+</button>
+                            <div class="error-message" id="saleStatusError"></div>
+                            <div class="help-text">현재 상품의 판매 상태를 정확히 선택해주세요.</div>
+
+                            <!-- 판매 상태 미리보기 (JavaScript로 제어) -->
+                            <div class="condition-preview" id="conditionPreview"></div>
+                        </div>
+                    </div>
+
+                    <!-- 가격 정보 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">가격정보 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <div class="price-group">
+                                <div class="price-input-wrapper">
+                                    <input type="number"
+                                           class="form-input price-input"
+                                           name="price"
+                                           id="price"
+                                           placeholder="0"
+                                           min="1000"
+                                           required>
+                                    <span class="currency">원</span>
                                 </div>
                             </div>
+                            <div class="error-message" id="priceError"></div>
+                            <div class="help-text">최소 1,000원 이상부터 등록 가능합니다.</div>
+                            <!-- 가격 분석 (JavaScript로 제어) -->
+                            <div class="price-analysis" id="priceAnalysis"></div>
+                        </div>
+                    </div>
 
-                            <div class="total-price">
-                                <span class="total-label">총 결제금액</span>
-                                <span class="total-amount">25,000원</span>
+                    <!-- 재고 수량 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">재고 수량 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <div class="stock-group">
+                                <div class="stock-input-wrapper">
+                                    <input type="number"
+                                           class="form-input stock-input"
+                                           name="stockNumber"
+                                           id="stockNumber"
+                                           placeholder="0"
+                                           min="1"
+                                           required>
+                                    <span class="currency">개</span>
+                                </div>
                             </div>
+                            <div class="error-message" id="stockError"></div>
+                            <div class="help-text">최소 1개 이상부터 등록 가능합니다.</div>
+                            <!-- 가격 분석 (JavaScript로 제어) -->
+                            <div class="stock-analysis" id="stockAnalysis"></div>
                         </div>
+                    </div>
 
-                        <!-- 장바구니/구매 버튼 -->
-                        <div class="purchase-buttons">
-                            <button class="btn btn-cart">장바구니</button>
-                            <button class="btn btn-buy">바로 구매</button>
+                    <!-- 상품 설명 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">상품설명 <span class="required">*</span></label>
                         </div>
+                        <div class="form-input-section">
+                                <textarea class="form-input form-textarea"
+                                          name="description"
+                                          id="description"
+                                          placeholder="상품에 대한 자세한 설명을 적어주세요"
+                                          required></textarea>
+                            <div class="error-message" id="descriptionError"></div>
+                            <div class="help-text">고객이 쉽게 이해할 수 있도록 상품 정보를 구체적으로 적어 주세요.</div>
+                            <!-- 글자수 카운터는 JS에서 추가됨 -->
+                        </div>
+                    </div>
 
-                        <!-- 관리자 수정/삭제 버튼 영역 -->
-                        <div class="admin-actions" th:if="${isAdmin}">
-                            <div class="admin-buttons">
-                                <button class="btn btn-edit" onclick="editProduct()">
-                                    <span class="btn-icon">✏️</span>
-                                    수정
-                                </button>
-                                <button class="btn btn-delete" onclick="deleteProduct()">
-                                    <span class="btn-icon">🗑️</span>
-                                    삭제
-                                </button>
+                    <!-- 사진 업로드 -->
+                    <div class="form-row">
+                        <div class="form-label-section">
+                            <label class="form-label">상품사진 <span class="required">*</span></label>
+                        </div>
+                        <div class="form-input-section">
+                            <!-- 사진 업로드 영역 -->
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">상품 사진을 업로드하거나 여기를 클릭하세요</div>
+                                <div class="upload-hint">최대 5개까지 업로드 가능 (JPG, PNG) - 첫 번째 사진이 대표 이미지가 됩니다</div>
                             </div>
-                        </div>
+                            <!-- 실제 파일 입력 -->
+                            <input type="file" name="itemImgFile[]" id="imageInput" multiple accept="image/*" style="display: none;">
 
-                        <!-- 공유하기 섹션 -->
-                        <div class="share-section">
-                            <h4>공유하기</h4>
-                            <div class="share-buttons">
-                                <button class="share-btn kakao" onclick="shareKakao()">
-                                    <span>💬</span>
-                                    카카오톡
-                                </button>
-                                <button class="share-btn facebook" onclick="shareFacebook()">
-                                    <span>📘</span>
-                                    페이스북
-                                </button>
-                                <button class="share-btn twitter" onclick="shareTwitter()">
-                                    <span>🐦</span>
-                                    트위터
-                                </button>
-                                <button class="share-btn link" onclick="copyLink()">
-                                    <span>🔗</span>
-                                    링크복사
-                                </button>
+                            <!-- 에러 메시지 -->
+                            <div class="error-message" id="imagesError"></div>
+
+                            <!-- 업로드된 사진 미리보기 (JavaScript로 제어) -->
+                            <div class="image-preview" id="imagePreview"></div>
+
+                            <div class="help-text">
+                                💡 <strong>이미지 등록 안내:</strong> 고객이 상품을 정확히 이해할 수 있도록, 선명하고 다양한 각도의 이미지를 등록해 주세요.
+                                대표 이미지가 첫 번째 사진으로 설정되며, 이미지가 많을수록 상품 신뢰도가 올라갑니다!
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
 
-                <!-- 상품 설명 (전체 너비) -->
-                <div class="product-description-full">
-                    <h3>상품 설명</h3>
-                    <div class="description-content">
-                        <p>100% 천연 대나무로 제작된 친환경 텀블러입니다.
-                            일회용 컵 사용을 줄이고 환경을 보호하는 지속가능한 제품입니다.
-                            가볍고 내구성이 뛰어나며, 세련된 디자인으로 일상에서 편리하게 사용할 수 있습니다.</p>
-
-                        <div class="description-images">
-                            <img src="/images/product-detail-1.jpg" alt="상세 이미지 1">
-                            <img src="/images/product-detail-2.jpg" alt="상세 이미지 2">
-                        </div>
-
-                        <h4>제품 특징</h4>
-                        <ul>
-                            <li>100% 천연 대나무 소재</li>
-                            <li>친환경 인증 제품</li>
-                            <li>보온 보냉 기능</li>
-                            <li>350ml 용량</li>
-                            <li>가벼운 무게 (150g)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 상품 상세 정보 탭 -->
-        <section class="product-tabs-section">
-            <div class="container">
-                <div class="tabs-container">
-                    <div class="tab-buttons">
-                        <button class="tab-btn active" data-tab="reviews">리뷰</button>
-                        <button class="tab-btn" data-tab="qna">문의</button>
-                        <button class="tab-btn" data-tab="delivery">배송정보</button>
-                    </div>
-
-                    <div class="tab-content">
-                        <div class="tab-panel active" id="reviews">
-                            <div class="reviews-content">
-                                <h3>고객 리뷰</h3>
-                                <div class="review-item">
-                                    <div class="review-header">
-                                        <span class="reviewer">김환경</span>
-                                        <span class="rating">⭐⭐⭐⭐⭐</span>
-                                        <span class="review-date">2024.08.05</span>
-                                    </div>
-                                    <p>정말 만족스러운 제품이에요! 디자인도 예쁘고 실용적입니다.</p>
-                                </div>
-                                <div class="review-item">
-                                    <div class="review-header">
-                                        <span class="reviewer">박지구</span>
-                                        <span class="rating">⭐⭐⭐⭐⭐</span>
-                                        <span class="review-date">2024.08.03</span>
-                                    </div>
-                                    <p>대나무 소재라서 가볍고 친환경적이에요. 매일 사용하고 있습니다.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-panel" id="qna">
-                            <div class="qna-content">
-                                <h3>상품 문의</h3>
-                                <div class="qna-item">
-                                    <div class="question">
-                                        <span class="q-label">Q</span>
-                                        <span class="questioner">구매고민</span>
-                                        <span class="q-date">2024.08.03</span>
-                                        <p>용량이 얼마나 되나요?</p>
-                                    </div>
-                                    <div class="answer">
-                                        <span class="a-label">A</span>
-                                        <span class="answerer">판매자</span>
-                                        <span class="a-date">2024.08.03</span>
-                                        <p>350ml 용량입니다. 일반 텀블러와 비슷한 크기예요!</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tab-panel" id="delivery">
-                            <div class="delivery-content">
-                                <h3>배송 정보</h3>
-                                <div class="delivery-info">
-                                    <div class="info-item">
-                                        <span class="info-label">배송비</span>
-                                        <span class="info-value">3,000원 (50,000원 이상 무료배송)</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">배송 기간</span>
-                                        <span class="info-value">주문 후 2-3일 내 배송</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">배송 지역</span>
-                                        <span class="info-value">전국 배송 가능</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- 폼 버튼들 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelBtn">취소</button>
+                    <button type="submit" class="btn btn-submit" form="registrationForm">상품 등록</button>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 </div>
 
 <!-- 추가 JS -->
 <th:block layout:fragment="script">
-    <script th:src="@{/js/eco-market-detail.js}"></script>
+    <script th:src="@{/js/eco-market-register.js}"></script>
 </th:block>
 
 </body>
