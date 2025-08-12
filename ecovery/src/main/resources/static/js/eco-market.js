@@ -8,6 +8,7 @@
  *  - 250805 | sehui | 에코마켓 목록 페이지에서 사용하지 않는 기능 삭제
  *  - 250805 | sehui | 에코마켓 목록 한 페이지당 상품 개수 10개 -> 12개로 변경
  *  - 250808 | sehui | 페이드인 효과 및 검색창 개선 기능 추가
+ *  - 250812 | sehui | 검색 필터 이벤트에서 검색어 지울 경우 전체 목록 렌더링 기능 추가
  */
 
 /* ==========================================================================
@@ -122,7 +123,7 @@ function renderItemList(itemList) {
     }
 
     //상품이 존재하는 경우
-    itemList.forEach(product => {
+    itemList.forEach((product) => {
         const productCard = document.createElement('div');
         productCard.classList.add('product-card');
 
@@ -297,6 +298,19 @@ function setupFilterForm(){
 
         loadItems(1, itemNm, category);      //1페이지부터 검색 조건 반영
     });
+    
+    //검색어 지워지면 자동으로 전체 목록 로드
+    const searchInput = document.getElementById("searchInput");
+
+    if(searchInput) {
+        searchInput.addEventListener("input", function() {
+           const keyword = searchInput.value.trim();
+
+           if(keyword === "") {
+               loadItems(1);
+           }
+        });
+    }
 }
 
 /* ==========================================================================

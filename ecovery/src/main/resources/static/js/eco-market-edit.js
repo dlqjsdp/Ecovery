@@ -2,6 +2,7 @@
 // @history
 //  - 250801 | sehui | DTO 필드명과 컨트롤러에 맞게 key, 타입 수정 적용
 //  - 250802 | gemini | 이미지 삭제 기능 및 유효성 검사 로직 재정비
+//  - 250812 | sehui | 이미지 미리보기 클래스명 변경
 // =========================
 
 // =========================
@@ -92,7 +93,7 @@ function renderAllImages() {
     existingImages.forEach(imgDto => {
         const isDeleted = deletedImageIds.includes(String(imgDto.itemImgId));
         const div = document.createElement('div');
-        div.className = 'preview-item existing-image-item';
+        div.className = 'preview-item';
         div.style.opacity = isDeleted ? '0.5' : '1';
         div.dataset.id = imgDto.itemImgId;
 
@@ -101,7 +102,7 @@ function renderAllImages() {
 
         div.innerHTML = `
             <img src="${imgDto.imgUrl}" alt="등록된 이미지" class="preview-image" style="width:100px; height:auto;">
-            <button type="button" class="btn-delete-existing" data-id="${imgDto.itemImgId}" style="margin-left:5px; cursor:pointer;" ${buttonDisabled}>
+            <button type="button" class="remove-image" data-id="${imgDto.itemImgId}" style="margin-left:5px; cursor:pointer;" ${buttonDisabled}>
                 ${buttonText}
             </button>
         `;
@@ -128,7 +129,7 @@ function renderAllImages() {
     });
 
     // 삭제 버튼 클릭 이벤트 재등록 (기존 이미지 삭제)
-    previewContainer.querySelectorAll('.btn-delete-existing').forEach(btn => {
+    previewContainer.querySelectorAll('.remove-image').forEach(btn => {
         btn.addEventListener('click', () => {
             const id = btn.getAttribute('data-id');
             if (!deletedImageIds.includes(String(id))) {
