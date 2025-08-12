@@ -1,3 +1,10 @@
+<!--
+    에코마켓 수정 페이지
+    @fileName : eco-market-edit.html
+    @history
+     - 250812 | sehui | 상품 이미지 미리보기 <div> 위치 변경
+-->
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -160,13 +167,13 @@
                                 <label class="form-label" for="imageInput">상품사진 <span class="required">*</span></label>
                             </div>
                             <div class="form-input-section">
-                                <div class="image-preview" id="imagePreview"></div>
                                 <div class="image-upload-area" id="imageUploadArea">
                                     <div class="upload-icon">📷</div>
                                     <div class="upload-text">상품 사진을 업로드하거나 여기를 클릭하세요</div>
                                     <div class="upload-hint">최대 5개까지 업로드 가능 (JPG, PNG) - 첫 번째 사진이 대표 이미지가 됩니다</div>
                                 </div>
                                 <input type="file" name="itemImgFile" id="imageInput" multiple accept="image/*" style="display: none;">
+                                <div class="image-preview" id="imagePreview"></div>
                                 <div class="error-message" id="imagesError"></div>
                                 <div class="help-text">
                                     💡 <strong>이미지 등록 안내:</strong> 고객이 상품을 정확히 이해할 수 있도록, 선명하고 다양한 각도의 이미지를 등록해 주세요.<br>
